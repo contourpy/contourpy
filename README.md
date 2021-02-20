@@ -1,2 +1,8 @@
-# contourpy
-Python library for calculating contours in 2D arrays
+# ContourPy
+Python library for calculating contours of 2D quadrilateral grids.
+
+Work in progress...
+
+Will include current and previous Matplotlib contouring algorithms, plus a new
+faster and more flexible one.  Intention is to allow Python libraries to use
+contouring algorithms without having to have Matplotlib as a dependency.
