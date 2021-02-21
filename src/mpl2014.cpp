@@ -382,6 +382,9 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(const CoordinateArray& x,
             throw std::invalid_argument("If mask is set it must be a 2D array with the same shape as z");
     }
 
+    if (chunk_size < 0)
+        throw std::invalid_argument("chunk_size cannot be negative");
+
     init_cache_grid(mask);
 }
 
@@ -502,7 +505,56 @@ long Mpl2014ContourGenerator::calc_chunk_count(long point_count) const
         return 1;
 }
 
-py::list Mpl2014ContourGenerator::create_contour(const double& level)
+py::tuple Mpl2014ContourGenerator::contour_filled(
+    const double& lower_level, const double& upper_level)
+{
+    if (lower_level > upper_level)
+        throw std::invalid_argument("upper and lower levels are the wrong way round");
+
+    init_cache_levels(lower_level, upper_level);
+
+    Contour contour;
+
+    py::list vertices, codes;
+
+    long ichunk, jchunk, istart, iend, jstart, jend;
+    for (long ijchunk = 0; ijchunk < _chunk_count; ++ijchunk) {
+        get_chunk_limits(ijchunk, ichunk, jchunk, istart, iend, jstart, jend);
+        _parent_cache.set_chunk_starts(istart, jstart);
+
+        for (long j = jstart; j < jend; ++j) {
+            long quad_end = iend + j*_nx;
+            for (long quad = istart + j*_nx; quad < quad_end; ++quad) {
+                if (!EXISTS_NONE(quad))
+                    single_quad_filled(contour, quad, lower_level, upper_level);
+            }
+        }
+
+        // Clear VISITED_W and VISITED_S flags that are reused by later chunks.
+        if (jchunk < _nychunk-1) {
+            long quad_end = iend + jend*_nx;
+            for (long quad = istart + jend*_nx; quad < quad_end; ++quad)
+                _cache[quad] &= ~MASK_VISITED_S;
+        }
+
+        if (ichunk < _nxchunk-1) {
+            long quad_end = iend + jend*_nx;
+            for (long quad = iend + jstart*_nx; quad < quad_end; quad += _nx)
+                _cache[quad] &= ~MASK_VISITED_W;
+        }
+
+        // Create python objects to return for this chunk.
+        append_contour_to_vertices_and_codes(contour, vertices, codes);
+    }
+
+    py::tuple tuple(2);
+    tuple[0] = vertices;
+    tuple[1] = codes;
+
+    return tuple;
+}
+
+py::list Mpl2014ContourGenerator::contour_lines(const double& level)
 {
     init_cache_levels(level, level);
 
@@ -587,55 +639,6 @@ py::list Mpl2014ContourGenerator::create_contour(const double& level)
     }
 
     return vertices_list;
-}
-
-py::tuple Mpl2014ContourGenerator::create_filled_contour(
-    const double& lower_level, const double& upper_level)
-{
-    if (lower_level > upper_level)
-        throw std::invalid_argument("upper and lower levels are the wrong way round");
-
-    init_cache_levels(lower_level, upper_level);
-
-    Contour contour;
-
-    py::list vertices, codes;
-
-    long ichunk, jchunk, istart, iend, jstart, jend;
-    for (long ijchunk = 0; ijchunk < _chunk_count; ++ijchunk) {
-        get_chunk_limits(ijchunk, ichunk, jchunk, istart, iend, jstart, jend);
-        _parent_cache.set_chunk_starts(istart, jstart);
-
-        for (long j = jstart; j < jend; ++j) {
-            long quad_end = iend + j*_nx;
-            for (long quad = istart + j*_nx; quad < quad_end; ++quad) {
-                if (!EXISTS_NONE(quad))
-                    single_quad_filled(contour, quad, lower_level, upper_level);
-            }
-        }
-
-        // Clear VISITED_W and VISITED_S flags that are reused by later chunks.
-        if (jchunk < _nychunk-1) {
-            long quad_end = iend + jend*_nx;
-            for (long quad = istart + jend*_nx; quad < quad_end; ++quad)
-                _cache[quad] &= ~MASK_VISITED_S;
-        }
-
-        if (ichunk < _nxchunk-1) {
-            long quad_end = iend + jend*_nx;
-            for (long quad = iend + jstart*_nx; quad < quad_end; quad += _nx)
-                _cache[quad] &= ~MASK_VISITED_W;
-        }
-
-        // Create python objects to return for this chunk.
-        append_contour_to_vertices_and_codes(contour, vertices, codes);
-    }
-
-    py::tuple tuple(2);
-    tuple[0] = vertices;
-    tuple[1] = codes;
-
-    return tuple;
 }
 
 XY Mpl2014ContourGenerator::edge_interp(const QuadEdge& quad_edge,
