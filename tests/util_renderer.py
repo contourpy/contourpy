@@ -4,6 +4,7 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
+import numpy as np
 
 
 class Renderer:
@@ -25,9 +26,14 @@ class Renderer:
             patch = mpatches.PathPatch(path, facecolor=color, lw=0, alpha=alpha)
             self.ax.add_patch(patch)
 
-    def add_lines(self, lines, color='C0', alpha=0.7):
+    def add_lines(self, lines, color='C0', alpha=1.0):
         for line in lines:
-            self.ax.plot(line[:, 0], line[:, 1], c=color, alpha=alpha, lw=2)
+            # Drawing as Paths so that they can be closed correctly.
+            closed = np.array_equal(line[0], line[-1])
+            path = mpath.Path(line, closed=closed)
+            patch = mpatches.PathPatch(path, facecolor='none', lw=1, ec=color,
+                                       alpha=alpha, capstyle='round')
+            self.ax.add_patch(patch)
 
     def save(self, filename):
         self.fig.savefig(filename)
