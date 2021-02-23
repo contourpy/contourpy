@@ -2,9 +2,6 @@ from _contourpy import Mpl2014ContourGenerator
 import numpy as np
 
 
-import sys
-
-
 def contour_generator(x, y, z, corner_mask=True, chunk_size=0):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
