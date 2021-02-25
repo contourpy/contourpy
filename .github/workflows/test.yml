@@ -4,15 +4,16 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ${{ matrix.python-version }} on ${{ matrix.os }}
+    name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
-      strategy:
-        fail-fast: false
-        matrix:
-          os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-          python-version: ["3.7", "3.8"]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        python-version: ["3.7", "3.8"]
 
-      steps:
+    steps:
       - name: Checkout source
         uses: actions/checkout@v2
         with:
@@ -30,8 +31,10 @@ jobs:
           python -mpip list
 
       - name: Install
+        run: |
           python -mpip install --no-deps -e .
 
       - name: Run tests
+        run: |
           python -mpytest
 
