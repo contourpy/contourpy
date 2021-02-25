@@ -3,3 +3,4 @@ build/
 dist/
 contourpy.egg-info/
 result_images/
+.pytest_cache/
