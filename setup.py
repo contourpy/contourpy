@@ -21,11 +21,15 @@ if want_debug:
     undef_macros.append('NDEBUG')
 
 _contourpy = Pybind11Extension(
-    '_contourpy',
+    'contourpy._contourpy',
     sources=sources,
     define_macros=define_macros,
     undef_macros=undef_macros,
 )
+
+
+def read_requirements(filename):
+    return open(filename).read().strip().split('\n')
 
 
 setup(
@@ -36,8 +40,11 @@ setup(
     author='Ian Thomas',
     author_email='ianthomas23@gmail.com',
     license='BSD',
+    package_dir={'': 'lib'},
     packages=['contourpy'],
     ext_modules=[_contourpy],
     cmdclass={'build_ext': build_ext},
-    zip_safe=False
+    zip_safe=False,
+    python_requires='>=3.7',
+    install_requires=read_requirements('requirements/install.txt'),
 )

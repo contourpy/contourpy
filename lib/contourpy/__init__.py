@@ -1,4 +1,4 @@
-from _contourpy import Mpl2014ContourGenerator
+from ._contourpy import Mpl2014ContourGenerator
 import numpy as np
 
 
