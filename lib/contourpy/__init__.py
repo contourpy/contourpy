@@ -1,4 +1,5 @@
 from ._contourpy import Mpl2014ContourGenerator
+from ._mpl2005 import Cntr as Mpl2005ContourGenerator
 import numpy as np
 
 
@@ -29,7 +30,11 @@ def contour_generator(x, y, z, corner_mask=True, chunk_size=0):
     if mask is not None and mask.shape != z.shape:
         raise ValueError('If mask is set it must be a 2D array with the same shape as z')
 
-    cont_gen = Mpl2014ContourGenerator(x, y, z, mask, corner_mask=corner_mask,
-                                       chunk_size=chunk_size)
+#    cont_gen = Mpl2014ContourGenerator(x, y, z, mask, corner_mask=corner_mask,
+#                                       chunk_size=chunk_size)
+
+    # No corner mask here...
+    #cont_gen = Mpl2005ContourGenerator(x, y, z, mask, chunk_size=chunk_size)
+    cont_gen = Mpl2005ContourGenerator(x, y, z, mask)
 
     return cont_gen

@@ -3,14 +3,10 @@ from pybind11.setup_helpers import Pybind11Extension, build_ext
 
 
 want_debug = False
+want_mpl2005 = True
+
 
 __version__ = '0.0.1'
-
-
-sources = [
-    'src/mpl2014.cpp',
-    'src/wrap.cpp',
-]
 
 
 define_macros = []
@@ -22,10 +18,36 @@ if want_debug:
 
 _contourpy = Pybind11Extension(
     'contourpy._contourpy',
-    sources=sources,
+    sources=[
+        'src/mpl2014.cpp',
+        'src/wrap.cpp',
+    ],
     define_macros=define_macros,
     undef_macros=undef_macros,
 )
+
+ext_modules=[_contourpy]
+
+
+if want_mpl2005:
+    # Using original C code and Python/C API wrapper.
+    # numpy is in pyproject.toml rather than requirements/install.txt for this.
+    import numpy as np
+    from setuptools import Extension
+
+    _mpl2005 = Extension(
+        'contourpy._mpl2005',
+        sources=['src/mpl2005.c'],
+        undef_macros=undef_macros,
+        include_dirs=[np.get_include()],
+        define_macros=define_macros + [
+            ('PY_ARRAY_UNIQUE_SYMBOL', 'CNTR_ARRAY_API'),
+            ('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION'),
+            ('__STDC_FORMAT_MACROS', 1),
+        ],
+    )
+    ext_modules.append(_mpl2005)
+
 
 
 def read_requirements(filename):
@@ -42,7 +64,7 @@ setup(
     license='BSD',
     package_dir={'': 'lib'},
     packages=['contourpy'],
-    ext_modules=[_contourpy],
+    ext_modules=ext_modules,
     cmdclass={'build_ext': build_ext},
     zip_safe=False,
     python_requires='>=3.7',

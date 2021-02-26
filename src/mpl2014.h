@@ -217,7 +217,6 @@ public:
     const ContourLine* get_parent() const;
     ContourLine* get_parent();
     bool is_hole() const;
-    void push_back(const XY& point);
     void set_parent(ContourLine* parent);
     void write() const;
 
@@ -337,9 +336,10 @@ private:
     // Return number of chunks that fit in the specified point_count.
     long calc_chunk_count(long point_count) const;
 
-    // Return the point on the specified QuadEdge that intersects the specified
-    // level.
-    XY edge_interp(const QuadEdge& quad_edge, const double& level);
+    // Append the point on the specified QuadEdge that intersects the specified
+    // level to the specified ContourLine.
+    void edge_interp(const QuadEdge& quad_edge, const double& level,
+                     ContourLine& contour_line);
 
     // Follow a contour along a boundary, appending points to the ContourLine
     // as it progresses.  Only called for filled contours.  Stops when the
@@ -415,8 +415,12 @@ private:
     // and direction to move in.
     Edge get_exit_edge(const QuadEdge& quad_edge, Dir dir) const;
 
-    // Return the (x,y) coordinates of the specified point index.
-    XY get_point_xy(long point) const;
+    const double& get_point_x(long point) const;
+    const double& get_point_y(long point) const;
+
+    // Append the (x,y) coordinates of the specified point index to the
+    // specified ContourLine.
+    void get_point_xy(long point, ContourLine& contour_line) const;
 
     // Return the z-value of the specified point index.
     const double& get_point_z(long point) const;
@@ -442,9 +446,10 @@ private:
     void init_cache_levels(const double& lower_level,
                            const double& upper_level);
 
-    // Return the (x,y) point at which the level intersects the line connecting
-    // the two specified point indices.
-    XY interp(long point1, long point2, const double& level) const;
+    // Append the (x,y) point at which the level intersects the line connecting
+    // the two specified point indices to the specified ContourLine.
+    void interp(long point1, long point2, const double& level,
+                ContourLine& contour_line) const;
 
     // Return true if the specified QuadEdge is a boundary, i.e. is either an
     // edge between a masked and non-masked quad/corner or is a chunk boundary.

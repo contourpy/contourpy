@@ -216,12 +216,6 @@ bool ContourLine::is_hole() const
     return _is_hole;
 }
 
-void ContourLine::push_back(const XY& point)
-{
-    if (empty() || point != back())
-        std::vector<XY>::push_back(point);
-}
-
 void ContourLine::set_parent(ContourLine* parent)
 {
     assert(_is_hole && "Cannot set parent of a non-hole");
@@ -641,15 +635,16 @@ py::list Mpl2014ContourGenerator::contour_lines(const double& level)
     return vertices_list;
 }
 
-XY Mpl2014ContourGenerator::edge_interp(const QuadEdge& quad_edge,
-                                        const double& level)
+void Mpl2014ContourGenerator::edge_interp(const QuadEdge& quad_edge,
+                                          const double& level,
+                                          ContourLine& contour_line)
 {
     assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
            "Quad index out of bounds");
     assert(quad_edge.edge != Edge_None && "Invalid edge");
-    return interp(get_edge_point_index(quad_edge, true),
-                  get_edge_point_index(quad_edge, false),
-                  level);
+    interp(get_edge_point_index(quad_edge, true),
+           get_edge_point_index(quad_edge, false),
+           level, contour_line);
 }
 
 unsigned int Mpl2014ContourGenerator::follow_boundary(
@@ -744,9 +739,9 @@ unsigned int Mpl2014ContourGenerator::follow_boundary(
 
         if (stop) {
             // Exiting boundary to enter interior.
-            contour_line.push_back(edge_interp(quad_edge,
-                                               level_index == 1 ? lower_level
-                                                                : upper_level));
+            edge_interp(quad_edge,
+                        level_index == 1 ? lower_level : upper_level,
+                        contour_line);
             break;
         }
 
@@ -774,7 +769,7 @@ unsigned int Mpl2014ContourGenerator::follow_boundary(
         }
 
         // Add point to contour.
-        contour_line.push_back(get_point_xy(end_point));
+        get_point_xy(end_point, contour_line);
 
         if (first_edge)
             first_edge = false;
@@ -810,7 +805,7 @@ void Mpl2014ContourGenerator::follow_interior(
     Edge& edge = quad_edge.edge;
 
     if (want_initial_point)
-        contour_line.push_back(edge_interp(quad_edge, level));
+        edge_interp(quad_edge, level, contour_line);
 
     CacheItem visited_mask = (level_index == 1 ? MASK_VISITED_1 : MASK_VISITED_2);
     CacheItem saddle_mask = (level_index == 1 ? MASK_SADDLE_1 : MASK_SADDLE_2);
@@ -930,7 +925,7 @@ void Mpl2014ContourGenerator::follow_interior(
         }
 
         // Add new point to contour line.
-        contour_line.push_back(edge_interp(quad_edge, level));
+        edge_interp(quad_edge, level, contour_line);
 
         // Stop if reached boundary.
         if (is_edge_a_boundary(quad_edge))
@@ -1123,10 +1118,23 @@ Edge Mpl2014ContourGenerator::get_exit_edge(const QuadEdge& quad_edge,
     }
 }
 
-XY Mpl2014ContourGenerator::get_point_xy(long point) const
+const double& Mpl2014ContourGenerator::get_point_x(long point) const
 {
     assert(point >= 0 && point < _n && "Point index out of bounds.");
-    return XY(_x.data()[point], _y.data()[point]);
+    return _x.data()[point];
+}
+
+const double& Mpl2014ContourGenerator::get_point_y(long point) const
+{
+    assert(point >= 0 && point < _n && "Point index out of bounds.");
+    return _y.data()[point];
+}
+
+void Mpl2014ContourGenerator::get_point_xy(long point,
+                                           ContourLine& contour_line) const
+{
+    assert(point >= 0 && point < _n && "Point index out of bounds.");
+    contour_line.emplace_back(_x.data()[point], _y.data()[point]);
 }
 
 const double& Mpl2014ContourGenerator::get_point_z(long point) const
@@ -1329,15 +1337,19 @@ void Mpl2014ContourGenerator::init_cache_levels(const double& lower_level,
    }
 }
 
-XY Mpl2014ContourGenerator::interp(
-    long point1, long point2, const double& level) const
+void Mpl2014ContourGenerator::interp(long point1,
+                                     long point2,
+                                     const double& level,
+                                     ContourLine& contour_line) const
 {
     assert(point1 >= 0 && point1 < _n && "Point index 1 out of bounds.");
     assert(point2 >= 0 && point2 < _n && "Point index 2 out of bounds.");
     assert(point1 != point2 && "Identical points");
     double fraction = (get_point_z(point2) - level) /
                           (get_point_z(point2) - get_point_z(point1));
-    return get_point_xy(point1)*fraction + get_point_xy(point2)*(1.0 - fraction);
+    contour_line.emplace_back(
+        get_point_x(point1)*fraction + get_point_x(point2)*(1.0 - fraction),
+        get_point_y(point1)*fraction + get_point_y(point2)*(1.0 - fraction));
 }
 
 bool Mpl2014ContourGenerator::is_edge_a_boundary(
