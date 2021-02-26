@@ -3,7 +3,7 @@ from ._mpl2005 import Cntr as Mpl2005ContourGenerator
 import numpy as np
 
 
-def contour_generator(x, y, z, corner_mask=True, chunk_size=0):
+def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.
@@ -30,11 +30,21 @@ def contour_generator(x, y, z, corner_mask=True, chunk_size=0):
     if mask is not None and mask.shape != z.shape:
         raise ValueError('If mask is set it must be a 2D array with the same shape as z')
 
-#    cont_gen = Mpl2014ContourGenerator(x, y, z, mask, corner_mask=corner_mask,
-#                                       chunk_size=chunk_size)
+    # Default name.
+    if name is None:
+        name = 'mpl2014'
 
-    # No corner mask here...
-    #cont_gen = Mpl2005ContourGenerator(x, y, z, mask, chunk_size=chunk_size)
-    cont_gen = Mpl2005ContourGenerator(x, y, z, mask)
+    if name == 'mpl2014':
+        if corner_mask is None:
+            corner_mask = True
+        cont_gen = Mpl2014ContourGenerator(
+            x, y, z, mask, corner_mask=corner_mask, chunk_size=chunk_size)
+    elif name == 'mpl2005':
+        if corner_mask:
+            raise ValueError('mpl2005 contour generator does not support corner_mask=True')
+        cont_gen = Mpl2005ContourGenerator(
+            x, y, z, mask, chunk_size=chunk_size)
+    else:
+        raise ValueError(f'Unrecognised contour generator name: {name}')
 
     return cont_gen

@@ -205,6 +205,8 @@ struct Csite
     const double *x, *y, *z;    /* mesh coordinates and function values */
     double *xcp, *ycp;          /* output contour points */
     short *kcp;                 /* kind of contour point */
+
+    long nchunk;
 };
 
 void print_Csite(Csite *Csite)
@@ -305,7 +307,7 @@ static int slit_cutter (Csite * site, int up, int pass2);
 static long curve_tracer (Csite * site, int pass2);
 
 /* this initializes the data array for curve_tracer */
-static void data_init (Csite * site, long nchunk);
+static void data_init (Csite * site);
 
 /* ------------------------------------------------------------------------ */
 
@@ -1002,7 +1004,7 @@ curve_tracer (Csite * site, int pass2)
 /* ------------------------------------------------------------------------ */
 
 static void
-data_init (Csite * site, long nchunk)
+data_init (Csite * site)
 {
     Cdata * data = site->data;
     long imax = site->imax;
@@ -1020,6 +1022,7 @@ data_init (Csite * site, long nchunk)
     long icsize = imax - 1;
     long jcsize = jmax - 1;
     long ichunk, jchunk, irem, jrem, i, j, ij;
+    long nchunk = site->nchunk;
 
     if (nchunk && two_levels)
     {
@@ -1293,7 +1296,7 @@ cntr_new(void)
 
 static int
 cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
-                double *z, char *mask)
+                double *z, char *mask, long nchunk)
 {
     long ijmax = iMax * jMax;
     long nreg = iMax * jMax + iMax + 1;
@@ -1333,6 +1336,9 @@ cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
     site->xcp = NULL;
     site->ycp = NULL;
     site->kcp = NULL;
+
+    site->nchunk = nchunk;
+
     return 0;
 }
 
@@ -1347,9 +1353,10 @@ void cntr_del(Csite *site)
 
 #define MOVETO 1
 #define LINETO 2
+#define CLOSEPOLY 79
 
 int reorder(double *xpp, double *ypp, short *kpp,
-                    double *xy, unsigned char *c, int npts)
+            double *xy, unsigned char *c, int npts)
 {
     int *i0;
     int *i1;
@@ -1361,7 +1368,6 @@ int reorder(double *xpp, double *ypp, short *kpp,
     int k;
     int started;
     int maxnsegs = npts/2 + 1;
-
     /* allocate maximum possible size--gross overkill */
     i0 = (int *)malloc(maxnsegs * sizeof(int));
     i1 = (int *)malloc(maxnsegs * sizeof(int));
@@ -1393,7 +1399,6 @@ int reorder(double *xpp, double *ypp, short *kpp,
     }
 
     nsegs = iseg;
-
 
     /* Find the subpaths as sets of connected segments. */
 
@@ -1427,7 +1432,6 @@ int reorder(double *xpp, double *ypp, short *kpp,
                 xend = xpp[i1[isegplus]];
                 yend = ypp[i1[isegplus]];
             }
-
         }
     }
 
@@ -1464,6 +1468,7 @@ int reorder(double *xpp, double *ypp, short *kpp,
                 }
             }
         }
+        c[k-1] = CLOSEPOLY;
     }
 
     ending:
@@ -1479,19 +1484,35 @@ int reorder(double *xpp, double *ypp, short *kpp,
 */
 static PyObject *
 build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
-                                            int nparts, long ntotal)
+                   int nparts, long ntotal, int nlevels)
 {
-    PyObject *all_contours;
+    PyObject *all_verts = NULL;
+    PyObject *all_codes = NULL;
+    PyObject *tuple = NULL;
     PyArrayObject *xyv = NULL;
     PyArrayObject *kv = NULL;
     npy_intp dims[2];
     npy_intp kdims[1];
     int i;
     long k;
-
     PyArray_Dims newshape;
 
-    all_contours = PyList_New(nparts*2);
+    all_verts = PyList_New(nparts);
+    if (all_verts == NULL)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to create verts list");
+        goto error;
+    }
+
+    if (nlevels == 2)
+    {
+        all_codes = PyList_New(nparts);
+        if (all_codes == NULL)
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Failed to create codes list");
+            goto error;
+        }
+    }
 
     for (i=0, k=0; i < nparts; k+= np[i], i++)
     {
@@ -1500,39 +1521,87 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
         short *kpp = kp+k;
         int n;
 
-
         dims[0] = np[i];
         dims[1] = 2;
         kdims[0] = np[i];
         xyv = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_DOUBLE);
-        if (xyv == NULL)  goto error;
+        if (xyv == NULL)
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Failed to create array xyv");
+            goto error;
+        }
+
         kv = (PyArrayObject *) PyArray_SimpleNew(1, kdims, NPY_UBYTE);
-        if (kv == NULL) goto error;
+        if (kv == NULL)
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Failed to create array kv");
+            goto error;
+        }
 
         n = reorder(xpp, ypp, kpp,
-                        (double *) PyArray_DATA(xyv),
-                        (unsigned char *) PyArray_DATA(kv),
-                        np[i]);
-        if (n == -1) goto error;
+                    (double *) PyArray_DATA(xyv),
+                    (unsigned char *) PyArray_DATA(kv),
+                    np[i]);
+        if (n == -1)
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Error reordering vertices");
+            goto error;
+        }
         newshape.len = 2;
         dims[0] = n;
         newshape.ptr = dims;
-        if (PyArray_Resize(xyv, &newshape, 1, NPY_CORDER) == NULL) goto error;
+        if (PyArray_Resize(xyv, &newshape, 1, NPY_CORDER) == NULL)
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Error resizing array xyv");
+            goto error;
+        }
+        if (PyList_SetItem(all_verts, i, (PyObject *)xyv))
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Error adding to verts list");
+            goto error;
+        }
 
-        newshape.len = 1;  /* ptr, dims can stay the same */
-        if (PyArray_Resize(kv, &newshape, 1, NPY_CORDER) == NULL) goto error;
-
-
-        if (PyList_SetItem(all_contours, i, (PyObject *)xyv)) goto error;
-        if (PyList_SetItem(all_contours, nparts+i,
-                                (PyObject *)kv)) goto error;
+        if (nlevels == 2)
+        {
+            newshape.len = 1;  /* ptr, dims can stay the same */
+            if (PyArray_Resize(kv, &newshape, 1, NPY_CORDER) == NULL)
+            {
+                PyErr_SetString(PyExc_RuntimeError, "Error resizing array kv");
+                goto error;
+            }
+            if (PyList_SetItem(all_codes, i, (PyObject *)kv))
+            {
+                PyErr_SetString(PyExc_RuntimeError, "Error adding to codes list");
+                goto error;
+            }
+        }
     }
-    return all_contours;
+
+    if (nlevels == 2)
+    {
+        tuple = PyTuple_New(2);
+        if (tuple == NULL)
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Error creating tuple");
+            goto error;
+        }
+
+        // No error checking here as filling in a brand new pre-allocated tuple.
+        PyTuple_SET_ITEM(tuple, 0, all_verts);
+        PyTuple_SET_ITEM(tuple, 1, all_codes);
+        return tuple;
+    }
+    else
+    {
+        return all_verts;
+    }
 
     error:
     Py_XDECREF(xyv);
     Py_XDECREF(kv);
-    Py_XDECREF(all_contours);
+    Py_XDECREF(all_verts);
+    Py_XDECREF(all_codes);
+    Py_XDECREF(tuple);
     return NULL;
 }
 
@@ -1598,7 +1667,7 @@ __build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
 */
 
 PyObject *
-cntr_trace(Csite *site, double levels[], int nlevels, long nchunk)
+cntr_trace(Csite *site, double levels[], int nlevels)
 {
     PyObject *c_list = NULL;
     double *xp0;
@@ -1621,7 +1690,7 @@ cntr_trace(Csite *site, double levels[], int nlevels, long nchunk)
         site->zlevel[1] = levels[1];
     }
     site->n = site->count = 0;
-    data_init (site, nchunk);
+    data_init (site);
 
     /* make first pass to compute required sizes for second pass */
     for (;;)
@@ -1680,7 +1749,7 @@ cntr_trace(Csite *site, double levels[], int nlevels, long nchunk)
         }
     }
 
-    c_list = build_cntr_list_v2(nseg0, xp0, yp0, kp0, nparts, ntotal);
+    c_list = build_cntr_list_v2(nseg0, xp0, yp0, kp0, nparts, ntotal, nlevels);
 
     PyMem_Free(xp0);
     PyMem_Free(yp0);
@@ -1777,16 +1846,17 @@ Cntr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
 {
-    static const char *kwlist[] = {"x", "y", "z", "mask", NULL};
+    static const char *kwlist[] = {"x", "y", "z", "mask", "chunk_size", NULL};
     PyObject *xarg, *yarg, *zarg, *marg;
     PyArrayObject *xpa, *ypa, *zpa, *mpa;
     long iMax, jMax;
     char *mask;
+    long nchunk = 0L;
 
     marg = NULL;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", (char **)kwlist,
-                                      &xarg, &yarg, &zarg, &marg))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|Ol", (char **)kwlist,
+                                      &xarg, &yarg, &zarg, &marg, &nchunk))
         return -1;
     if (marg == Py_None)
         marg = NULL;
@@ -1839,7 +1909,7 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
     }
     if ( cntr_init(self->site, iMax, jMax, (double *)PyArray_DATA(xpa),
                             (double *)PyArray_DATA(ypa),
-                            (double *)PyArray_DATA(zpa), mask))
+                            (double *)PyArray_DATA(zpa), mask, nchunk))
     {
         PyErr_SetString(PyExc_MemoryError,
             "Memory allocation failure in cntr_init");
@@ -1860,21 +1930,39 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-Cntr_trace(Cntr *self, PyObject *args, PyObject *kwds)
+Cntr_trace_filled(Cntr *self, PyObject *args, PyObject *kwds)
 {
-    double levels[2] = {0.0, -1e100};
-    int nlevels = 2;
-    long nchunk = 0L;
-    static const char *kwlist[] = {"level0", "level1",  "nchunk", NULL};
+    double levels[2] = {0.0, 0.0};
+    static const char *kwlist[] = {"lower_level", "upper_level", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|dl", (char **)kwlist,
-                                      levels, levels+1, &nchunk))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "dd", (char **)kwlist,
+                                      levels, levels+1))
     {
         return NULL;
     }
-    if (levels[1] == -1e100 || levels[1] <= levels[0])
-        nlevels = 1;
-    return cntr_trace(self->site, levels, nlevels, nchunk);
+
+    if (levels[0] > levels[1])
+    {
+        PyErr_SetString(PyExc_ValueError,
+            "upper and lower levels are the wrong way round");
+        return NULL;
+    }
+
+    return cntr_trace(self->site, levels, 2);
+}
+
+static PyObject *
+Cntr_trace_lines(Cntr *self, PyObject *args, PyObject *kwds)
+{
+    double levels[2] = {0.0, 0.0};
+    static const char *kwlist[] = {"level", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d", (char **)kwlist,
+                                      levels))
+    {
+        return NULL;
+    }
+    return cntr_trace(self->site, levels, 1);
 }
 
 /* The following will not normally be called.  It is experimental,
@@ -1903,16 +1991,14 @@ Cntr_get_cdata(Cntr *self)
 }
 
 static PyMethodDef Cntr_methods[] = {
-    {"trace", (PyCFunction)Cntr_trace, METH_VARARGS | METH_KEYWORDS,
-     "Return a list of contour line segments or polygons.\n\n"
-     "    Required argument: level0, a contour level\n"
-     "    Optional argument: level1; if given, and if level1 > level0,\n"
-     "        then the contours will be polygons surrounding areas between\n"
-     "        the levels.\n"
-     "    Optional argument: points; if 0 (default), return a list of\n"
-     "        vector pairs; otherwise, return a list of lists of points.\n"
-     "    Optional argument: nchunk; approximate number of grid points\n"
-     "        per chunk. 0 (default) for no chunking.\n"
+    {"contour_filled", (PyCFunction)Cntr_trace_filled, METH_VARARGS | METH_KEYWORDS,
+     "Return a list of contour polygons.\n\n"
+     "    Required arguments: lower_level, upper_level\n"
+
+    },
+    {"contour_lines", (PyCFunction)Cntr_trace_lines, METH_VARARGS | METH_KEYWORDS,
+     "Return a list of contour line segments.\n\n"
+     "    Required argument: level, a contour level\n"
     },
     {"get_cdata", (PyCFunction)Cntr_get_cdata, METH_NOARGS,
      "Returns a copy of the mesh array with contour calculation codes.\n\n"
