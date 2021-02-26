@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "numpy/arrayobject.h"
+#include "mpl_kind_code.h"
 
 /* Note that all arrays in these routines are Fortran-style,
    in the sense that the "i" index varies fastest; the dimensions
@@ -1350,10 +1351,6 @@ void cntr_del(Csite *site)
     PyMem_Free(site);
     site = NULL;
 }
-
-#define MOVETO 1
-#define LINETO 2
-#define CLOSEPOLY 79
 
 int reorder(double *xpp, double *ypp, short *kpp,
             double *xy, unsigned char *c, int npts)

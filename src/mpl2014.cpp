@@ -6,15 +6,11 @@
 // to the appropriate make_extension call in setup.py, and then rebuilding.
 
 #include "mpl2014.h"
+#include "mpl_kind_code.h"
 #include <algorithm>
 
 
 namespace mpl2014 {
-
-// 'kind' codes.
-#define MOVETO 1
-#define LINETO 2
-#define CLOSEPOLY 79
 
 // Point indices from current quad index.
 #define POINT_SW (quad)
