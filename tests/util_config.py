@@ -24,7 +24,8 @@ class Corner(Enum):
 
 
 class Config:
-    def __init__(self, is_filled):
+    def __init__(self, name, is_filled):
+        self.name = name
         self.is_filled = is_filled
 
         self.arrowsize = 0.1
@@ -102,7 +103,8 @@ class Config:
 
         z = np.asarray([[sw, se], [nw, ne]], dtype=np.float64)
         z = np.ma.array(z, mask=self.mask)
-        cont_gen = contourpy.contour_generator(self.x, self.y, z)
+        cont_gen = contourpy.contour_generator(self.x, self.y, z,
+                                               name=self.name)
         if self.is_filled:
             filled = cont_gen.contour_filled(zlower, zupper)
             lines = filled[0]
@@ -178,8 +180,8 @@ class Config:
 
 
 class ConfigFilledCommon(Config):
-    def __init__(self):
-        super().__init__(True)
+    def __init__(self, name):
+        super().__init__(name, True)
 
     def _decode_config(self, config, corner=None):
         if corner is None:
@@ -226,8 +228,8 @@ class ConfigFilledCommon(Config):
 
 
 class ConfigFilled(ConfigFilledCommon):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name):
+        super().__init__(name)
 
         self.fig, axes = plt.subplots(8, 12, figsize=(13, 9.8),
                                       subplot_kw={'aspect': 'equal'})
@@ -272,8 +274,8 @@ class ConfigFilled(ConfigFilledCommon):
 
 
 class ConfigFilledCorner(ConfigFilledCommon):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name):
+        super().__init__(name)
 
         self.fig, axes = plt.subplots(8, 14, figsize=(15, 9.8),
                                       subplot_kw={'aspect': 'equal'})
@@ -299,8 +301,8 @@ class ConfigFilledCorner(ConfigFilledCommon):
 
 
 class ConfigLinesCommon(Config):
-    def __init__(self):
-        super().__init__(False)
+    def __init__(self, name):
+        super().__init__(name, False)
 
     def _decode_config(self, config, corner=None):
         if corner is None:
@@ -324,8 +326,8 @@ class ConfigLinesCommon(Config):
 
 
 class ConfigLines(ConfigLinesCommon):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name):
+        super().__init__(name)
 
         self.fig, axes = plt.subplots(3, 6, figsize=(6.6, 3.6),
                                       subplot_kw={'aspect': 'equal'})
@@ -352,8 +354,8 @@ class ConfigLines(ConfigLinesCommon):
 
 class ConfigLinesCorner(ConfigLinesCommon):
     # All 4 corners plotted together.
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name):
+        super().__init__(name)
 
         self.fig, axes = plt.subplots(4, 8, figsize=(8.8, 4.9),
                                       subplot_kw={'aspect': 'equal'})

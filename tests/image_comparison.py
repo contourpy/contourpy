@@ -4,10 +4,16 @@ from PIL import Image
 from shutil import copyfile
 
 
-def compare_images(test_buffer, test_filename, baseline_filename=None,
+def compare_images(test_buffer, baseline_filename, test_filename_suffix=None,
                    max_threshold=100, mean_threshold=0.02):
+    if max_threshold is None:
+        max_threshold = 100
 
-    baseline_filename = baseline_filename or test_filename
+    if test_filename_suffix:
+        basename, extension = os.path.splitext(baseline_filename)
+        test_filename = f'{basename}_{test_filename_suffix}{extension}'
+    else:
+        test_filename = baseline_filename
 
     max_diff = None
     mean_diff = None
