@@ -340,8 +340,8 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(const CoordinateArray& x,
     : _x(x),
       _y(y),
       _z(z),
-      _nx(_z.shape(1)),
-      _ny(_z.shape(0)),
+      _nx(_z.ndim() > 1 ? _z.shape(1) : 0),
+      _ny(_z.ndim() > 0 ? _z.shape(0) : 0),
       _n(_nx*_ny),
       _corner_mask(corner_mask),
       _chunk_size(chunk_size > 0 ? std::min(chunk_size, std::max(_nx, _ny)-1)
@@ -1305,7 +1305,7 @@ void Mpl2014ContourGenerator::init_cache_grid(const MaskArray& mask)
 void Mpl2014ContourGenerator::init_cache_levels(const double& lower_level,
                                                 const double& upper_level)
 {
-    assert(upper_level >= lower_level &&
+    assert(!(upper_level < lower_level) &&
            "upper and lower levels are wrong way round");
 
     bool two_levels = (lower_level != upper_level);
@@ -1743,7 +1743,6 @@ bool Mpl2014ContourGenerator::start_line(
     Edge edge,
     const double& level)
 {
-    assert(vertices_list != 0 && "Null python vertices list");
     assert(is_edge_a_boundary(QuadEdge(quad, edge)) &&
            "QuadEdge is not a boundary");
 

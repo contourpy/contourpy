@@ -155,8 +155,8 @@ class MplDebugRenderer(MplRenderer):
     def z_levels(self, x, y, z, lower_level, upper_level, ax=0, color='green'):
         ax = self._get_ax(ax)
         ny, nx = z.shape
-        for j in range(1, ny):
-            for i in range(1, nx):
+        for j in range(ny):
+            for i in range(nx):
                 zz = z[j,i]
                 if zz > upper_level:
                     z_level = 2

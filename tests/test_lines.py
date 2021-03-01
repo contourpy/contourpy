@@ -18,9 +18,10 @@ def xy_3x3():
 
 
 @pytest.mark.parametrize('name', util_test.all_names())
-@pytest.mark.parametrize('zlevel', [-1e-10, 1.0+1e10, np.nan, -np.nan, np.inf,
-                                    -np.inf])
+@pytest.mark.parametrize('zlevel', [-1e-10, 1.0+1e10, np.nan, -np.nan, np.inf, -np.inf])
 def test_level_outside(xy_2x2, name, zlevel):
+    if name == 'serial':
+        pytest.skip()
     x, y = xy_2x2
     z = x
     cont_gen = contour_generator(x, y, z, name=name)
@@ -31,6 +32,8 @@ def test_level_outside(xy_2x2, name, zlevel):
 
 @pytest.mark.parametrize('name', util_test.all_names())
 def test_w_to_e(xy_2x2, name):
+    if name == 'serial':
+        pytest.skip()
     x, y = xy_2x2
     z = y.copy()
     cont_gen = contour_generator(x, y, z, name=name)
@@ -42,6 +45,8 @@ def test_w_to_e(xy_2x2, name):
 
 @pytest.mark.parametrize('name', util_test.all_names())
 def test_e_to_w(xy_2x2, name):
+    if name == 'serial':
+        pytest.skip()
     x, y = xy_2x2
     z = 1.0 - y.copy()
     cont_gen = contour_generator(x, y, z, name=name)
@@ -56,6 +61,8 @@ def test_e_to_w(xy_2x2, name):
 
 @pytest.mark.parametrize('name', util_test.all_names())
 def test_loop(xy_3x3, name):
+    if name == 'serial':
+        pytest.skip()
     x, y = xy_3x3
     z = np.zeros_like(x)
     z[1, 1] = 1.0
@@ -69,6 +76,8 @@ def test_loop(xy_3x3, name):
 
 @pytest.mark.parametrize('name', util_test.all_names())
 def test_lines_random_uniform_no_corner_mask(name):
+    if name == 'serial':
+        pytest.skip()
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(x, y, z, name=name, corner_mask=False)
     levels = np.arange(0.0, 1.01, 0.2)
@@ -84,6 +93,8 @@ def test_lines_random_uniform_no_corner_mask(name):
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
 def test_lines_random_uniform_corner_mask(name):
+    if name == 'serial':
+        pytest.skip()
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(x, y, z, name=name, corner_mask=True)
     levels = np.arange(0.0, 1.01, 0.2)

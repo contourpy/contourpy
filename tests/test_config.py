@@ -9,7 +9,8 @@ import util_test
 def test_config_filled(name):
     config = util_config.ConfigFilled(name)
     image_buffer = config.save_to_buffer()
-    compare_images(image_buffer, 'config_filled.png', name)
+    compare_images(image_buffer, 'config_filled.png', name,
+                   max_threshold=175 if name == 'serial' else 10)
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
@@ -21,7 +22,7 @@ def test_config_filled_corner(name):
 
 @pytest.mark.parametrize('name', util_test.all_names())
 def test_config_lines(name):
-    if name == 'mpl2005':
+    if name in ('mpl2005', 'serial'):
         pytest.skip()  # Line directions are not consistent.
     config = util_config.ConfigLines(name)
     image_buffer = config.save_to_buffer()
