@@ -1,11 +1,9 @@
-import contourpy
+from contourpy import contour_generator
 from enum import Enum
 import io
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-import matplotlib.path as mpat
-import matplotlib.patches as mpatches
 import numpy as np
 
 
@@ -47,9 +45,9 @@ class Config:
         along /= np.sqrt(np.dot(along, along))  # Unit vector.
         right = np.asarray((along[1], -along[0]))
         arrow = np.stack((
-            mid - along*0.5*self.arrowsize + right*self.arrowsize,
+            mid - (along*0.5 - right)*self.arrowsize,
             mid + along*0.5*self.arrowsize,
-            mid - along*0.5*self.arrowsize - right*self.arrowsize))
+            mid - (along*0.5 + right)*self.arrowsize))
         ax.plot(arrow[:,0], arrow[:, 1], '-', c=color)
 
     def _next_quad(self, config, corner=None, suffix='', zlower=None,
@@ -103,8 +101,7 @@ class Config:
 
         z = np.asarray([[sw, se], [nw, ne]], dtype=np.float64)
         z = np.ma.array(z, mask=self.mask)
-        cont_gen = contourpy.contour_generator(self.x, self.y, z,
-                                               name=self.name)
+        cont_gen = contour_generator(self.x, self.y, z, name=self.name)
         if self.is_filled:
             filled = cont_gen.contour_filled(zlower, zupper)
             lines = filled[0]
