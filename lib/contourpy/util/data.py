@@ -3,8 +3,8 @@ import numpy as np
 
 def random_uniform(shape, seed=2187, mask_fraction=0.0):
     ny, nx = shape
-    x = np.linspace(0.0, 1.0, nx)
-    y = np.linspace(0.0, 1.0, ny)
+    x = np.arange(nx, dtype=np.float64)
+    y = np.arange(ny, dtype=np.float64)
     x, y = np.meshgrid(x, y)
 
     np.random.seed(seed)
