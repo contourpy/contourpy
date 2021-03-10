@@ -19,7 +19,7 @@ def test_filled_random_uniform_no_corner_mask(name):
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'filled_random_uniform_no_corner_mask.png',
-                   name, max_threshold=150 if name == 'mpl2005' else 10)
+                   name, max_threshold=150 if name != 'mpl2014' else 10)
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())

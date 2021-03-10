@@ -1,4 +1,4 @@
-from ._contourpy import Mpl2014ContourGenerator
+from ._contourpy import Mpl2014ContourGenerator, SerialContourGenerator
 from ._mpl2005 import Cntr as Mpl2005ContourGenerator
 import numpy as np
 
@@ -18,9 +18,6 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0):
     if z.shape[0] < 2 or z.shape[1] < 2:
         raise ValueError('x, y and z must all be at least 2x2 arrays')
 
-    if chunk_size < 0:
-        raise ValueError('chunk_size cannot be negative')
-
     # Extract optional mask from z array.
     mask = None
     if np.ma.is_masked(z):
@@ -34,17 +31,35 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0):
     if name is None:
         name = 'mpl2014'
 
-    if name == 'mpl2014':
-        if corner_mask is None:
-            corner_mask = True
-        cont_gen = Mpl2014ContourGenerator(
-            x, y, z, mask, corner_mask=corner_mask, chunk_size=chunk_size)
-    elif name == 'mpl2005':
+    if name == 'serial':
         if corner_mask:
-            raise ValueError('mpl2005 contour generator does not support corner_mask=True')
-        cont_gen = Mpl2005ContourGenerator(
-            x, y, z, mask, chunk_size=chunk_size)
+            raise ValueError('serial contour generator does not support corner_mask=True')
+
+        if isinstance(chunk_size, tuple) and len(chunk_size) == 2:
+            y_chunk_size, x_chunk_size = chunk_size
+        else:
+            y_chunk_size = x_chunk_size = chunk_size
+
+        if x_chunk_size < 0 or y_chunk_size < 0:
+            raise ValueError('chunk_size cannot be negative')
+
+        cont_gen = SerialContourGenerator(
+            x, y, z, mask, x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
     else:
-        raise ValueError(f'Unrecognised contour generator name: {name}')
+        if chunk_size < 0:
+            raise ValueError('chunk_size cannot be negative')
+
+        if name == 'mpl2014':
+            if corner_mask is None:
+                corner_mask = True
+            cont_gen = Mpl2014ContourGenerator(
+                x, y, z, mask, corner_mask=corner_mask, chunk_size=chunk_size)
+        elif name == 'mpl2005':
+            if corner_mask:
+                raise ValueError('mpl2005 contour generator does not support corner_mask=True')
+            cont_gen = Mpl2005ContourGenerator(
+                x, y, z, mask, chunk_size=chunk_size)
+        else:
+            raise ValueError(f'Unrecognised contour generator name: {name}')
 
     return cont_gen

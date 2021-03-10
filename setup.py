@@ -2,7 +2,9 @@ from setuptools import setup
 from pybind11.setup_helpers import Pybind11Extension, build_ext
 
 
+# Set want_debug to True if want to enable asserts in C++ code.
 want_debug = False
+
 want_mpl2005 = True
 
 
@@ -19,7 +21,10 @@ if want_debug:
 _contourpy = Pybind11Extension(
     'contourpy._contourpy',
     sources=[
+        'src/chunk_local.cpp',
         'src/mpl2014.cpp',
+        'src/outer_or_hole.cpp',
+        'src/serial.cpp',
         'src/wrap.cpp',
     ],
     define_macros=define_macros,
