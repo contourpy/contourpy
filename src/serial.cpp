@@ -59,8 +59,8 @@
 
 SerialContourGenerator::SerialContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y,
-    const CoordinateArray& z, const MaskArray& mask, long x_chunk_size,
-    long y_chunk_size)
+    const CoordinateArray& z, const MaskArray& mask, FillType fill_type,
+    long x_chunk_size, long y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
@@ -74,10 +74,13 @@ SerialContourGenerator::SerialContourGenerator(
       _n_chunks(_nx_chunks*_ny_chunks),
       _x_chunk_size(std::ceil((_nx-1.0) / _nx_chunks)),
       _y_chunk_size(std::ceil((_ny-1.0) / _ny_chunks)),
+      _fill_type(fill_type),
       _cache(new CacheItem[_n]),
       _filled(false),
       _lower_level(0.0),
-      _upper_level(0.0)
+      _upper_level(0.0),
+      _identify_holes(false),
+      _return_list_count(0)
 {
     if (_x.ndim() != 2 || _y.ndim() != 2 || _z.ndim() != 2)
         throw std::invalid_argument("x, y and z must all be 2D arrays");
@@ -96,6 +99,9 @@ SerialContourGenerator::SerialContourGenerator(
         if (mask.shape(1) != _nx || mask.shape(0) != _ny)
             throw std::invalid_argument("If mask is set it must be a 2D array with the same shape as z");
     }
+
+    if (!supports_fill_type(fill_type))
+        throw std::invalid_argument("Invalid FillType");
 
     if (x_chunk_size < 0 || y_chunk_size < 0)  // Check inputs, not calculated.
         throw std::invalid_argument("chunk_sizes cannot be negative");
@@ -141,7 +147,7 @@ void SerialContourGenerator::closed_line(
     bool finished = false;
     unsigned long point_count = 0;
 
-    if (outer_or_hole == Hole && local.pass == 0)
+    if (outer_or_hole == Hole && local.pass == 0 && _identify_holes)
         set_look_flags(start_location.quad);
 
     while (!finished) {
@@ -156,7 +162,7 @@ void SerialContourGenerator::closed_line(
 
     if (local.pass > 0) {
         local.line_offsets[local.line_count] = local.total_point_count;
-        if (outer_or_hole == Outer) {
+        if (outer_or_hole == Outer && _identify_holes) {
             unsigned long outer_count = local.line_count - local.hole_count;
             local.outer_offsets[outer_count] = local.line_count;
         }
@@ -174,9 +180,10 @@ void SerialContourGenerator::closed_line_wrapper(
 {
     assert(is_quad_in_chunk(start_location.quad, local));
 
-    if (local.pass == 0)
+    if (local.pass == 0 || !_identify_holes) {
         closed_line(start_location, outer_or_hole, local);
-    else {  // pass == 1
+    }
+    else {
         assert(outer_or_hole == Outer);
         local.look_up_quads.clear();
 
@@ -211,27 +218,39 @@ py::tuple SerialContourGenerator::contour_filled(
     _filled = true;
     _lower_level = lower_level;
     _upper_level = upper_level;
+    _identify_holes = (_fill_type != FillType::CombinedCodes &&
+                       _fill_type != FillType::CombinedOffsets);
+    _return_list_count = (_fill_type == FillType::CombinedCodesOffsets ||
+                          _fill_type == FillType::CombinedOffsets2) ? 3 : 2;
 
     init_cache_levels_and_starts();
 
-    py::list vertices_list;
-    py::list codes_list;
+    std::vector<py::list> return_lists(_return_list_count);
 
     ChunkLocal local;
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
-        single_chunk_filled(chunk, local, vertices_list, codes_list);
+        single_chunk_filled(chunk, local, return_lists);
         local.clear();
     }
 
-    py::tuple tuple(2);
-    tuple[0] = vertices_list;
-    tuple[1] = codes_list;
+    py::tuple tuple(_return_list_count);
+    for (unsigned int i = 0; i < _return_list_count; ++i)
+        tuple[i] = return_lists[i];
     return tuple;
+}
+
+FillType SerialContourGenerator::default_fill_type()
+{
+    FillType fill_type = FillType::OuterCodes;
+    assert(supports_fill_type(fill_type));
+    return fill_type;
 }
 
 long SerialContourGenerator::find_look_S(long look_N_quad) const
 {
+    assert(_identify_holes);
+
     // Might need to be careful when looking in the same quad as the LOOK_UP.
     long quad = look_N_quad;
 
@@ -326,7 +345,7 @@ bool SerialContourGenerator::follow_boundary(
         if (pass > 0) {
             get_point_xy(end_point, local.points);
 
-            if (forward == 1 && LOOK_N(quad)) {
+            if (forward == 1 && LOOK_N(quad) && _identify_holes) {
                 assert(BOUNDARY_N(quad-_nx));
                 local.look_up_quads.push_back(quad);
             }
@@ -437,7 +456,7 @@ bool SerialContourGenerator::follow_interior(
             // Edge stays the same.
         }
 
-        if (LOOK_N(quad) && pass > 0 && forward == 1) {
+        if (LOOK_N(quad) && pass > 0 && forward == 1 && _identify_holes) {
             // Only consider look_N if pass across E edge of this quad.
             // Care needed if both look_N and look_S set in quad because this
             // line corresponds to only one of them, so want to ignore the
@@ -511,6 +530,11 @@ py::tuple SerialContourGenerator::get_chunk_size() const
 bool SerialContourGenerator::get_corner_mask() const
 {
     return false;
+}
+
+FillType SerialContourGenerator::get_fill_type() const
+{
+    return _fill_type;
 }
 
 void SerialContourGenerator::get_point_xy(long point, double*& points) const
@@ -813,6 +837,8 @@ void SerialContourGenerator::move_to_next_boundary_edge(
 
 void SerialContourGenerator::set_look_flags(long hole_start_quad)
 {
+    assert(_identify_holes);
+
     // The only possible hole starts are start_E (from E to N) and start_hole_N
     // (on N boundary, E to W).
     assert(hole_start_quad >= 0 && hole_start_quad < _n);
@@ -839,32 +865,14 @@ void SerialContourGenerator::set_look_flags(long hole_start_quad)
 }
 
 void SerialContourGenerator::single_chunk_filled(
-    long chunk, ChunkLocal& local, py::list& vertices_list,
-    py::list& codes_list)
+    long chunk, ChunkLocal& local, std::vector<py::list>& return_lists)
 {
-    std::vector<double> all_points;  // Allocated at start of pass 1.
+    // Allocated at start of pass 1, depending on _fill_type.
+    std::vector<double> all_points;
 
     for (local.pass = 0; local.pass < 2; ++local.pass) {
-        bool ignore_holes = (local.pass == 1);  // Depends on return fill type.
 
-        if (local.pass == 1) {
-            all_points.resize(2*local.total_point_count);
-
-            // Allocate space for offsets.
-            local.line_offsets.resize(local.line_count + 1);
-            local.outer_offsets.resize(local.line_count - local.hole_count + 1);
-
-            // Set final offsets.
-            local.line_offsets.back() = local.total_point_count;
-            local.outer_offsets.back() = local.line_count;
-
-            // Where to store contour points.
-            local.points = all_points.data();
-
-            local.total_point_count = 0;
-            local.line_count = 0;
-            local.hole_count = 0;
-        }
+        bool ignore_holes = (_identify_holes && local.pass == 1);
 
         long j_final_start = local.jstart;
         for (long j = local.jstart; j <= local.jend; ++j) {
@@ -876,8 +884,11 @@ void SerialContourGenerator::single_chunk_filled(
             if (NO_STARTS_IN_ROW(quad))
                 continue;
 
-            // Assuming won't need hole starts in pass == 1.
-            auto prev_outer_count = local.line_count - local.hole_count;
+            // Want to count number of starts in this row, so store how many
+            // starts at start of row.
+            unsigned long prev_start_count =
+                (_identify_holes ? local.line_count - local.hole_count
+                                 : local.line_count);
 
             for (long i = local.istart; i <= local.iend; ++i, ++quad) {
                 if (!ANY_START(quad))
@@ -914,7 +925,11 @@ void SerialContourGenerator::single_chunk_filled(
                 }
             } // i
 
-            if (local.line_count - local.hole_count > prev_outer_count)
+            // Number of starts at end of row.
+            unsigned long start_count =
+                (_identify_holes ? local.line_count - local.hole_count
+                                 : local.line_count);
+            if (start_count - prev_start_count)
                 j_final_start = j;
             else
                 _cache[local.istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
@@ -922,44 +937,185 @@ void SerialContourGenerator::single_chunk_filled(
 
         if (j_final_start < local.jend)
             _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
+
+        if (local.pass == 0) {
+            if (_fill_type == FillType::OuterCodes ||
+                _fill_type == FillType::OuterOffsets) {
+                all_points.resize(2*local.total_point_count);
+
+                // Where to store contour points.
+                local.points = all_points.data();
+            }
+            else {  // Combined points.
+                py::size_t points_shape[2] = {local.total_point_count, 2};
+                PointArray py_all_points(points_shape);
+                return_lists[0].append(py_all_points);
+
+                // Where to store contour points.
+                local.points = py_all_points.mutable_data();
+            }
+
+            // Allocate space for line_offsets, and set final offsets.
+            local.line_offsets.resize(local.line_count + 1);
+            local.line_offsets.back() = local.total_point_count;
+
+            // Allocate space for outer_offsets, and set final offsets.
+            if (_identify_holes) {
+                auto outer_count = local.line_count - local.hole_count;
+                local.outer_offsets.resize(outer_count + 1);
+                local.outer_offsets.back() = local.line_count;
+            }
+            else
+                local.outer_offsets.resize(0);
+
+            local.total_point_count = 0;
+            local.line_count = 0;
+            local.hole_count = 0;
+        }
     } // pass
+
+    if (0) {
+        std::cout << "total_point_count: " << local.total_point_count << std::endl;
+        std::cout << "line_count: " << local.line_count << std::endl;
+        std::cout << "hole_count: " << local.hole_count << std::endl;
+
+        std::cout << "line_offsets (" << local.line_offsets.size() << ")";
+        for (const auto& i : local.line_offsets)
+            std::cout << " " << i;
+        std::cout << std::endl;
+
+        std::cout << "outer_offsets (" << local.outer_offsets.size() << ")";
+        for (const auto& i : local.outer_offsets)
+            std::cout << " " << i;
+        std::cout << std::endl;
+    }
 
     // Check both passes returned same number of points, lines, etc.
     assert(local.line_offsets.size() == local.line_count + 1);
-    assert(local.outer_offsets.size() ==
-           local.line_count - local.hole_count + 1);
     assert(local.line_offsets.back() == local.total_point_count);
-    assert(local.outer_offsets.back() == local.line_count);
 
-    // Write vertices and codes to output numpy arrays.
-    // Should be in separate function.
-    auto offset_count = local.line_count - local.hole_count;
-    for (unsigned long i = 0; i < offset_count; ++i) {
-        auto line_start = local.outer_offsets[i];
-        auto line_end = local.outer_offsets[i+1];
-        auto point_start = local.line_offsets[line_start];
-        auto point_end = local.line_offsets[line_end];
+    if (_identify_holes) {
+        assert(local.outer_offsets.size() ==
+               local.line_count - local.hole_count + 1);
+        assert(local.outer_offsets.back() == local.line_count);
+    }
+    else {
+        assert(local.outer_offsets.empty());
+    }
 
-        auto point_count = point_end - point_start;
-        assert(point_count > 2);
+    // Write points and offsets/codes to output numpy arrays.
+    // Needs refactoring so that each FillType is clear, with actual C++ to
+    // Python conversions in separate functions.
+    if (_identify_holes) {
+        auto outer_count = local.line_count - local.hole_count;
+        for (decltype(outer_count) i = 0; i < outer_count; ++i) {
+            auto outer_start = local.outer_offsets[i];
+            auto outer_end = local.outer_offsets[i+1];
+            auto point_start = local.line_offsets[outer_start];
+            auto point_end = local.line_offsets[outer_end];
 
-        py::size_t points_shape[2] = {point_count, 2};
-        py::array_t<double> py_vertices(points_shape);
-        std::copy(all_points.data() + 2*point_start,
-                  all_points.data() + 2*point_end,
-                  py_vertices.mutable_data());
+            auto point_count = point_end - point_start;
+            assert(point_count > 2);
 
+            if (_fill_type == FillType::OuterCodes ||
+                _fill_type == FillType::OuterOffsets) {
+                // Copy points to new numpy array.
+                py::size_t points_shape[2] = {point_count, 2};
+                PointArray py_points(points_shape);
+                std::copy(all_points.data() + 2*point_start,
+                          all_points.data() + 2*point_end,
+                          py_points.mutable_data());
+
+                return_lists[0].append(py_points);
+            }
+
+            if (_fill_type == FillType::OuterCodes) {
+                // Offsets converted to codes in new numpy array.
+                py::size_t codes_shape[1] = {point_count};
+                CodeArray py_codes(codes_shape);
+                auto py_ptr = py_codes.mutable_data();
+                std::fill(py_ptr + 1, py_ptr + point_count - 1, LINETO);
+                for (auto j = outer_start; j < outer_end; ++j) {
+                    py_ptr[local.line_offsets[j] - point_start] = MOVETO;
+                    py_ptr[local.line_offsets[j+1]-1 - point_start] = CLOSEPOLY;
+                }
+
+                return_lists[1].append(py_codes);
+            }
+            else if (_fill_type == FillType::OuterOffsets) {
+                // Offsets to new numpy array.
+                auto offset_count = outer_end - outer_start;
+                py::size_t offsets_shape[1] = {offset_count + 1};
+                OffsetArray py_offsets(offsets_shape);
+                auto py_ptr = py_offsets.mutable_data();
+                *py_ptr++ = 0;
+                for (auto j = outer_start + 1; j < outer_end; ++j)
+                    *py_ptr++ = local.line_offsets[j] - point_start;
+                *py_ptr = point_count;
+
+                return_lists[1].append(py_offsets);
+            }
+        }
+    }
+
+    if (_fill_type == FillType::CombinedCodes ||
+        _fill_type == FillType::CombinedCodesOffsets) {
+        // Offsets converted to codes in new numpy array.
+        auto point_count =
+            local.line_offsets.empty() ? 0 : local.line_offsets.back();
         py::size_t codes_shape[1] = {point_count};
-        py::array_t<unsigned char> py_codes(codes_shape);
+        CodeArray py_codes(codes_shape);
         auto py_ptr = py_codes.mutable_data();
         std::fill(py_ptr + 1, py_ptr + point_count - 1, LINETO);
-        for (auto j = line_start; j < line_end; ++j) {
-            py_ptr[local.line_offsets[j] - point_start] = MOVETO;
-            py_ptr[local.line_offsets[j+1]-1 - point_start] = CLOSEPOLY;
+        for (unsigned long i = 0; i < local.line_offsets.size()-1; ++i) {
+            py_ptr[local.line_offsets[i]] = MOVETO;
+            py_ptr[local.line_offsets[i+1]-1] = CLOSEPOLY;
         }
 
-        vertices_list.append(py_vertices);
-        codes_list.append(py_codes);
+        return_lists[1].append(py_codes);
+    }
+    else if (_fill_type == FillType::CombinedOffsets ||
+             _fill_type == FillType::CombinedOffsets2) {
+        // Copy offsets to new numpy array.
+        auto line_count = local.line_offsets.size();
+        py::size_t offsets_shape[1] = {line_count};
+        OffsetArray py_offsets(offsets_shape);
+        std::copy(local.line_offsets.begin(), local.line_offsets.end(),
+                  py_offsets.mutable_data());
+
+        return_lists[1].append(py_offsets);
+    }
+
+    if (_return_list_count == 3) {
+        auto outer_count = local.outer_offsets.size();
+        py::size_t offsets_shape[1] = {outer_count};
+        OffsetArray py_offsets(offsets_shape);
+        if (_fill_type == FillType::CombinedCodesOffsets) {
+            auto py_ptr = py_offsets.mutable_data();
+            for (const auto& offset : local.outer_offsets)
+                *py_ptr++ = local.line_offsets[offset];
+        }
+        else {
+            std::copy(local.outer_offsets.begin(), local.outer_offsets.end(),
+                      py_offsets.mutable_data());
+        }
+
+        return_lists[2].append(py_offsets);
+    }
+}
+
+bool SerialContourGenerator::supports_fill_type(FillType fill_type)
+{
+    switch (fill_type) {
+        case FillType::OuterCodes:
+        case FillType::OuterOffsets:
+        case FillType::CombinedCodes:
+        case FillType::CombinedOffsets:
+        case FillType::CombinedCodesOffsets:
+        case FillType::CombinedOffsets2:
+            return true;
+        default:
+            return false;
     }
 }
 

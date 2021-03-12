@@ -1,4 +1,3 @@
-import contourpy
 from image_comparison import compare_images
 import pytest
 import util_config
