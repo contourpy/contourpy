@@ -389,7 +389,7 @@ void Mpl2014ContourGenerator::append_contour_line_to_vertices(
 {
     // Convert ContourLine to python equivalent, and clear it.
     py::ssize_t dims[2] = {static_cast<py::ssize_t>(contour_line.size()), 2};
-    py::array_t<double> line(dims);
+    PointArray line(dims);
 
     double* ptr = line.mutable_data();
     for (ContourLine::const_iterator point = contour_line.begin();
@@ -433,11 +433,11 @@ void Mpl2014ContourGenerator::append_contour_to_vertices_and_codes(
                  npoints += static_cast<py::ssize_t>((*children_it)->size() + 1);
 
             py::ssize_t vertices_dims[2] = {npoints, 2};
-            py::array_t<double> vertices(vertices_dims);
+            PointArray vertices(vertices_dims);
             double* vertices_ptr = vertices.mutable_data();
 
             py::ssize_t codes_dims[1] = {npoints};
-            py::array_t<unsigned char> codes(codes_dims);
+            CodeArray codes(codes_dims);
             unsigned char* codes_ptr = codes.mutable_data();
 
             for (point = line.begin(); point != line.end(); ++point) {

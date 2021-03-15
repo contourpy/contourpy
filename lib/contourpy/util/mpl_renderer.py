@@ -6,6 +6,8 @@ import matplotlib
 _default_backend = matplotlib.get_backend()
 matplotlib.use('Agg')
 
+from contourpy import FillType
+from .mpl_util import mpl_codes_to_offsets, offsets_to_mpl_codes
 import io
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
@@ -26,10 +28,32 @@ class MplRenderer:
             ax = self.axes[ax]
         return ax
 
-    def filled(self, filled, ax=0, color='C0', alpha=0.7):
+    def filled(self, filled, fill_type, ax=0, color='C0', alpha=0.7):
         ax = self._get_ax(ax)
-        paths = [mpath.Path(points, codes) for points, codes
-                 in zip(filled[0], filled[1])]
+        if fill_type in (FillType.OuterCodes, FillType.CombinedCodes):
+            paths = [mpath.Path(points, codes) for points, codes
+                     in zip(filled[0], filled[1])]
+        elif fill_type in (FillType.OuterOffsets, FillType.CombinedOffsets):
+            paths = [mpath.Path(points, offsets_to_mpl_codes(offsets))
+                     for points, offsets in zip(filled[0], filled[1])]
+        elif fill_type == FillType.CombinedCodesOffsets:
+            paths = []
+            for i in range(len(filled[0])):
+                outer_offsets = filled[2][i]
+                points = np.split(filled[0][i], outer_offsets[1:-1])
+                codes = np.split(filled[1][i], outer_offsets[1:-1])
+                paths += [mpath.Path(p, c) for p, c in zip(points, codes)]
+        elif fill_type == FillType.CombinedOffsets2:
+            paths = []
+            for i in range(len(filled[0])):
+                outer_offsets = filled[2][i]
+                for j in range(len(outer_offsets)-1):
+                    offsets = filled[1][i][outer_offsets[j]:outer_offsets[j+1]+1]
+                    points = filled[0][i][offsets[0]:offsets[-1]]
+                    paths += [mpath.Path(
+                        points, offsets_to_mpl_codes(offsets - offsets[0]))]
+        else:
+            raise RuntimeError(f'Rendering FillType {fill_type} not implemented')
         collection = mcollections.PathCollection(
             paths, facecolors=color, edgecolors='none', lw=0, alpha=alpha)
         ax.add_collection(collection)
@@ -97,17 +121,44 @@ class MplDebugRenderer(MplRenderer):
             mid - (along*0.5 + right)*arrow_size))
         ax.plot(arrow[:,0], arrow[:, 1], '-', c=color, alpha=alpha)
 
-    def filled(self, filled, ax=0, color='C1', alpha=0.7, line_color='C0',
-               point_color='C0', start_point_color='red', arrow_size=0.1):
-        super().filled(filled, ax, color, alpha)
+    def filled(self, filled, fill_type, ax=0, color='C1', alpha=0.7,
+               line_color='C0', point_color='C0', start_point_color='red',
+               arrow_size=0.1):
+        super().filled(filled, fill_type, ax, color, alpha)
+
+        if line_color is None and point_color is None:
+            return
 
         ax = self._get_ax(ax)
 
+        if fill_type in (FillType.OuterCodes, FillType.CombinedCodes):
+            all_points = filled[0]
+            all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1]]
+        elif fill_type in (FillType.OuterOffsets, FillType.CombinedOffsets):
+            all_points = filled[0]
+            all_offsets = filled[1]
+        elif fill_type == FillType.CombinedCodesOffsets:
+            outer_offsets = filled[2][0]
+            all_points = np.split(filled[0][0], outer_offsets[1:-1])
+            all_codes = np.split(filled[1][0], outer_offsets[1:-1])
+            all_offsets = [mpl_codes_to_offsets(codes) for codes in all_codes]
+        elif fill_type == FillType.CombinedOffsets2:
+            all_points = []
+            all_offsets = []
+            for i in range(len(filled[0])):
+                outer_offsets = filled[2][i]
+                for j in range(len(outer_offsets)-1):
+                    offsets = filled[1][i][outer_offsets[j]:outer_offsets[j+1]+1]
+                    points = filled[0][i][offsets[0]:offsets[-1]]
+                    all_points.append(points)
+                    all_offsets.append(offsets - offsets[0])
+        else:
+            raise RuntimeError(f'Rendering FillType {fill_type} not implemented')
+
         # Lines.
         if line_color is not None:
-            for points, codes in zip(filled[0], filled[1]):
-                starts = np.append(np.nonzero(codes == 1)[0], len(codes))
-                for start, end in zip(starts[:-1], starts[1:]):
+            for points, offsets in zip(all_points, all_offsets):
+                for start, end in zip(offsets[:-1], offsets[1:]):
                     xys = points[start:end]
                     ax.plot(xys[:, 0], xys[:, 1], c=line_color, alpha=alpha)
 
@@ -119,17 +170,18 @@ class MplDebugRenderer(MplRenderer):
 
         # Points.
         if point_color is not None:
-            for points, codes in zip(filled[0], filled[1]):
+            for points, offsets in zip(all_points, all_offsets):
+                mask = np.ones(offsets[-1], dtype=bool)
+                mask[offsets[1:]-1] = False  # Exclude end points.
                 if start_point_color is not None:
-                    mask = (codes == 2)
-                else:
-                    mask = (codes != 79)
+                    start_indices = offsets[:-1]
+                    mask[start_indices] = False  # Exclude start points.
                 ax.plot(points[:, 0][mask], points[:, 1][mask], 'o',
                         c=point_color, alpha=alpha)
 
                 if start_point_color is not None:
-                    mask = (codes == 1)
-                    ax.plot(points[:, 0][mask], points[:, 1][mask], 'o',
+                    ax.plot(points[:, 0][start_indices],
+                            points[:, 1][start_indices], 'o',
                             c=start_point_color, alpha=alpha)
 
     def point_numbers(self, x, y, z, ax=0, color='red'):
@@ -166,4 +218,3 @@ class MplDebugRenderer(MplRenderer):
                     z_level = 0
                 ax.text(x[j, i], y[j, i], z_level, ha='left', va='bottom',
                         color=color, clip_on=True)
-

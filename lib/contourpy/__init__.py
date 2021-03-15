@@ -1,9 +1,11 @@
-from ._contourpy import Mpl2014ContourGenerator, SerialContourGenerator
+from ._contourpy import (
+    FillType, Mpl2014ContourGenerator, SerialContourGenerator)
 from ._mpl2005 import Cntr as Mpl2005ContourGenerator
 import numpy as np
 
 
-def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0):
+def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
+                      fill_type=None):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.
@@ -35,6 +37,12 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0):
         if corner_mask:
             raise ValueError('serial contour generator does not support corner_mask=True')
 
+        if fill_type is None:
+            fill_type = SerialContourGenerator.default_fill_type
+
+        if not SerialContourGenerator.supports_fill_type(fill_type):
+            raise ValueError(f'serial contour generator does not support fill_type of {fill_type}')
+
         if isinstance(chunk_size, tuple) and len(chunk_size) == 2:
             y_chunk_size, x_chunk_size = chunk_size
         else:
@@ -44,10 +52,14 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0):
             raise ValueError('chunk_size cannot be negative')
 
         cont_gen = SerialContourGenerator(
-            x, y, z, mask, x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
+            x, y, z, mask, fill_type, x_chunk_size=x_chunk_size,
+            y_chunk_size=y_chunk_size)
     else:
         if chunk_size < 0:
             raise ValueError('chunk_size cannot be negative')
+
+        if fill_type not in (None, FillType.OuterCodes):
+            raise ValueError(f'{name} contour generator does not support fill_type {fill_type}')
 
         if name == 'mpl2014':
             if corner_mask is None:

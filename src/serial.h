@@ -2,7 +2,9 @@
 #define CONTOURPY_SERIAL_H
 
 #include "common.h"
+#include "fill_type.h"
 #include "outer_or_hole.h"
+#include <vector>
 
 // Forward declarations.
 class ChunkLocal;
@@ -12,19 +14,25 @@ class SerialContourGenerator
 public:
     SerialContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y,
-        const CoordinateArray& z, const MaskArray& mask, long x_chunk_size,
-        long y_chunk_size);
+        const CoordinateArray& z, const MaskArray& mask, FillType fill_type,
+        long x_chunk_size, long y_chunk_size);
 
     ~SerialContourGenerator();
 
     py::tuple contour_filled(
         const double& lower_level, const double& upper_level);
 
+    static FillType default_fill_type();
+
     py::tuple get_chunk_count() const;
 
     py::tuple get_chunk_size() const;
 
     bool get_corner_mask() const;
+
+    FillType get_fill_type() const;
+
+    static bool supports_fill_type(FillType fill_type);
 
     void write_cache() const;  // For debug purposes only.
 
@@ -97,8 +105,7 @@ private:
     void set_look_flags(long hole_start_quad);
 
     void single_chunk_filled(
-        long chunk, ChunkLocal& local, py::list& vertices_list,
-        py::list& codes_list);
+        long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void write_cache_quad(long quad) const;
 
@@ -110,12 +117,17 @@ private:
     const long _nx_chunks, _ny_chunks;  // Number of chunks in each direction.
     const long _n_chunks;               // Total number of chunks.
     const long _x_chunk_size, _y_chunk_size;
+    const FillType _fill_type;
 
     CacheItem* _cache;
 
     // Current contouring operation.
     bool _filled;
     double _lower_level, _upper_level;
+
+    // Current contouring operation, based on return type and filled or lines.
+    bool _identify_holes;
+    unsigned int _return_list_count;
 };
 
 #endif // CONTOURPY_SERIAL_H
