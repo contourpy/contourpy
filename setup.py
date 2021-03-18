@@ -23,6 +23,7 @@ _contourpy = Pybind11Extension(
     sources=[
         'src/chunk_local.cpp',
         'src/fill_type.cpp',
+        'src/line_type.cpp',
         'src/mpl2014.cpp',
         'src/outer_or_hole.cpp',
         'src/serial.cpp',

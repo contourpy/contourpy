@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "fill_type.h"
+#include "line_type.h"
 #include "outer_or_hole.h"
 #include <vector>
 
@@ -14,15 +15,18 @@ class SerialContourGenerator
 public:
     SerialContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y,
-        const CoordinateArray& z, const MaskArray& mask, FillType fill_type,
-        long x_chunk_size, long y_chunk_size);
+        const CoordinateArray& z, const MaskArray& mask, LineType line_type,
+        FillType fill_type, long x_chunk_size, long y_chunk_size);
 
     ~SerialContourGenerator();
 
     py::tuple contour_filled(
         const double& lower_level, const double& upper_level);
 
+    py::list contour_lines(const double& level);
+
     static FillType default_fill_type();
+    static LineType default_line_type();
 
     py::tuple get_chunk_count() const;
 
@@ -31,13 +35,15 @@ public:
     bool get_corner_mask() const;
 
     FillType get_fill_type() const;
+    LineType get_line_type() const;
 
     static bool supports_fill_type(FillType fill_type);
+    static bool supports_line_type(LineType line_type);
 
     void write_cache() const;  // For debug purposes only.
 
 private:
-    typedef uint16_t CacheItem;
+    typedef uint32_t CacheItem;
     typedef CacheItem ZLevel;
 
     struct Location
@@ -100,12 +106,17 @@ private:
 
     bool is_quad_in_chunk(long quad, const ChunkLocal& local) const;
 
+    void line(const Location& start_location, ChunkLocal& local);
+
     void move_to_next_boundary_edge(long& quad, long& forward) const;
 
     void set_look_flags(long hole_start_quad);
 
     void single_chunk_filled(
         long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
+
+    void single_chunk_lines(
+        long chunk, ChunkLocal& local, py::list& return_list);
 
     void write_cache_quad(long quad) const;
 
@@ -117,6 +128,7 @@ private:
     const long _nx_chunks, _ny_chunks;  // Number of chunks in each direction.
     const long _n_chunks;               // Total number of chunks.
     const long _x_chunk_size, _y_chunk_size;
+    const LineType _line_type;
     const FillType _fill_type;
 
     CacheItem* _cache;
