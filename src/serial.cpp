@@ -13,54 +13,62 @@
 
 // CacheItem masks, only accessed directly to set.  To read, use accessors
 // detailed below.  1 and 2 refer to level indices (lower and upper).
-#define MASK_Z_LEVEL            0x0003 // Combines the following two.
-#define MASK_Z_LEVEL_1          0x0001 // z > lower_level.
-#define MASK_Z_LEVEL_2          0x0002 // z > upper_level.
-#define MASK_SADDLE             0x000c // Combining the following two
-#define MASK_SADDLE_Z_LEVEL_1   0x0004 // saddle z > lower_level
-#define MASK_SADDLE_Z_LEVEL_2   0x0008 // saddle z > upper_level
-#define MASK_BOUNDARY_N         0x0010 // N edge of quad is a boundary.
-#define MASK_BOUNDARY_E         0x0020 // E edge of quad is a boundary.
-#define MASK_EXISTS_QUAD        0x0040 // All of quad exists (is not masked).
-#define MASK_EXISTS             0x0040 // copy of above
-#define MASK_START_N            0x0080 // N to E
-#define MASK_START_E            0x0100 // E to N
-#define MASK_START_BOUNDARY_W   0x0400
-#define MASK_START_BOUNDARY_S   0x0800
-#define MASK_START_HOLE_N       0x0200 // N boundary of EXISTS, E to W.
-#define MASK_ANY_START          0x0f80 // Combines all the above starts.
-#define MASK_LOOK_N             0x1000
-#define MASK_LOOK_S             0x2000
-#define MASK_NO_STARTS_IN_ROW   0x4000
-#define MASK_NO_MORE_STARTS     0x8000
+#define MASK_Z_LEVEL_1        0x0001 // z > lower_level.
+#define MASK_Z_LEVEL_2        0x0002 // z > upper_level.
+#define MASK_Z_LEVEL          (MASK_Z_LEVEL_1 | MASK_Z_LEVEL_2)
+#define MASK_SADDLE_Z_LEVEL_1 0x0004 // saddle z > lower_level
+#define MASK_SADDLE_Z_LEVEL_2 0x0008 // saddle z > upper_level
+#define MASK_SADDLE           (MASK_SADDLE_Z_LEVEL_1 | MASK_SADDLE_Z_LEVEL_2)
+#define MASK_BOUNDARY_N       0x0010 // N edge of quad is a boundary.
+#define MASK_BOUNDARY_E       0x0020 // E edge of quad is a boundary.
+#define MASK_EXISTS_QUAD      0x0040 // All of quad exists (is not masked).
+#define MASK_EXISTS           MASK_EXISTS_QUAD
+#define MASK_START_N          0x0080 // N to E
+#define MASK_START_E          0x0100 // E to N
+#define MASK_START_BOUNDARY_E 0x0200 // Filled and lines.
+#define MASK_START_BOUNDARY_N 0x0400 // Filled and lines.
+#define MASK_START_BOUNDARY_S 0x0800 // Filled only.
+#define MASK_START_BOUNDARY_W 0x1000 // Filled only.
+#define MASK_START_HOLE_N     0x2000 // N boundary of EXISTS, E to W, filled only.
+#define MASK_ANY_START_FILLED (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_HOLE_N)
+#define MASK_ANY_START_LINES  (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E)
+#define MASK_LOOK_N           0x4000
+#define MASK_LOOK_S           0x8000
+#define MASK_NO_STARTS_IN_ROW 0x10000
+#define MASK_NO_MORE_STARTS   0x20000
 
 // Accessors for various CacheItem masks.
-#define Z_LEVEL(quad)           (_cache[quad] & MASK_Z_LEVEL)
-#define Z_NE                    Z_LEVEL(POINT_NE)
-#define Z_NW                    Z_LEVEL(POINT_NW)
-#define Z_SE                    Z_LEVEL(POINT_SE)
-#define Z_SW                    Z_LEVEL(POINT_SW)
-#define SADDLE_SET(quad)        ((_cache[quad] & MASK_SADDLE) != MASK_SADDLE)
-#define SADDLE_Z_LEVEL(quad)    (SADDLE_SET(quad) ? ((_cache[quad] & MASK_SADDLE) >> 2) : calc_z_level_mid(quad))
-#define BOUNDARY_N(quad)        (_cache[quad] & MASK_BOUNDARY_N)
-#define BOUNDARY_E(quad)        (_cache[quad] & MASK_BOUNDARY_E)
-#define EXISTS_QUAD(quad)       ((_cache[quad] & MASK_EXISTS) == MASK_EXISTS_QUAD)
-#define START_N(quad)           (_cache[quad] & MASK_START_N)
-#define START_E(quad)           (_cache[quad] & MASK_START_E)
-#define START_BOUNDARY_W(quad)  (_cache[quad] & MASK_START_BOUNDARY_W)
-#define START_BOUNDARY_S(quad)  (_cache[quad] & MASK_START_BOUNDARY_S)
-#define START_HOLE_N(quad)      (_cache[quad] & MASK_START_HOLE_N)
-#define ANY_START(quad)         (_cache[quad] & MASK_ANY_START)
-#define LOOK_N(quad)            (_cache[quad] & MASK_LOOK_N)
-#define LOOK_S(quad)            (_cache[quad] & MASK_LOOK_S)
-#define NO_STARTS_IN_ROW(quad)  (_cache[quad] & MASK_NO_STARTS_IN_ROW)
-#define NO_MORE_STARTS(quad)    (_cache[quad] & MASK_NO_MORE_STARTS)
+#define Z_LEVEL(quad)          (_cache[quad] & MASK_Z_LEVEL)
+#define Z_NE                   Z_LEVEL(POINT_NE)
+#define Z_NW                   Z_LEVEL(POINT_NW)
+#define Z_SE                   Z_LEVEL(POINT_SE)
+#define Z_SW                   Z_LEVEL(POINT_SW)
+#define SADDLE_SET(quad)       ((_cache[quad] & MASK_SADDLE) != MASK_SADDLE)
+#define SADDLE_Z_LEVEL(quad)   (SADDLE_SET(quad) ? ((_cache[quad] & MASK_SADDLE) >> 2) : calc_z_level_mid(quad))
+#define BOUNDARY_N(quad)       (_cache[quad] & MASK_BOUNDARY_N)
+#define BOUNDARY_E(quad)       (_cache[quad] & MASK_BOUNDARY_E)
+#define BOUNDARY_S(quad)       (_cache[quad-_nx] & MASK_BOUNDARY_N)
+#define BOUNDARY_W(quad)       (_cache[quad-1] & MASK_BOUNDARY_E)
+#define EXISTS_QUAD(quad)      ((_cache[quad] & MASK_EXISTS) == MASK_EXISTS_QUAD)
+#define START_N(quad)          (_cache[quad] & MASK_START_N)
+#define START_E(quad)          (_cache[quad] & MASK_START_E)
+#define START_BOUNDARY_E(quad) (_cache[quad] & MASK_START_BOUNDARY_E)
+#define START_BOUNDARY_N(quad) (_cache[quad] & MASK_START_BOUNDARY_N)
+#define START_BOUNDARY_S(quad) (_cache[quad] & MASK_START_BOUNDARY_S)
+#define START_BOUNDARY_W(quad) (_cache[quad] & MASK_START_BOUNDARY_W)
+#define START_HOLE_N(quad)     (_cache[quad] & MASK_START_HOLE_N)
+#define ANY_START_FILLED(quad) (_cache[quad] & MASK_ANY_START_FILLED)
+#define ANY_START_LINES(quad)  (_cache[quad] & MASK_ANY_START_LINES)
+#define LOOK_N(quad)           (_cache[quad] & MASK_LOOK_N)
+#define LOOK_S(quad)           (_cache[quad] & MASK_LOOK_S)
+#define NO_STARTS_IN_ROW(quad) (_cache[quad] & MASK_NO_STARTS_IN_ROW)
+#define NO_MORE_STARTS(quad)   (_cache[quad] & MASK_NO_MORE_STARTS)
 
 
 SerialContourGenerator::SerialContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y,
-    const CoordinateArray& z, const MaskArray& mask, FillType fill_type,
-    long x_chunk_size, long y_chunk_size)
+    const CoordinateArray& z, const MaskArray& mask, LineType line_type,
+    FillType fill_type, long x_chunk_size, long y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
@@ -74,6 +82,7 @@ SerialContourGenerator::SerialContourGenerator(
       _n_chunks(_nx_chunks*_ny_chunks),
       _x_chunk_size(std::ceil((_nx-1.0) / _nx_chunks)),
       _y_chunk_size(std::ceil((_ny-1.0) / _ny_chunks)),
+      _line_type(line_type),
       _fill_type(fill_type),
       _cache(new CacheItem[_n]),
       _filled(false),
@@ -240,11 +249,40 @@ py::tuple SerialContourGenerator::contour_filled(
     return tuple;
 }
 
+py::list SerialContourGenerator::contour_lines(const double& level)
+{
+    _filled = false;
+    _lower_level = _upper_level = level;
+    _identify_holes = false;
+    _return_list_count = 1;
+
+    init_cache_levels_and_starts();
+
+    //std::vector<py::list> return_lists(_return_list_count);
+    py::list return_list;
+
+    ChunkLocal local;
+    for (long chunk = 0; chunk < _n_chunks; ++chunk) {
+        get_chunk_limits(chunk, local);
+        single_chunk_lines(chunk, local, return_list);
+        local.clear();
+    }
+
+    return return_list;
+}
+
 FillType SerialContourGenerator::default_fill_type()
 {
     FillType fill_type = FillType::OuterCodes;
     assert(supports_fill_type(fill_type));
     return fill_type;
+}
+
+LineType SerialContourGenerator::default_line_type()
+{
+    LineType line_type = LineType::Separate;
+    assert(supports_line_type(line_type));
+    return line_type;
 }
 
 long SerialContourGenerator::find_look_S(long look_N_quad) const
@@ -390,6 +428,8 @@ bool SerialContourGenerator::follow_interior(
                                    : (forward == -1 ? quad-_nx : quad));
     long right_point = left_point - left;
 
+    bool want_look_N = _identify_holes && pass > 0;
+
     bool abort = false;     // Whether to about the loop.
     bool finished = false;  // Whether finished line, i.e. returned to start.
     while (!abort) {
@@ -427,11 +467,21 @@ bool SerialContourGenerator::follow_interior(
         // Clear unwanted start locations.
         if (pass == 0 && !(quad == start_quad && forward == start_forward)) {
             if (START_E(quad) && forward == -1 && turn_left == -1 &&
-                ((is_upper && Z_NE > 0) || (!is_upper && Z_NE < 2)))
+                (is_upper ? Z_NE > 0 : Z_NE < 2)) {
                 _cache[quad] &= ~MASK_START_E;  // E high if is_upper else low.
+
+                if (!_filled && quad < start_location.quad)
+                    // Already counted points from here onwards.
+                    break;
+            }
             else if (START_N(quad) && forward < -1 && turn_left == 1 &&
-                     ((is_upper && Z_NW > 0) || (!is_upper && Z_NW < 2)))
+                     (is_upper ? Z_NW > 0 : Z_NW < 2)) {
                 _cache[quad] &= ~MASK_START_N;  // E high if is_upper else low.
+
+                if (!_filled && quad < start_location.quad)
+                    // Already counted points from here onwards.
+                    break;
+            }
         }
 
         // Determine entry edge and left and right points of next quad.
@@ -456,33 +506,42 @@ bool SerialContourGenerator::follow_interior(
             // Edge stays the same.
         }
 
-        if (LOOK_N(quad) && pass > 0 && forward == 1 && _identify_holes) {
+        if (want_look_N && LOOK_N(quad) && forward == 1) {
             // Only consider look_N if pass across E edge of this quad.
             // Care needed if both look_N and look_S set in quad because this
             // line corresponds to only one of them, so want to ignore the
             // look_N if it is the other line otherwise it will be double
             // counted.
-            if (!LOOK_S(quad) ||
-                (is_upper && Z_NE < 2) || (!is_upper && Z_NE > 0))
+            if (!LOOK_S(quad) || (is_upper ? Z_NE < 2 : Z_NE > 0))
                 local.look_up_quads.push_back(quad);
         }
 
         // If reached a boundary, return.
         // quad is always unchanged here.
+        bool reached_boundary = false;
         if (forward == 1 && BOUNDARY_E(quad)) {
             forward = _nx;  // Moving N.
-            break;
+            reached_boundary = true;
         }
         else if (forward > 1 && BOUNDARY_N(quad)) {
             forward = -1;  // Moving W.
-            break;
+            reached_boundary = true;
         }
-        else if (forward == -1 && BOUNDARY_E(quad-1)) {  // BOUNDARY_W(quad)
+        else if (forward == -1 && BOUNDARY_W(quad)) {
             forward = -_nx;  // Moving S.
-            break;
+            reached_boundary = true;
         }
-        else if (forward < -1 && BOUNDARY_N(quad-_nx)) {  // BOUNDARY_S(quad)
+        else if (forward < -1 && BOUNDARY_S(quad)) {
             forward = 1;  // Moving E.
+            reached_boundary = true;
+        }
+
+        if (reached_boundary) {
+            if (!_filled) {
+                point_count++;
+                if (pass > 0)
+                    interp(left_point, right_point, false, local);
+            }
             break;
         }
 
@@ -535,6 +594,11 @@ bool SerialContourGenerator::get_corner_mask() const
 FillType SerialContourGenerator::get_fill_type() const
 {
     return _fill_type;
+}
+
+LineType SerialContourGenerator::get_line_type() const
+{
+    return _line_type;
 }
 
 void SerialContourGenerator::get_point_xy(long point, double*& points) const
@@ -678,14 +742,14 @@ void SerialContourGenerator::init_cache_levels_and_starts()
                         start_in_row = true;
                     }
 
-                    if (BOUNDARY_N(quad-_nx) &&
+                    if (BOUNDARY_S(quad) &&
                         ((z_sw == 2 && z_se < 2) || (z_sw == 0 && z_se > 0) ||
                          z_sw == 1)) {
                         _cache[quad] |= MASK_START_BOUNDARY_S;
                         start_in_row = true;
                     }
 
-                    if (BOUNDARY_E(quad-1) &&
+                    if (BOUNDARY_W(quad) &&
                         ((z_nw == 2 && z_sw < 2) || (z_nw == 0 && z_sw > 0) ||
                          (z_nw == 1 && z_sw != 1))) {
                         _cache[quad] |= MASK_START_BOUNDARY_W;
@@ -719,9 +783,73 @@ void SerialContourGenerator::init_cache_levels_and_starts()
             _cache[1 + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
     }
     else {
-        assert(0 && "not implemented");
+        long quad = 0;
+        long j_final_start = 0;
+        for (long j = 0; j < _ny; ++j) {
+            ZLevel z_nw = 0, z_sw = 0;
+            bool start_in_row = false;
+            for (long i = 0; i < _nx; ++i, ++quad, ++z_ptr) {
+                _cache[quad] &= keep_mask;
+                _cache[quad] |= MASK_SADDLE;
 
+                // Cache z-level of NE point.
+                ZLevel z_ne = 0;
+                if (*z_ptr > _lower_level) {
+                    _cache[quad] |= MASK_Z_LEVEL_1;
+                    z_ne = 1;
+                }
 
+                // z-level of SE point already calculated if j > 0; not needed
+                // if j == 0.
+                ZLevel z_se = (j > 0 ? Z_SE : 0);
+
+                if (EXISTS_QUAD(quad)) {
+                    if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0) {
+                        _cache[quad] |= MASK_START_BOUNDARY_S;
+                        start_in_row = true;
+                    }
+
+                    if (BOUNDARY_W(quad) && z_nw == 1 && z_sw == 0) {
+                        _cache[quad] |= MASK_START_BOUNDARY_W;
+                        start_in_row = true;
+                    }
+
+                    if (BOUNDARY_E(quad) && z_se == 1 && z_ne == 0) {
+                        _cache[quad] |= MASK_START_BOUNDARY_E;
+                        start_in_row = true;
+                    }
+
+                    if (BOUNDARY_N(quad) && z_ne == 1 && z_nw == 0) {
+                        _cache[quad] |= MASK_START_BOUNDARY_N;
+                        start_in_row = true;
+                    }
+
+                    if (!BOUNDARY_N(quad) && !BOUNDARY_E(quad)) {
+                        if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
+                            (z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
+                            _cache[quad] |= MASK_START_E;  // E to N low.
+                            start_in_row = true;
+                        }
+                        else if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
+                                 (z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
+                            _cache[quad] |= MASK_START_N;  // N to E low.
+                            start_in_row = true;
+                        }
+                    }
+                }
+
+                z_nw = z_ne;
+                z_sw = z_se;
+            } // i-loop.
+
+            if (start_in_row)
+                j_final_start = j;
+            else
+                _cache[1 + j*_nx] |= MASK_NO_STARTS_IN_ROW;
+        } // j-loop.
+
+        if (j_final_start < _ny-1)
+            _cache[1 + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
     }
 }
 
@@ -762,6 +890,35 @@ bool SerialContourGenerator::is_quad_in_chunk(
 {
     return is_quad_in_bounds(
         quad, local.istart, local.iend, local.jstart, local.jend);
+}
+
+void SerialContourGenerator::line(
+    const Location& start_location, ChunkLocal& local)
+{
+    // start_location.on_boundary indicates starts (and therefore also finishes)
+
+    assert(is_quad_in_chunk(start_location.quad, local));
+
+    Location location = start_location;
+    unsigned long point_count = 0;
+
+    // finished indicates closed line loop.
+    bool finished = follow_interior(
+        location, start_location, local, point_count);
+
+    if (local.pass > 0)
+        local.line_offsets[local.line_count] = local.total_point_count;
+
+    if (local.pass == 0 && !start_location.on_boundary && !finished)
+        // An internal start that isn't a line loop is part of a line strip that
+        // starts on a boundary and will be traced later.  Do not count it as a
+        // valid start in pass 0 and remove the first point or it will be
+        // duplicated by the correct boundary-started line later.
+        point_count--;
+    else
+        local.line_count++;
+
+    local.total_point_count += point_count;
 }
 
 void SerialContourGenerator::move_to_next_boundary_edge(
@@ -867,11 +1024,10 @@ void SerialContourGenerator::set_look_flags(long hole_start_quad)
 void SerialContourGenerator::single_chunk_filled(
     long chunk, ChunkLocal& local, std::vector<py::list>& return_lists)
 {
-    // Allocated at start of pass 1, depending on _fill_type.
+    // Allocated at end of pass 0, depending on _fill_type.
     std::vector<double> all_points;
 
     for (local.pass = 0; local.pass < 2; ++local.pass) {
-
         bool ignore_holes = (_identify_holes && local.pass == 1);
 
         long j_final_start = local.jstart;
@@ -891,7 +1047,7 @@ void SerialContourGenerator::single_chunk_filled(
                                  : local.line_count);
 
             for (long i = local.istart; i <= local.iend; ++i, ++quad) {
-                if (!ANY_START(quad))
+                if (!ANY_START_FILLED(quad))
                     continue;
 
                 if (EXISTS_QUAD(quad)) {
@@ -1104,6 +1260,107 @@ void SerialContourGenerator::single_chunk_filled(
     }
 }
 
+void SerialContourGenerator::single_chunk_lines(
+    long chunk, ChunkLocal& local, py::list& return_list)
+{
+    // Allocated at end of pass 0, depending on _line_type.
+    std::vector<double> all_points;
+
+    for (local.pass = 0; local.pass < 2; ++local.pass) {
+        long j_final_start = local.jstart;
+        for (long j = local.jstart; j <= local.jend; ++j) {
+            long quad = local.istart + j*_nx;
+
+            if (NO_MORE_STARTS(quad))
+                break;
+
+            if (NO_STARTS_IN_ROW(quad))
+                continue;
+
+            // Want to count number of starts in this row, so store how many
+            // starts at start of row.
+            unsigned long prev_start_count = local.line_count;
+
+            for (long i = local.istart; i <= local.iend; ++i, ++quad) {
+                if (!ANY_START_LINES(quad))
+                    continue;
+
+                if (EXISTS_QUAD(quad)) {
+                    if (START_BOUNDARY_S(quad)) {
+                        Location location(quad, _nx, false, true);
+                        line(location, local);
+                    }
+
+                    if (START_BOUNDARY_W(quad)) {
+                        Location location(quad, 1, false, true);
+                        line(location, local);
+                    }
+
+                    if (START_BOUNDARY_E(quad)) {
+                        Location location(quad, -1, false, true);
+                        line(location, local);
+                    }
+
+                    if (START_BOUNDARY_N(quad)) {
+                        Location location(quad, -_nx, false, true);
+                        line(location, local);
+                    }
+
+                    if (START_E(quad)) {
+                        Location location(quad, -1, false, false);
+                        line(location, local);
+                    }
+
+                    if (START_N(quad)) {
+                        Location location(quad, -_nx, false, false);
+                        line(location, local);
+                    }
+                }
+            } // i
+
+            // Number of starts at end of row.
+            if (local.line_count - prev_start_count)
+                j_final_start = j;
+            else
+                _cache[local.istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
+        } // j
+
+        if (j_final_start < local.jend)
+            _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
+
+        if (local.pass == 0) {
+            all_points.resize(2*local.total_point_count);
+            local.points = all_points.data();
+
+            // Allocate space for line_offsets, and set final offsets.
+            local.line_offsets.resize(local.line_count + 1);
+            local.line_offsets.back() = local.total_point_count;
+
+            local.total_point_count = 0;
+            local.line_count = 0;
+        }
+    } // pass
+
+    // Check both passes returned same number of points, lines, etc.
+    assert(local.line_offsets.size() == local.line_count + 1);
+    assert(local.line_offsets.back() == local.total_point_count);
+
+    for (unsigned long i = 0; i < local.line_count; ++i) {
+        // Copy points to new numpy array.
+        auto point_start = local.line_offsets[i];
+        auto point_end = local.line_offsets[i+1];
+        auto point_count = point_end - point_start;
+        assert(point_count > 1);
+        py::size_t points_shape[2] = {point_count, 2};
+        PointArray py_points(points_shape);
+        std::copy(all_points.data() + 2*point_start,
+                  all_points.data() + 2*point_end,
+                  py_points.mutable_data());
+
+        return_list.append(py_points);
+    }
+}
+
 bool SerialContourGenerator::supports_fill_type(FillType fill_type)
 {
     switch (fill_type) {
@@ -1113,6 +1370,16 @@ bool SerialContourGenerator::supports_fill_type(FillType fill_type)
         case FillType::CombinedOffsets:
         case FillType::CombinedCodesOffsets:
         case FillType::CombinedOffsets2:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool SerialContourGenerator::supports_line_type(LineType line_type)
+{
+    switch (line_type) {
+        case LineType::Separate:
             return true;
         default:
             return false;
@@ -1148,12 +1415,18 @@ void SerialContourGenerator::write_cache_quad(long quad) const
                     BOUNDARY_N(quad) ? 'n' : (BOUNDARY_E(quad) ? 'e' : '.')));
     std::cout << Z_LEVEL(quad);
     std::cout << ((_cache[quad] & MASK_SADDLE) >> 2);
-    std::cout << (START_BOUNDARY_S(quad) ? 's' : '.');
-    std::cout << (START_BOUNDARY_W(quad) ? 'w' : '.');
-    std::cout << (START_N(quad) ? 'n' : '.');
-    std::cout << (START_E(quad) ? 'e' : '.');
-    std::cout << (START_HOLE_N(quad) ? 'h' : '.');
-    std::cout << (LOOK_N(quad) && LOOK_S(quad) ? 'B' :
-        (LOOK_N(quad) ? '^' : (LOOK_S(quad) ? 'v' : '.')));
+    std::cout << (START_BOUNDARY_E(quad) ? 'e' : '.');
+    std::cout << (START_BOUNDARY_N(quad) ? 'n' : '.');
+    if (!_filled) {
+        std::cout << (START_BOUNDARY_S(quad) ? 's' : '.');
+        std::cout << (START_BOUNDARY_W(quad) ? 'w' : '.');
+    }
+    std::cout << (START_E(quad) ? 'E' : '.');
+    std::cout << (START_N(quad) ? 'N' : '.');
+    if (_filled) {
+        std::cout << (START_HOLE_N(quad) ? 'h' : '.');
+        std::cout << (LOOK_N(quad) && LOOK_S(quad) ? 'B' :
+            (LOOK_N(quad) ? '^' : (LOOK_S(quad) ? 'v' : '.')));
+    }
     std::cout << ' ';
 }

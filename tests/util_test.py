@@ -31,3 +31,9 @@ def all_fill_types_str_value():
         ('CombinedCodesOffsets', 5),
         ('CombinedOffsets2', 6),
     ]
+
+
+def all_line_types_str_value():
+    return [
+        ('Separate', 0),
+    ]
