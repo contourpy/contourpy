@@ -23,7 +23,7 @@ public:
     py::tuple contour_filled(
         const double& lower_level, const double& upper_level);
 
-    py::list contour_lines(const double& level);
+    py::tuple contour_lines(const double& level);
 
     static FillType default_fill_type();
     static LineType default_line_type();
@@ -116,7 +116,7 @@ private:
         long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void single_chunk_lines(
-        long chunk, ChunkLocal& local, py::list& return_list);
+        long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void write_cache_quad(long quad) const;
 

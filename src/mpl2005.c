@@ -1590,7 +1590,16 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
     }
     else
     {
-        return all_verts;
+        tuple = PyTuple_New(1);
+        if (tuple == NULL)
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Error creating tuple");
+            goto error;
+        }
+
+        // No error checking here as filling in a brand new pre-allocated tuple.
+        PyTuple_SET_ITEM(tuple, 0, all_verts);
+        return tuple;
     }
 
     error:

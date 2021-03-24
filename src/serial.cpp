@@ -249,26 +249,28 @@ py::tuple SerialContourGenerator::contour_filled(
     return tuple;
 }
 
-py::list SerialContourGenerator::contour_lines(const double& level)
+py::tuple SerialContourGenerator::contour_lines(const double& level)
 {
     _filled = false;
     _lower_level = _upper_level = level;
     _identify_holes = false;
-    _return_list_count = 1;
+    _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
 
     init_cache_levels_and_starts();
 
-    //std::vector<py::list> return_lists(_return_list_count);
-    py::list return_list;
+    std::vector<py::list> return_lists(_return_list_count);
 
     ChunkLocal local;
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
-        single_chunk_lines(chunk, local, return_list);
+        single_chunk_lines(chunk, local, return_lists);
         local.clear();
     }
 
-    return return_list;
+    py::tuple tuple(_return_list_count);
+    for (unsigned int i = 0; i < _return_list_count; ++i)
+        tuple[i] = return_lists[i];
+    return tuple;
 }
 
 FillType SerialContourGenerator::default_fill_type()
@@ -902,7 +904,7 @@ void SerialContourGenerator::line(
     Location location = start_location;
     unsigned long point_count = 0;
 
-    // finished indicates closed line loop.
+    // finished == true indicates closed line loop.
     bool finished = follow_interior(
         location, start_location, local, point_count);
 
@@ -1159,6 +1161,9 @@ void SerialContourGenerator::single_chunk_filled(
         assert(local.outer_offsets.empty());
     }
 
+    if (local.total_point_count == 0)
+        return;
+
     // Write points and offsets/codes to output numpy arrays.
     // Needs refactoring so that each FillType is clear, with actual C++ to
     // Python conversions in separate functions.
@@ -1261,10 +1266,11 @@ void SerialContourGenerator::single_chunk_filled(
 }
 
 void SerialContourGenerator::single_chunk_lines(
-    long chunk, ChunkLocal& local, py::list& return_list)
+    long chunk, ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Allocated at end of pass 0, depending on _line_type.
     std::vector<double> all_points;
+    const double* all_points_ptr = nullptr;
 
     for (local.pass = 0; local.pass < 2; ++local.pass) {
         long j_final_start = local.jstart;
@@ -1329,8 +1335,24 @@ void SerialContourGenerator::single_chunk_lines(
             _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
 
         if (local.pass == 0) {
-            all_points.resize(2*local.total_point_count);
-            local.points = all_points.data();
+            if (_line_type == LineType::Separate ||
+                _line_type == LineType::SeparateCodes) {
+                all_points.resize(2*local.total_point_count);
+
+                // Where to store contour points.
+                local.points = all_points.data();
+            }
+            else {  // Combined points.
+                py::size_t points_shape[2] = {local.total_point_count, 2};
+                PointArray py_all_points(points_shape);
+                return_lists[0].append(py_all_points);
+
+                // Where to store contour points.
+                local.points = py_all_points.mutable_data();
+
+                // Needed to check if lines are closed loops or not.
+                all_points_ptr = py_all_points.data();
+            }
 
             // Allocate space for line_offsets, and set final offsets.
             local.line_offsets.resize(local.line_count + 1);
@@ -1345,31 +1367,80 @@ void SerialContourGenerator::single_chunk_lines(
     assert(local.line_offsets.size() == local.line_count + 1);
     assert(local.line_offsets.back() == local.total_point_count);
 
-    for (unsigned long i = 0; i < local.line_count; ++i) {
-        // Copy points to new numpy array.
-        auto point_start = local.line_offsets[i];
-        auto point_end = local.line_offsets[i+1];
-        auto point_count = point_end - point_start;
-        assert(point_count > 1);
-        py::size_t points_shape[2] = {point_count, 2};
-        PointArray py_points(points_shape);
-        std::copy(all_points.data() + 2*point_start,
-                  all_points.data() + 2*point_end,
-                  py_points.mutable_data());
+    if (local.total_point_count == 0)
+        return;
 
-        return_list.append(py_points);
+    if (_line_type == LineType::Separate ||
+        _line_type == LineType::SeparateCodes) {
+        for (unsigned long i = 0; i < local.line_count; ++i) {
+            // Copy points to new numpy array.
+            auto point_start = local.line_offsets[i];
+            auto point_end = local.line_offsets[i+1];
+            auto point_count = point_end - point_start;
+            assert(point_count > 1);
+            py::size_t points_shape[2] = {point_count, 2};
+            PointArray py_points(points_shape);
+            const double* start = all_points.data() + 2*point_start;
+            const double* end = all_points.data() + 2*point_end;
+            std::copy(start, end, py_points.mutable_data());
+
+            return_lists[0].append(py_points);
+
+            if (_line_type == LineType::SeparateCodes) {
+                py::size_t codes_shape[1] = {point_count};
+                CodeArray py_codes(codes_shape);
+                auto py_ptr = py_codes.mutable_data();
+                std::fill(py_ptr + 1, py_ptr + point_count, LINETO);
+                py_ptr[0] = MOVETO;
+                bool closed = *start == *(end-2) && *(start+1) == *(end-1);
+                if (closed)
+                    py_ptr[point_count-1] = CLOSEPOLY;
+
+                return_lists[1].append(py_codes);
+            }
+        }
+    }
+    else if (_line_type == LineType::CombinedCodes) {
+        assert(all_points_ptr != nullptr);
+        // Offsets converted to codes in new numpy array.
+        auto point_count = local.line_offsets.back();
+        py::size_t codes_shape[1] = {point_count};
+        CodeArray py_codes(codes_shape);
+        auto py_ptr = py_codes.mutable_data();
+        std::fill(py_ptr + 1, py_ptr + point_count, LINETO);
+        for (unsigned long i = 0; i < local.line_offsets.size()-1; ++i) {
+            auto start = local.line_offsets[i];
+            auto end = local.line_offsets[i+1];
+            py_ptr[start] = MOVETO;
+            bool closed = all_points_ptr[2*start] == all_points_ptr[2*end-2] &&
+                          all_points_ptr[2*start+1] == all_points_ptr[2*end-1];
+            if (closed)
+                py_ptr[end-1] = CLOSEPOLY;
+        }
+
+        return_lists[1].append(py_codes);
+    }
+    else if (_line_type == LineType::CombinedOffsets) {
+        // Copy offsets to new numpy array.
+        auto line_count = local.line_offsets.size();
+        py::size_t offsets_shape[1] = {line_count};
+        OffsetArray py_offsets(offsets_shape);
+        std::copy(local.line_offsets.begin(), local.line_offsets.end(),
+                  py_offsets.mutable_data());
+
+        return_lists[1].append(py_offsets);
     }
 }
 
 bool SerialContourGenerator::supports_fill_type(FillType fill_type)
 {
     switch (fill_type) {
-        case FillType::OuterCodes:
-        case FillType::OuterOffsets:
         case FillType::CombinedCodes:
         case FillType::CombinedOffsets:
         case FillType::CombinedCodesOffsets:
         case FillType::CombinedOffsets2:
+        case FillType::OuterCodes:
+        case FillType::OuterOffsets:
             return true;
         default:
             return false;
@@ -1380,6 +1451,9 @@ bool SerialContourGenerator::supports_line_type(LineType line_type)
 {
     switch (line_type) {
         case LineType::Separate:
+        case LineType::SeparateCodes:
+        case LineType::CombinedCodes:
+        case LineType::CombinedOffsets:
             return true;
         default:
             return false;
