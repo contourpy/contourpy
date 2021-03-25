@@ -23,6 +23,10 @@ class MplRenderer:
             sharex=True, sharey=True, subplot_kw={'aspect': 'equal'})
         self.axes = axes.flatten()
 
+    def __del__(self):
+        if self.fig:
+            plt.close(self.fig)
+
     def _get_ax(self, ax):
         if isinstance(ax, int):
             ax = self.axes[ax]
@@ -67,10 +71,20 @@ class MplRenderer:
         ax = self._get_ax(ax)
         if line_type == LineType.Separate:
             paths = []
-            for line in lines:
+            for line in lines[0]:
                 # Drawing as Paths so that they can be closed correctly.
                 closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
                 paths.append(mpath.Path(line, closed=closed))
+        elif line_type in (LineType.SeparateCodes, LineType.CombinedCodes):
+            paths = [mpath.Path(points, codes) for points, codes
+                     in zip(lines[0], lines[1])]
+        elif line_type == LineType.CombinedOffsets:
+            paths = []
+            for points, offsets in zip(lines[0], lines[1]):
+                for i in range(len(offsets)-1):
+                    line = points[offsets[i]:offsets[i+1]]
+                    closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
+                    paths.append(mpath.Path(line, closed=closed))
         else:
             raise RuntimeError(f'Rendering LineType {line_type} not implemented')
         collection = mcollections.PathCollection(
@@ -196,24 +210,43 @@ class MplDebugRenderer(MplRenderer):
               point_color='C0', start_point_color='red', arrow_size=0.1):
         super().lines(lines, line_type, ax, color, alpha, linewidth)
 
+        if arrow_size == 0.0 and point_color is None:
+            return
+
         ax = self._get_ax(ax)
+
+        if line_type in (LineType.Separate, LineType.SeparateCodes):
+            all_lines = lines[0]
+        elif line_type == LineType.CombinedCodes:
+            all_lines = []
+            for points, codes in zip(lines[0], lines[1]):
+                offsets = mpl_codes_to_offsets(codes)
+                for i in range(len(offsets)-1):
+                    all_lines.append(points[offsets[i]:offsets[i+1]])
+        elif line_type == LineType.CombinedOffsets:
+            all_lines = []
+            for points, offsets in zip(lines[0], lines[1]):
+                for i in range(len(offsets)-1):
+                    all_lines.append(points[offsets[i]:offsets[i+1]])
+        else:
+            raise RuntimeError(f'Rendering LineType {line_type} not implemented')
 
         if arrow_size > 0.0:
             # LineType.Separate
-            for line in lines:
+            for line in all_lines:
                 for i in range(len(line)-1):
                     self._arrow(ax, line[i], line[i+1], color, alpha,
                                 arrow_size)
 
         if point_color is not None:
-            for line in lines:
+            for line in all_lines:
                 start_index = 0
                 end_index = len(line)
                 if start_point_color is not None:
                     ax.plot(line[0, 0], line[0, 1], 'o', c=start_point_color,
                             alpha=alpha)
                     start_index = 1
-                    if line[0][0] == line[-1][0] and line[-1][0] == line[-1][1]:
+                    if line[0][0] == line[-1][0] and line[0][1] == line[-1][1]:
                         end_index -= 1
                 ax.plot(line[start_index:end_index, 0],
                         line[start_index:end_index, 1], 'o', c=color,

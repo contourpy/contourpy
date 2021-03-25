@@ -23,7 +23,7 @@ public:
     py::tuple contour_filled(
         const double& lower_level, const double& upper_level);
 
-    py::list contour_lines(const double& level);
+    py::tuple contour_lines(const double& level);
 
     static FillType default_fill_type();
     static LineType default_line_type();
@@ -68,6 +68,15 @@ private:
     void closed_line_wrapper(
         const Location& start_location, OuterOrHole outer_or_hole,
         ChunkLocal& local);
+
+    // Write points and offsets/codes to output numpy arrays.
+    void export_filled(
+        long chunk, ChunkLocal& local, const std::vector<double>& all_points,
+        std::vector<py::list>& return_lists);
+
+    void export_lines(
+        long chunk, ChunkLocal& local, const double* all_points_ptr,
+        std::vector<py::list>& return_lists);
 
     long find_look_S(long look_N_quad) const;
 
@@ -116,7 +125,7 @@ private:
         long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void single_chunk_lines(
-        long chunk, ChunkLocal& local, py::list& return_list);
+        long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void write_cache_quad(long quad) const;
 

@@ -39,6 +39,14 @@ class Config:
         self.x, self.y = np.meshgrid([0.0, 1.0], [0.0, 1.0])
         self.mask = False
 
+        # Set in derived classes.
+        self.fig = None
+        self.axes = None
+
+    def __del__(self):
+        if self.fig:
+            plt.close(self.fig)
+
     def _arrow(self, ax, line_start, line_end, color):
         mid = 0.5*(line_start + line_end)
         along = line_end - line_start
@@ -107,6 +115,7 @@ class Config:
             lines = filled[0]
         else:
             lines = cont_gen.contour_lines(zlower)
+            lines = lines[0]
 
         # May be 0..2 polygons, and there cannot be any holes.
         for points in lines:

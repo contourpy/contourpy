@@ -289,7 +289,7 @@ public:
 
     // Create and return polygons for a line (i.e. non-filled) contour at the
     // specified level.
-    py::list contour_lines(const double& level);
+    py::tuple contour_lines(const double& level);
 
 private:
     // Typedef for following either a boundary of the domain or the interior;

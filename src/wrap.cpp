@@ -77,15 +77,18 @@ PYBIND11_MODULE(_contourpy, m) {
             &SerialContourGenerator::supports_line_type);
 
     py::enum_<FillType>(m, "FillType")
-        .value("OuterCodes", FillType::OuterCodes)
-        .value("OuterOffsets", FillType::OuterOffsets)
         .value("CombinedCodes", FillType::CombinedCodes)
         .value("CombinedOffsets", FillType::CombinedOffsets)
         .value("CombinedCodesOffsets", FillType::CombinedCodesOffsets)
         .value("CombinedOffsets2", FillType::CombinedOffsets2)
+        .value("OuterCodes", FillType::OuterCodes)
+        .value("OuterOffsets", FillType::OuterOffsets)
         .export_values();
 
     py::enum_<LineType>(m, "LineType")
         .value("Separate", LineType::Separate)
+        .value("SeparateCodes", LineType::SeparateCodes)
+        .value("CombinedCodes", LineType::CombinedCodes)
+        .value("CombinedOffsets", LineType::CombinedOffsets)
         .export_values();
 }
