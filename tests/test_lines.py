@@ -99,7 +99,6 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)):
-        pass
         renderer.lines(cont_gen.contour_lines(levels[i]),
                        line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
