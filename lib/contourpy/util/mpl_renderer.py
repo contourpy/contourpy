@@ -8,6 +8,7 @@ matplotlib.use('Agg')
 
 from contourpy import FillType, LineType
 from .mpl_util import mpl_codes_to_offsets, offsets_to_mpl_codes
+
 import io
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
@@ -18,28 +19,28 @@ import numpy as np
 class MplRenderer:
     def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
         plt.switch_backend(_default_backend)
-        self.fig, axes = plt.subplots(
+        self._fig, axes = plt.subplots(
             nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False,
             sharex=True, sharey=True, subplot_kw={'aspect': 'equal'})
-        self.axes = axes.flatten()
+        self._axes = axes.flatten()
 
     def __del__(self):
-        if self.fig:
-            plt.close(self.fig)
+        if self._fig:
+            plt.close(self._fig)
 
     def _get_ax(self, ax):
         if isinstance(ax, int):
-            ax = self.axes[ax]
+            ax = self._axes[ax]
         return ax
 
     def filled(self, filled, fill_type, ax=0, color='C0', alpha=0.7):
         ax = self._get_ax(ax)
         if fill_type in (FillType.OuterCodes, FillType.CombinedCodes):
             paths = [mpath.Path(points, codes) for points, codes
-                     in zip(filled[0], filled[1])]
+                     in zip(*filled)]
         elif fill_type in (FillType.OuterOffsets, FillType.CombinedOffsets):
             paths = [mpath.Path(points, offsets_to_mpl_codes(offsets))
-                     for points, offsets in zip(filled[0], filled[1])]
+                     for points, offsets in zip(*filled)]
         elif fill_type == FillType.CombinedCodesOffsets:
             paths = []
             for i in range(len(filled[0])):
@@ -62,7 +63,7 @@ class MplRenderer:
             paths, facecolors=color, edgecolors='none', lw=0, alpha=alpha)
         ax.add_collection(collection)
 
-    def grid(self, x, y, ax=0, color='k', alpha=0.1):
+    def grid(self, x, y, ax=0, color='black', alpha=0.1):
         ax = self._get_ax(ax)
         ax.plot(x, y, x.T, y.T, color=color, alpha=alpha)
 
@@ -76,8 +77,7 @@ class MplRenderer:
                 closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
                 paths.append(mpath.Path(line, closed=closed))
         elif line_type in (LineType.SeparateCodes, LineType.CombinedCodes):
-            paths = [mpath.Path(points, codes) for points, codes
-                     in zip(lines[0], lines[1])]
+            paths = [mpath.Path(points, codes) for points, codes in zip(*lines)]
         elif line_type == LineType.CombinedOffsets:
             paths = []
             for points, offsets in zip(lines[0], lines[1]):
@@ -94,17 +94,18 @@ class MplRenderer:
 
     def save_to_buffer(self):
         buf = io.BytesIO()
-        self.fig.savefig(buf, format='png')
+        self._fig.savefig(buf, format='png')
         buf.seek(0)
         return buf
 
+    # Save as PNG or SVG.
     def save(self, filename):
-        self.fig.savefig(filename)
+        self._fig.savefig(filename)
 
     def show(self):
         plt.show()
 
-    def title(self, ax, title):
+    def title(self, title, ax=0):
         self._get_ax(ax).set_title(title)
 
 
@@ -113,15 +114,15 @@ class MplTestRenderer(MplRenderer):
     def __init__(self, x, y, nrows=1, ncols=1, figsize=(9, 9)):
         gridspec = {'left': 0.01, 'right': 0.99, 'top': 0.99, 'bottom': 0.01,
                     'wspace': 0.01, 'hspace': 0.01}
-        self.fig, axes = plt.subplots(
+        self._fig, axes = plt.subplots(
             nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False,
             gridspec_kw=gridspec)
-        self.axes = axes.flatten()
+        self._axes = axes.flatten()
 
         xlim = (x.min(), x.max())
         ylim = (y.min(), y.max())
 
-        for ax in self.axes:
+        for ax in self._axes:
             ax.set_xlim(xlim)
             ax.set_ylim(ylim)
             ax.set_xticks([])
@@ -219,13 +220,13 @@ class MplDebugRenderer(MplRenderer):
             all_lines = lines[0]
         elif line_type == LineType.CombinedCodes:
             all_lines = []
-            for points, codes in zip(lines[0], lines[1]):
+            for points, codes in zip(*lines[0]):
                 offsets = mpl_codes_to_offsets(codes)
                 for i in range(len(offsets)-1):
                     all_lines.append(points[offsets[i]:offsets[i+1]])
         elif line_type == LineType.CombinedOffsets:
             all_lines = []
-            for points, offsets in zip(lines[0], lines[1]):
+            for points, offsets in zip(*lines[0]):
                 for i in range(len(offsets)-1):
                     all_lines.append(points[offsets[i]:offsets[i+1]])
         else:
