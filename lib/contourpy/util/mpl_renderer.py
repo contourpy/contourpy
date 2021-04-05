@@ -78,12 +78,17 @@ class MplRenderer:
                 # Drawing as Paths so that they can be closed correctly.
                 closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
                 paths.append(mpath.Path(line, closed=closed))
-        elif line_type in (LineType.SeparateCodes,
-                           LineType.ChunkCombinedCodes):
-            paths = [mpath.Path(points, codes) for points, codes in zip(*lines)]
+        elif line_type == LineType.SeparateCodes:
+            paths = [mpath.Path(points, codes) for points, codes
+                    in zip(*lines)]
+        elif line_type == LineType.ChunkCombinedCodes:
+            paths = [mpath.Path(points, codes) for points, codes
+                     in zip(*lines) if points is not None]
         elif line_type == LineType.ChunkCombinedOffsets:
             paths = []
-            for points, offsets in zip(lines[0], lines[1]):
+            for points, offsets in zip(*lines):
+                if points is None:
+                    continue
                 for i in range(len(offsets)-1):
                     line = points[offsets[i]:offsets[i+1]]
                     closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
@@ -227,13 +232,13 @@ class MplDebugRenderer(MplRenderer):
             all_lines = lines[0]
         elif line_type == LineType.ChunkCombinedCodes:
             all_lines = []
-            for points, codes in zip(*lines[0]):
+            for points, codes in zip(*lines):
                 offsets = mpl_codes_to_offsets(codes)
                 for i in range(len(offsets)-1):
                     all_lines.append(points[offsets[i]:offsets[i+1]])
         elif line_type == LineType.ChunkCombinedOffsets:
             all_lines = []
-            for points, offsets in zip(*lines[0]):
+            for points, offsets in zip(*lines):
                 for i in range(len(offsets)-1):
                     all_lines.append(points[offsets[i]:offsets[i+1]])
         else:

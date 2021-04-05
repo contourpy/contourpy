@@ -231,10 +231,15 @@ py::tuple SerialContourGenerator::contour_filled(
                        _fill_type != FillType::ChunkCombinedOffsets);
     _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
                           _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
+    long list_len = (_fill_type == FillType::OuterCodes ||
+                     _fill_type == FillType::OuterOffsets) ? 0 : _n_chunks;
 
     init_cache_levels_and_starts();
 
-    std::vector<py::list> return_lists(_return_list_count);
+    std::vector<py::list> return_lists;
+    return_lists.reserve(_return_list_count);
+    for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
+        return_lists.emplace_back(list_len);
 
     ChunkLocal local;
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
@@ -257,10 +262,15 @@ py::sequence SerialContourGenerator::contour_lines(const double& level)
     _lower_level = _upper_level = level;
     _identify_holes = false;
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
+    long list_len = (_line_type == LineType::Separate ||
+                     _line_type == LineType::SeparateCodes) ? 0 : _n_chunks;
 
     init_cache_levels_and_starts();
 
-    std::vector<py::list> return_lists(_return_list_count);
+    std::vector<py::list> return_lists;
+    return_lists.reserve(_return_list_count);
+    for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
+        return_lists.emplace_back(list_len);
 
     ChunkLocal local;
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
@@ -302,53 +312,70 @@ void SerialContourGenerator::export_filled(
     switch (_fill_type)
     {
         case FillType::OuterCodes:
-        case FillType::OuterOffsets: {
-            auto outer_count = local.line_count - local.hole_count;
-            for (decltype(outer_count) i = 0; i < outer_count; ++i) {
-                auto outer_start = local.outer_offsets[i];
-                auto outer_end = local.outer_offsets[i+1];
-                auto point_start = local.line_offsets[outer_start];
-                auto point_end = local.line_offsets[outer_end];
-                auto point_count = point_end - point_start;
-                assert(point_count > 2);
+        case FillType::OuterOffsets:
+            if (local.total_point_count > 0) {
+                auto outer_count = local.line_count - local.hole_count;
+                for (decltype(outer_count) i = 0; i < outer_count; ++i) {
+                    auto outer_start = local.outer_offsets[i];
+                    auto outer_end = local.outer_offsets[i+1];
+                    auto point_start = local.line_offsets[outer_start];
+                    auto point_end = local.line_offsets[outer_end];
+                    auto point_count = point_end - point_start;
+                    assert(point_count > 2);
 
-                return_lists[0].append(Converter::convert_points(
-                    point_count, all_points.data() + 2*point_start));
+                    return_lists[0].append(Converter::convert_points(
+                        point_count, all_points.data() + 2*point_start));
 
-                if (_fill_type == FillType::OuterCodes)
-                    return_lists[1].append(Converter::convert_codes(
-                        point_count, outer_end - outer_start + 1,
-                        local.line_offsets.data() + outer_start, point_start));
-                else
-                    return_lists[1].append(Converter::convert_offsets(
-                        outer_end - outer_start + 1,
-                        local.line_offsets.data() + outer_start, point_start));
+                    if (_fill_type == FillType::OuterCodes)
+                        return_lists[1].append(Converter::convert_codes(
+                            point_count, outer_end - outer_start + 1,
+                            local.line_offsets.data() + outer_start,
+                            point_start));
+                    else
+                        return_lists[1].append(Converter::convert_offsets(
+                            outer_end - outer_start + 1,
+                            local.line_offsets.data() + outer_start,
+                            point_start));
+                }
             }
             break;
-        }
         case FillType::ChunkCombinedCodes:
         case FillType::ChunkCombinedCodesOffsets:
-            // return_lists[0] already set.
-            assert(!local.line_offsets.empty());
-            return_lists[1].append(Converter::convert_codes(
-                local.total_point_count, local.line_offsets.size(),
-                local.line_offsets.data()));
+            if (local.total_point_count > 0) {
+                // return_lists[0] already set.
+                assert(!local.line_offsets.empty());
+                return_lists[1][local.chunk] = Converter::convert_codes(
+                    local.total_point_count, local.line_offsets.size(),
+                    local.line_offsets.data());
 
-            if (_fill_type == FillType::ChunkCombinedCodesOffsets)
-                return_lists[2].append(Converter::convert_offsets_nested(
-                    local.outer_offsets.size(), local.outer_offsets.data(),
-                    local.line_offsets.data()));
+                if (_fill_type == FillType::ChunkCombinedCodesOffsets)
+                    return_lists[2][local.chunk] =
+                        Converter::convert_offsets_nested(
+                            local.outer_offsets.size(),
+                            local.outer_offsets.data(),
+                            local.line_offsets.data());
+            }
+            else {
+                for (auto& list : return_lists)
+                    list[local.chunk] = py::none();
+            }
             break;
         case FillType::ChunkCombinedOffsets:
         case FillType::ChunkCombinedOffsets2:
-            // return_lists[0] already set.
-            assert(!local.line_offsets.empty());
-            return_lists[1].append(Converter::convert_offsets(
-                local.line_offsets.size(), local.line_offsets.data()));
+            if (local.total_point_count > 0) {
+                // return_lists[0] already set.
+                assert(!local.line_offsets.empty());
+                return_lists[1][local.chunk] = Converter::convert_offsets(
+                    local.line_offsets.size(), local.line_offsets.data());
 
-            if (_fill_type == FillType::ChunkCombinedOffsets2)
-                return_lists[2].append(Converter::convert_offsets(
-                    local.outer_offsets.size(), local.outer_offsets.data()));
+                if (_fill_type == FillType::ChunkCombinedOffsets2)
+                    return_lists[2][local.chunk] = Converter::convert_offsets(
+                        local.outer_offsets.size(), local.outer_offsets.data());
+            }
+            else {
+                for (auto& list : return_lists)
+                    list[local.chunk] = py::none();
+            }
             break;
     }
 }
@@ -362,36 +389,51 @@ void SerialContourGenerator::export_lines(
         case LineType::Separate:
         case LineType::SeparateCodes:
             assert(all_points_ptr != nullptr);
-            for (unsigned long i = 0; i < local.line_count; ++i) {
-                auto point_start = local.line_offsets[i];
-                auto point_end = local.line_offsets[i+1];
-                auto point_count = point_end - point_start;
-                assert(point_count > 1);
+            if (local.total_point_count > 0) {
+                for (unsigned long i = 0; i < local.line_count; ++i) {
+                    auto point_start = local.line_offsets[i];
+                    auto point_end = local.line_offsets[i+1];
+                    auto point_count = point_end - point_start;
+                    assert(point_count > 1);
 
-                return_lists[0].append(Converter::convert_points(
-                    point_count, all_points_ptr + 2*point_start));
+                    return_lists[0].append(Converter::convert_points(
+                        point_count, all_points_ptr + 2*point_start));
 
-                if (_line_type == LineType::SeparateCodes) {
-                    return_lists[1].append(
-                        Converter::convert_codes_check_closed_single(
-                            point_count, all_points_ptr + 2*point_start));
+                    if (_line_type == LineType::SeparateCodes) {
+                        return_lists[1].append(
+                            Converter::convert_codes_check_closed_single(
+                                point_count, all_points_ptr + 2*point_start));
+                    }
                 }
             }
             break;
         case LineType::ChunkCombinedCodes: {
-            // return_lists[0] already set.
-            assert(all_points_ptr != nullptr);
-            assert(!local.line_offsets.empty());
-            return_lists[1].append(Converter::convert_codes_check_closed(
-                local.total_point_count, local.line_offsets.size(),
-                local.line_offsets.data(), all_points_ptr));
+            if (local.total_point_count > 0) {
+                // return_lists[0] already set.
+                assert(all_points_ptr != nullptr);
+                assert(!local.line_offsets.empty());
+                return_lists[1][local.chunk] =
+                    Converter::convert_codes_check_closed(
+                        local.total_point_count, local.line_offsets.size(),
+                        local.line_offsets.data(), all_points_ptr);
+            }
+            else {
+                for (auto& list : return_lists)
+                    list[local.chunk] = py::none();
+            }
             break;
         }
         case LineType::ChunkCombinedOffsets:
-            // return_lists[0] already set.
-            assert(!local.line_offsets.empty());
-            return_lists[1].append(Converter::convert_offsets(
-                local.line_offsets.size(), local.line_offsets.data()));
+            if (local.total_point_count > 0) {
+                // return_lists[0] already set.
+                assert(!local.line_offsets.empty());
+                return_lists[1][local.chunk] = Converter::convert_offsets(
+                    local.line_offsets.size(), local.line_offsets.data());
+            }
+            else {
+                for (auto& list : return_lists)
+                    list[local.chunk] = py::none();
+            }
             break;
     }
 }
@@ -1209,10 +1251,10 @@ void SerialContourGenerator::single_chunk_filled(
                 // Where to store contour points.
                 local.points = all_points.data();
             }
-            else {  // Combined points.
+            else if (local.total_point_count > 0) {  // Combined points.
                 py::size_t points_shape[2] = {local.total_point_count, 2};
                 PointArray py_all_points(points_shape);
-                return_lists[0].append(py_all_points);
+                return_lists[0][local.chunk] = py_all_points;
 
                 // Where to store contour points.
                 local.points = py_all_points.mutable_data();
@@ -1266,8 +1308,7 @@ void SerialContourGenerator::single_chunk_filled(
         assert(local.outer_offsets.empty());
     }
 
-    if (local.total_point_count > 0)
-        export_filled(local, all_points, return_lists);
+    export_filled(local, all_points, return_lists);
 }
 
 void SerialContourGenerator::single_chunk_lines(
@@ -1350,10 +1391,10 @@ void SerialContourGenerator::single_chunk_lines(
                 // Needed to check if lines are closed loops or not.
                 all_points_ptr = all_points.data();
             }
-            else {  // Combined points.
+            else if (local.total_point_count > 0) {  // Combined points.
                 py::size_t points_shape[2] = {local.total_point_count, 2};
                 PointArray py_all_points(points_shape);
-                return_lists[0].append(py_all_points);
+                return_lists[0][local.chunk] = py_all_points;
 
                 // Where to store contour points.
                 local.points = py_all_points.mutable_data();
@@ -1375,8 +1416,7 @@ void SerialContourGenerator::single_chunk_lines(
     assert(local.line_offsets.size() == local.line_count + 1);
     assert(local.line_offsets.back() == local.total_point_count);
 
-    if (local.total_point_count > 0)
-        export_lines(local, all_points_ptr, return_lists);
+    export_lines(local, all_points_ptr, return_lists);
 }
 
 bool SerialContourGenerator::supports_fill_type(FillType fill_type)
