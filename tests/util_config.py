@@ -115,7 +115,6 @@ class Config:
             lines = filled[0]
         else:
             lines = cont_gen.contour_lines(zlower)
-            lines = lines[0]
 
         # May be 0..2 polygons, and there cannot be any holes.
         for points in lines:

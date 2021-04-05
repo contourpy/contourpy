@@ -537,13 +537,10 @@ py::tuple Mpl2014ContourGenerator::contour_filled(
         append_contour_to_vertices_and_codes(contour, vertices, codes);
     }
 
-    py::tuple tuple(2);
-    tuple[0] = vertices;
-    tuple[1] = codes;
-    return tuple;
+    return py::make_tuple(vertices, codes);
 }
 
-py::tuple Mpl2014ContourGenerator::contour_lines(const double& level)
+py::list Mpl2014ContourGenerator::contour_lines(const double& level)
 {
     init_cache_levels(level, level);
 
@@ -627,9 +624,7 @@ py::tuple Mpl2014ContourGenerator::contour_lines(const double& level)
         }
     }
 
-    py::tuple tuple(1);
-    tuple[0] = vertices_list;
-    return tuple;
+    return vertices_list;
 }
 
 void Mpl2014ContourGenerator::edge_interp(const QuadEdge& quad_edge,

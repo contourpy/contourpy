@@ -243,13 +243,15 @@ py::tuple SerialContourGenerator::contour_filled(
         local.clear();
     }
 
-    py::tuple tuple(_return_list_count);
-    for (unsigned int i = 0; i < _return_list_count; ++i)
-        tuple[i] = return_lists[i];
-    return tuple;
+    if (_return_list_count == 2)
+        return py::make_tuple(return_lists[0], return_lists[1]);
+    else {
+        assert(_return_list_count == 3);
+        return py::make_tuple(return_lists[0], return_lists[1], return_lists[2]);
+    }
 }
 
-py::tuple SerialContourGenerator::contour_lines(const double& level)
+py::sequence SerialContourGenerator::contour_lines(const double& level)
 {
     _filled = false;
     _lower_level = _upper_level = level;
@@ -267,10 +269,14 @@ py::tuple SerialContourGenerator::contour_lines(const double& level)
         local.clear();
     }
 
-    py::tuple tuple(_return_list_count);
-    for (unsigned int i = 0; i < _return_list_count; ++i)
-        tuple[i] = return_lists[i];
-    return tuple;
+    if (_line_type == LineType::Separate) {
+        assert(_return_list_count == 1);
+        return return_lists[0];
+    }
+    else {
+        assert(_return_list_count == 2);
+        return py::make_tuple(return_lists[0], return_lists[1]);
+    }
 }
 
 FillType SerialContourGenerator::default_fill_type()
@@ -662,10 +668,7 @@ bool SerialContourGenerator::follow_interior(
 
 py::tuple SerialContourGenerator::get_chunk_count() const
 {
-    py::tuple tuple(2);
-    tuple[0] = _ny_chunks;
-    tuple[1] = _nx_chunks;
-    return tuple;
+    return py::make_tuple(_ny_chunks, _nx_chunks);
 }
 
 void SerialContourGenerator::get_chunk_limits(
@@ -687,10 +690,7 @@ void SerialContourGenerator::get_chunk_limits(
 
 py::tuple SerialContourGenerator::get_chunk_size() const
 {
-    py::tuple tuple(2);
-    tuple[0] = _y_chunk_size;
-    tuple[1] = _x_chunk_size;
-    return tuple;
+    return py::make_tuple(_y_chunk_size, _x_chunk_size);
 }
 
 bool SerialContourGenerator::get_corner_mask() const

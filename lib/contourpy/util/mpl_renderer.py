@@ -74,7 +74,7 @@ class MplRenderer:
         ax = self._get_ax(ax)
         if line_type == LineType.Separate:
             paths = []
-            for line in lines[0]:
+            for line in lines:
                 # Drawing as Paths so that they can be closed correctly.
                 closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
                 paths.append(mpath.Path(line, closed=closed))
@@ -221,7 +221,9 @@ class MplDebugRenderer(MplRenderer):
 
         ax = self._get_ax(ax)
 
-        if line_type in (LineType.Separate, LineType.SeparateCodes):
+        if line_type == LineType.Separate:
+            all_lines = lines
+        elif line_type == LineType.SeparateCodes:
             all_lines = lines[0]
         elif line_type == LineType.ChunkCombinedCodes:
             all_lines = []

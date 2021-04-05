@@ -99,7 +99,11 @@ class BokehRenderer:
         xs = []
         ys = []
 
-        if line_type in (LineType.Separate, LineType.SeparateCodes):
+        if line_type == LineType.Separate:
+            for line in lines:
+                xs.append(line[:, 0])
+                ys.append(line[:, 1])
+        elif line_type == LineType.SeparateCodes:
             for line in lines[0]:
                 xs.append(line[:, 0])
                 ys.append(line[:, 1])

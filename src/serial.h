@@ -23,7 +23,8 @@ public:
     py::tuple contour_filled(
         const double& lower_level, const double& upper_level);
 
-    py::tuple contour_lines(const double& level);
+    // Return py::tuple or py::list depending on _line_type.
+    py::sequence contour_lines(const double& level);
 
     static FillType default_fill_type();
     static LineType default_line_type();
