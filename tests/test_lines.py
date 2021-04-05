@@ -104,7 +104,8 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'lines_random_uniform_no_corner_mask.png',
-                   name, max_threshold=200 if name == 'mpl2005' else 100)
+                   f'{name}_{line_type}',
+                   max_threshold=200 if name == 'mpl2005' else 100)
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
@@ -122,8 +123,8 @@ def test_lines_random_uniform_corner_mask(name):
                        line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'lines_random_uniform_corner_mask.png', name)
-
+    compare_images(image_buffer, 'lines_random_uniform_corner_mask.png',
+                   f'{name}_{line_type}')
 
 
 @pytest.mark.parametrize('line_type', LineType.__members__.values())
@@ -152,7 +153,8 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
                 assert c.dtype == np.uint8
             assert_array_equal(codes[0], [1, 2, 2, 2, 79])
             assert_array_equal(codes[1], [1, 2])
-    elif line_type in (LineType.CombinedCodes, LineType.CombinedOffsets):
+    elif line_type in (LineType.ChunkCombinedCodes,
+                       LineType.ChunkCombinedOffsets):
         assert isinstance(lines, tuple) and len(lines) == 2
         points = lines[0]
         assert isinstance(points, list) and len(points) == 1
@@ -160,7 +162,7 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
         assert points[0].dtype == np.float64
         assert points[0].shape == (7, 2)
         assert_array_equal(points[0][0], points[0][4])
-        if line_type == LineType.CombinedCodes:
+        if line_type == LineType.ChunkCombinedCodes:
             codes = lines[1]
             assert isinstance(codes, list) and len(codes) == 1
             assert isinstance(codes[0], np.ndarray)
@@ -173,4 +175,4 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
             assert offsets[0].dtype == np.int32
             assert_array_equal(offsets[0], [0, 5, 7])
     else:
-        raise RuntimeError(f'Unexpected fill_type {fill_type}')
+        raise RuntimeError(f'Unexpected line_type {line_type}')

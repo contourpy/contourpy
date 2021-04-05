@@ -46,10 +46,10 @@ class BokehRenderer:
         xs = []
         ys = []
 
-        if fill_type in (FillType.OuterOffsets, FillType.CombinedOffsets,
-                         FillType.OuterCodes, FillType.CombinedCodes):
+        if fill_type in (FillType.OuterOffsets, FillType.ChunkCombinedOffsets,
+                         FillType.OuterCodes, FillType.ChunkCombinedCodes):
             have_codes = \
-                fill_type in (FillType.OuterCodes, FillType.CombinedCodes)
+                fill_type in (FillType.OuterCodes, FillType.ChunkCombinedCodes)
 
             for points, offsets in zip(*filled):
                 if have_codes:
@@ -60,11 +60,11 @@ class BokehRenderer:
                     xys = points[offsets[i]:offsets[i+1]]
                     xs[-1].append(xys[:, 0])
                     ys[-1].append(xys[:, 1])
-        elif fill_type in (FillType.CombinedCodesOffsets,
-                           FillType.CombinedOffsets2):
+        elif fill_type in (FillType.ChunkCombinedCodesOffsets,
+                           FillType.ChunkCombinedOffsets2):
             for points, codes_or_offsets, outer_offsets in zip(*filled):
                 for j in range(len(outer_offsets)-1):
-                    if fill_type == FillType.CombinedCodesOffsets:
+                    if fill_type == FillType.ChunkCombinedCodesOffsets:
                         codes = codes_or_offsets[outer_offsets[j]:
                                                  outer_offsets[j+1]]
                         offsets = mpl_codes_to_offsets(codes) + outer_offsets[j]
@@ -103,9 +103,10 @@ class BokehRenderer:
             for line in lines[0]:
                 xs.append(line[:, 0])
                 ys.append(line[:, 1])
-        elif line_type in (LineType.CombinedCodes, LineType.CombinedOffsets):
+        elif line_type in (LineType.ChunkCombinedCodes,
+                           LineType.ChunkCombinedOffsets):
             for points, offsets in zip(*lines):
-                if line_type == LineType.CombinedCodes:
+                if line_type == LineType.ChunkCombinedCodes:
                     offsets = mpl_codes_to_offsets(offsets)
 
                 for i in range(len(offsets)-1):

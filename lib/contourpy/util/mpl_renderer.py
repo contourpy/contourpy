@@ -35,20 +35,22 @@ class MplRenderer:
 
     def filled(self, filled, fill_type, ax=0, color='C0', alpha=0.7):
         ax = self._get_ax(ax)
-        if fill_type in (FillType.OuterCodes, FillType.CombinedCodes):
+        if fill_type in (FillType.OuterCodes,
+                         FillType.ChunkCombinedCodes):
             paths = [mpath.Path(points, codes) for points, codes
                      in zip(*filled)]
-        elif fill_type in (FillType.OuterOffsets, FillType.CombinedOffsets):
+        elif fill_type in (FillType.OuterOffsets,
+                           FillType.ChunkCombinedOffsets):
             paths = [mpath.Path(points, offsets_to_mpl_codes(offsets))
                      for points, offsets in zip(*filled)]
-        elif fill_type == FillType.CombinedCodesOffsets:
+        elif fill_type == FillType.ChunkCombinedCodesOffsets:
             paths = []
             for i in range(len(filled[0])):
                 outer_offsets = filled[2][i]
                 points = np.split(filled[0][i], outer_offsets[1:-1])
                 codes = np.split(filled[1][i], outer_offsets[1:-1])
                 paths += [mpath.Path(p, c) for p, c in zip(points, codes)]
-        elif fill_type == FillType.CombinedOffsets2:
+        elif fill_type == FillType.ChunkCombinedOffsets2:
             paths = []
             for i in range(len(filled[0])):
                 outer_offsets = filled[2][i]
@@ -76,9 +78,10 @@ class MplRenderer:
                 # Drawing as Paths so that they can be closed correctly.
                 closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
                 paths.append(mpath.Path(line, closed=closed))
-        elif line_type in (LineType.SeparateCodes, LineType.CombinedCodes):
+        elif line_type in (LineType.SeparateCodes,
+                           LineType.ChunkCombinedCodes):
             paths = [mpath.Path(points, codes) for points, codes in zip(*lines)]
-        elif line_type == LineType.CombinedOffsets:
+        elif line_type == LineType.ChunkCombinedOffsets:
             paths = []
             for points, offsets in zip(lines[0], lines[1]):
                 for i in range(len(offsets)-1):
@@ -154,18 +157,20 @@ class MplDebugRenderer(MplRenderer):
 
         ax = self._get_ax(ax)
 
-        if fill_type in (FillType.OuterCodes, FillType.CombinedCodes):
+        if fill_type in (FillType.OuterCodes,
+                         FillType.ChunkCombinedCodes):
             all_points = filled[0]
             all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1]]
-        elif fill_type in (FillType.OuterOffsets, FillType.CombinedOffsets):
+        elif fill_type in (FillType.OuterOffsets,
+                           FillType.ChunkCombinedOffsets):
             all_points = filled[0]
             all_offsets = filled[1]
-        elif fill_type == FillType.CombinedCodesOffsets:
+        elif fill_type == FillType.ChunkCombinedCodesOffsets:
             outer_offsets = filled[2][0]
             all_points = np.split(filled[0][0], outer_offsets[1:-1])
             all_codes = np.split(filled[1][0], outer_offsets[1:-1])
             all_offsets = [mpl_codes_to_offsets(codes) for codes in all_codes]
-        elif fill_type == FillType.CombinedOffsets2:
+        elif fill_type == FillType.ChunkCombinedOffsets2:
             all_points = []
             all_offsets = []
             for i in range(len(filled[0])):
@@ -218,13 +223,13 @@ class MplDebugRenderer(MplRenderer):
 
         if line_type in (LineType.Separate, LineType.SeparateCodes):
             all_lines = lines[0]
-        elif line_type == LineType.CombinedCodes:
+        elif line_type == LineType.ChunkCombinedCodes:
             all_lines = []
             for points, codes in zip(*lines[0]):
                 offsets = mpl_codes_to_offsets(codes)
                 for i in range(len(offsets)-1):
                     all_lines.append(points[offsets[i]:offsets[i+1]])
-        elif line_type == LineType.CombinedOffsets:
+        elif line_type == LineType.ChunkCombinedOffsets:
             all_lines = []
             for points, offsets in zip(*lines[0]):
                 for i in range(len(offsets)-1):

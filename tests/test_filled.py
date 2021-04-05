@@ -34,7 +34,8 @@ def test_filled_random_uniform_no_corner_mask(name, fill_type):
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'filled_random_uniform_no_corner_mask.png',
-                   name, max_threshold=150 if name != 'mpl2014' else 10)
+                   f'{name}_{fill_type}',
+                   max_threshold=150 if name != 'mpl2014' else 10)
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
@@ -52,7 +53,8 @@ def test_filled_random_uniform_corner_mask(name):
                         fill_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'filled_random_uniform_corner_mask.png', name)
+    compare_images(image_buffer, 'filled_random_uniform_corner_mask.png',
+                   f'{name}_{fill_type}')
 
 
 @pytest.mark.parametrize('fill_type', FillType.__members__.values())
@@ -90,10 +92,12 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
                 assert o.dtype == np.int32
             assert_array_equal(offsets[0], [0, 8, 13])
             assert_array_equal(offsets[1], [0, 4])
-    elif fill_type in (FillType.CombinedCodes, FillType.CombinedOffsets,
-                       FillType.CombinedCodesOffsets,
-                       FillType.CombinedOffsets2):
-        if fill_type in (FillType.CombinedCodes, FillType.CombinedOffsets):
+    elif fill_type in (FillType.ChunkCombinedCodes,
+                       FillType.ChunkCombinedOffsets,
+                       FillType.ChunkCombinedCodesOffsets,
+                       FillType.ChunkCombinedOffsets2):
+        if fill_type in (FillType.ChunkCombinedCodes,
+                         FillType.ChunkCombinedOffsets):
             assert isinstance(filled, tuple) and len(filled) == 2
         else:
             assert isinstance(filled, tuple) and len(filled) == 3
@@ -106,8 +110,8 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
         assert_array_equal(points[0], points[7])
         assert_array_equal(points[8], points[12])
         assert_array_equal(points[13], points[16])
-        if fill_type in (FillType.CombinedCodes,
-                         FillType.CombinedCodesOffsets):
+        if fill_type in (FillType.ChunkCombinedCodes,
+                         FillType.ChunkCombinedCodesOffsets):
             codes = filled[1]
             assert isinstance(codes, list) and len(codes) == 1
             codes = codes[0]
@@ -123,14 +127,14 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert offsets.dtype == np.int32
             assert_array_equal(offsets, [0, 8, 13, 17])
 
-        if fill_type in (FillType.CombinedCodesOffsets,
-                         FillType.CombinedOffsets2):
+        if fill_type in (FillType.ChunkCombinedCodesOffsets,
+                         FillType.ChunkCombinedOffsets2):
             outer_offsets = filled[2]
             assert isinstance(outer_offsets, list) and len(outer_offsets) == 1
             outer_offsets = outer_offsets[0]
             assert isinstance(outer_offsets, np.ndarray)
             assert outer_offsets.dtype == np.int32
-            if fill_type == FillType.CombinedCodesOffsets:
+            if fill_type == FillType.ChunkCombinedCodesOffsets:
                 assert_array_equal(outer_offsets, [0, 13, 17])
             else:
                 assert_array_equal(outer_offsets, [0, 2, 3])

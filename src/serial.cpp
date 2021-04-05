@@ -227,10 +227,10 @@ py::tuple SerialContourGenerator::contour_filled(
     _filled = true;
     _lower_level = lower_level;
     _upper_level = upper_level;
-    _identify_holes = (_fill_type != FillType::CombinedCodes &&
-                       _fill_type != FillType::CombinedOffsets);
-    _return_list_count = (_fill_type == FillType::CombinedCodesOffsets ||
-                          _fill_type == FillType::CombinedOffsets2) ? 3 : 2;
+    _identify_holes = (_fill_type != FillType::ChunkCombinedCodes &&
+                       _fill_type != FillType::ChunkCombinedOffsets);
+    _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
+                          _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
 
     init_cache_levels_and_starts();
 
@@ -323,28 +323,28 @@ void SerialContourGenerator::export_filled(
             }
             break;
         }
-        case FillType::CombinedCodes:
-        case FillType::CombinedCodesOffsets:
+        case FillType::ChunkCombinedCodes:
+        case FillType::ChunkCombinedCodesOffsets:
             // return_lists[0] already set.
             assert(!local.line_offsets.empty());
             Converter::convert_codes(
                 local.total_point_count, local.line_offsets.size(),
                 local.line_offsets.data(), return_lists[1]);
 
-            if (_fill_type == FillType::CombinedCodesOffsets)
+            if (_fill_type == FillType::ChunkCombinedCodesOffsets)
                 Converter::convert_offsets_nested(
                     local.outer_offsets.size(), local.outer_offsets.data(),
                     local.line_offsets.data(), return_lists[2]);
             break;
-        case FillType::CombinedOffsets:
-        case FillType::CombinedOffsets2:
+        case FillType::ChunkCombinedOffsets:
+        case FillType::ChunkCombinedOffsets2:
             // return_lists[0] already set.
             assert(!local.line_offsets.empty());
             Converter::convert_offsets(
                 local.line_offsets.size(), local.line_offsets.data(),
                 return_lists[1]);
 
-            if (_fill_type == FillType::CombinedOffsets2)
+            if (_fill_type == FillType::ChunkCombinedOffsets2)
                 Converter::convert_offsets(
                     local.outer_offsets.size(), local.outer_offsets.data(),
                     return_lists[2]);
@@ -378,7 +378,7 @@ void SerialContourGenerator::export_lines(
                 }
             }
             break;
-        case LineType::CombinedCodes: {
+        case LineType::ChunkCombinedCodes: {
             // return_lists[0] already set.
             assert(all_points_ptr != nullptr);
             assert(!local.line_offsets.empty());
@@ -387,7 +387,7 @@ void SerialContourGenerator::export_lines(
                 local.line_offsets.data(), all_points_ptr, return_lists[1]);
             break;
         }
-        case LineType::CombinedOffsets:
+        case LineType::ChunkCombinedOffsets:
             // return_lists[0] already set.
             assert(!local.line_offsets.empty());
             Converter::convert_offsets(
@@ -1387,12 +1387,12 @@ void SerialContourGenerator::single_chunk_lines(
 bool SerialContourGenerator::supports_fill_type(FillType fill_type)
 {
     switch (fill_type) {
-        case FillType::CombinedCodes:
-        case FillType::CombinedOffsets:
-        case FillType::CombinedCodesOffsets:
-        case FillType::CombinedOffsets2:
         case FillType::OuterCodes:
         case FillType::OuterOffsets:
+        case FillType::ChunkCombinedCodes:
+        case FillType::ChunkCombinedOffsets:
+        case FillType::ChunkCombinedCodesOffsets:
+        case FillType::ChunkCombinedOffsets2:
             return true;
         default:
             return false;
@@ -1404,8 +1404,8 @@ bool SerialContourGenerator::supports_line_type(LineType line_type)
     switch (line_type) {
         case LineType::Separate:
         case LineType::SeparateCodes:
-        case LineType::CombinedCodes:
-        case LineType::CombinedOffsets:
+        case LineType::ChunkCombinedCodes:
+        case LineType::ChunkCombinedOffsets:
             return true;
         default:
             return false;
