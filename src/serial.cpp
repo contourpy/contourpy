@@ -306,20 +306,17 @@ void SerialContourGenerator::export_filled(
                 auto point_count = point_end - point_start;
                 assert(point_count > 2);
 
-                Converter::convert_points(
-                    point_count, all_points.data() + 2*point_start,
-                    return_lists[0]);
+                return_lists[0].append(Converter::convert_points(
+                    point_count, all_points.data() + 2*point_start));
 
                 if (_fill_type == FillType::OuterCodes)
-                    Converter::convert_codes(
+                    return_lists[1].append(Converter::convert_codes(
                         point_count, outer_end - outer_start + 1,
-                        local.line_offsets.data() + outer_start,
-                        return_lists[1], point_start);
+                        local.line_offsets.data() + outer_start, point_start));
                 else
-                    Converter::convert_offsets(
+                    return_lists[1].append(Converter::convert_offsets(
                         outer_end - outer_start + 1,
-                        local.line_offsets.data() + outer_start,
-                        return_lists[1], point_start);
+                        local.line_offsets.data() + outer_start, point_start));
             }
             break;
         }
@@ -327,27 +324,25 @@ void SerialContourGenerator::export_filled(
         case FillType::ChunkCombinedCodesOffsets:
             // return_lists[0] already set.
             assert(!local.line_offsets.empty());
-            Converter::convert_codes(
+            return_lists[1].append(Converter::convert_codes(
                 local.total_point_count, local.line_offsets.size(),
-                local.line_offsets.data(), return_lists[1]);
+                local.line_offsets.data()));
 
             if (_fill_type == FillType::ChunkCombinedCodesOffsets)
-                Converter::convert_offsets_nested(
+                return_lists[2].append(Converter::convert_offsets_nested(
                     local.outer_offsets.size(), local.outer_offsets.data(),
-                    local.line_offsets.data(), return_lists[2]);
+                    local.line_offsets.data()));
             break;
         case FillType::ChunkCombinedOffsets:
         case FillType::ChunkCombinedOffsets2:
             // return_lists[0] already set.
             assert(!local.line_offsets.empty());
-            Converter::convert_offsets(
-                local.line_offsets.size(), local.line_offsets.data(),
-                return_lists[1]);
+            return_lists[1].append(Converter::convert_offsets(
+                local.line_offsets.size(), local.line_offsets.data()));
 
             if (_fill_type == FillType::ChunkCombinedOffsets2)
-                Converter::convert_offsets(
-                    local.outer_offsets.size(), local.outer_offsets.data(),
-                    return_lists[2]);
+                return_lists[2].append(Converter::convert_offsets(
+                    local.outer_offsets.size(), local.outer_offsets.data()));
             break;
     }
 }
@@ -367,14 +362,13 @@ void SerialContourGenerator::export_lines(
                 auto point_count = point_end - point_start;
                 assert(point_count > 1);
 
-                Converter::convert_points(
-                    point_count, all_points_ptr + 2*point_start,
-                    return_lists[0]);
+                return_lists[0].append(Converter::convert_points(
+                    point_count, all_points_ptr + 2*point_start));
 
                 if (_line_type == LineType::SeparateCodes) {
-                    Converter::convert_codes_check_closed_single(
-                        point_count, all_points_ptr + 2*point_start,
-                        return_lists[1]);
+                    return_lists[1].append(
+                        Converter::convert_codes_check_closed_single(
+                            point_count, all_points_ptr + 2*point_start));
                 }
             }
             break;
@@ -382,17 +376,16 @@ void SerialContourGenerator::export_lines(
             // return_lists[0] already set.
             assert(all_points_ptr != nullptr);
             assert(!local.line_offsets.empty());
-            Converter::convert_codes_check_closed(
+            return_lists[1].append(Converter::convert_codes_check_closed(
                 local.total_point_count, local.line_offsets.size(),
-                local.line_offsets.data(), all_points_ptr, return_lists[1]);
+                local.line_offsets.data(), all_points_ptr));
             break;
         }
         case LineType::ChunkCombinedOffsets:
             // return_lists[0] already set.
             assert(!local.line_offsets.empty());
-            Converter::convert_offsets(
-                local.line_offsets.size(), local.line_offsets.data(),
-                return_lists[1]);
+            return_lists[1].append(Converter::convert_offsets(
+                local.line_offsets.size(), local.line_offsets.data()));
             break;
     }
 }
