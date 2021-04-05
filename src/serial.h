@@ -71,11 +71,11 @@ private:
 
     // Write points and offsets/codes to output numpy arrays.
     void export_filled(
-        long chunk, ChunkLocal& local, const std::vector<double>& all_points,
+        ChunkLocal& local, const std::vector<double>& all_points,
         std::vector<py::list>& return_lists);
 
     void export_lines(
-        long chunk, ChunkLocal& local, const double* all_points_ptr,
+        ChunkLocal& local, const double* all_points_ptr,
         std::vector<py::list>& return_lists);
 
     long find_look_S(long look_N_quad) const;
@@ -122,10 +122,10 @@ private:
     void set_look_flags(long hole_start_quad);
 
     void single_chunk_filled(
-        long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
+        ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void single_chunk_lines(
-        long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
+        ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void write_cache_quad(long quad) const;
 

@@ -14,6 +14,7 @@ struct ChunkLocal
 
 
 
+    long chunk;                       // Index in range 0 to _n_chunks-1.
 
     long istart, iend, jstart, jend;  // Chunk limits.
     int pass;

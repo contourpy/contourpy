@@ -239,7 +239,7 @@ py::tuple SerialContourGenerator::contour_filled(
     ChunkLocal local;
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
-        single_chunk_filled(chunk, local, return_lists);
+        single_chunk_filled(local, return_lists);
         local.clear();
     }
 
@@ -263,7 +263,7 @@ py::tuple SerialContourGenerator::contour_lines(const double& level)
     ChunkLocal local;
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
-        single_chunk_lines(chunk, local, return_lists);
+        single_chunk_lines(local, return_lists);
         local.clear();
     }
 
@@ -288,7 +288,7 @@ LineType SerialContourGenerator::default_line_type()
 }
 
 void SerialContourGenerator::export_filled(
-    long chunk, ChunkLocal& local, const std::vector<double>& all_points,
+    ChunkLocal& local, const std::vector<double>& all_points,
     std::vector<py::list>& return_lists)
 {
     // all_points is only used for fill_types OuterCodes and OuterOffsets.
@@ -353,7 +353,7 @@ void SerialContourGenerator::export_filled(
 }
 
 void SerialContourGenerator::export_lines(
-    long chunk, ChunkLocal& local, const double* all_points_ptr,
+    ChunkLocal& local, const double* all_points_ptr,
     std::vector<py::list>& return_lists)
 {
     switch (_line_type)
@@ -679,6 +679,8 @@ void SerialContourGenerator::get_chunk_limits(
     long chunk, ChunkLocal& local) const
 {
     assert(chunk >= 0 && chunk < _n_chunks && "chunk index out of bounds");
+
+    local.chunk = chunk;
 
     long ichunk = chunk % _nx_chunks;
     long jchunk = chunk / _nx_chunks;
@@ -1134,7 +1136,7 @@ void SerialContourGenerator::set_look_flags(long hole_start_quad)
 }
 
 void SerialContourGenerator::single_chunk_filled(
-    long chunk, ChunkLocal& local, std::vector<py::list>& return_lists)
+    ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Allocated at end of pass 0, depending on _fill_type.
     std::vector<double> all_points;
@@ -1272,11 +1274,11 @@ void SerialContourGenerator::single_chunk_filled(
     }
 
     if (local.total_point_count > 0)
-        export_filled(chunk, local, all_points, return_lists);
+        export_filled(local, all_points, return_lists);
 }
 
 void SerialContourGenerator::single_chunk_lines(
-    long chunk, ChunkLocal& local, std::vector<py::list>& return_lists)
+    ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Allocated at end of pass 0, depending on _line_type.
     std::vector<double> all_points;
@@ -1381,7 +1383,7 @@ void SerialContourGenerator::single_chunk_lines(
     assert(local.line_offsets.back() == local.total_point_count);
 
     if (local.total_point_count > 0)
-        export_lines(chunk, local, all_points_ptr, return_lists);
+        export_lines(local, all_points_ptr, return_lists);
 }
 
 bool SerialContourGenerator::supports_fill_type(FillType fill_type)
