@@ -38,27 +38,29 @@ class MplRenderer:
         if fill_type in (FillType.OuterCodes,
                          FillType.ChunkCombinedCodes):
             paths = [mpath.Path(points, codes) for points, codes
-                     in zip(*filled)]
+                     in zip(*filled) if points is not None]
         elif fill_type in (FillType.OuterOffsets,
                            FillType.ChunkCombinedOffsets):
             paths = [mpath.Path(points, offsets_to_mpl_codes(offsets))
-                     for points, offsets in zip(*filled)]
+                     for points, offsets in zip(*filled) if points is not None]
         elif fill_type == FillType.ChunkCombinedCodesOffsets:
             paths = []
-            for i in range(len(filled[0])):
-                outer_offsets = filled[2][i]
-                points = np.split(filled[0][i], outer_offsets[1:-1])
-                codes = np.split(filled[1][i], outer_offsets[1:-1])
+            for points, codes, outer_offsets in zip(*filled):
+                if points is None:
+                    continue
+                points = np.split(points, outer_offsets[1:-1])
+                codes = np.split(codes, outer_offsets[1:-1])
                 paths += [mpath.Path(p, c) for p, c in zip(points, codes)]
         elif fill_type == FillType.ChunkCombinedOffsets2:
             paths = []
-            for i in range(len(filled[0])):
-                outer_offsets = filled[2][i]
-                for j in range(len(outer_offsets)-1):
-                    offsets = filled[1][i][outer_offsets[j]:outer_offsets[j+1]+1]
-                    points = filled[0][i][offsets[0]:offsets[-1]]
+            for points, offsets, outer_offsets in zip(*filled):
+                if points is None:
+                    continue
+                for i in range(len(outer_offsets)-1):
+                    offs = offsets[outer_offsets[i]:outer_offsets[i+1]+1]
+                    pts = points[offs[0]:offs[-1]]
                     paths += [mpath.Path(
-                        points, offsets_to_mpl_codes(offsets - offsets[0]))]
+                        pts, offsets_to_mpl_codes(offs - offs[0]))]
         else:
             raise RuntimeError(f'Rendering FillType {fill_type} not implemented')
         collection = mcollections.PathCollection(
@@ -78,10 +80,8 @@ class MplRenderer:
                 # Drawing as Paths so that they can be closed correctly.
                 closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
                 paths.append(mpath.Path(line, closed=closed))
-        elif line_type == LineType.SeparateCodes:
-            paths = [mpath.Path(points, codes) for points, codes
-                    in zip(*lines)]
-        elif line_type == LineType.ChunkCombinedCodes:
+        elif line_type in (LineType.SeparateCodes,
+                           LineType.ChunkCombinedCodes):
             paths = [mpath.Path(points, codes) for points, codes
                      in zip(*lines) if points is not None]
         elif line_type == LineType.ChunkCombinedOffsets:
@@ -162,29 +162,39 @@ class MplDebugRenderer(MplRenderer):
 
         ax = self._get_ax(ax)
 
-        if fill_type in (FillType.OuterCodes,
-                         FillType.ChunkCombinedCodes):
+        if fill_type == FillType.OuterCodes:
             all_points = filled[0]
             all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1]]
-        elif fill_type in (FillType.OuterOffsets,
-                           FillType.ChunkCombinedOffsets):
+        elif fill_type == FillType.ChunkCombinedCodes:
+            all_points = [points for points in filled[0] if points is not None]
+            all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1]
+                           if codes is not None]
+        elif fill_type == FillType.OuterOffsets:
             all_points = filled[0]
             all_offsets = filled[1]
+        elif fill_type == FillType.ChunkCombinedOffsets:
+              all_points = [points for points in filled[0] if points is not None]
+              all_offsets = [offsets for offsets in filled[1]
+                             if offsets is not None]
         elif fill_type == FillType.ChunkCombinedCodesOffsets:
-            outer_offsets = filled[2][0]
-            all_points = np.split(filled[0][0], outer_offsets[1:-1])
-            all_codes = np.split(filled[1][0], outer_offsets[1:-1])
-            all_offsets = [mpl_codes_to_offsets(codes) for codes in all_codes]
+            all_points = []
+            all_offsets = []
+            for points, codes, outer_offsets in zip(*filled):
+                if points is None:
+                    continue
+                all_points += np.split(points, outer_offsets[1:-1])
+                codes = np.split(codes, outer_offsets[1:-1])
+                all_offsets += [mpl_codes_to_offsets(codes) for codes in codes]
         elif fill_type == FillType.ChunkCombinedOffsets2:
             all_points = []
             all_offsets = []
-            for i in range(len(filled[0])):
-                outer_offsets = filled[2][i]
-                for j in range(len(outer_offsets)-1):
-                    offsets = filled[1][i][outer_offsets[j]:outer_offsets[j+1]+1]
-                    points = filled[0][i][offsets[0]:offsets[-1]]
-                    all_points.append(points)
-                    all_offsets.append(offsets - offsets[0])
+            for points, offsets, outer_offsets in zip(*filled):
+                if points is None:
+                    continue
+                for i in range(len(outer_offsets)-1):
+                    offs = offsets[outer_offsets[i]:outer_offsets[i+1]+1]
+                    all_points.append(points[offs[0]:offs[-1]])
+                    all_offsets.append(offs - offs[0])
         else:
             raise RuntimeError(f'Rendering FillType {fill_type} not implemented')
 

@@ -38,6 +38,36 @@ def test_filled_random_uniform_no_corner_mask(name, fill_type):
                    max_threshold=150 if name != 'mpl2014' else 10)
 
 
+@pytest.mark.parametrize(
+    'name, fill_type', util_test.all_names_and_fill_types())
+def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
+    if name in ('mpl2005', 'mpl2014'):
+        pytest.skip()
+
+    x, y, z = random_uniform((30, 40), mask_fraction=0.05)
+    cont_gen = contour_generator(
+        x, y, z, name=name, fill_type=fill_type, corner_mask=False,
+        chunk_size=2)
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    renderer = MplTestRenderer(x, y)
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.contour_filled(levels[i], levels[i+1]),
+                        fill_type, color=f'C{i}')
+    image_buffer = renderer.save_to_buffer()
+
+    mean_threshold = 0.02
+    if fill_type in (FillType.ChunkCombinedCodes,
+                     FillType.ChunkCombinedOffsets):
+        mean_threshold = 0.06
+
+    compare_images(image_buffer,
+                   'filled_random_uniform_no_corner_mask_chunk.png',
+                   f'{name}_{fill_type}',
+                   max_threshold=150 if name != 'mpl2014' else 10,
+                   mean_threshold=mean_threshold)
+
+
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
 def test_filled_random_uniform_corner_mask(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)

@@ -104,6 +104,30 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
                    max_threshold=200 if name == 'mpl2005' else 100)
 
 
+@pytest.mark.parametrize(
+    'name, line_type', util_test.all_names_and_line_types())
+def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
+    if name in ('mpl2005', 'mpl2014'):
+        pytest.skip()
+
+    x, y, z = random_uniform((30, 40), mask_fraction=0.05)
+    cont_gen = contour_generator(
+        x, y, z, name=name, line_type=line_type, corner_mask=False,
+        chunk_size=2)
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    renderer = MplTestRenderer(x, y)
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.contour_lines(levels[i]),
+                       line_type, color=f'C{i}')
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer,
+                   'lines_random_uniform_no_corner_mask_chunk.png',
+                   f'{name}_{line_type}',
+                   max_threshold=200 if name == 'mpl2005' else 100)
+
+
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
 def test_lines_random_uniform_corner_mask(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)

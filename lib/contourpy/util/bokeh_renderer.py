@@ -49,9 +49,12 @@ class BokehRenderer:
         if fill_type in (FillType.OuterOffsets, FillType.ChunkCombinedOffsets,
                          FillType.OuterCodes, FillType.ChunkCombinedCodes):
             have_codes = \
-                fill_type in (FillType.OuterCodes, FillType.ChunkCombinedCodes)
+                fill_type in (FillType.OuterCodes,
+                              FillType.ChunkCombinedCodes)
 
             for points, offsets in zip(*filled):
+                if points is None:
+                    continue
                 if have_codes:
                     offsets = mpl_codes_to_offsets(offsets)
                 xs.append([])  # New outer with zero or more holes.
@@ -63,6 +66,8 @@ class BokehRenderer:
         elif fill_type in (FillType.ChunkCombinedCodesOffsets,
                            FillType.ChunkCombinedOffsets2):
             for points, codes_or_offsets, outer_offsets in zip(*filled):
+                if points is None:
+                    continue
                 for j in range(len(outer_offsets)-1):
                     if fill_type == FillType.ChunkCombinedCodesOffsets:
                         codes = codes_or_offsets[outer_offsets[j]:
@@ -110,6 +115,8 @@ class BokehRenderer:
         elif line_type in (LineType.ChunkCombinedCodes,
                            LineType.ChunkCombinedOffsets):
             for points, offsets in zip(*lines):
+                if points is None:
+                    continue
                 if line_type == LineType.ChunkCombinedCodes:
                     offsets = mpl_codes_to_offsets(offsets)
 

@@ -103,7 +103,7 @@ private:
 
     void init_cache_grid(const MaskArray& mask);
 
-    void init_cache_levels_and_starts();
+    void init_cache_levels_and_starts(ChunkLocal& local);
 
     // Increments local.points twice.
     void interp(

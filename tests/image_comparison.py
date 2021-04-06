@@ -48,7 +48,7 @@ def compare_images(test_buffer, baseline_filename, test_filename_suffix=None,
             basename, extension = os.path.splitext(test_filename)
 
             # Copy expected file.
-            expected_filename = f'{basename}-expected.{extension}'
+            expected_filename = f'{basename}-expected{extension}'
             expected_filename = os.path.join(result_directory, expected_filename)
             copyfile(full_baseline_filename, expected_filename)
 
@@ -56,7 +56,7 @@ def compare_images(test_buffer, baseline_filename, test_filename_suffix=None,
                   f'(thresholds max {max_threshold}, mean {mean_threshold})')
 
             # Write difference image.
-            difference_filename = f'{basename}-diff.{extension}'
+            difference_filename = f'{basename}-diff{extension}'
             difference_filename = os.path.join(result_directory, difference_filename)
 
             diff *= 10

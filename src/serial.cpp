@@ -234,21 +234,28 @@ py::tuple SerialContourGenerator::contour_filled(
     long list_len = (_fill_type == FillType::OuterCodes ||
                      _fill_type == FillType::OuterOffsets) ? 0 : _n_chunks;
 
-    init_cache_levels_and_starts();
-    write_cache();
-
+    // Prepare lists to return to python.
     std::vector<py::list> return_lists;
     return_lists.reserve(_return_list_count);
     for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
         return_lists.emplace_back(list_len);
 
+    // Initialise cache z-levels and starting locations.
     ChunkLocal local;
+    for (long chunk = 0; chunk < _n_chunks; ++chunk) {
+        get_chunk_limits(chunk, local);
+        init_cache_levels_and_starts(local);
+        local.clear();
+    }
+
+    // Trace contours.
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
         single_chunk_filled(local, return_lists);
         local.clear();
     }
 
+    // Return to python.
     if (_return_list_count == 2)
         return py::make_tuple(return_lists[0], return_lists[1]);
     else {
@@ -266,20 +273,28 @@ py::sequence SerialContourGenerator::contour_lines(const double& level)
     long list_len = (_line_type == LineType::Separate ||
                      _line_type == LineType::SeparateCodes) ? 0 : _n_chunks;
 
-    init_cache_levels_and_starts();
-
+    // Prepare lists to return to python.
     std::vector<py::list> return_lists;
     return_lists.reserve(_return_list_count);
     for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
         return_lists.emplace_back(list_len);
 
+    // Initialise cache z-levels and starting locations.
     ChunkLocal local;
+    for (long chunk = 0; chunk < _n_chunks; ++chunk) {
+        get_chunk_limits(chunk, local);
+        init_cache_levels_and_starts(local);
+        local.clear();
+    }
+
+    // Trace contours.
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
         single_chunk_lines(local, return_lists);
         local.clear();
     }
 
+    // Return to python.
     if (_line_type == LineType::Separate) {
         assert(_return_list_count == 1);
         return return_lists[0];
@@ -839,19 +854,28 @@ void SerialContourGenerator::init_cache_grid(const MaskArray& mask)
     }
 }
 
-void SerialContourGenerator::init_cache_levels_and_starts()
+void SerialContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
 {
-    const double* z_ptr = _z.data();
     CacheItem keep_mask = MASK_EXISTS_QUAD | MASK_BOUNDARY_N | MASK_BOUNDARY_E;
 
-    long quad = 0;
-    long j_final_start = 0;
-    for (long j = 0; j < _ny; ++j) {
-        ZLevel z_nw = 0, z_sw = 0;
+    long istart = local.istart > 1 ? local.istart : 0;
+    long iend = local.iend;
+    long jstart = local.jstart > 1 ? local.jstart : 0;
+    long jend = local.jend;
+
+    long j_final_start = jstart - 1;
+
+    for (long j = jstart; j <= jend; ++j) {
+        long quad = istart + j*_nx;
+        const double* z_ptr = _z.data() + quad;
         bool start_in_row = false;
-        for (long i = 0; i < _nx; ++i, ++quad, ++z_ptr) {
+        ZLevel z_nw = istart == 0 ? 0 : Z_NW;
+        ZLevel z_sw = istart == 0 ? 0 : Z_SW;
+
+        for (long i = istart; i <= iend; ++i, ++quad, ++z_ptr) {
             _cache[quad] &= keep_mask;
             _cache[quad] |= MASK_SADDLE;
+
 
             // Cache z-level of NE point.
             ZLevel z_ne = 0;
@@ -910,18 +934,7 @@ void SerialContourGenerator::init_cache_levels_and_starts()
                     // Required for an internal masked region which is a hole in
                     // a filled polygon.
                     if (BOUNDARY_N(quad) && z_nw == 1 && z_ne == 1 &&
-                        !START_HOLE_N(quad-1)) {
-
-                        std::cout << "## quad=" << quad << " j=" << j
-                            << " ny=" << _ny
-                            << " y_chunk_size=" << _y_chunk_size << std::endl;
-
-                    }
-
-                    if (BOUNDARY_N(quad) && z_nw == 1 && z_ne == 1 &&
-                        !START_HOLE_N(quad-1) &&
-                        j % _y_chunk_size != 0 &&
-                        //j % _y_chunk_size != _y_chunk_size-1 &&
+                        !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 &&
                         j != _ny-1) {
                         _cache[quad] |= MASK_START_HOLE_N;
                         start_in_row = true;
@@ -969,12 +982,15 @@ void SerialContourGenerator::init_cache_levels_and_starts()
 
         if (start_in_row)
             j_final_start = j;
-        else
-            _cache[1 + j*_nx] |= MASK_NO_STARTS_IN_ROW;
+        else if (j > 0)
+            _cache[local.istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
     } // j-loop.
 
-    if (j_final_start < _ny-1)
-        _cache[1 + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
+    if (j_final_start < local.jend) {
+        //std::cout << "NO MORE STARTS j_final_start=" << j_final_start
+          //  << " quad=" << local.istart + (j_final_start+1)*_nx << std::endl;
+        _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
+    }
 }
 
 void SerialContourGenerator::interp(
@@ -1135,7 +1151,7 @@ void SerialContourGenerator::set_look_flags(long hole_start_quad)
         assert(quad >= 0 && quad < _n);
         assert(EXISTS_QUAD(quad));
 
-        if (!EXISTS_QUAD(quad-_nx) || Z_SE != 1) {
+        if (BOUNDARY_S(quad) || Z_SE != 1) {
             assert(!LOOK_N(quad) && "Look N already set");
             _cache[quad] |= MASK_LOOK_N;
             break;
@@ -1436,7 +1452,7 @@ void SerialContourGenerator::write_cache() const
     }
     std::cout << "    ";
     for (long i = 0; i < _nx; ++i)
-        std::cout << "i=" << i << (_filled ? "         " : "       ");
+        std::cout << "i=" << i << "         ";
     std::cout << std::endl;
     std::cout << "---------------------------" << std::endl;
 }
@@ -1451,11 +1467,11 @@ void SerialContourGenerator::write_cache_quad(long quad) const
                     BOUNDARY_N(quad) ? 'n' : (BOUNDARY_E(quad) ? 'e' : '.')));
     std::cout << Z_LEVEL(quad);
     std::cout << ((_cache[quad] & MASK_SADDLE) >> 2);
-    std::cout << (START_BOUNDARY_E(quad) ? 'e' : '.');
-    std::cout << (START_BOUNDARY_N(quad) ? 'n' : '.');
+    std::cout << (START_BOUNDARY_S(quad) ? 's' : '.');
+    std::cout << (START_BOUNDARY_W(quad) ? 'w' : '.');
     if (!_filled) {
-        std::cout << (START_BOUNDARY_S(quad) ? 's' : '.');
-        std::cout << (START_BOUNDARY_W(quad) ? 'w' : '.');
+        std::cout << (START_BOUNDARY_E(quad) ? 'e' : '.');
+        std::cout << (START_BOUNDARY_N(quad) ? 'n' : '.');
     }
     std::cout << (START_E(quad) ? 'E' : '.');
     std::cout << (START_N(quad) ? 'N' : '.');
