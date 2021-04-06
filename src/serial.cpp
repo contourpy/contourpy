@@ -235,6 +235,7 @@ py::tuple SerialContourGenerator::contour_filled(
                      _fill_type == FillType::OuterOffsets) ? 0 : _n_chunks;
 
     init_cache_levels_and_starts();
+    write_cache();
 
     std::vector<py::list> return_lists;
     return_lists.reserve(_return_list_count);
@@ -843,32 +844,32 @@ void SerialContourGenerator::init_cache_levels_and_starts()
     const double* z_ptr = _z.data();
     CacheItem keep_mask = MASK_EXISTS_QUAD | MASK_BOUNDARY_N | MASK_BOUNDARY_E;
 
-    if (_filled) {
-        long quad = 0;
-        long j_final_start = 0;
-        for (long j = 0; j < _ny; ++j) {
-            ZLevel z_nw = 0, z_sw = 0;
-            bool start_in_row = false;
-            for (long i = 0; i < _nx; ++i, ++quad, ++z_ptr) {
-                _cache[quad] &= keep_mask;
-                _cache[quad] |= MASK_SADDLE;
+    long quad = 0;
+    long j_final_start = 0;
+    for (long j = 0; j < _ny; ++j) {
+        ZLevel z_nw = 0, z_sw = 0;
+        bool start_in_row = false;
+        for (long i = 0; i < _nx; ++i, ++quad, ++z_ptr) {
+            _cache[quad] &= keep_mask;
+            _cache[quad] |= MASK_SADDLE;
 
-                // Cache z-level of NE point.
-                ZLevel z_ne = 0;
-                if (*z_ptr > _upper_level) {
-                    _cache[quad] |= MASK_Z_LEVEL_2;
-                    z_ne = 2;
-                }
-                else if (*z_ptr > _lower_level) {
-                    _cache[quad] |= MASK_Z_LEVEL_1;
-                    z_ne = 1;
-                }
+            // Cache z-level of NE point.
+            ZLevel z_ne = 0;
+            if (_filled && *z_ptr > _upper_level) {
+                _cache[quad] |= MASK_Z_LEVEL_2;
+                z_ne = 2;
+            }
+            else if (*z_ptr > _lower_level) {
+                _cache[quad] |= MASK_Z_LEVEL_1;
+                z_ne = 1;
+            }
 
-                // z-level of SE point already calculated if j > 0; not needed
-                // if j == 0.
-                ZLevel z_se = (j > 0 ? Z_SE : 0);
+            // z-level of SE point already calculated if j > 0; not needed
+            // if j == 0.
+            ZLevel z_se = (j > 0 ? Z_SE : 0);
 
-                if (EXISTS_QUAD(quad)) {
+            if (EXISTS_QUAD(quad)) {
+                if (_filled) {
                     if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
                         (z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
                         _cache[quad] |= MASK_START_N;  // N to E low.
@@ -909,6 +910,15 @@ void SerialContourGenerator::init_cache_levels_and_starts()
                     // Required for an internal masked region which is a hole in
                     // a filled polygon.
                     if (BOUNDARY_N(quad) && z_nw == 1 && z_ne == 1 &&
+                        !START_HOLE_N(quad-1)) {
+
+                        std::cout << "## quad=" << quad << " j=" << j
+                            << " ny=" << _ny
+                            << " y_chunk_size=" << _y_chunk_size << std::endl;
+
+                    }
+
+                    if (BOUNDARY_N(quad) && z_nw == 1 && z_ne == 1 &&
                         !START_HOLE_N(quad-1) &&
                         j % _y_chunk_size != 0 &&
                         //j % _y_chunk_size != _y_chunk_size-1 &&
@@ -917,42 +927,7 @@ void SerialContourGenerator::init_cache_levels_and_starts()
                         start_in_row = true;
                     }
                 }
-
-                z_nw = z_ne;
-                z_sw = z_se;
-            } // i-loop.
-
-            if (start_in_row)
-                j_final_start = j;
-            else
-                _cache[1 + j*_nx] |= MASK_NO_STARTS_IN_ROW;
-        } // j-loop.
-
-        if (j_final_start < _ny-1)
-            _cache[1 + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
-    }
-    else {
-        long quad = 0;
-        long j_final_start = 0;
-        for (long j = 0; j < _ny; ++j) {
-            ZLevel z_nw = 0, z_sw = 0;
-            bool start_in_row = false;
-            for (long i = 0; i < _nx; ++i, ++quad, ++z_ptr) {
-                _cache[quad] &= keep_mask;
-                _cache[quad] |= MASK_SADDLE;
-
-                // Cache z-level of NE point.
-                ZLevel z_ne = 0;
-                if (*z_ptr > _lower_level) {
-                    _cache[quad] |= MASK_Z_LEVEL_1;
-                    z_ne = 1;
-                }
-
-                // z-level of SE point already calculated if j > 0; not needed
-                // if j == 0.
-                ZLevel z_se = (j > 0 ? Z_SE : 0);
-
-                if (EXISTS_QUAD(quad)) {
+                else {  // !_filled
                     if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0) {
                         _cache[quad] |= MASK_START_BOUNDARY_S;
                         start_in_row = true;
@@ -986,20 +961,20 @@ void SerialContourGenerator::init_cache_levels_and_starts()
                         }
                     }
                 }
+            }
 
-                z_nw = z_ne;
-                z_sw = z_se;
-            } // i-loop.
+            z_nw = z_ne;
+            z_sw = z_se;
+        } // i-loop.
 
-            if (start_in_row)
-                j_final_start = j;
-            else
-                _cache[1 + j*_nx] |= MASK_NO_STARTS_IN_ROW;
-        } // j-loop.
+        if (start_in_row)
+            j_final_start = j;
+        else
+            _cache[1 + j*_nx] |= MASK_NO_STARTS_IN_ROW;
+    } // j-loop.
 
-        if (j_final_start < _ny-1)
-            _cache[1 + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
-    }
+    if (j_final_start < _ny-1)
+        _cache[1 + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
 }
 
 void SerialContourGenerator::interp(
@@ -1461,7 +1436,7 @@ void SerialContourGenerator::write_cache() const
     }
     std::cout << "    ";
     for (long i = 0; i < _nx; ++i)
-        std::cout << "i=" << i << "         ";
+        std::cout << "i=" << i << (_filled ? "         " : "       ");
     std::cout << std::endl;
     std::cout << "---------------------------" << std::endl;
 }
