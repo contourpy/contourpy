@@ -11,6 +11,7 @@ ChunkLocal::ChunkLocal()
 
 void ChunkLocal::clear()
 {
+    chunk = -1;
     istart = iend = jstart = jend = -1;
     pass = -1;
     points = nullptr;
@@ -25,6 +26,7 @@ void ChunkLocal::clear()
 std::ostream &operator<<(std::ostream &os, const ChunkLocal& local)
 {
     os << "ChunkLocal:"
+        << " chunk=" << local.chunk
         << " istart=" << local.istart
         << " iend=" << local.iend
         << " jstart=" << local.jstart

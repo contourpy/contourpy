@@ -7,29 +7,27 @@
 class Converter
 {
 public:
-    static void convert_codes(
+    static CodeArray convert_codes(
         unsigned long point_count, unsigned long cut_count,
-        const unsigned long* cut_start, py::list& return_list,
+        const unsigned long* cut_start, unsigned long subtract = 0);
+
+    static CodeArray convert_codes_check_closed(
+        unsigned long point_count, unsigned long cut_count,
+        const unsigned long* cut_start, const double* points);
+
+    static CodeArray convert_codes_check_closed_single(
+        unsigned long point_count, const double* points);
+
+    static OffsetArray convert_offsets(
+        unsigned long offset_count, const unsigned long* start,
         unsigned long subtract = 0);
 
-    static void convert_codes_check_closed(
-        unsigned long point_count, unsigned long cut_count,
-        const unsigned long* cut_start, const double* points,
-        py::list& return_list);
-
-    static void convert_codes_check_closed_single(
-        unsigned long point_count, const double* points, py::list& return_list);
-
-    static void convert_offsets(
+    static OffsetArray convert_offsets_nested(
         unsigned long offset_count, const unsigned long* start,
-        py::list& return_list, unsigned long subtract = 0);
+        const unsigned long* nested_start);
 
-    static void convert_offsets_nested(
-        unsigned long offset_count, const unsigned long* start,
-        const unsigned long* nested_start, py::list& return_list);
-
-    static void convert_points(
-        unsigned long point_count, const double* start, py::list& return_list);
+    static PointArray convert_points(
+        unsigned long point_count, const double* start);
 };
 
 #endif // CONTOURPY_CONVERTER_H

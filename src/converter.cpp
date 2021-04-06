@@ -1,10 +1,9 @@
 #include "converter.h"
 #include "mpl_kind_code.h"
 
-void Converter::convert_codes(
+CodeArray Converter::convert_codes(
     unsigned long point_count, unsigned long cut_count,
-    const unsigned long* cut_start, py::list& return_list,
-    unsigned long subtract)
+    const unsigned long* cut_start, unsigned long subtract)
 {
     py::size_t codes_shape[1] = {point_count};
     CodeArray py_codes(codes_shape);
@@ -16,13 +15,12 @@ void Converter::convert_codes(
         py_ptr[*(cut_start + i+1) - 1 - subtract] = CLOSEPOLY;
     }
 
-    return_list.append(py_codes);
+    return py_codes;
 }
 
-void Converter::convert_codes_check_closed(
+CodeArray Converter::convert_codes_check_closed(
     unsigned long point_count, unsigned long cut_count,
-    const unsigned long* cut_start, const double* check_closed,
-    py::list& return_list)
+    const unsigned long* cut_start, const double* check_closed)
 {
     py::size_t codes_shape[1] = {point_count};
     CodeArray py_codes(codes_shape);
@@ -39,11 +37,11 @@ void Converter::convert_codes_check_closed(
             py_ptr[end-1] = CLOSEPOLY;
     }
 
-    return_list.append(py_codes);
+    return py_codes;
 }
 
-void Converter::convert_codes_check_closed_single(
-    unsigned long point_count, const double* points, py::list& return_list)
+CodeArray Converter::convert_codes_check_closed_single(
+    unsigned long point_count, const double* points)
 {
     py::size_t codes_shape[1] = {point_count};
     CodeArray py_codes(codes_shape);
@@ -60,12 +58,12 @@ void Converter::convert_codes_check_closed_single(
     else
         std::fill(py_ptr + 1, py_ptr + point_count, LINETO);
 
-    return_list.append(py_codes);
+    return py_codes;
 }
 
-void Converter::convert_offsets(
+OffsetArray Converter::convert_offsets(
     unsigned long offset_count, const unsigned long* start,
-    py::list& return_list, unsigned long subtract)
+    unsigned long subtract)
 {
     py::size_t offsets_shape[1] = {offset_count};
     OffsetArray py_offsets(offsets_shape);
@@ -76,12 +74,13 @@ void Converter::convert_offsets(
         for (unsigned long i = 0; i < offset_count; ++i)
             *py_ptr++ = *(start + i) - subtract;
     }
-    return_list.append(py_offsets);
+
+    return py_offsets;
 }
 
-void Converter::convert_offsets_nested(
+OffsetArray Converter::convert_offsets_nested(
     unsigned long offset_count, const unsigned long* start,
-    const unsigned long* nested_start, py::list& return_list)
+    const unsigned long* nested_start)
 {
     py::size_t offsets_shape[1] = {offset_count};
     OffsetArray py_offsets(offsets_shape);
@@ -89,15 +88,15 @@ void Converter::convert_offsets_nested(
     for (unsigned long i = 0; i < offset_count; ++i)
         *py_ptr++ = *(nested_start + *(start + i));
 
-    return_list.append(py_offsets);
+    return py_offsets;
 }
 
-void Converter::convert_points(
-    unsigned long point_count, const double* start, py::list& return_list)
+PointArray Converter::convert_points(
+    unsigned long point_count, const double* start)
 {
     py::size_t points_shape[2] = {point_count, 2};
     PointArray py_points(points_shape);
     std::copy(start, start + 2*point_count, py_points.mutable_data());
 
-    return_list.append(py_points);
+    return py_points;
 }

@@ -34,9 +34,8 @@ def test_level_outside(xy_2x2, name, zlevel):
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=LineType.Separate)
     lines = cont_gen.contour_lines(zlevel)
-    assert(isinstance(lines, tuple))
-    assert(isinstance(lines[0], list))
-    assert(len(lines[0]) == 0)
+    assert(isinstance(lines, list))
+    assert(len(lines) == 0)
 
 
 @pytest.mark.parametrize('name', util_test.all_names())
@@ -46,10 +45,9 @@ def test_w_to_e(xy_2x2, name):
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=LineType.Separate)
     lines = cont_gen.contour_lines(0.5)
-    assert(isinstance(lines, tuple))
-    assert(isinstance(lines[0], list))
-    assert(len(lines[0]) == 1)
-    line = lines[0][0]
+    assert(isinstance(lines, list))
+    assert(len(lines) == 1)
+    line = lines[0]
     assert_allclose(line, [[0.0, 0.5], [1.0, 0.5]])
 
 
@@ -60,10 +58,9 @@ def test_e_to_w(xy_2x2, name):
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=LineType.Separate)
     lines = cont_gen.contour_lines(0.5)
-    assert(isinstance(lines, tuple))
-    assert(isinstance(lines[0], list))
-    assert(len(lines[0]) == 1)
-    line = lines[0][0]
+    assert(isinstance(lines, list))
+    assert(len(lines) == 1)
+    line = lines[0]
     if name == 'mpl2005':    # Line directions are not consistent.
         assert_allclose(line, [[0.0, 0.5], [1.0, 0.5]])
     else:
@@ -78,10 +75,9 @@ def test_loop(xy_3x3, name):
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=LineType.Separate)
     lines = cont_gen.contour_lines(0.5)
-    assert(isinstance(lines, tuple))
-    assert(isinstance(lines[0], list))
-    assert(len(lines[0]) == 1)
-    line = lines[0][0]
+    assert(isinstance(lines, list))
+    assert(len(lines) == 1)
+    line = lines[0]
     assert(line.shape == (5, 2))
     assert_allclose(line[0], line[-1])
 
@@ -104,7 +100,32 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'lines_random_uniform_no_corner_mask.png',
-                   name, max_threshold=200 if name == 'mpl2005' else 100)
+                   f'{name}_{line_type}',
+                   max_threshold=200 if name == 'mpl2005' else 100)
+
+
+@pytest.mark.parametrize(
+    'name, line_type', util_test.all_names_and_line_types())
+def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
+    if name in ('mpl2005', 'mpl2014'):
+        pytest.skip()
+
+    x, y, z = random_uniform((30, 40), mask_fraction=0.05)
+    cont_gen = contour_generator(
+        x, y, z, name=name, line_type=line_type, corner_mask=False,
+        chunk_size=2)
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    renderer = MplTestRenderer(x, y)
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.contour_lines(levels[i]),
+                       line_type, color=f'C{i}')
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer,
+                   'lines_random_uniform_no_corner_mask_chunk.png',
+                   f'{name}_{line_type}',
+                   max_threshold=200 if name == 'mpl2005' else 100)
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
@@ -122,8 +143,8 @@ def test_lines_random_uniform_corner_mask(name):
                        line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'lines_random_uniform_corner_mask.png', name)
-
+    compare_images(image_buffer, 'lines_random_uniform_corner_mask.png',
+                   f'{name}_{line_type}')
 
 
 @pytest.mark.parametrize('line_type', LineType.__members__.values())
@@ -134,9 +155,11 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
     assert cont_gen.line_type == line_type
     lines = cont_gen.contour_lines(2.0)
     if line_type in (LineType.Separate, LineType.SeparateCodes):
-        assert isinstance(lines, tuple)
-        assert len(lines) == 1 if line_type == LineType.Separate else 2
-        points = lines[0]
+        if line_type == LineType.SeparateCodes:
+            assert isinstance(lines, tuple) and len(lines) == 2
+            points = lines[0]
+        else:
+            points = lines
         assert isinstance(points, list) and len(points) == 2
         for p in points:
             assert isinstance(p, np.ndarray)
@@ -152,7 +175,8 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
                 assert c.dtype == np.uint8
             assert_array_equal(codes[0], [1, 2, 2, 2, 79])
             assert_array_equal(codes[1], [1, 2])
-    elif line_type in (LineType.CombinedCodes, LineType.CombinedOffsets):
+    elif line_type in (LineType.ChunkCombinedCodes,
+                       LineType.ChunkCombinedOffsets):
         assert isinstance(lines, tuple) and len(lines) == 2
         points = lines[0]
         assert isinstance(points, list) and len(points) == 1
@@ -160,7 +184,7 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
         assert points[0].dtype == np.float64
         assert points[0].shape == (7, 2)
         assert_array_equal(points[0][0], points[0][4])
-        if line_type == LineType.CombinedCodes:
+        if line_type == LineType.ChunkCombinedCodes:
             codes = lines[1]
             assert isinstance(codes, list) and len(codes) == 1
             assert isinstance(codes[0], np.ndarray)
@@ -173,4 +197,4 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
             assert offsets[0].dtype == np.int32
             assert_array_equal(offsets[0], [0, 5, 7])
     else:
-        raise RuntimeError(f'Unexpected fill_type {fill_type}')
+        raise RuntimeError(f'Unexpected line_type {line_type}')

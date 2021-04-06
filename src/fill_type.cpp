@@ -10,17 +10,17 @@ std::ostream &operator<<(std::ostream &os, const FillType& fill_type)
         case FillType::OuterOffsets:
             os << "OuterOffsets";
             break;
-        case FillType::CombinedCodes:
-            os << "CombinedCodes";
+        case FillType::ChunkCombinedCodes:
+            os << "ChunkCombinedCodes";
             break;
-        case FillType::CombinedOffsets:
-            os << "CombinedOffsets";
+        case FillType::ChunkCombinedOffsets:
+            os << "ChunkCombinedOffsets";
             break;
-        case FillType::CombinedCodesOffsets:
-            os << "CombinedCodesOffsets";
+        case FillType::ChunkCombinedCodesOffsets:
+            os << "ChunkCombinedCodesOffsets";
             break;
-        case FillType::CombinedOffsets2:
-            os << "CombinedOffsets2";
+        case FillType::ChunkCombinedOffsets2:
+            os << "ChunkCombinedOffsets2";
             break;
     }
     return os;

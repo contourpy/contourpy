@@ -8,10 +8,10 @@ enum class FillType
 {
     OuterCodes = 201,
     OuterOffsets = 202,
-    CombinedCodes = 203,
-    CombinedOffsets = 204,
-    CombinedCodesOffsets = 205,
-    CombinedOffsets2 = 206,
+    ChunkCombinedCodes = 203,
+    ChunkCombinedOffsets = 204,
+    ChunkCombinedCodesOffsets = 205,
+    ChunkCombinedOffsets2 = 206,
 };
 
 std::ostream &operator<<(std::ostream &os, const FillType& fill_type);

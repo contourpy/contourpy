@@ -227,50 +227,82 @@ py::tuple SerialContourGenerator::contour_filled(
     _filled = true;
     _lower_level = lower_level;
     _upper_level = upper_level;
-    _identify_holes = (_fill_type != FillType::CombinedCodes &&
-                       _fill_type != FillType::CombinedOffsets);
-    _return_list_count = (_fill_type == FillType::CombinedCodesOffsets ||
-                          _fill_type == FillType::CombinedOffsets2) ? 3 : 2;
+    _identify_holes = (_fill_type != FillType::ChunkCombinedCodes &&
+                       _fill_type != FillType::ChunkCombinedOffsets);
+    _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
+                          _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
+    long list_len = (_fill_type == FillType::OuterCodes ||
+                     _fill_type == FillType::OuterOffsets) ? 0 : _n_chunks;
 
-    init_cache_levels_and_starts();
+    // Prepare lists to return to python.
+    std::vector<py::list> return_lists;
+    return_lists.reserve(_return_list_count);
+    for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
+        return_lists.emplace_back(list_len);
 
-    std::vector<py::list> return_lists(_return_list_count);
-
+    // Initialise cache z-levels and starting locations.
     ChunkLocal local;
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
-        single_chunk_filled(chunk, local, return_lists);
+        init_cache_levels_and_starts(local);
         local.clear();
     }
 
-    py::tuple tuple(_return_list_count);
-    for (unsigned int i = 0; i < _return_list_count; ++i)
-        tuple[i] = return_lists[i];
-    return tuple;
+    // Trace contours.
+    for (long chunk = 0; chunk < _n_chunks; ++chunk) {
+        get_chunk_limits(chunk, local);
+        single_chunk_filled(local, return_lists);
+        local.clear();
+    }
+
+    // Return to python.
+    if (_return_list_count == 2)
+        return py::make_tuple(return_lists[0], return_lists[1]);
+    else {
+        assert(_return_list_count == 3);
+        return py::make_tuple(return_lists[0], return_lists[1], return_lists[2]);
+    }
 }
 
-py::tuple SerialContourGenerator::contour_lines(const double& level)
+py::sequence SerialContourGenerator::contour_lines(const double& level)
 {
     _filled = false;
     _lower_level = _upper_level = level;
     _identify_holes = false;
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
+    long list_len = (_line_type == LineType::Separate ||
+                     _line_type == LineType::SeparateCodes) ? 0 : _n_chunks;
 
-    init_cache_levels_and_starts();
+    // Prepare lists to return to python.
+    std::vector<py::list> return_lists;
+    return_lists.reserve(_return_list_count);
+    for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
+        return_lists.emplace_back(list_len);
 
-    std::vector<py::list> return_lists(_return_list_count);
-
+    // Initialise cache z-levels and starting locations.
     ChunkLocal local;
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
-        single_chunk_lines(chunk, local, return_lists);
+        init_cache_levels_and_starts(local);
         local.clear();
     }
 
-    py::tuple tuple(_return_list_count);
-    for (unsigned int i = 0; i < _return_list_count; ++i)
-        tuple[i] = return_lists[i];
-    return tuple;
+    // Trace contours.
+    for (long chunk = 0; chunk < _n_chunks; ++chunk) {
+        get_chunk_limits(chunk, local);
+        single_chunk_lines(local, return_lists);
+        local.clear();
+    }
+
+    // Return to python.
+    if (_line_type == LineType::Separate) {
+        assert(_return_list_count == 1);
+        return return_lists[0];
+    }
+    else {
+        assert(_return_list_count == 2);
+        return py::make_tuple(return_lists[0], return_lists[1]);
+    }
 }
 
 FillType SerialContourGenerator::default_fill_type()
@@ -288,7 +320,7 @@ LineType SerialContourGenerator::default_line_type()
 }
 
 void SerialContourGenerator::export_filled(
-    long chunk, ChunkLocal& local, const std::vector<double>& all_points,
+    ChunkLocal& local, const std::vector<double>& all_points,
     std::vector<py::list>& return_lists)
 {
     // all_points is only used for fill_types OuterCodes and OuterOffsets.
@@ -296,64 +328,76 @@ void SerialContourGenerator::export_filled(
     switch (_fill_type)
     {
         case FillType::OuterCodes:
-        case FillType::OuterOffsets: {
-            auto outer_count = local.line_count - local.hole_count;
-            for (decltype(outer_count) i = 0; i < outer_count; ++i) {
-                auto outer_start = local.outer_offsets[i];
-                auto outer_end = local.outer_offsets[i+1];
-                auto point_start = local.line_offsets[outer_start];
-                auto point_end = local.line_offsets[outer_end];
-                auto point_count = point_end - point_start;
-                assert(point_count > 2);
+        case FillType::OuterOffsets:
+            if (local.total_point_count > 0) {
+                auto outer_count = local.line_count - local.hole_count;
+                for (decltype(outer_count) i = 0; i < outer_count; ++i) {
+                    auto outer_start = local.outer_offsets[i];
+                    auto outer_end = local.outer_offsets[i+1];
+                    auto point_start = local.line_offsets[outer_start];
+                    auto point_end = local.line_offsets[outer_end];
+                    auto point_count = point_end - point_start;
+                    assert(point_count > 2);
 
-                Converter::convert_points(
-                    point_count, all_points.data() + 2*point_start,
-                    return_lists[0]);
+                    return_lists[0].append(Converter::convert_points(
+                        point_count, all_points.data() + 2*point_start));
 
-                if (_fill_type == FillType::OuterCodes)
-                    Converter::convert_codes(
-                        point_count, outer_end - outer_start + 1,
-                        local.line_offsets.data() + outer_start,
-                        return_lists[1], point_start);
-                else
-                    Converter::convert_offsets(
-                        outer_end - outer_start + 1,
-                        local.line_offsets.data() + outer_start,
-                        return_lists[1], point_start);
+                    if (_fill_type == FillType::OuterCodes)
+                        return_lists[1].append(Converter::convert_codes(
+                            point_count, outer_end - outer_start + 1,
+                            local.line_offsets.data() + outer_start,
+                            point_start));
+                    else
+                        return_lists[1].append(Converter::convert_offsets(
+                            outer_end - outer_start + 1,
+                            local.line_offsets.data() + outer_start,
+                            point_start));
+                }
             }
             break;
-        }
-        case FillType::CombinedCodes:
-        case FillType::CombinedCodesOffsets:
-            // return_lists[0] already set.
-            assert(!local.line_offsets.empty());
-            Converter::convert_codes(
-                local.total_point_count, local.line_offsets.size(),
-                local.line_offsets.data(), return_lists[1]);
+        case FillType::ChunkCombinedCodes:
+        case FillType::ChunkCombinedCodesOffsets:
+            if (local.total_point_count > 0) {
+                // return_lists[0] already set.
+                assert(!local.line_offsets.empty());
+                return_lists[1][local.chunk] = Converter::convert_codes(
+                    local.total_point_count, local.line_offsets.size(),
+                    local.line_offsets.data());
 
-            if (_fill_type == FillType::CombinedCodesOffsets)
-                Converter::convert_offsets_nested(
-                    local.outer_offsets.size(), local.outer_offsets.data(),
-                    local.line_offsets.data(), return_lists[2]);
+                if (_fill_type == FillType::ChunkCombinedCodesOffsets)
+                    return_lists[2][local.chunk] =
+                        Converter::convert_offsets_nested(
+                            local.outer_offsets.size(),
+                            local.outer_offsets.data(),
+                            local.line_offsets.data());
+            }
+            else {
+                for (auto& list : return_lists)
+                    list[local.chunk] = py::none();
+            }
             break;
-        case FillType::CombinedOffsets:
-        case FillType::CombinedOffsets2:
-            // return_lists[0] already set.
-            assert(!local.line_offsets.empty());
-            Converter::convert_offsets(
-                local.line_offsets.size(), local.line_offsets.data(),
-                return_lists[1]);
+        case FillType::ChunkCombinedOffsets:
+        case FillType::ChunkCombinedOffsets2:
+            if (local.total_point_count > 0) {
+                // return_lists[0] already set.
+                assert(!local.line_offsets.empty());
+                return_lists[1][local.chunk] = Converter::convert_offsets(
+                    local.line_offsets.size(), local.line_offsets.data());
 
-            if (_fill_type == FillType::CombinedOffsets2)
-                Converter::convert_offsets(
-                    local.outer_offsets.size(), local.outer_offsets.data(),
-                    return_lists[2]);
+                if (_fill_type == FillType::ChunkCombinedOffsets2)
+                    return_lists[2][local.chunk] = Converter::convert_offsets(
+                        local.outer_offsets.size(), local.outer_offsets.data());
+            }
+            else {
+                for (auto& list : return_lists)
+                    list[local.chunk] = py::none();
+            }
             break;
     }
 }
 
 void SerialContourGenerator::export_lines(
-    long chunk, ChunkLocal& local, const double* all_points_ptr,
+    ChunkLocal& local, const double* all_points_ptr,
     std::vector<py::list>& return_lists)
 {
     switch (_line_type)
@@ -361,38 +405,51 @@ void SerialContourGenerator::export_lines(
         case LineType::Separate:
         case LineType::SeparateCodes:
             assert(all_points_ptr != nullptr);
-            for (unsigned long i = 0; i < local.line_count; ++i) {
-                auto point_start = local.line_offsets[i];
-                auto point_end = local.line_offsets[i+1];
-                auto point_count = point_end - point_start;
-                assert(point_count > 1);
+            if (local.total_point_count > 0) {
+                for (unsigned long i = 0; i < local.line_count; ++i) {
+                    auto point_start = local.line_offsets[i];
+                    auto point_end = local.line_offsets[i+1];
+                    auto point_count = point_end - point_start;
+                    assert(point_count > 1);
 
-                Converter::convert_points(
-                    point_count, all_points_ptr + 2*point_start,
-                    return_lists[0]);
+                    return_lists[0].append(Converter::convert_points(
+                        point_count, all_points_ptr + 2*point_start));
 
-                if (_line_type == LineType::SeparateCodes) {
-                    Converter::convert_codes_check_closed_single(
-                        point_count, all_points_ptr + 2*point_start,
-                        return_lists[1]);
+                    if (_line_type == LineType::SeparateCodes) {
+                        return_lists[1].append(
+                            Converter::convert_codes_check_closed_single(
+                                point_count, all_points_ptr + 2*point_start));
+                    }
                 }
             }
             break;
-        case LineType::CombinedCodes: {
-            // return_lists[0] already set.
-            assert(all_points_ptr != nullptr);
-            assert(!local.line_offsets.empty());
-            Converter::convert_codes_check_closed(
-                local.total_point_count, local.line_offsets.size(),
-                local.line_offsets.data(), all_points_ptr, return_lists[1]);
+        case LineType::ChunkCombinedCodes: {
+            if (local.total_point_count > 0) {
+                // return_lists[0] already set.
+                assert(all_points_ptr != nullptr);
+                assert(!local.line_offsets.empty());
+                return_lists[1][local.chunk] =
+                    Converter::convert_codes_check_closed(
+                        local.total_point_count, local.line_offsets.size(),
+                        local.line_offsets.data(), all_points_ptr);
+            }
+            else {
+                for (auto& list : return_lists)
+                    list[local.chunk] = py::none();
+            }
             break;
         }
-        case LineType::CombinedOffsets:
-            // return_lists[0] already set.
-            assert(!local.line_offsets.empty());
-            Converter::convert_offsets(
-                local.line_offsets.size(), local.line_offsets.data(),
-                return_lists[1]);
+        case LineType::ChunkCombinedOffsets:
+            if (local.total_point_count > 0) {
+                // return_lists[0] already set.
+                assert(!local.line_offsets.empty());
+                return_lists[1][local.chunk] = Converter::convert_offsets(
+                    local.line_offsets.size(), local.line_offsets.data());
+            }
+            else {
+                for (auto& list : return_lists)
+                    list[local.chunk] = py::none();
+            }
             break;
     }
 }
@@ -669,16 +726,15 @@ bool SerialContourGenerator::follow_interior(
 
 py::tuple SerialContourGenerator::get_chunk_count() const
 {
-    py::tuple tuple(2);
-    tuple[0] = _ny_chunks;
-    tuple[1] = _nx_chunks;
-    return tuple;
+    return py::make_tuple(_ny_chunks, _nx_chunks);
 }
 
 void SerialContourGenerator::get_chunk_limits(
     long chunk, ChunkLocal& local) const
 {
     assert(chunk >= 0 && chunk < _n_chunks && "chunk index out of bounds");
+
+    local.chunk = chunk;
 
     long ichunk = chunk % _nx_chunks;
     long jchunk = chunk / _nx_chunks;
@@ -692,10 +748,7 @@ void SerialContourGenerator::get_chunk_limits(
 
 py::tuple SerialContourGenerator::get_chunk_size() const
 {
-    py::tuple tuple(2);
-    tuple[0] = _y_chunk_size;
-    tuple[1] = _x_chunk_size;
-    return tuple;
+    return py::make_tuple(_y_chunk_size, _x_chunk_size);
 }
 
 bool SerialContourGenerator::get_corner_mask() const
@@ -801,37 +854,46 @@ void SerialContourGenerator::init_cache_grid(const MaskArray& mask)
     }
 }
 
-void SerialContourGenerator::init_cache_levels_and_starts()
+void SerialContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
 {
-    const double* z_ptr = _z.data();
     CacheItem keep_mask = MASK_EXISTS_QUAD | MASK_BOUNDARY_N | MASK_BOUNDARY_E;
 
-    if (_filled) {
-        long quad = 0;
-        long j_final_start = 0;
-        for (long j = 0; j < _ny; ++j) {
-            ZLevel z_nw = 0, z_sw = 0;
-            bool start_in_row = false;
-            for (long i = 0; i < _nx; ++i, ++quad, ++z_ptr) {
-                _cache[quad] &= keep_mask;
-                _cache[quad] |= MASK_SADDLE;
+    long istart = local.istart > 1 ? local.istart : 0;
+    long iend = local.iend;
+    long jstart = local.jstart > 1 ? local.jstart : 0;
+    long jend = local.jend;
 
-                // Cache z-level of NE point.
-                ZLevel z_ne = 0;
-                if (*z_ptr > _upper_level) {
-                    _cache[quad] |= MASK_Z_LEVEL_2;
-                    z_ne = 2;
-                }
-                else if (*z_ptr > _lower_level) {
-                    _cache[quad] |= MASK_Z_LEVEL_1;
-                    z_ne = 1;
-                }
+    long j_final_start = jstart - 1;
 
-                // z-level of SE point already calculated if j > 0; not needed
-                // if j == 0.
-                ZLevel z_se = (j > 0 ? Z_SE : 0);
+    for (long j = jstart; j <= jend; ++j) {
+        long quad = istart + j*_nx;
+        const double* z_ptr = _z.data() + quad;
+        bool start_in_row = false;
+        ZLevel z_nw = istart == 0 ? 0 : Z_NW;
+        ZLevel z_sw = istart == 0 ? 0 : Z_SW;
 
-                if (EXISTS_QUAD(quad)) {
+        for (long i = istart; i <= iend; ++i, ++quad, ++z_ptr) {
+            _cache[quad] &= keep_mask;
+            _cache[quad] |= MASK_SADDLE;
+
+
+            // Cache z-level of NE point.
+            ZLevel z_ne = 0;
+            if (_filled && *z_ptr > _upper_level) {
+                _cache[quad] |= MASK_Z_LEVEL_2;
+                z_ne = 2;
+            }
+            else if (*z_ptr > _lower_level) {
+                _cache[quad] |= MASK_Z_LEVEL_1;
+                z_ne = 1;
+            }
+
+            // z-level of SE point already calculated if j > 0; not needed
+            // if j == 0.
+            ZLevel z_se = (j > 0 ? Z_SE : 0);
+
+            if (EXISTS_QUAD(quad)) {
+                if (_filled) {
                     if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
                         (z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
                         _cache[quad] |= MASK_START_N;  // N to E low.
@@ -872,50 +934,13 @@ void SerialContourGenerator::init_cache_levels_and_starts()
                     // Required for an internal masked region which is a hole in
                     // a filled polygon.
                     if (BOUNDARY_N(quad) && z_nw == 1 && z_ne == 1 &&
-                        !START_HOLE_N(quad-1) &&
-                        j % _y_chunk_size != 0 &&
-                        //j % _y_chunk_size != _y_chunk_size-1 &&
+                        !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 &&
                         j != _ny-1) {
                         _cache[quad] |= MASK_START_HOLE_N;
                         start_in_row = true;
                     }
                 }
-
-                z_nw = z_ne;
-                z_sw = z_se;
-            } // i-loop.
-
-            if (start_in_row)
-                j_final_start = j;
-            else
-                _cache[1 + j*_nx] |= MASK_NO_STARTS_IN_ROW;
-        } // j-loop.
-
-        if (j_final_start < _ny-1)
-            _cache[1 + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
-    }
-    else {
-        long quad = 0;
-        long j_final_start = 0;
-        for (long j = 0; j < _ny; ++j) {
-            ZLevel z_nw = 0, z_sw = 0;
-            bool start_in_row = false;
-            for (long i = 0; i < _nx; ++i, ++quad, ++z_ptr) {
-                _cache[quad] &= keep_mask;
-                _cache[quad] |= MASK_SADDLE;
-
-                // Cache z-level of NE point.
-                ZLevel z_ne = 0;
-                if (*z_ptr > _lower_level) {
-                    _cache[quad] |= MASK_Z_LEVEL_1;
-                    z_ne = 1;
-                }
-
-                // z-level of SE point already calculated if j > 0; not needed
-                // if j == 0.
-                ZLevel z_se = (j > 0 ? Z_SE : 0);
-
-                if (EXISTS_QUAD(quad)) {
+                else {  // !_filled
                     if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0) {
                         _cache[quad] |= MASK_START_BOUNDARY_S;
                         start_in_row = true;
@@ -949,19 +974,22 @@ void SerialContourGenerator::init_cache_levels_and_starts()
                         }
                     }
                 }
+            }
 
-                z_nw = z_ne;
-                z_sw = z_se;
-            } // i-loop.
+            z_nw = z_ne;
+            z_sw = z_se;
+        } // i-loop.
 
-            if (start_in_row)
-                j_final_start = j;
-            else
-                _cache[1 + j*_nx] |= MASK_NO_STARTS_IN_ROW;
-        } // j-loop.
+        if (start_in_row)
+            j_final_start = j;
+        else if (j > 0)
+            _cache[local.istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
+    } // j-loop.
 
-        if (j_final_start < _ny-1)
-            _cache[1 + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
+    if (j_final_start < local.jend) {
+        //std::cout << "NO MORE STARTS j_final_start=" << j_final_start
+          //  << " quad=" << local.istart + (j_final_start+1)*_nx << std::endl;
+        _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
     }
 }
 
@@ -1123,7 +1151,7 @@ void SerialContourGenerator::set_look_flags(long hole_start_quad)
         assert(quad >= 0 && quad < _n);
         assert(EXISTS_QUAD(quad));
 
-        if (!EXISTS_QUAD(quad-_nx) || Z_SE != 1) {
+        if (BOUNDARY_S(quad) || Z_SE != 1) {
             assert(!LOOK_N(quad) && "Look N already set");
             _cache[quad] |= MASK_LOOK_N;
             break;
@@ -1134,7 +1162,7 @@ void SerialContourGenerator::set_look_flags(long hole_start_quad)
 }
 
 void SerialContourGenerator::single_chunk_filled(
-    long chunk, ChunkLocal& local, std::vector<py::list>& return_lists)
+    ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Allocated at end of pass 0, depending on _fill_type.
     std::vector<double> all_points;
@@ -1214,10 +1242,10 @@ void SerialContourGenerator::single_chunk_filled(
                 // Where to store contour points.
                 local.points = all_points.data();
             }
-            else {  // Combined points.
+            else if (local.total_point_count > 0) {  // Combined points.
                 py::size_t points_shape[2] = {local.total_point_count, 2};
                 PointArray py_all_points(points_shape);
-                return_lists[0].append(py_all_points);
+                return_lists[0][local.chunk] = py_all_points;
 
                 // Where to store contour points.
                 local.points = py_all_points.mutable_data();
@@ -1271,12 +1299,11 @@ void SerialContourGenerator::single_chunk_filled(
         assert(local.outer_offsets.empty());
     }
 
-    if (local.total_point_count > 0)
-        export_filled(chunk, local, all_points, return_lists);
+    export_filled(local, all_points, return_lists);
 }
 
 void SerialContourGenerator::single_chunk_lines(
-    long chunk, ChunkLocal& local, std::vector<py::list>& return_lists)
+    ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Allocated at end of pass 0, depending on _line_type.
     std::vector<double> all_points;
@@ -1355,10 +1382,10 @@ void SerialContourGenerator::single_chunk_lines(
                 // Needed to check if lines are closed loops or not.
                 all_points_ptr = all_points.data();
             }
-            else {  // Combined points.
+            else if (local.total_point_count > 0) {  // Combined points.
                 py::size_t points_shape[2] = {local.total_point_count, 2};
                 PointArray py_all_points(points_shape);
-                return_lists[0].append(py_all_points);
+                return_lists[0][local.chunk] = py_all_points;
 
                 // Where to store contour points.
                 local.points = py_all_points.mutable_data();
@@ -1380,19 +1407,18 @@ void SerialContourGenerator::single_chunk_lines(
     assert(local.line_offsets.size() == local.line_count + 1);
     assert(local.line_offsets.back() == local.total_point_count);
 
-    if (local.total_point_count > 0)
-        export_lines(chunk, local, all_points_ptr, return_lists);
+    export_lines(local, all_points_ptr, return_lists);
 }
 
 bool SerialContourGenerator::supports_fill_type(FillType fill_type)
 {
     switch (fill_type) {
-        case FillType::CombinedCodes:
-        case FillType::CombinedOffsets:
-        case FillType::CombinedCodesOffsets:
-        case FillType::CombinedOffsets2:
         case FillType::OuterCodes:
         case FillType::OuterOffsets:
+        case FillType::ChunkCombinedCodes:
+        case FillType::ChunkCombinedOffsets:
+        case FillType::ChunkCombinedCodesOffsets:
+        case FillType::ChunkCombinedOffsets2:
             return true;
         default:
             return false;
@@ -1404,8 +1430,8 @@ bool SerialContourGenerator::supports_line_type(LineType line_type)
     switch (line_type) {
         case LineType::Separate:
         case LineType::SeparateCodes:
-        case LineType::CombinedCodes:
-        case LineType::CombinedOffsets:
+        case LineType::ChunkCombinedCodes:
+        case LineType::ChunkCombinedOffsets:
             return true;
         default:
             return false;
@@ -1441,11 +1467,11 @@ void SerialContourGenerator::write_cache_quad(long quad) const
                     BOUNDARY_N(quad) ? 'n' : (BOUNDARY_E(quad) ? 'e' : '.')));
     std::cout << Z_LEVEL(quad);
     std::cout << ((_cache[quad] & MASK_SADDLE) >> 2);
-    std::cout << (START_BOUNDARY_E(quad) ? 'e' : '.');
-    std::cout << (START_BOUNDARY_N(quad) ? 'n' : '.');
+    std::cout << (START_BOUNDARY_S(quad) ? 's' : '.');
+    std::cout << (START_BOUNDARY_W(quad) ? 'w' : '.');
     if (!_filled) {
-        std::cout << (START_BOUNDARY_S(quad) ? 's' : '.');
-        std::cout << (START_BOUNDARY_W(quad) ? 'w' : '.');
+        std::cout << (START_BOUNDARY_E(quad) ? 'e' : '.');
+        std::cout << (START_BOUNDARY_N(quad) ? 'n' : '.');
     }
     std::cout << (START_E(quad) ? 'E' : '.');
     std::cout << (START_N(quad) ? 'N' : '.');

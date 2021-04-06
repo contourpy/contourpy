@@ -10,11 +10,11 @@ std::ostream &operator<<(std::ostream &os, const LineType& line_type)
         case LineType::SeparateCodes:
             os << "SeparateCodes";
             break;
-        case LineType::CombinedCodes:
-            os << "CombinedCodes";
+        case LineType::ChunkCombinedCodes:
+            os << "ChunkCombinedCodes";
             break;
-        case LineType::CombinedOffsets:
-            os << "CombinedOffsets";
+        case LineType::ChunkCombinedOffsets:
+            os << "ChunkCombinedOffsets";
             break;
     }
     return os;

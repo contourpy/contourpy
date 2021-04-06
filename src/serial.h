@@ -23,7 +23,8 @@ public:
     py::tuple contour_filled(
         const double& lower_level, const double& upper_level);
 
-    py::tuple contour_lines(const double& level);
+    // Return py::tuple or py::list depending on _line_type.
+    py::sequence contour_lines(const double& level);
 
     static FillType default_fill_type();
     static LineType default_line_type();
@@ -71,11 +72,11 @@ private:
 
     // Write points and offsets/codes to output numpy arrays.
     void export_filled(
-        long chunk, ChunkLocal& local, const std::vector<double>& all_points,
+        ChunkLocal& local, const std::vector<double>& all_points,
         std::vector<py::list>& return_lists);
 
     void export_lines(
-        long chunk, ChunkLocal& local, const double* all_points_ptr,
+        ChunkLocal& local, const double* all_points_ptr,
         std::vector<py::list>& return_lists);
 
     long find_look_S(long look_N_quad) const;
@@ -102,7 +103,7 @@ private:
 
     void init_cache_grid(const MaskArray& mask);
 
-    void init_cache_levels_and_starts();
+    void init_cache_levels_and_starts(ChunkLocal& local);
 
     // Increments local.points twice.
     void interp(
@@ -122,10 +123,10 @@ private:
     void set_look_flags(long hole_start_quad);
 
     void single_chunk_filled(
-        long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
+        ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void single_chunk_lines(
-        long chunk, ChunkLocal& local, std::vector<py::list>& return_lists);
+        ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void write_cache_quad(long quad) const;
 
