@@ -3,7 +3,7 @@ from pybind11.setup_helpers import Pybind11Extension, build_ext
 
 
 # Set want_debug to True if want to enable asserts in C++ code.
-want_debug = False
+want_debug = True
 
 want_mpl2005 = True
 

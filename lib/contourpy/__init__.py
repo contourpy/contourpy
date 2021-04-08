@@ -82,8 +82,8 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
             raise ValueError('chunk_size cannot be negative')
 
         cont_gen = SerialCornerContourGenerator(
-            x, y, z, mask, line_type, fill_type, x_chunk_size=x_chunk_size,
-            y_chunk_size=y_chunk_size)
+            x, y, z, mask, corner_mask, line_type, fill_type,
+            x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
     else:
         if chunk_size < 0:
             raise ValueError('chunk_size cannot be negative')

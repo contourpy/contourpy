@@ -830,11 +830,7 @@ void SerialContourGenerator::init_cache_grid(const MaskArray& mask)
             }
         }
 
-        // Stage 2, calculate N and E boundaries.  For each quad use boundary
-        // data already calculated for quads to W and S, so must iterate
-        // through quads in correct order (increasing i and j indices).
-        // Cannot use boundary data for quads to E and N as have not yet
-        // calculated it.
+        // Stage 2, calculate N and E boundaries.
         quad = 0;
         for (j = 0; j < _ny; ++j) {
             for (i = 0; i < _nx; ++i, ++quad) {

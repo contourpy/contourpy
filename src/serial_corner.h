@@ -15,8 +15,9 @@ class SerialCornerContourGenerator
 public:
     SerialCornerContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y,
-        const CoordinateArray& z, const MaskArray& mask, LineType line_type,
-        FillType fill_type, long x_chunk_size, long y_chunk_size);
+        const CoordinateArray& z, const MaskArray& mask, bool corner_mask,
+        LineType line_type, FillType fill_type, long x_chunk_size,
+        long y_chunk_size);
 
     ~SerialCornerContourGenerator();
 
@@ -138,6 +139,7 @@ private:
     const long _nx_chunks, _ny_chunks;  // Number of chunks in each direction.
     const long _n_chunks;               // Total number of chunks.
     const long _x_chunk_size, _y_chunk_size;
+    const bool _corner_mask;
     const LineType _line_type;
     const FillType _fill_type;
 

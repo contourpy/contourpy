@@ -19,56 +19,77 @@
 #define MASK_SADDLE_Z_LEVEL_1 0x0004 // saddle z > lower_level
 #define MASK_SADDLE_Z_LEVEL_2 0x0008 // saddle z > upper_level
 #define MASK_SADDLE           (MASK_SADDLE_Z_LEVEL_1 | MASK_SADDLE_Z_LEVEL_2)
-#define MASK_BOUNDARY_N       0x0010 // N edge of quad is a boundary.
-#define MASK_BOUNDARY_E       0x0020 // E edge of quad is a boundary.
-#define MASK_EXISTS_QUAD      0x0040 // All of quad exists (is not masked).
-#define MASK_EXISTS           MASK_EXISTS_QUAD
-#define MASK_START_N          0x0080 // N to E
-#define MASK_START_E          0x0100 // E to N
-#define MASK_START_BOUNDARY_E 0x0200 // Filled and lines.
-#define MASK_START_BOUNDARY_N 0x0400 // Filled and lines.
-#define MASK_START_BOUNDARY_S 0x0800 // Filled only.
-#define MASK_START_BOUNDARY_W 0x1000 // Filled only.
-#define MASK_START_HOLE_N     0x2000 // N boundary of EXISTS, E to W, filled only.
+#define MASK_BOUNDARY_N       0x0080 // N edge of quad is a boundary.
+#define MASK_BOUNDARY_E       0x0100 // E edge of quad is a boundary.
+// EXISTS_QUAD bit is always used, but the 4 EXISTS_CORNER are only used if
+// _corner_mask is true.  Only one of EXISTS_QUAD or EXISTS_??_CORNER is ever
+// set per quad, hence not using unique bits for each; care is needed when
+// testing for these flags as they overlap.
+#define MASK_EXISTS_QUAD      0x0010 // All of quad exists (is not masked).
+#define MASK_EXISTS_NW_CORNER 0x0020 // SW corner exists, NE corner is masked.
+#define MASK_EXISTS_NE_CORNER 0x0030
+#define MASK_EXISTS_SW_CORNER 0x0040
+#define MASK_EXISTS_SE_CORNER 0x0050
+#define MASK_EXISTS_ANY       0x0070 // Combines all 5 EXISTS masks.
+#define MASK_START_N          0x0200 // N to E
+#define MASK_START_E          0x0400 // E to N
+#define MASK_START_BOUNDARY_N 0x0800 // Filled and lines.
+#define MASK_START_BOUNDARY_E 0x1000 // Filled and lines.
+#define MASK_START_BOUNDARY_S 0x2000 // Filled only.
+#define MASK_START_BOUNDARY_W 0x4000 // Filled only.
+#define MASK_START_HOLE_N     0x8000 // N boundary of EXISTS, E to W, filled only.
 #define MASK_ANY_START_FILLED (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_HOLE_N)
 #define MASK_ANY_START_LINES  (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E)
-#define MASK_LOOK_N           0x4000
-#define MASK_LOOK_S           0x8000
-#define MASK_NO_STARTS_IN_ROW 0x10000
-#define MASK_NO_MORE_STARTS   0x20000
+#define MASK_LOOK_N           0x10000
+#define MASK_LOOK_S           0x20000
+#define MASK_NO_STARTS_IN_ROW 0x40000
+#define MASK_NO_MORE_STARTS   0x80000
 
 // Accessors for various CacheItem masks.
-#define Z_LEVEL(quad)          (_cache[quad] & MASK_Z_LEVEL)
-#define Z_NE                   Z_LEVEL(POINT_NE)
-#define Z_NW                   Z_LEVEL(POINT_NW)
-#define Z_SE                   Z_LEVEL(POINT_SE)
-#define Z_SW                   Z_LEVEL(POINT_SW)
-#define SADDLE_SET(quad)       ((_cache[quad] & MASK_SADDLE) != MASK_SADDLE)
-#define SADDLE_Z_LEVEL(quad)   (SADDLE_SET(quad) ? ((_cache[quad] & MASK_SADDLE) >> 2) : calc_z_level_mid(quad))
-#define BOUNDARY_N(quad)       (_cache[quad] & MASK_BOUNDARY_N)
-#define BOUNDARY_E(quad)       (_cache[quad] & MASK_BOUNDARY_E)
-#define BOUNDARY_S(quad)       (_cache[quad-_nx] & MASK_BOUNDARY_N)
-#define BOUNDARY_W(quad)       (_cache[quad-1] & MASK_BOUNDARY_E)
-#define EXISTS_QUAD(quad)      ((_cache[quad] & MASK_EXISTS) == MASK_EXISTS_QUAD)
-#define START_N(quad)          (_cache[quad] & MASK_START_N)
-#define START_E(quad)          (_cache[quad] & MASK_START_E)
-#define START_BOUNDARY_E(quad) (_cache[quad] & MASK_START_BOUNDARY_E)
-#define START_BOUNDARY_N(quad) (_cache[quad] & MASK_START_BOUNDARY_N)
-#define START_BOUNDARY_S(quad) (_cache[quad] & MASK_START_BOUNDARY_S)
-#define START_BOUNDARY_W(quad) (_cache[quad] & MASK_START_BOUNDARY_W)
-#define START_HOLE_N(quad)     (_cache[quad] & MASK_START_HOLE_N)
-#define ANY_START_FILLED(quad) (_cache[quad] & MASK_ANY_START_FILLED)
-#define ANY_START_LINES(quad)  (_cache[quad] & MASK_ANY_START_LINES)
-#define LOOK_N(quad)           (_cache[quad] & MASK_LOOK_N)
-#define LOOK_S(quad)           (_cache[quad] & MASK_LOOK_S)
-#define NO_STARTS_IN_ROW(quad) (_cache[quad] & MASK_NO_STARTS_IN_ROW)
-#define NO_MORE_STARTS(quad)   (_cache[quad] & MASK_NO_MORE_STARTS)
+#define Z_LEVEL(quad)           (_cache[quad] & MASK_Z_LEVEL)
+#define Z_NE                    Z_LEVEL(POINT_NE)
+#define Z_NW                    Z_LEVEL(POINT_NW)
+#define Z_SE                    Z_LEVEL(POINT_SE)
+#define Z_SW                    Z_LEVEL(POINT_SW)
+#define SADDLE_SET(quad)        ((_cache[quad] & MASK_SADDLE) != MASK_SADDLE)
+#define SADDLE_Z_LEVEL(quad)    (SADDLE_SET(quad) ? ((_cache[quad] & MASK_SADDLE) >> 2) : calc_z_level_mid(quad))
+#define BOUNDARY_N(quad)        (_cache[quad] & MASK_BOUNDARY_N)
+#define BOUNDARY_E(quad)        (_cache[quad] & MASK_BOUNDARY_E)
+#define BOUNDARY_S(quad)        (_cache[quad-_nx] & MASK_BOUNDARY_N)
+#define BOUNDARY_W(quad)        (_cache[quad-1] & MASK_BOUNDARY_E)
+#define EXISTS_QUAD(quad)       ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_QUAD)
+#define EXISTS_NW_CORNER(quad)  ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_NW_CORNER)
+#define EXISTS_NE_CORNER(quad)  ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_NE_CORNER)
+#define EXISTS_SW_CORNER(quad)  ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_SW_CORNER)
+#define EXISTS_SE_CORNER(quad)  ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_SE_CORNER)
+#define EXISTS_ANY(quad)        ((_cache[quad] & MASK_EXISTS_ANY) > 0)
+#define EXISTS_NONE(quad)       ((_cache[quad] & MASK_EXISTS_ANY) == 0)
+#define EXISTS_ANY_CORNER(quad) (EXISTS_ANY(quad) && !EXISTS_QUAD(quad))
+#define EXISTS_N_EDGE(quad)     (EXISTS_QUAD(quad) || EXISTS_NW_CORNER(quad) || EXISTS_NE_CORNER(quad))
+#define EXISTS_E_EDGE(quad)     (EXISTS_QUAD(quad) || EXISTS_SE_CORNER(quad) || EXISTS_NE_CORNER(quad))
+#define EXISTS_S_EDGE(quad)     (EXISTS_QUAD(quad) || EXISTS_SW_CORNER(quad) || EXISTS_SE_CORNER(quad))
+#define EXISTS_W_EDGE(quad)     (EXISTS_QUAD(quad) || EXISTS_SW_CORNER(quad) || EXISTS_NW_CORNER(quad))
+// Note that EXISTS_NE_CORNER(quad) is equivalent to BOUNDARY_SW(quad), etc.
+#define START_N(quad)           (_cache[quad] & MASK_START_N)
+#define START_E(quad)           (_cache[quad] & MASK_START_E)
+#define START_BOUNDARY_N(quad)  (_cache[quad] & MASK_START_BOUNDARY_N)
+#define START_BOUNDARY_E(quad)  (_cache[quad] & MASK_START_BOUNDARY_E)
+#define START_BOUNDARY_S(quad)  (_cache[quad] & MASK_START_BOUNDARY_S)
+#define START_BOUNDARY_W(quad)  (_cache[quad] & MASK_START_BOUNDARY_W)
+#define START_HOLE_N(quad)      (_cache[quad] & MASK_START_HOLE_N)
+#define ANY_START_FILLED(quad)  (_cache[quad] & MASK_ANY_START_FILLED)
+#define ANY_START_LINES(quad)   (_cache[quad] & MASK_ANY_START_LINES)
+#define LOOK_N(quad)            (_cache[quad] & MASK_LOOK_N)
+#define LOOK_S(quad)            (_cache[quad] & MASK_LOOK_S)
+#define NO_STARTS_IN_ROW(quad)  (_cache[quad] & MASK_NO_STARTS_IN_ROW)
+#define NO_MORE_STARTS(quad)    (_cache[quad] & MASK_NO_MORE_STARTS)
 
 
 SerialCornerContourGenerator::SerialCornerContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y,
-    const CoordinateArray& z, const MaskArray& mask, LineType line_type,
-    FillType fill_type, long x_chunk_size, long y_chunk_size)
+    const CoordinateArray& z, const MaskArray& mask, bool corner_mask,
+    LineType line_type, FillType fill_type, long x_chunk_size,
+    long y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
@@ -82,6 +103,7 @@ SerialCornerContourGenerator::SerialCornerContourGenerator(
       _n_chunks(_nx_chunks*_ny_chunks),
       _x_chunk_size(std::ceil((_nx-1.0) / _nx_chunks)),
       _y_chunk_size(std::ceil((_ny-1.0) / _ny_chunks)),
+      _corner_mask(corner_mask),
       _line_type(line_type),
       _fill_type(fill_type),
       _cache(new CacheItem[_n]),
@@ -823,32 +845,64 @@ void SerialCornerContourGenerator::init_cache_grid(const MaskArray& mask)
             for (i = 0; i < _nx; ++i, ++quad) {
                 _cache[quad] = 0;
 
-                if (i > 0 && j > 0 &&
-                    !(mask_ptr[POINT_NW] || mask_ptr[POINT_NE] ||
-                      mask_ptr[POINT_SW] || mask_ptr[POINT_SE]))
-                    _cache[quad] |= MASK_EXISTS_QUAD;
+                if (i > 0 && j > 0) {
+                    unsigned int config = mask_ptr[POINT_NW] << 3 |
+                                          mask_ptr[POINT_NE] << 2 |
+                                          mask_ptr[POINT_SW] << 1 |
+                                          mask_ptr[POINT_SE];
+                    if (_corner_mask) {
+                         switch (config) {
+                            case 0: _cache[quad] = MASK_EXISTS_QUAD; break;
+                            case 1: _cache[quad] = MASK_EXISTS_NW_CORNER; break;
+                            case 2: _cache[quad] = MASK_EXISTS_NE_CORNER; break;
+                            case 4: _cache[quad] = MASK_EXISTS_SW_CORNER; break;
+                            case 8: _cache[quad] = MASK_EXISTS_SE_CORNER; break;
+                            default:
+                                // Do nothing, quad is masked out.
+                                break;
+                        }
+                    }
+                    else if (config == 0)
+                        _cache[quad] = MASK_EXISTS_QUAD;
+                }
             }
         }
 
-        // Stage 2, calculate N and E boundaries.  For each quad use boundary
-        // data already calculated for quads to W and S, so must iterate
-        // through quads in correct order (increasing i and j indices).
-        // Cannot use boundary data for quads to E and N as have not yet
-        // calculated it.
+        // Stage 2, calculate N and E boundaries.
         quad = 0;
         for (j = 0; j < _ny; ++j) {
+            bool j_chunk_boundary = j % _y_chunk_size == 0;
+
             for (i = 0; i < _nx; ++i, ++quad) {
-                bool E_exists_quad = (i < _nx-1 && EXISTS_QUAD(quad+1));
-                bool N_exists_quad = (j < _ny-1 && EXISTS_QUAD(quad+_nx));
-                bool exists = EXISTS_QUAD(quad);
+                bool i_chunk_boundary = i % _x_chunk_size == 0;
 
-                if (exists != E_exists_quad ||
-                    (i % _x_chunk_size == 0 && exists && E_exists_quad))
-                    _cache[quad] |= MASK_BOUNDARY_E;
+                if (_corner_mask) {
+                    bool exists_E_edge = EXISTS_E_EDGE(quad);
+                    bool E_exists_W_edge = (i < _nx-1 && EXISTS_W_EDGE(quad+1));
+                    bool exists_N_edge = EXISTS_N_EDGE(quad);
+                    bool N_exists_S_edge = (j < _ny-1 && EXISTS_S_EDGE(quad+_nx));
 
-                if (exists != N_exists_quad ||
-                    (j % _y_chunk_size == 0 && exists && N_exists_quad))
-                    _cache[quad] |= MASK_BOUNDARY_N;
+                    if (exists_E_edge != E_exists_W_edge ||
+                        (i_chunk_boundary && exists_E_edge && E_exists_W_edge))
+                        _cache[quad] |= MASK_BOUNDARY_E;
+
+                    if (exists_N_edge != N_exists_S_edge ||
+                        (j_chunk_boundary && exists_N_edge && N_exists_S_edge))
+                         _cache[quad] |= MASK_BOUNDARY_N;
+                }
+                else {
+                    bool E_exists_quad = (i < _nx-1 && EXISTS_QUAD(quad+1));
+                    bool N_exists_quad = (j < _ny-1 && EXISTS_QUAD(quad+_nx));
+                    bool exists = EXISTS_QUAD(quad);
+
+                    if (exists != E_exists_quad ||
+                        (i_chunk_boundary && exists && E_exists_quad))
+                        _cache[quad] |= MASK_BOUNDARY_E;
+
+                    if (exists != N_exists_quad ||
+                        (j_chunk_boundary && exists && N_exists_quad))
+                        _cache[quad] |= MASK_BOUNDARY_N;
+                }
             }
         }
     }
@@ -856,7 +910,9 @@ void SerialCornerContourGenerator::init_cache_grid(const MaskArray& mask)
 
 void SerialCornerContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
 {
-    CacheItem keep_mask = MASK_EXISTS_QUAD | MASK_BOUNDARY_N | MASK_BOUNDARY_E;
+    CacheItem keep_mask =
+        (_corner_mask ? MASK_EXISTS_ANY | MASK_BOUNDARY_N | MASK_BOUNDARY_E
+                      : MASK_EXISTS_QUAD | MASK_BOUNDARY_N | MASK_BOUNDARY_E);
 
     long istart = local.istart > 1 ? local.istart : 0;
     long iend = local.iend;
@@ -1452,7 +1508,7 @@ void SerialCornerContourGenerator::write_cache() const
     }
     std::cout << "    ";
     for (long i = 0; i < _nx; ++i)
-        std::cout << "i=" << i << "         ";
+        std::cout << "i=" << i << "          ";
     std::cout << std::endl;
     std::cout << "---------------------------" << std::endl;
 }
@@ -1462,7 +1518,11 @@ void SerialCornerContourGenerator::write_cache_quad(long quad) const
     assert(quad >= 0 && quad < _n && "quad index out of bounds");
     std::cout << (NO_MORE_STARTS(quad) ? 'x' :
                     (NO_STARTS_IN_ROW(quad) ? 'i' : '.'));
-    std::cout << (EXISTS_QUAD(quad) ? 'q' : '.');
+    std::cout << (EXISTS_QUAD(quad) ? "Q_" :
+                   (EXISTS_NW_CORNER(quad) ? "NW" :
+                     (EXISTS_NE_CORNER(quad) ? "NE" :
+                       (EXISTS_SW_CORNER(quad) ? "SW" :
+                         (EXISTS_SE_CORNER(quad) ? "SE" : "..")))));
     std::cout << (BOUNDARY_N(quad) && BOUNDARY_E(quad) ? 'b' : (
                     BOUNDARY_N(quad) ? 'n' : (BOUNDARY_E(quad) ? 'e' : '.')));
     std::cout << Z_LEVEL(quad);
