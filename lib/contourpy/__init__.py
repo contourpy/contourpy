@@ -62,7 +62,7 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
         if chunk_size < 0:
             raise ValueError('chunk_size cannot be negative')
 
-        if line_type not in (None, LineType.Separate):
+        if line_type not in (None, LineType.SeparateCodes):
             raise ValueError(f'{name} contour generator does not support line_type {line_type}')
 
         if fill_type not in (None, FillType.OuterCodes):

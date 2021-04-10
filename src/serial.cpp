@@ -314,7 +314,7 @@ FillType SerialContourGenerator::default_fill_type()
 
 LineType SerialContourGenerator::default_line_type()
 {
-    LineType line_type = LineType::Separate;
+    LineType line_type = LineType::SeparateCodes;
     assert(supports_line_type(line_type));
     return line_type;
 }

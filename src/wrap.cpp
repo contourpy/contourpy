@@ -28,7 +28,7 @@ PYBIND11_MODULE(_contourpy, m) {
             [](py::object /* self */) {return FillType::OuterCodes;})
         .def_property_readonly_static(
             "line_type",
-            [](py::object /* self */) {return LineType::Separate;});
+            [](py::object /* self */) {return LineType::SeparateCodes;});
 
     py::class_<SerialContourGenerator>(m, "SerialContourGenerator")
         .def(py::init<const CoordinateArray&,

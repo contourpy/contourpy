@@ -32,10 +32,12 @@ def test_level_outside(xy_2x2, name, zlevel):
     x, y = xy_2x2
     z = x
     cont_gen = contour_generator(
-        x, y, z, name=name, line_type=LineType.Separate)
+        x, y, z, name=name, line_type=LineType.SeparateCodes)
     lines = cont_gen.contour_lines(zlevel)
-    assert(isinstance(lines, list))
-    assert(len(lines) == 0)
+    assert isinstance(lines, tuple) and len(lines) == 2
+    points, codes = lines
+    assert isinstance(points, list) and len(points) == 0
+    assert isinstance(codes, list) and len(codes) == 0
 
 
 @pytest.mark.parametrize('name', util_test.all_names())
@@ -43,12 +45,14 @@ def test_w_to_e(xy_2x2, name):
     x, y = xy_2x2
     z = y.copy()
     cont_gen = contour_generator(
-        x, y, z, name=name, line_type=LineType.Separate)
+        x, y, z, name=name, line_type=LineType.SeparateCodes)
     lines = cont_gen.contour_lines(0.5)
-    assert(isinstance(lines, list))
-    assert(len(lines) == 1)
-    line = lines[0]
-    assert_allclose(line, [[0.0, 0.5], [1.0, 0.5]])
+    assert isinstance(lines, tuple) and len(lines) == 2
+    points, codes = lines
+    assert isinstance(points, list) and len(points) == 1
+    assert isinstance(codes, list) and len(codes) == 1
+    assert_allclose(points[0], [[0.0, 0.5], [1.0, 0.5]])
+    assert_array_equal(codes[0], [1, 2])
 
 
 @pytest.mark.parametrize('name', util_test.all_names())
@@ -56,15 +60,17 @@ def test_e_to_w(xy_2x2, name):
     x, y = xy_2x2
     z = 1.0 - y.copy()
     cont_gen = contour_generator(
-        x, y, z, name=name, line_type=LineType.Separate)
+        x, y, z, name=name, line_type=LineType.SeparateCodes)
     lines = cont_gen.contour_lines(0.5)
-    assert(isinstance(lines, list))
-    assert(len(lines) == 1)
-    line = lines[0]
+    assert isinstance(lines, tuple) and len(lines) == 2
+    points, codes = lines
+    assert isinstance(points, list) and len(points) == 1
+    assert isinstance(codes, list) and len(codes) == 1
     if name == 'mpl2005':    # Line directions are not consistent.
-        assert_allclose(line, [[0.0, 0.5], [1.0, 0.5]])
+        assert_allclose(points[0], [[0.0, 0.5], [1.0, 0.5]])
     else:
-        assert_allclose(line, [[1.0, 0.5], [0.0, 0.5]])
+        assert_allclose(points[0], [[1.0, 0.5], [0.0, 0.5]])
+    assert_array_equal(codes[0], [1, 2])
 
 
 @pytest.mark.parametrize('name', util_test.all_names())
@@ -73,13 +79,16 @@ def test_loop(xy_3x3, name):
     z = np.zeros_like(x)
     z[1, 1] = 1.0
     cont_gen = contour_generator(
-        x, y, z, name=name, line_type=LineType.Separate)
+        x, y, z, name=name, line_type=LineType.SeparateCodes)
     lines = cont_gen.contour_lines(0.5)
-    assert(isinstance(lines, list))
-    assert(len(lines) == 1)
-    line = lines[0]
-    assert(line.shape == (5, 2))
+    assert isinstance(lines, tuple) and len(lines) == 2
+    points, codes = lines
+    assert isinstance(points, list) and len(points) == 1
+    assert isinstance(codes, list) and len(codes) == 1
+    line = points[0]
+    assert line.shape == (5, 2)
     assert_allclose(line[0], line[-1])
+    assert_array_equal(codes[0], [1, 2, 2, 2, 79])
 
 
 @pytest.mark.parametrize(
@@ -100,8 +109,7 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'lines_random_uniform_no_corner_mask.png',
-                   f'{name}_{line_type}',
-                   max_threshold=200 if name == 'mpl2005' else 100)
+                   f'{name}_{line_type}')
 
 
 @pytest.mark.parametrize(
@@ -124,8 +132,7 @@ def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
 
     compare_images(image_buffer,
                    'lines_random_uniform_no_corner_mask_chunk.png',
-                   f'{name}_{line_type}',
-                   max_threshold=200 if name == 'mpl2005' else 100)
+                   f'{name}_{line_type}')
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
