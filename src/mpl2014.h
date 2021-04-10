@@ -289,7 +289,7 @@ public:
 
     // Create and return polygons for a line (i.e. non-filled) contour at the
     // specified level.
-    py::list contour_lines(const double& level);
+    py::tuple contour_lines(const double& level);
 
 private:
     // Typedef for following either a boundary of the domain or the interior;
@@ -315,12 +315,13 @@ private:
         Hole
     } HoleOrNot;
 
-    // Append a C++ ContourLine to the end of a python list.  Used for line
+    // Append a C++ ContourLine to the end of two python lists.  Used for line
     // contours where each ContourLine is converted to a separate numpy array
-    // of (x,y) points.
+    // of (x,y) points and a second numpy array of 'kinds' or 'codes'.
     // Clears the ContourLine too.
-    void append_contour_line_to_vertices(ContourLine& contour_line,
-                                         py::list& vertices_list) const;
+    void append_contour_line_to_vertices_and_codes(ContourLine& contour_line,
+                                                   py::list& vertices_list,
+                                                   py::list& codes_list) const;
 
     // Append a C++ Contour to the end of two python lists.  Used for filled
     // contours where each non-hole ContourLine and its child holes are
@@ -491,12 +492,14 @@ private:
     // Start and complete a line contour that both starts and end on a
     // boundary, traversing the interior of the domain.
     //   vertices_list: Python list that the ContourLine should be appended to.
+    //   codes_list: Python list that the kind codes should be appended to.
     //   quad: index of quad to start ContourLine in.
     //   edge: boundary edge to start ContourLine from.
     //   level: contour z-value.
     // Returns true if the start quad does not need to be visited again, i.e.
     // VISITED(quad,1).
     bool start_line(py::list& vertices_list,
+                    py::list& codes_list,
                     long quad,
                     Edge edge,
                     const double& level);

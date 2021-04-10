@@ -1353,7 +1353,7 @@ void cntr_del(Csite *site)
 }
 
 int reorder(double *xpp, double *ypp, short *kpp,
-            double *xy, unsigned char *c, int npts)
+            double *xy, unsigned char *c, int npts, int nlevels)
 {
     int *i0;
     int *i1;
@@ -1437,6 +1437,7 @@ int reorder(double *xpp, double *ypp, short *kpp,
     for (isp=0; isp<nsp; isp++)
     {
         int first = 1;
+        int kstart = k;
         for (iseg=0; iseg<nsegs; iseg++)
         {
             int istart, iend;
@@ -1465,7 +1466,11 @@ int reorder(double *xpp, double *ypp, short *kpp,
                 }
             }
         }
-        c[k-1] = CLOSEPOLY;
+        if (nlevels == 2 ||
+            (xy[2*kstart] == xy[2*k-2] && xy[2*kstart+1] == xy[2*k-1]))
+        {
+            c[k-1] = CLOSEPOLY;
+        }
     }
 
     ending:
@@ -1501,14 +1506,11 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
         goto error;
     }
 
-    if (nlevels == 2)
+    all_codes = PyList_New(nparts);
+    if (all_codes == NULL)
     {
-        all_codes = PyList_New(nparts);
-        if (all_codes == NULL)
-        {
-            PyErr_SetString(PyExc_RuntimeError, "Failed to create codes list");
-            goto error;
-        }
+        PyErr_SetString(PyExc_RuntimeError, "Failed to create codes list");
+        goto error;
     }
 
     for (i=0, k=0; i < nparts; k+= np[i], i++)
@@ -1538,7 +1540,7 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
         n = reorder(xpp, ypp, kpp,
                     (double *) PyArray_DATA(xyv),
                     (unsigned char *) PyArray_DATA(kv),
-                    np[i]);
+                    np[i], nlevels);
         if (n == -1)
         {
             PyErr_SetString(PyExc_RuntimeError, "Error reordering vertices");
@@ -1558,40 +1560,30 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
             goto error;
         }
 
-        if (nlevels == 2)
+        newshape.len = 1;  /* ptr, dims can stay the same */
+        if (PyArray_Resize(kv, &newshape, 1, NPY_CORDER) == NULL)
         {
-            newshape.len = 1;  /* ptr, dims can stay the same */
-            if (PyArray_Resize(kv, &newshape, 1, NPY_CORDER) == NULL)
-            {
-                PyErr_SetString(PyExc_RuntimeError, "Error resizing array kv");
-                goto error;
-            }
-            if (PyList_SetItem(all_codes, i, (PyObject *)kv))
-            {
-                PyErr_SetString(PyExc_RuntimeError, "Error adding to codes list");
-                goto error;
-            }
-        }
-    }
-
-    if (nlevels == 2)
-    {
-        tuple = PyTuple_New(2);
-        if (tuple == NULL)
-        {
-            PyErr_SetString(PyExc_RuntimeError, "Error creating tuple");
+            PyErr_SetString(PyExc_RuntimeError, "Error resizing array kv");
             goto error;
         }
+        if (PyList_SetItem(all_codes, i, (PyObject *)kv))
+        {
+            PyErr_SetString(PyExc_RuntimeError, "Error adding to codes list");
+            goto error;
+        }
+    }
 
-        // No error checking here as filling in a brand new pre-allocated tuple.
-        PyTuple_SET_ITEM(tuple, 0, all_verts);
-        PyTuple_SET_ITEM(tuple, 1, all_codes);
-        return tuple;
-    }
-    else
+    tuple = PyTuple_New(2);
+    if (tuple == NULL)
     {
-        return all_verts;
+        PyErr_SetString(PyExc_RuntimeError, "Error creating tuple");
+        goto error;
     }
+
+    // No error checking here as filling in a brand new pre-allocated tuple.
+    PyTuple_SET_ITEM(tuple, 0, all_verts);
+    PyTuple_SET_ITEM(tuple, 1, all_codes);
+    return tuple;
 
     error:
     Py_XDECREF(xyv);

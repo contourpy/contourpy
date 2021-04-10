@@ -20,8 +20,8 @@ def all_names_and_fill_types():
 
 def all_names_and_line_types():
     return [
-        ('mpl2005', LineType.Separate),
-        ('mpl2014', LineType.Separate),
+        ('mpl2005', LineType.SeparateCodes),
+        ('mpl2014', LineType.SeparateCodes),
         ('serial', LineType.Separate),
         ('serial', LineType.SeparateCodes),
         ('serial', LineType.ChunkCombinedCodes),
