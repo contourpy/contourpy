@@ -50,8 +50,9 @@ private:
 
     struct Location
     {
-        Location(long quad_, long forward_, bool is_upper_, bool on_boundary_)
-            : quad(quad_), forward(forward_), is_upper(is_upper_),
+        Location(long quad_, long forward_, long left_, bool is_upper_,
+                 bool on_boundary_)
+            : quad(quad_), forward(forward_), left(left_), is_upper(is_upper_),
               on_boundary(on_boundary_)
         {}
 
@@ -59,15 +60,13 @@ private:
             std::ostream &os, const Location& location)
         {
             os << "quad=" << location.quad << " forward=" << location.forward
-                << " is_upper=" << location.is_upper << " on_boundary="
-                << location.on_boundary;
+                << " left=" << location.left << " is_upper="
+                << location.is_upper << " on_boundary=" << location.on_boundary;
             return os;
         }
 
-        long quad;
-        long forward;
-        bool is_upper;
-        bool on_boundary;
+        long quad, forward, left;
+        bool is_upper, on_boundary;
     };
 
     ZLevel calc_z_level_mid(long quad);
@@ -128,7 +127,8 @@ private:
 
     void line(const Location& start_location, ChunkLocal& local);
 
-    void move_to_next_boundary_edge(long& quad, long& forward) const;
+    void move_to_next_boundary_edge(
+        long& quad, long& forward, long& left) const;
 
     void set_look_flags(long hole_start_quad);
 
