@@ -55,6 +55,15 @@ private:
               on_boundary(on_boundary_)
         {}
 
+        friend std::ostream &operator<<(
+            std::ostream &os, const Location& location)
+        {
+            os << "quad=" << location.quad << " forward=" << location.forward
+                << " is_upper=" << location.is_upper << " on_boundary="
+                << location.on_boundary;
+            return os;
+        }
+
         long quad;
         long forward;
         bool is_upper;

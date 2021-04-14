@@ -404,8 +404,8 @@ void SerialContourGenerator::export_lines(
     {
         case LineType::Separate:
         case LineType::SeparateCodes:
-            assert(all_points_ptr != nullptr);
             if (local.total_point_count > 0) {
+                assert(all_points_ptr != nullptr);
                 for (unsigned long i = 0; i < local.line_count; ++i) {
                     auto point_start = local.line_offsets[i];
                     auto point_end = local.line_offsets[i+1];

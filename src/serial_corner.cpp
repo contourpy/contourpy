@@ -13,76 +13,80 @@
 
 // CacheItem masks, only accessed directly to set.  To read, use accessors
 // detailed below.  1 and 2 refer to level indices (lower and upper).
-#define MASK_Z_LEVEL_1        0x0001 // z > lower_level.
-#define MASK_Z_LEVEL_2        0x0002 // z > upper_level.
-#define MASK_Z_LEVEL          (MASK_Z_LEVEL_1 | MASK_Z_LEVEL_2)
-#define MASK_SADDLE_Z_LEVEL_1 0x0004 // saddle z > lower_level
-#define MASK_SADDLE_Z_LEVEL_2 0x0008 // saddle z > upper_level
-#define MASK_SADDLE           (MASK_SADDLE_Z_LEVEL_1 | MASK_SADDLE_Z_LEVEL_2)
-#define MASK_BOUNDARY_N       0x0080 // N edge of quad is a boundary.
-#define MASK_BOUNDARY_E       0x0100 // E edge of quad is a boundary.
+#define MASK_Z_LEVEL_1         0x000001 // z > lower_level.
+#define MASK_Z_LEVEL_2         0x000002 // z > upper_level.
+#define MASK_Z_LEVEL           (MASK_Z_LEVEL_1 | MASK_Z_LEVEL_2)
+#define MASK_SADDLE_Z_LEVEL_1  0x000004 // saddle z > lower_level
+#define MASK_SADDLE_Z_LEVEL_2  0x000008 // saddle z > upper_level
+#define MASK_SADDLE            (MASK_SADDLE_Z_LEVEL_1 | MASK_SADDLE_Z_LEVEL_2)
+#define MASK_BOUNDARY_N        0x000010 // N edge of quad is a boundary.
+#define MASK_BOUNDARY_E        0x000020 // E edge of quad is a boundary.
 // EXISTS_QUAD bit is always used, but the 4 EXISTS_CORNER are only used if
 // _corner_mask is true.  Only one of EXISTS_QUAD or EXISTS_??_CORNER is ever
 // set per quad, hence not using unique bits for each; care is needed when
 // testing for these flags as they overlap.
-#define MASK_EXISTS_QUAD      0x0010 // All of quad exists (is not masked).
-#define MASK_EXISTS_NW_CORNER 0x0020 // SW corner exists, NE corner is masked.
-#define MASK_EXISTS_NE_CORNER 0x0030
-#define MASK_EXISTS_SW_CORNER 0x0040
-#define MASK_EXISTS_SE_CORNER 0x0050
-#define MASK_EXISTS_ANY       0x0070 // Combines all 5 EXISTS masks.
-#define MASK_START_N          0x0200 // N to E
-#define MASK_START_E          0x0400 // E to N
-#define MASK_START_BOUNDARY_N 0x0800 // Filled and lines.
-#define MASK_START_BOUNDARY_E 0x1000 // Filled and lines.
-#define MASK_START_BOUNDARY_S 0x2000 // Filled only.
-#define MASK_START_BOUNDARY_W 0x4000 // Filled only.
-#define MASK_START_HOLE_N     0x8000 // N boundary of EXISTS, E to W, filled only.
-#define MASK_ANY_START_FILLED (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_HOLE_N)
-#define MASK_ANY_START_LINES  (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E)
-#define MASK_LOOK_N           0x10000
-#define MASK_LOOK_S           0x20000
-#define MASK_NO_STARTS_IN_ROW 0x40000
-#define MASK_NO_MORE_STARTS   0x80000
+#define MASK_EXISTS_QUAD       0x000040 // All of quad exists (is not masked).
+#define MASK_EXISTS_NW_CORNER  0x000080 // SW corner exists, NE corner is masked.
+#define MASK_EXISTS_NE_CORNER  0x000100
+#define MASK_EXISTS_SW_CORNER  0x000200
+#define MASK_EXISTS_SE_CORNER  0x000400
+#define MASK_EXISTS_ANY_CORNER (MASK_EXISTS_NW_CORNER | MASK_EXISTS_NE_CORNER | MASK_EXISTS_SW_CORNER | MASK_EXISTS_SE_CORNER)
+#define MASK_EXISTS_ANY        (MASK_EXISTS_QUAD | MASK_EXISTS_ANY_CORNER)
+#define MASK_START_N           0x000800 // N to E
+#define MASK_START_E           0x001000 // E to N
+#define MASK_START_BOUNDARY_N  0x002000 // Filled and lines.
+#define MASK_START_BOUNDARY_E  0x004000 // Filled and lines.
+#define MASK_START_BOUNDARY_S  0x008000 // Filled only.
+#define MASK_START_BOUNDARY_W  0x010000 // Filled only.
+#define MASK_START_HOLE_N      0x020000 // N boundary of EXISTS, E to W, filled only.
+#define MASK_START_CORNER      0x040000 // Lines only.
+#define MASK_ANY_START_FILLED  (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_HOLE_N)
+#define MASK_ANY_START_LINES   (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E | MASK_START_CORNER)
+#define MASK_LOOK_N            0x080000
+#define MASK_LOOK_S            0x100000
+#define MASK_NO_STARTS_IN_ROW  0x200000
+#define MASK_NO_MORE_STARTS    0x400000
 
 // Accessors for various CacheItem masks.
-#define Z_LEVEL(quad)           (_cache[quad] & MASK_Z_LEVEL)
-#define Z_NE                    Z_LEVEL(POINT_NE)
-#define Z_NW                    Z_LEVEL(POINT_NW)
-#define Z_SE                    Z_LEVEL(POINT_SE)
-#define Z_SW                    Z_LEVEL(POINT_SW)
-#define SADDLE_SET(quad)        ((_cache[quad] & MASK_SADDLE) != MASK_SADDLE)
-#define SADDLE_Z_LEVEL(quad)    (SADDLE_SET(quad) ? ((_cache[quad] & MASK_SADDLE) >> 2) : calc_z_level_mid(quad))
-#define BOUNDARY_N(quad)        (_cache[quad] & MASK_BOUNDARY_N)
-#define BOUNDARY_E(quad)        (_cache[quad] & MASK_BOUNDARY_E)
-#define BOUNDARY_S(quad)        (_cache[quad-_nx] & MASK_BOUNDARY_N)
-#define BOUNDARY_W(quad)        (_cache[quad-1] & MASK_BOUNDARY_E)
-#define EXISTS_QUAD(quad)       ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_QUAD)
-#define EXISTS_NW_CORNER(quad)  ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_NW_CORNER)
-#define EXISTS_NE_CORNER(quad)  ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_NE_CORNER)
-#define EXISTS_SW_CORNER(quad)  ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_SW_CORNER)
-#define EXISTS_SE_CORNER(quad)  ((_cache[quad] & MASK_EXISTS_ANY) == MASK_EXISTS_SE_CORNER)
-#define EXISTS_ANY(quad)        ((_cache[quad] & MASK_EXISTS_ANY) > 0)
-#define EXISTS_NONE(quad)       ((_cache[quad] & MASK_EXISTS_ANY) == 0)
-#define EXISTS_ANY_CORNER(quad) (EXISTS_ANY(quad) && !EXISTS_QUAD(quad))
-#define EXISTS_N_EDGE(quad)     (EXISTS_QUAD(quad) || EXISTS_NW_CORNER(quad) || EXISTS_NE_CORNER(quad))
-#define EXISTS_E_EDGE(quad)     (EXISTS_QUAD(quad) || EXISTS_SE_CORNER(quad) || EXISTS_NE_CORNER(quad))
-#define EXISTS_S_EDGE(quad)     (EXISTS_QUAD(quad) || EXISTS_SW_CORNER(quad) || EXISTS_SE_CORNER(quad))
-#define EXISTS_W_EDGE(quad)     (EXISTS_QUAD(quad) || EXISTS_SW_CORNER(quad) || EXISTS_NW_CORNER(quad))
+#define Z_LEVEL(quad)              (_cache[quad] & MASK_Z_LEVEL)
+#define Z_NE                       Z_LEVEL(POINT_NE)
+#define Z_NW                       Z_LEVEL(POINT_NW)
+#define Z_SE                       Z_LEVEL(POINT_SE)
+#define Z_SW                       Z_LEVEL(POINT_SW)
+#define SADDLE_SET(quad)           ((_cache[quad] & MASK_SADDLE) != MASK_SADDLE)
+#define SADDLE_Z_LEVEL(quad)       (SADDLE_SET(quad) ? ((_cache[quad] & MASK_SADDLE) >> 2) : calc_z_level_mid(quad))
+#define BOUNDARY_N(quad)           (_cache[quad] & MASK_BOUNDARY_N)
+#define BOUNDARY_E(quad)           (_cache[quad] & MASK_BOUNDARY_E)
+#define BOUNDARY_S(quad)           (_cache[quad-_nx] & MASK_BOUNDARY_N)
+#define BOUNDARY_W(quad)           (_cache[quad-1] & MASK_BOUNDARY_E)
+#define EXISTS_QUAD(quad)          (_cache[quad] & MASK_EXISTS_QUAD)
+#define EXISTS_NW_CORNER(quad)     (_cache[quad] & MASK_EXISTS_NW_CORNER)
+#define EXISTS_NE_CORNER(quad)     (_cache[quad] & MASK_EXISTS_NE_CORNER)
+#define EXISTS_SW_CORNER(quad)     (_cache[quad] & MASK_EXISTS_SW_CORNER)
+#define EXISTS_SE_CORNER(quad)     (_cache[quad] & MASK_EXISTS_SE_CORNER)
+#define EXISTS_ANY(quad)           (_cache[quad] & MASK_EXISTS_ANY)
+#define EXISTS_NONE(quad)          (EXISTS_ANY(quad) == 0)
+#define EXISTS_ANY_CORNER(quad)    (_cache[quad] & MASK_EXISTS_ANY_CORNER)
+#define EXISTS_N_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NW_CORNER | MASK_EXISTS_NE_CORNER))
+#define EXISTS_E_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NE_CORNER | MASK_EXISTS_SE_CORNER))
+#define EXISTS_S_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_SW_CORNER | MASK_EXISTS_SE_CORNER))
+#define EXISTS_W_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NW_CORNER | MASK_EXISTS_SW_CORNER))
+#define EXISTS_N_AND_E_EDGES(quad) (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NE_CORNER))
 // Note that EXISTS_NE_CORNER(quad) is equivalent to BOUNDARY_SW(quad), etc.
-#define START_N(quad)           (_cache[quad] & MASK_START_N)
-#define START_E(quad)           (_cache[quad] & MASK_START_E)
-#define START_BOUNDARY_N(quad)  (_cache[quad] & MASK_START_BOUNDARY_N)
-#define START_BOUNDARY_E(quad)  (_cache[quad] & MASK_START_BOUNDARY_E)
-#define START_BOUNDARY_S(quad)  (_cache[quad] & MASK_START_BOUNDARY_S)
-#define START_BOUNDARY_W(quad)  (_cache[quad] & MASK_START_BOUNDARY_W)
-#define START_HOLE_N(quad)      (_cache[quad] & MASK_START_HOLE_N)
-#define ANY_START_FILLED(quad)  (_cache[quad] & MASK_ANY_START_FILLED)
-#define ANY_START_LINES(quad)   (_cache[quad] & MASK_ANY_START_LINES)
-#define LOOK_N(quad)            (_cache[quad] & MASK_LOOK_N)
-#define LOOK_S(quad)            (_cache[quad] & MASK_LOOK_S)
-#define NO_STARTS_IN_ROW(quad)  (_cache[quad] & MASK_NO_STARTS_IN_ROW)
-#define NO_MORE_STARTS(quad)    (_cache[quad] & MASK_NO_MORE_STARTS)
+#define START_N(quad)              (_cache[quad] & MASK_START_N)
+#define START_E(quad)              (_cache[quad] & MASK_START_E)
+#define START_BOUNDARY_N(quad)     (_cache[quad] & MASK_START_BOUNDARY_N)
+#define START_BOUNDARY_E(quad)     (_cache[quad] & MASK_START_BOUNDARY_E)
+#define START_BOUNDARY_S(quad)     (_cache[quad] & MASK_START_BOUNDARY_S)
+#define START_BOUNDARY_W(quad)     (_cache[quad] & MASK_START_BOUNDARY_W)
+#define START_HOLE_N(quad)         (_cache[quad] & MASK_START_HOLE_N)
+#define START_CORNER(quad)         (_cache[quad] & MASK_START_CORNER)
+#define ANY_START_FILLED(quad)     (_cache[quad] & MASK_ANY_START_FILLED)
+#define ANY_START_LINES(quad)      (_cache[quad] & MASK_ANY_START_LINES)
+#define LOOK_N(quad)               (_cache[quad] & MASK_LOOK_N)
+#define LOOK_S(quad)               (_cache[quad] & MASK_LOOK_S)
+#define NO_STARTS_IN_ROW(quad)     (_cache[quad] & MASK_NO_STARTS_IN_ROW)
+#define NO_MORE_STARTS(quad)       (_cache[quad] & MASK_NO_MORE_STARTS)
 
 
 SerialCornerContourGenerator::SerialCornerContourGenerator(
@@ -309,6 +313,8 @@ py::sequence SerialCornerContourGenerator::contour_lines(const double& level)
         local.clear();
     }
 
+    write_cache();
+
     // Trace contours.
     for (long chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
@@ -426,8 +432,8 @@ void SerialCornerContourGenerator::export_lines(
     {
         case LineType::Separate:
         case LineType::SeparateCodes:
-            assert(all_points_ptr != nullptr);
             if (local.total_point_count > 0) {
+                assert(all_points_ptr != nullptr);
                 for (unsigned long i = 0; i < local.line_count; ++i) {
                     auto point_start = local.line_offsets[i];
                     auto point_end = local.line_offsets[i+1];
@@ -598,6 +604,8 @@ bool SerialCornerContourGenerator::follow_interior(
     Location& location, const Location& start_location, ChunkLocal& local,
     unsigned long& point_count)
 {
+    std::cout << "==> follow_interior " << location << std::endl;
+
     // Adds the start point in each quad visited, but not the end point unless
     // closing the polygon.
     // Only need to consider a single level of course.
@@ -612,18 +620,63 @@ bool SerialCornerContourGenerator::follow_interior(
     auto start_forward = start_location.forward;
     auto pass = local.pass;
 
-    // Indices of points on entry edge.
-    long left = (forward > 0 ? (forward == 1 ? _nx : -1)
-                             : (forward == -1 ? -_nx : 1));
-    long left_point = (forward > 0 ? (forward == 1 ? quad-1 : quad-_nx-1)
-                                   : (forward == -1 ? quad-_nx : quad));
+    // left direction, and indices of points on entry edge.
+    long left = 0, left_point = 0;
+    bool start_corner_diagonal = false;
+    if (forward > 0) {
+        if (forward == 1) {
+            left = _nx;
+            left_point = quad-1;
+        }
+        else if (forward == _nx) {
+            left = -1;
+            left_point = quad-_nx-1;
+        }
+        else if (EXISTS_NW_CORNER(quad)) {
+            left = -_nx-1;
+            left_point = quad-_nx-1;
+            start_corner_diagonal = true;
+        }
+        else {
+            assert(EXISTS_NE_CORNER(quad));
+            left = _nx-1;
+            left_point = quad-1;
+            start_corner_diagonal = true;
+        }
+    }
+    else if (forward < 0) {
+        if (forward == -1) {
+            left = -_nx;
+            left_point = quad-_nx;
+        }
+        else if (forward == -_nx) {
+            left = 1;
+            left_point = quad;
+        }
+        else if (EXISTS_SW_CORNER(quad)) {
+            left = -_nx+1;
+            left_point = quad-_nx;
+            start_corner_diagonal = true;
+        }
+        else {
+            assert(EXISTS_SE_CORNER(quad));
+            left = _nx+1;
+            left_point = quad;
+            start_corner_diagonal = true;
+        }
+    }
+
     long right_point = left_point - left;
+    std::cout << "    left=" << left << " left_point=" << left_point
+        << " right_point=" << right_point << std::endl;
 
     bool want_look_N = _identify_holes && pass > 0;
 
     bool abort = false;     // Whether to about the loop.
     bool finished = false;  // Whether finished line, i.e. returned to start.
     while (!abort) {
+        std::cout << "    quad=" << quad << " forward=" << forward << " left="
+            << left << std::endl;
         assert(is_quad_in_chunk(quad, local));
         assert(is_point_in_chunk(left_point, local));
         assert(is_point_in_chunk(right_point, local));
@@ -639,21 +692,78 @@ bool SerialCornerContourGenerator::follow_interior(
             break;
         }
 
-        // Indices and z_levels of the opposite points.
+        // Indices of the opposite points.
         long opposite_left_point = left_point + forward;
         long opposite_right_point = right_point + forward;
+        bool corner_opposite_is_right = false;  // Only used for corners.
+
+        if (start_corner_diagonal) {
+            // To avoid dealing with diagonal forward and left below, switch to
+            // direction 45 degrees to left, e.g. NW corner faces west using
+            // forward == -1.
+            corner_opposite_is_right = true;
+            if (EXISTS_NW_CORNER(quad)) {
+                forward = -1;
+                left = -_nx;
+                opposite_left_point = opposite_right_point = quad-1;
+            }
+            else if (EXISTS_NE_CORNER(quad)) {
+                forward = _nx;
+                left = -1;
+                opposite_left_point = opposite_right_point = quad;
+            }
+            else if (EXISTS_SW_CORNER(quad)) {
+                forward = -_nx;
+                left = 1;
+                opposite_left_point = opposite_right_point = quad-_nx-1;
+            }
+            else {  // EXISTS_SE_CORNER
+                forward = 1;
+                left = _nx;
+                opposite_left_point = opposite_right_point = quad-_nx;
+            }
+            std::cout << "    fix diagonal forward=" << forward << " left="
+                << left << " opposite_points=" << opposite_left_point << std::endl;
+        }
+
+        // z-levels of the opposite points.
         ZLevel z_opposite_left = Z_LEVEL(opposite_left_point);
         ZLevel z_opposite_right = Z_LEVEL(opposite_right_point);
 
-        // Turn left (1), move forward (0) or turn right (-1).
-        int turn_left = -1;
+        std::cout << "    opposite_left=" << opposite_left_point
+            << " opposite_right_point=" << opposite_right_point << std::endl;
+
+        int turn_left = -1;  // 1 is turn left, 0 move forward, -1 turn right.
         ZLevel z_test = is_upper ? 2 : 0;
-        if (z_opposite_left == z_test) {
-            if (z_opposite_right == z_test || SADDLE_Z_LEVEL(quad) == z_test)
-                turn_left = 1;
+
+        if (EXISTS_QUAD(quad)) {
+            if (z_opposite_left == z_test) {
+                if (z_opposite_right == z_test || SADDLE_Z_LEVEL(quad) == z_test)
+                    turn_left = 1;
+            }
+            else if (z_opposite_right == z_test)
+                turn_left = 0;
         }
-        else if (z_opposite_right == z_test)
-            turn_left = 0;
+        else if (start_corner_diagonal) {
+            turn_left = z_opposite_left == z_test ? 0 : -1;
+        }
+        else {
+            if (EXISTS_NW_CORNER(quad))
+                corner_opposite_is_right = forward == -_nx;
+            else if (EXISTS_NE_CORNER(quad))
+                corner_opposite_is_right = forward == -1;
+            else if (EXISTS_SW_CORNER(quad))
+                corner_opposite_is_right = forward == 1;
+            else  // EXISTS_SE_CORNER
+                corner_opposite_is_right = forward == _nx;
+
+            if (corner_opposite_is_right)
+                turn_left = z_opposite_right == z_test ? 0 : -1;
+            else
+                turn_left = z_opposite_left == z_test ? 1 : 0;
+        }
+
+        std::cout << "    turn_left " << turn_left << std::endl;
 
         // Clear unwanted start locations.
         if (pass == 0 && !(quad == start_quad && forward == start_forward)) {
@@ -675,9 +785,12 @@ bool SerialCornerContourGenerator::follow_interior(
             }
         }
 
+        bool reached_boundary = false;
+
         // Determine entry edge and left and right points of next quad.
         // Do not update quad index yet.
         if (turn_left > 0) {
+            std::cout << "    turn left" << std::endl;
             auto temp = forward;
             forward = left;
             left = -temp;
@@ -685,6 +798,7 @@ bool SerialCornerContourGenerator::follow_interior(
             right_point = opposite_left_point;
         }
         else if (turn_left < 0) {  // turn right
+            std::cout << "    turn right" << std::endl;
             auto temp = forward;
             forward = -left;
             left = temp;
@@ -692,10 +806,37 @@ bool SerialCornerContourGenerator::follow_interior(
             // right_point unchanged.
         }
         else {  // Straight on.
-            left_point = opposite_left_point;
-            right_point = opposite_right_point;
-            // Edge stays the same.
+            std::cout << "    straight on" << std::endl;
+            if (EXISTS_QUAD(quad)) {
+                // forward and left stay the same.
+                left_point = opposite_left_point;
+                right_point = opposite_right_point;
+            }
+            else if (start_corner_diagonal) {
+                // left point unchanged.
+                right_point = opposite_right_point;
+            }
+            else {  // EXISTS_ANY_CORNER
+                // Straight on in a corner reaches boundary.
+                reached_boundary = true;
+
+                if (corner_opposite_is_right) {
+                    // left_point unchanged.
+                    right_point = opposite_right_point;
+                }
+                else {
+                    left_point = opposite_left_point;
+                    // right_point unchanged.
+                }
+
+                ////////// Set forward for correct exit along boundary.
+                //forward = 0;
+                //left = 0;  // Should not be used after this.
+            }
         }
+
+        std::cout << "    left_point=" << left_point << " right_point="
+            << right_point << " forward=" << forward << " left=" << left << std::endl;
 
         if (want_look_N && LOOK_N(quad) && forward == 1) {
             // Only consider look_N if pass across E edge of this quad.
@@ -707,27 +848,30 @@ bool SerialCornerContourGenerator::follow_interior(
                 local.look_up_quads.push_back(quad);
         }
 
-        // If reached a boundary, return.
-        // quad is always unchanged here.
-        bool reached_boundary = false;
-        if (forward == 1 && BOUNDARY_E(quad)) {
-            forward = _nx;  // Moving N.
-            reached_boundary = true;
-        }
-        else if (forward > 1 && BOUNDARY_N(quad)) {
-            forward = -1;  // Moving W.
-            reached_boundary = true;
-        }
-        else if (forward == -1 && BOUNDARY_W(quad)) {
-            forward = -_nx;  // Moving S.
-            reached_boundary = true;
-        }
-        else if (forward < -1 && BOUNDARY_S(quad)) {
-            forward = 1;  // Moving E.
-            reached_boundary = true;
+        // Check if reached boundary; already checked and noted if reached
+        // corner boundary.
+        if (!reached_boundary) {
+            if (forward == 1 && BOUNDARY_E(quad)) {
+                forward = _nx;  // Moving N.
+                reached_boundary = true;
+            }
+            else if (forward > 1 && BOUNDARY_N(quad)) {
+                forward = -1;  // Moving W.
+                reached_boundary = true;
+            }
+            else if (forward == -1 && BOUNDARY_W(quad)) {
+                forward = -_nx;  // Moving S.
+                reached_boundary = true;
+            }
+            else if (forward < -1 && BOUNDARY_S(quad)) {
+                forward = 1;  // Moving E.
+                reached_boundary = true;
+            }
         }
 
+        // If reached a boundary, return.
         if (reached_boundary) {
+            std::cout << "    reached_boundary " << reached_boundary << std::endl;
             if (!_filled) {
                 point_count++;
                 if (pass > 0)
@@ -737,6 +881,7 @@ bool SerialCornerContourGenerator::follow_interior(
         }
 
         quad += forward;
+        start_corner_diagonal = false;
     }
 
     location.quad = quad;
@@ -932,7 +1077,6 @@ void SerialCornerContourGenerator::init_cache_levels_and_starts(ChunkLocal& loca
             _cache[quad] &= keep_mask;
             _cache[quad] |= MASK_SADDLE;
 
-
             // Cache z-level of NE point.
             ZLevel z_ne = 0;
             if (_filled && *z_ptr > _upper_level) {
@@ -948,7 +1092,7 @@ void SerialCornerContourGenerator::init_cache_levels_and_starts(ChunkLocal& loca
             // if j == 0.
             ZLevel z_se = (j > 0 ? Z_SE : 0);
 
-            if (EXISTS_QUAD(quad)) {
+            if (EXISTS_ANY(quad)) {
                 if (_filled) {
                     if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
                         (z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
@@ -1017,15 +1161,35 @@ void SerialCornerContourGenerator::init_cache_levels_and_starts(ChunkLocal& loca
                         start_in_row = true;
                     }
 
-                    if (!BOUNDARY_N(quad) && !BOUNDARY_E(quad)) {
+                    if (EXISTS_N_AND_E_EDGES(quad) &&
+                        !BOUNDARY_N(quad) && !BOUNDARY_E(quad)) {
                         if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
-                            (z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
+                            (EXISTS_NE_CORNER(quad) || z_sw > 0 ||
+                             SADDLE_Z_LEVEL(quad) > 0)) {
                             _cache[quad] |= MASK_START_E;  // E to N low.
                             start_in_row = true;
                         }
                         else if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
-                                 (z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
+                                 (EXISTS_NE_CORNER(quad) || z_sw == 0 ||
+                                  SADDLE_Z_LEVEL(quad) == 0)) {
                             _cache[quad] |= MASK_START_N;  // N to E low.
+                            start_in_row = true;
+                        }
+                    }
+
+                    if (EXISTS_ANY_CORNER(quad)) {
+                        bool corner_start = false;
+                        if (EXISTS_NW_CORNER(quad))
+                            corner_start = (z_sw == 1 && z_ne == 0);
+                        else if (EXISTS_NE_CORNER(quad))
+                            corner_start = (z_nw == 1 && z_se == 0);
+                        else if (EXISTS_SW_CORNER(quad))
+                            corner_start = (z_se == 1 && z_nw == 0);
+                        else  // EXISTS_SE_CORNER
+                            corner_start = (z_ne == 1 && z_sw == 0);
+
+                        if (corner_start) {
+                            _cache[quad] |= MASK_START_CORNER;
                             start_in_row = true;
                         }
                     }
@@ -1093,6 +1257,8 @@ void SerialCornerContourGenerator::line(
 {
     // start_location.on_boundary indicates starts (and therefore also finishes)
 
+std::cout << "==> line " << start_location << std::endl;
+
     assert(is_quad_in_chunk(start_location.quad, local));
 
     Location location = start_location;
@@ -1101,6 +1267,8 @@ void SerialCornerContourGenerator::line(
     // finished == true indicates closed line loop.
     bool finished = follow_interior(
         location, start_location, local, point_count);
+
+std::cout << "==> end of line, point_count = " << point_count << std::endl;
 
     if (local.pass > 0)
         local.line_offsets[local.line_count] = local.total_point_count;
@@ -1361,6 +1529,9 @@ void SerialCornerContourGenerator::single_chunk_filled(
 void SerialCornerContourGenerator::single_chunk_lines(
     ChunkLocal& local, std::vector<py::list>& return_lists)
 {
+
+std::cout << "==> single_chunk_lines" << std::endl;
+
     // Allocated at end of pass 0, depending on _line_type.
     std::vector<double> all_points;
     const double* all_points_ptr = nullptr;
@@ -1384,36 +1555,46 @@ void SerialCornerContourGenerator::single_chunk_lines(
                 if (!ANY_START_LINES(quad))
                     continue;
 
-                if (EXISTS_QUAD(quad)) {
-                    if (START_BOUNDARY_S(quad)) {
-                        Location location(quad, _nx, false, true);
-                        line(location, local);
-                    }
+                assert(EXISTS_ANY(quad));
 
-                    if (START_BOUNDARY_W(quad)) {
-                        Location location(quad, 1, false, true);
-                        line(location, local);
-                    }
+                if (START_BOUNDARY_S(quad)) {
+                    Location location(quad, _nx, false, true);
+                    line(location, local);
+                }
 
-                    if (START_BOUNDARY_E(quad)) {
-                        Location location(quad, -1, false, true);
-                        line(location, local);
-                    }
+                if (START_BOUNDARY_W(quad)) {
+                    Location location(quad, 1, false, true);
+                    line(location, local);
+                }
 
-                    if (START_BOUNDARY_N(quad)) {
-                        Location location(quad, -_nx, false, true);
-                        line(location, local);
-                    }
+                if (START_BOUNDARY_E(quad)) {
+                    Location location(quad, -1, false, true);
+                    line(location, local);
+                }
 
-                    if (START_E(quad)) {
-                        Location location(quad, -1, false, false);
-                        line(location, local);
-                    }
+                if (START_BOUNDARY_N(quad)) {
+                    Location location(quad, -_nx, false, true);
+                    line(location, local);
+                }
 
-                    if (START_N(quad)) {
-                        Location location(quad, -_nx, false, false);
-                        line(location, local);
-                    }
+                if (START_E(quad)) {
+                    Location location(quad, -1, false, false);
+                    line(location, local);
+                }
+
+                if (START_N(quad)) {
+                    Location location(quad, -_nx, false, false);
+                    line(location, local);
+                }
+
+                if (START_CORNER(quad)) {
+                    std::cout << "POSS CORNER START ";  write_cache_quad(quad);  std::cout << std::endl;
+                    long forward =
+                        EXISTS_NW_CORNER(quad) ? _nx-1 :
+                          (EXISTS_NE_CORNER(quad) ? _nx+1 :
+                            (EXISTS_SW_CORNER(quad) ? -_nx-1 : -_nx+1));
+                    Location location(quad, forward, false, true);
+                    line(location, local);
                 }
             } // i
 
@@ -1426,6 +1607,17 @@ void SerialCornerContourGenerator::single_chunk_lines(
 
         if (j_final_start < local.jend)
             _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
+
+        if (1) {
+            std::cout << "end of pass " << local.pass << std::endl;
+            std::cout << "  total_point_count: " << local.total_point_count << std::endl;
+            std::cout << "  line_count: " << local.line_count << std::endl;
+
+            std::cout << "  line_offsets (" << local.line_offsets.size() << ")";
+            for (const auto& i : local.line_offsets)
+                std::cout << " " << i;
+            std::cout << std::endl;
+        }
 
         if (local.pass == 0) {
             if (_line_type == LineType::Separate ||
@@ -1508,7 +1700,7 @@ void SerialCornerContourGenerator::write_cache() const
     }
     std::cout << "    ";
     for (long i = 0; i < _nx; ++i)
-        std::cout << "i=" << i << "          ";
+        std::cout << "i=" << i << "           ";
     std::cout << std::endl;
     std::cout << "---------------------------" << std::endl;
 }
@@ -1535,10 +1727,11 @@ void SerialCornerContourGenerator::write_cache_quad(long quad) const
     }
     std::cout << (START_E(quad) ? 'E' : '.');
     std::cout << (START_N(quad) ? 'N' : '.');
-    if (_filled) {
+    if (_filled)
         std::cout << (START_HOLE_N(quad) ? 'h' : '.');
+    std::cout << (START_CORNER(quad) ? 'c' : '.');
+    if (_filled)
         std::cout << (LOOK_N(quad) && LOOK_S(quad) ? 'B' :
             (LOOK_N(quad) ? '^' : (LOOK_S(quad) ? 'v' : '.')));
-    }
     std::cout << ' ';
 }
