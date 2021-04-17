@@ -155,7 +155,7 @@ def test_lines_random_uniform_corner_mask(name):
 
 
 @pytest.mark.parametrize('line_type', LineType.__members__.values())
-@pytest.mark.parametrize('name', ['serial'])
+@pytest.mark.parametrize('name', ['serial', 'serial_corner'])
 def test_return_by_line_type(one_loop_one_strip, name, line_type):
     x, y, z = one_loop_one_strip
     cont_gen = contour_generator(x, y, z, name, line_type=line_type)
