@@ -88,7 +88,7 @@ def test_filled_random_uniform_corner_mask(name):
 
 
 @pytest.mark.parametrize('fill_type', FillType.__members__.values())
-@pytest.mark.parametrize('name', ['serial'])
+@pytest.mark.parametrize('name', ['serial', 'serial_corner'])
 def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
     x, y, z = two_outers_one_hole
     cont_gen = contour_generator(x, y, z, name, fill_type=fill_type)

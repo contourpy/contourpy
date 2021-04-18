@@ -1,6 +1,7 @@
 #include "common.h"
 #include "mpl2014.h"
 #include "serial.h"
+#include "serial_corner.h"
 #include "fill_type.h"
 
 PYBIND11_MODULE(_contourpy, m) {
@@ -75,6 +76,54 @@ PYBIND11_MODULE(_contourpy, m) {
         .def_static(
             "supports_line_type",
             &SerialContourGenerator::supports_line_type);
+
+    py::class_<SerialCornerContourGenerator>(m, "SerialCornerContourGenerator")
+        .def(py::init<const CoordinateArray&,
+                      const CoordinateArray&,
+                      const CoordinateArray&,
+                      const MaskArray&,
+                      bool,
+                      LineType,
+                      FillType,
+                      long,
+                      long>(),
+             py::arg("x"),
+             py::arg("y"),
+             py::arg("z"),
+             py::arg("mask"),
+             py::arg("corner_mask"),
+             py::arg("line_type"),
+             py::arg("fill_type"),
+             py::kw_only(),
+             py::arg("x_chunk_size") = 0,
+             py::arg("y_chunk_size") = 0)
+        .def("contour_filled", &SerialCornerContourGenerator::contour_filled)
+        .def("contour_lines", &SerialCornerContourGenerator::contour_lines)
+        .def("write_cache", &SerialCornerContourGenerator::write_cache)
+        .def_property_readonly(
+            "chunk_count", &SerialCornerContourGenerator::get_chunk_count)
+        .def_property_readonly(
+            "chunk_size", &SerialCornerContourGenerator::get_chunk_size)
+        .def_property_readonly(
+            "fill_type", &SerialCornerContourGenerator::get_fill_type)
+        .def_property_readonly(
+            "line_type", &SerialCornerContourGenerator::get_line_type)
+        .def_property_readonly_static(
+            "default_fill_type",
+            [](py::object /* self */) {
+                return SerialCornerContourGenerator::default_fill_type();
+            })
+        .def_property_readonly_static(
+            "default_line_type",
+            [](py::object /* self */) {
+                return SerialCornerContourGenerator::default_line_type();
+            })
+        .def_static(
+            "supports_fill_type",
+            &SerialCornerContourGenerator::supports_fill_type)
+        .def_static(
+            "supports_line_type",
+            &SerialCornerContourGenerator::supports_line_type);
 
     py::enum_<FillType>(m, "FillType")
         .value("OuterCodes", FillType::OuterCodes)
