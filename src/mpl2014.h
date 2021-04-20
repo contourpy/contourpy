@@ -171,14 +171,14 @@ typedef enum
 struct QuadEdge
 {
     QuadEdge();
-    QuadEdge(long quad_, Edge edge_);
+    QuadEdge(index_t quad_, Edge edge_);
     bool operator<(const QuadEdge& other) const;
     bool operator==(const QuadEdge& other) const;
     bool operator!=(const QuadEdge& other) const;
     friend std::ostream& operator<<(std::ostream& os,
                                     const QuadEdge& quad_edge);
 
-    long quad;
+    index_t quad;
     Edge edge;
 };
 
@@ -247,18 +247,18 @@ public:
 class ParentCache
 {
 public:
-    ParentCache(long nx, long x_chunk_points, long y_chunk_points);
-    ContourLine* get_parent(long quad);
-    void set_chunk_starts(long istart, long jstart);
-    void set_parent(long quad, ContourLine& contour_line);
+    ParentCache(index_t nx, index_t x_chunk_points, index_t y_chunk_points);
+    ContourLine* get_parent(index_t quad);
+    void set_chunk_starts(index_t istart, index_t jstart);
+    void set_parent(index_t quad, ContourLine& contour_line);
 
 private:
-    long quad_to_index(long quad) const;
+    index_t index_to_index(index_t quad) const;
 
-    long _nx;
-    long _x_chunk_points, _y_chunk_points;  // Number of points not quads.
+    index_t _nx;
+    index_t _x_chunk_points, _y_chunk_points;  // Number of points not quads.
     std::vector<ContourLine*> _lines;       // Not owned.
-    long _istart, _jstart;
+    index_t _istart, _jstart;
 };
 
 
@@ -277,7 +277,7 @@ public:
                             const CoordinateArray& z,
                             const MaskArray& mask,
                             bool corner_mask,
-                            long chunk_size);
+                            index_t chunk_size);
 
     // Destructor.
     ~Mpl2014ContourGenerator();
@@ -335,7 +335,7 @@ private:
                                               py::list& codes_list) const;
 
     // Return number of chunks that fit in the specified point_count.
-    long calc_chunk_count(long point_count) const;
+    index_t calc_chunk_count(index_t point_count) const;
 
     // Append the point on the specified QuadEdge that intersects the specified
     // level to the specified ContourLine.
@@ -395,46 +395,46 @@ private:
                          bool set_parents);
 
     // Return the index limits of a particular chunk.
-    void get_chunk_limits(long ijchunk,
-                          long& ichunk,
-                          long& jchunk,
-                          long& istart,
-                          long& iend,
-                          long& jstart,
-                          long& jend);
+    void get_chunk_limits(index_t ijchunk,
+                          index_t& ichunk,
+                          index_t& jchunk,
+                          index_t& istart,
+                          index_t& iend,
+                          index_t& jstart,
+                          index_t& jend);
 
     // Check if a contour starts within the specified corner quad on the
     // specified level_index, and if so return the start edge.  Otherwise
     // return Edge_None.
-    Edge get_corner_start_edge(long quad, unsigned int level_index) const;
+    Edge get_corner_start_edge(index_t quad, unsigned int level_index) const;
 
     // Return index of point at start or end of specified QuadEdge, assuming
     // anticlockwise ordering around non-masked quads.
-    long get_edge_point_index(const QuadEdge& quad_edge, bool start) const;
+    index_t get_edge_point_index(const QuadEdge& quad_edge, bool start) const;
 
     // Return the edge to exit a quad from, given the specified entry quad_edge
     // and direction to move in.
     Edge get_exit_edge(const QuadEdge& quad_edge, Dir dir) const;
 
-    const double& get_point_x(long point) const;
-    const double& get_point_y(long point) const;
+    const double& get_point_x(index_t point) const;
+    const double& get_point_y(index_t point) const;
 
     // Append the (x,y) coordinates of the specified point index to the
     // specified ContourLine.
-    void get_point_xy(long point, ContourLine& contour_line) const;
+    void get_point_xy(index_t point, ContourLine& contour_line) const;
 
     // Return the z-value of the specified point index.
-    const double& get_point_z(long point) const;
+    const double& get_point_z(index_t point) const;
 
     // Check if a contour starts within the specified non-corner quad on the
     // specified level_index, and if so return the start edge.  Otherwise
     // return Edge_None.
-    Edge get_quad_start_edge(long quad, unsigned int level_index) const;
+    Edge get_quad_start_edge(index_t quad, unsigned int level_index) const;
 
     // Check if a contour starts within the specified quad, whether it is a
     // corner or a full quad, and if so return the start edge.  Otherwise
     // return Edge_None.
-    Edge get_start_edge(long quad, unsigned int level_index) const;
+    Edge get_start_edge(index_t quad, unsigned int level_index) const;
 
     // Initialise the cache to contain grid information that is constant
     // across the lifetime of this object, i.e. does not vary between calls to
@@ -449,7 +449,7 @@ private:
 
     // Append the (x,y) point at which the level intersects the line connecting
     // the two specified point indices to the specified ContourLine.
-    void interp(long point1, long point2, const double& level,
+    void interp(index_t point1, index_t point2, const double& level,
                 ContourLine& contour_line) const;
 
     // Return true if the specified QuadEdge is a boundary, i.e. is either an
@@ -467,7 +467,7 @@ private:
     // Check for filled contours starting within the specified quad and
     // complete any that are found, appending them to the specified Contour.
     void single_quad_filled(Contour& contour,
-                            long quad,
+                            index_t quad,
                             const double& lower_level,
                             const double& upper_level);
 
@@ -481,7 +481,7 @@ private:
     //   lower_level: lower contour z-value.
     //   upper_level: upper contour z-value.
     // Returns newly created ContourLine.
-    ContourLine* start_filled(long quad,
+    ContourLine* start_filled(index_t quad,
                               Edge edge,
                               unsigned int start_level_index,
                               HoleOrNot hole_or_not,
@@ -500,7 +500,7 @@ private:
     // VISITED(quad,1).
     bool start_line(py::list& vertices_list,
                     py::list& codes_list,
-                    long quad,
+                    index_t quad,
                     Edge edge,
                     const double& level);
 
@@ -509,23 +509,23 @@ private:
 
     // Debug function that writes that cache status for a single quad to
     // stdout.
-    void write_cache_quad(long quad, bool grid_only) const;
+    void write_cache_quad(index_t quad, bool grid_only) const;
 
 
 
     // Note that mask is not stored as once it has been used to initialise the
     // cache it is no longer needed.
     CoordinateArray _x, _y, _z;
-    long _nx, _ny;             // Number of points in each direction.
-    long _n;                   // Total number of points (and hence quads).
+    index_t _nx, _ny;           // Number of points in each direction.
+    index_t _n;                 // Total number of points (and hence quads).
 
     bool _corner_mask;
-    long _chunk_size;          // Number of quads per chunk (not points).
+    index_t _chunk_size;        // Number of quads per chunk (not points).
                                // Always > 0, unlike python nchunk which is 0
                                //     for no chunking.
 
-    long _nxchunk, _nychunk;   // Number of chunks in each direction.
-    long _chunk_count;         // Total number of chunks.
+    index_t _nxchunk, _nychunk; // Number of chunks in each direction.
+    index_t _chunk_count;       // Total number of chunks.
 
     typedef uint32_t CacheItem;
     CacheItem* _cache;

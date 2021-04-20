@@ -1877,8 +1877,8 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
             "x, y, z must be castable to double.");
         goto error;
     }
-    iMax = PyArray_DIM(zpa, 1);
-    jMax = PyArray_DIM(zpa, 0);
+    iMax = (long)PyArray_DIM(zpa, 1);
+    jMax = (long)PyArray_DIM(zpa, 0);
     if (PyArray_DIM(xpa, 0) != jMax || PyArray_DIM(xpa, 1) != iMax ||
         PyArray_DIM(ypa, 0) != jMax || PyArray_DIM(ypa, 1) != iMax ||
         (mpa && (PyArray_DIM(mpa, 0) != jMax || PyArray_DIM(mpa, 1) != iMax)))
@@ -1964,13 +1964,13 @@ Cntr_get_cdata(Cntr *self)
     npy_intp dims[2];
     int i, j;
     int ni, nj;
-    char *data;
+    short *data;
 
     dims[0] = ni = self->site->imax;
     dims[1] = nj = self->site->jmax;
 
     Cdata = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_SHORT);
-    data = (char *) PyArray_DATA(Cdata);
+    data = (short *) PyArray_DATA(Cdata);
     for (j=0; j<nj; j++)
         for (i=0; i<ni; i++)
             data[j + i*nj] = self->site->data[i + j*ni];

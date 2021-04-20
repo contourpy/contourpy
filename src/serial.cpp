@@ -68,20 +68,20 @@
 SerialContourGenerator::SerialContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y,
     const CoordinateArray& z, const MaskArray& mask, LineType line_type,
-    FillType fill_type, long x_chunk_size, long y_chunk_size)
+    FillType fill_type, index_t x_chunk_size, index_t y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
       _nx(_z.ndim() > 1 ? _z.shape(1) : 0),
       _ny(_z.ndim() > 0 ? _z.shape(0) : 0),
       _n(_nx*_ny),
-      _nx_chunks(x_chunk_size == 0 ? 1
-                                   : std::ceil((_nx-1.0) / x_chunk_size)),
-      _ny_chunks(y_chunk_size == 0 ? 1
-                                   : std::ceil((_ny-1.0) / y_chunk_size)),
+      _nx_chunks(x_chunk_size == 0 ? 1 :
+                 static_cast<index_t>(std::ceil((_nx-1.0) / x_chunk_size))),
+      _ny_chunks(y_chunk_size == 0 ? 1 :
+                 static_cast<index_t>(std::ceil((_ny-1.0) / y_chunk_size))),
       _n_chunks(_nx_chunks*_ny_chunks),
-      _x_chunk_size(std::ceil((_nx-1.0) / _nx_chunks)),
-      _y_chunk_size(std::ceil((_ny-1.0) / _ny_chunks)),
+      _x_chunk_size(static_cast<index_t>(std::ceil((_nx-1.0) / _nx_chunks))),
+      _y_chunk_size(static_cast<index_t>(std::ceil((_ny-1.0) / _ny_chunks))),
       _line_type(line_type),
       _fill_type(fill_type),
       _cache(new CacheItem[_n]),
@@ -115,16 +115,18 @@ SerialContourGenerator::SerialContourGenerator(
     if (x_chunk_size < 0 || y_chunk_size < 0)  // Check inputs, not calculated.
         throw std::invalid_argument("chunk_sizes cannot be negative");
 
+std::cout << "serial " << _nx_chunks << " " << _ny_chunks << std::endl;
+
     init_cache_grid(mask);
 }
 
 SerialContourGenerator::~SerialContourGenerator()
 {
-    delete _cache;
+    delete [] _cache;
 }
 
 SerialContourGenerator::ZLevel SerialContourGenerator::calc_z_level_mid(
-    long quad)
+    index_t quad)
 {
     assert(quad >= 0 && quad < _n);
 
@@ -154,7 +156,7 @@ void SerialContourGenerator::closed_line(
 
     Location location = start_location;
     bool finished = false;
-    unsigned long point_count = 0;
+    size_t point_count = 0;
 
     if (outer_or_hole == Hole && local.pass == 0 && _identify_holes)
         set_look_flags(start_location.quad);
@@ -172,7 +174,7 @@ void SerialContourGenerator::closed_line(
     if (local.pass > 0) {
         local.line_offsets[local.line_count] = local.total_point_count;
         if (outer_or_hole == Outer && _identify_holes) {
-            unsigned long outer_count = local.line_count - local.hole_count;
+            size_t outer_count = local.line_count - local.hole_count;
             local.outer_offsets[outer_count] = local.line_count;
         }
     }
@@ -198,9 +200,9 @@ void SerialContourGenerator::closed_line_wrapper(
 
         closed_line(start_location, outer_or_hole, local);
 
-        for (unsigned int i = 0; i < local.look_up_quads.size(); ++i) {
+        for (size_t i = 0; i < local.look_up_quads.size(); ++i) {
             // Note that the collection can increase in size during this loop.
-            long quad = local.look_up_quads[i];
+            auto quad = local.look_up_quads[i];
 
             // Walk N to corresponding look S flag is reached.
             quad = find_look_S(quad);
@@ -231,8 +233,8 @@ py::tuple SerialContourGenerator::contour_filled(
                        _fill_type != FillType::ChunkCombinedOffsets);
     _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
                           _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
-    long list_len = (_fill_type == FillType::OuterCodes ||
-                     _fill_type == FillType::OuterOffsets) ? 0 : _n_chunks;
+    index_t list_len = (_fill_type == FillType::OuterCodes ||
+                        _fill_type == FillType::OuterOffsets) ? 0 : _n_chunks;
 
     // Prepare lists to return to python.
     std::vector<py::list> return_lists;
@@ -242,14 +244,14 @@ py::tuple SerialContourGenerator::contour_filled(
 
     // Initialise cache z-levels and starting locations.
     ChunkLocal local;
-    for (long chunk = 0; chunk < _n_chunks; ++chunk) {
+    for (index_t chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
         init_cache_levels_and_starts(local);
         local.clear();
     }
 
     // Trace contours.
-    for (long chunk = 0; chunk < _n_chunks; ++chunk) {
+    for (index_t chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
         single_chunk_filled(local, return_lists);
         local.clear();
@@ -270,8 +272,8 @@ py::sequence SerialContourGenerator::contour_lines(const double& level)
     _lower_level = _upper_level = level;
     _identify_holes = false;
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
-    long list_len = (_line_type == LineType::Separate ||
-                     _line_type == LineType::SeparateCodes) ? 0 : _n_chunks;
+    index_t list_len = (_line_type == LineType::Separate ||
+                        _line_type == LineType::SeparateCodes) ? 0 : _n_chunks;
 
     // Prepare lists to return to python.
     std::vector<py::list> return_lists;
@@ -281,14 +283,14 @@ py::sequence SerialContourGenerator::contour_lines(const double& level)
 
     // Initialise cache z-levels and starting locations.
     ChunkLocal local;
-    for (long chunk = 0; chunk < _n_chunks; ++chunk) {
+    for (index_t chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
         init_cache_levels_and_starts(local);
         local.clear();
     }
 
     // Trace contours.
-    for (long chunk = 0; chunk < _n_chunks; ++chunk) {
+    for (index_t chunk = 0; chunk < _n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
         single_chunk_lines(local, return_lists);
         local.clear();
@@ -406,7 +408,7 @@ void SerialContourGenerator::export_lines(
         case LineType::SeparateCodes:
             if (local.total_point_count > 0) {
                 assert(all_points_ptr != nullptr);
-                for (unsigned long i = 0; i < local.line_count; ++i) {
+                for (size_t i = 0; i < local.line_count; ++i) {
                     auto point_start = local.line_offsets[i];
                     auto point_end = local.line_offsets[i+1];
                     auto point_count = point_end - point_start;
@@ -454,12 +456,12 @@ void SerialContourGenerator::export_lines(
     }
 }
 
-long SerialContourGenerator::find_look_S(long look_N_quad) const
+index_t SerialContourGenerator::find_look_S(index_t look_N_quad) const
 {
     assert(_identify_holes);
 
     // Might need to be careful when looking in the same quad as the LOOK_UP.
-    long quad = look_N_quad;
+    auto quad = look_N_quad;
 
     // look_S quad must have 1 of only 2 possible types of hole start (start_E,
     // start_hole_N) but it may have other starts as well.
@@ -481,7 +483,7 @@ long SerialContourGenerator::find_look_S(long look_N_quad) const
 
 bool SerialContourGenerator::follow_boundary(
     Location& location, const Location& start_location, ChunkLocal& local,
-    unsigned long& point_count)
+    size_t& point_count)
 {
     // forward values for boundaries:
     //     -1 = N boundary, E to W
@@ -499,9 +501,9 @@ bool SerialContourGenerator::follow_boundary(
     auto start_forward = start_location.forward;
     auto pass = local.pass;
 
-    long start_point = (forward > 0 ? (forward == 1 ?  quad-_nx-1 : quad-_nx)
-                                    : (forward == -1 ?  quad : quad-1));
-    long end_point = start_point + forward;
+    index_t start_point = (forward > 0 ? (forward == 1 ?  quad-_nx-1 : quad-_nx)
+                                       : (forward == -1 ?  quad : quad-1));
+    auto end_point = start_point + forward;
     assert(is_point_in_chunk(start_point, local));
     assert(is_point_in_chunk(end_point, local));
 
@@ -574,7 +576,7 @@ bool SerialContourGenerator::follow_boundary(
 
 bool SerialContourGenerator::follow_interior(
     Location& location, const Location& start_location, ChunkLocal& local,
-    unsigned long& point_count)
+    size_t& point_count)
 {
     // Adds the start point in each quad visited, but not the end point unless
     // closing the polygon.
@@ -591,11 +593,11 @@ bool SerialContourGenerator::follow_interior(
     auto pass = local.pass;
 
     // Indices of points on entry edge.
-    long left = (forward > 0 ? (forward == 1 ? _nx : -1)
-                             : (forward == -1 ? -_nx : 1));
-    long left_point = (forward > 0 ? (forward == 1 ? quad-1 : quad-_nx-1)
-                                   : (forward == -1 ? quad-_nx : quad));
-    long right_point = left_point - left;
+    index_t left = (forward > 0 ? (forward == 1 ? _nx : -1)
+                               : (forward == -1 ? -_nx : 1));
+    index_t left_point = (forward > 0 ? (forward == 1 ? quad-1 : quad-_nx-1)
+                                     : (forward == -1 ? quad-_nx : quad));
+    auto right_point = left_point - left;
 
     bool want_look_N = _identify_holes && pass > 0;
 
@@ -618,8 +620,8 @@ bool SerialContourGenerator::follow_interior(
         }
 
         // Indices and z_levels of the opposite points.
-        long opposite_left_point = left_point + forward;
-        long opposite_right_point = right_point + forward;
+        auto opposite_left_point = left_point + forward;
+        auto opposite_right_point = right_point + forward;
         ZLevel z_opposite_left = Z_LEVEL(opposite_left_point);
         ZLevel z_opposite_right = Z_LEVEL(opposite_right_point);
 
@@ -730,14 +732,14 @@ py::tuple SerialContourGenerator::get_chunk_count() const
 }
 
 void SerialContourGenerator::get_chunk_limits(
-    long chunk, ChunkLocal& local) const
+    index_t chunk, ChunkLocal& local) const
 {
     assert(chunk >= 0 && chunk < _n_chunks && "chunk index out of bounds");
 
     local.chunk = chunk;
 
-    long ichunk = chunk % _nx_chunks;
-    long jchunk = chunk / _nx_chunks;
+    auto ichunk = chunk % _nx_chunks;
+    auto jchunk = chunk / _nx_chunks;
 
     local.istart = ichunk*_x_chunk_size + 1;
     local.iend = (ichunk < _nx_chunks-1 ? (ichunk+1)*_x_chunk_size : _nx-1);
@@ -766,26 +768,26 @@ LineType SerialContourGenerator::get_line_type() const
     return _line_type;
 }
 
-void SerialContourGenerator::get_point_xy(long point, double*& points) const
+void SerialContourGenerator::get_point_xy(index_t point, double*& points) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     *points++ = _x.data()[point];
     *points++ = _y.data()[point];
 }
 
-const double& SerialContourGenerator::get_point_x(long point) const
+const double& SerialContourGenerator::get_point_x(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _x.data()[point];
 }
 
-const double& SerialContourGenerator::get_point_y(long point) const
+const double& SerialContourGenerator::get_point_y(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _y.data()[point];
 }
 
-const double& SerialContourGenerator::get_point_z(long point) const
+const double& SerialContourGenerator::get_point_z(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _z.data()[point];
@@ -793,7 +795,7 @@ const double& SerialContourGenerator::get_point_z(long point) const
 
 void SerialContourGenerator::init_cache_grid(const MaskArray& mask)
 {
-    long i, j, quad;
+    index_t i, j, quad;
     if (mask.ndim() == 0) {
         // No mask, easy to calculate quad existence and boundaries together.
         for (j = 0, quad = 0; j < _ny; ++j) {
@@ -854,24 +856,23 @@ void SerialContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
 {
     CacheItem keep_mask = MASK_EXISTS_QUAD | MASK_BOUNDARY_N | MASK_BOUNDARY_E;
 
-    long istart = local.istart > 1 ? local.istart : 0;
-    long iend = local.iend;
-    long jstart = local.jstart > 1 ? local.jstart : 0;
-    long jend = local.jend;
+    index_t istart = local.istart > 1 ? local.istart : 0;
+    index_t iend = local.iend;
+    index_t jstart = local.jstart > 1 ? local.jstart : 0;
+    index_t jend = local.jend;
 
-    long j_final_start = jstart - 1;
+    index_t j_final_start = jstart - 1;
 
-    for (long j = jstart; j <= jend; ++j) {
-        long quad = istart + j*_nx;
+    for (index_t j = jstart; j <= jend; ++j) {
+        index_t quad = istart + j*_nx;
         const double* z_ptr = _z.data() + quad;
         bool start_in_row = false;
         ZLevel z_nw = istart == 0 ? 0 : Z_NW;
         ZLevel z_sw = istart == 0 ? 0 : Z_SW;
 
-        for (long i = istart; i <= iend; ++i, ++quad, ++z_ptr) {
+        for (index_t i = istart; i <= iend; ++i, ++quad, ++z_ptr) {
             _cache[quad] &= keep_mask;
             _cache[quad] |= MASK_SADDLE;
-
 
             // Cache z-level of NE point.
             ZLevel z_ne = 0;
@@ -990,7 +991,7 @@ void SerialContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
 }
 
 void SerialContourGenerator::interp(
-    long point0, long point1, bool is_upper, ChunkLocal& local) const
+    index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const
 {
     // point0 and 1 are point numbers.
     assert(is_point_in_chunk(point0, local));
@@ -1008,21 +1009,22 @@ void SerialContourGenerator::interp(
 }
 
 bool SerialContourGenerator::is_point_in_chunk(
-    long point, const ChunkLocal& local) const
+    index_t point, const ChunkLocal& local) const
 {
     return is_quad_in_bounds(
         point, local.istart-1, local.iend, local.jstart-1, local.jend);
 }
 
 bool SerialContourGenerator::is_quad_in_bounds(
-    long quad, long istart, long iend, long jstart, long jend) const
+    index_t quad, index_t istart, index_t iend, index_t jstart,
+    index_t jend) const
 {
     return (quad % _nx >= istart && quad % _nx <= iend &&
             quad / _nx >= jstart && quad / _nx <= jend);
 }
 
 bool SerialContourGenerator::is_quad_in_chunk(
-    long quad, const ChunkLocal& local) const
+    index_t quad, const ChunkLocal& local) const
 {
     return is_quad_in_bounds(
         quad, local.istart, local.iend, local.jstart, local.jend);
@@ -1036,7 +1038,7 @@ void SerialContourGenerator::line(
     assert(is_quad_in_chunk(start_location.quad, local));
 
     Location location = start_location;
-    unsigned long point_count = 0;
+    size_t point_count = 0;
 
     // finished == true indicates closed line loop.
     bool finished = follow_interior(
@@ -1058,7 +1060,7 @@ void SerialContourGenerator::line(
 }
 
 void SerialContourGenerator::move_to_next_boundary_edge(
-    long& quad, long& forward) const
+    index_t& quad, index_t& forward) const
 {
     // edge == 0 for E edge (facing N), forward = +_nx
     //         1 for S edge (facing E), forward = +1
@@ -1128,7 +1130,7 @@ void SerialContourGenerator::move_to_next_boundary_edge(
     }
 }
 
-void SerialContourGenerator::set_look_flags(long hole_start_quad)
+void SerialContourGenerator::set_look_flags(index_t hole_start_quad)
 {
     assert(_identify_holes);
 
@@ -1141,7 +1143,7 @@ void SerialContourGenerator::set_look_flags(long hole_start_quad)
     _cache[hole_start_quad] |= MASK_LOOK_S;
 
     // Walk S until find place to mark corresponding look N.
-    long quad = hole_start_quad;
+    index_t quad = hole_start_quad;
 
     while (true) {
         assert(quad >= 0 && quad < _n);
@@ -1166,9 +1168,9 @@ void SerialContourGenerator::single_chunk_filled(
     for (local.pass = 0; local.pass < 2; ++local.pass) {
         bool ignore_holes = (_identify_holes && local.pass == 1);
 
-        long j_final_start = local.jstart;
-        for (long j = local.jstart; j <= local.jend; ++j) {
-            long quad = local.istart + j*_nx;
+        index_t j_final_start = local.jstart;
+        for (index_t j = local.jstart; j <= local.jend; ++j) {
+            index_t quad = local.istart + j*_nx;
 
             if (NO_MORE_STARTS(quad))
                 break;
@@ -1178,11 +1180,11 @@ void SerialContourGenerator::single_chunk_filled(
 
             // Want to count number of starts in this row, so store how many
             // starts at start of row.
-            unsigned long prev_start_count =
+            size_t prev_start_count =
                 (_identify_holes ? local.line_count - local.hole_count
                                  : local.line_count);
 
-            for (long i = local.istart; i <= local.iend; ++i, ++quad) {
+            for (index_t i = local.istart; i <= local.iend; ++i, ++quad) {
                 if (!ANY_START_FILLED(quad))
                     continue;
 
@@ -1218,7 +1220,7 @@ void SerialContourGenerator::single_chunk_filled(
             } // i
 
             // Number of starts at end of row.
-            unsigned long start_count =
+            size_t start_count =
                 (_identify_holes ? local.line_count - local.hole_count
                                  : local.line_count);
             if (start_count - prev_start_count)
@@ -1306,9 +1308,9 @@ void SerialContourGenerator::single_chunk_lines(
     const double* all_points_ptr = nullptr;
 
     for (local.pass = 0; local.pass < 2; ++local.pass) {
-        long j_final_start = local.jstart;
-        for (long j = local.jstart; j <= local.jend; ++j) {
-            long quad = local.istart + j*_nx;
+        index_t j_final_start = local.jstart;
+        for (index_t j = local.jstart; j <= local.jend; ++j) {
+            index_t quad = local.istart + j*_nx;
 
             if (NO_MORE_STARTS(quad))
                 break;
@@ -1318,9 +1320,9 @@ void SerialContourGenerator::single_chunk_lines(
 
             // Want to count number of starts in this row, so store how many
             // starts at start of row.
-            unsigned long prev_start_count = local.line_count;
+            auto prev_start_count = local.line_count;
 
-            for (long i = local.istart; i <= local.iend; ++i, ++quad) {
+            for (index_t i = local.istart; i <= local.iend; ++i, ++quad) {
                 if (!ANY_START_LINES(quad))
                     continue;
 
@@ -1437,23 +1439,23 @@ bool SerialContourGenerator::supports_line_type(LineType line_type)
 void SerialContourGenerator::write_cache() const
 {
     std::cout << "---------- Cache ----------" << std::endl;
-    long ny = _n / _nx;
-    for (long j = ny-1; j >= 0; --j) {
+    index_t ny = _n / _nx;
+    for (index_t j = ny-1; j >= 0; --j) {
         std::cout << "j=" << j << " ";
-        for (long i = 0; i < _nx; ++i) {
-            long quad = i + j*_nx;
+        for (index_t i = 0; i < _nx; ++i) {
+            index_t quad = i + j*_nx;
             write_cache_quad(quad);
         }
         std::cout << std::endl;
     }
     std::cout << "    ";
-    for (long i = 0; i < _nx; ++i)
+    for (index_t i = 0; i < _nx; ++i)
         std::cout << "i=" << i << "         ";
     std::cout << std::endl;
     std::cout << "---------------------------" << std::endl;
 }
 
-void SerialContourGenerator::write_cache_quad(long quad) const
+void SerialContourGenerator::write_cache_quad(index_t quad) const
 {
     assert(quad >= 0 && quad < _n && "quad index out of bounds");
     std::cout << (NO_MORE_STARTS(quad) ? 'x' :

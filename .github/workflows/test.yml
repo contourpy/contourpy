@@ -26,15 +26,14 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          python -mpip install -r requirements/install.txt
-          python -mpip install -r requirements/test.txt
-          python -mpip list
+          python -m pip install -r requirements/install.txt
+          python -m pip install -r requirements/test.txt
+          python -m pip list
 
       - name: Install
         run: |
-          python -mpip install --no-deps -e .
+          python -m pip install --no-deps -ve .
 
       - name: Run tests
         run: |
-          python -mpytest
-
+          python -m pytest -v

@@ -1,6 +1,7 @@
 #ifndef CONTOURPY_CHUNK_LOCAL_H
 #define CONTOURPY_CHUNK_LOCAL_H
 
+#include "common.h"
 #include <iosfwd>
 #include <vector>
 
@@ -14,21 +15,21 @@ struct ChunkLocal
 
 
 
-    long chunk;                       // Index in range 0 to _n_chunks-1.
+    index_t chunk;                      // Index in range 0 to _n_chunks-1.
 
-    long istart, iend, jstart, jend;  // Chunk limits.
+    index_t istart, iend, jstart, jend; // Chunk limits.
     int pass;
-    double* points;                   // Where to store next point.
+    double* points;                     // Where to store next point.
 
     // Data for whole pass.
-    unsigned long total_point_count;
-    unsigned long line_count;                  // Total of all lines
-    unsigned long hole_count;                  // Holes only.
-    std::vector<unsigned long> line_offsets;   // Into array of all points.
-    std::vector<unsigned long> outer_offsets;  // Into array of line offsets.
+    size_t total_point_count;
+    size_t line_count;                  // Total of all lines
+    size_t hole_count;                  // Holes only.
+    std::vector<size_t> line_offsets;   // Into array of all points.
+    std::vector<size_t> outer_offsets;  // Into array of line offsets.
 
     // Data for current outer.
-    std::vector<long> look_up_quads;  // To find holes of current outer.
+    std::vector<index_t> look_up_quads; // To find holes of current outer.
 };
 
 #endif // CONTOURPY_CHUNK_LOCAL_H
