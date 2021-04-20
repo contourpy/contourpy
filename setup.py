@@ -1,5 +1,6 @@
-from setuptools import setup
-from pybind11.setup_helpers import Pybind11Extension, build_ext
+from setuptools import setup, find_packages
+from pybind11.setup_helpers import (
+    Pybind11Extension, build_ext, ParallelCompile, naive_recompile)
 
 
 # Set want_debug to True if want to enable asserts in C++ code.
@@ -17,6 +18,8 @@ undef_macros = []
 if want_debug:
     define_macros.append(('DEBUG',1))
     undef_macros.append('NDEBUG')
+
+ParallelCompile(default=0, needs_recompile=naive_recompile).install()
 
 _contourpy = Pybind11Extension(
     'contourpy._contourpy',
@@ -72,7 +75,7 @@ setup(
     author_email='ianthomas23@gmail.com',
     license='BSD',
     package_dir={'': 'lib'},
-    packages=['contourpy'],
+    packages=find_packages('lib'),
     ext_modules=ext_modules,
     cmdclass={'build_ext': build_ext},
     zip_safe=False,
