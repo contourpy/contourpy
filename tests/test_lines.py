@@ -201,7 +201,7 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
             offsets = lines[1]
             assert isinstance(offsets, list) and len(offsets) == 1
             assert isinstance(offsets[0], np.ndarray)
-            assert offsets[0].dtype == np.int32
+            assert offsets[0].dtype == np.uint32
             assert_array_equal(offsets[0], [0, 5, 7])
     else:
         raise RuntimeError(f'Unexpected line_type {line_type}')

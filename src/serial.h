@@ -8,7 +8,7 @@
 #include <vector>
 
 // Forward declarations.
-class ChunkLocal;
+struct ChunkLocal;
 
 class SerialContourGenerator
 {
@@ -16,7 +16,7 @@ public:
     SerialContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y,
         const CoordinateArray& z, const MaskArray& mask, LineType line_type,
-        FillType fill_type, long x_chunk_size, long y_chunk_size);
+        FillType fill_type, index_t x_chunk_size, index_t y_chunk_size);
 
     ~SerialContourGenerator();
 
@@ -49,18 +49,19 @@ private:
 
     struct Location
     {
-        Location(long quad_, long forward_, bool is_upper_, bool on_boundary_)
+        Location(index_t quad_, index_t forward_, index_t is_upper_,
+                 bool on_boundary_)
             : quad(quad_), forward(forward_), is_upper(is_upper_),
               on_boundary(on_boundary_)
         {}
 
-        long quad;
-        long forward;
+        index_t quad;
+        index_t forward;
         bool is_upper;
         bool on_boundary;
     };
 
-    ZLevel calc_z_level_mid(long quad);
+    ZLevel calc_z_level_mid(index_t quad);
 
     void closed_line(
         const Location& start_location, OuterOrHole outer_or_hole,
@@ -79,27 +80,27 @@ private:
         ChunkLocal& local, const double* all_points_ptr,
         std::vector<py::list>& return_lists);
 
-    long find_look_S(long look_N_quad) const;
+    index_t find_look_S(index_t look_N_quad) const;
 
     // Return true if finished (i.e. back to start quad, direction and upper).
     bool follow_boundary(
         Location& location, const Location& start_location, ChunkLocal& local,
-        unsigned long& point_count);
+        size_t& point_count);
 
     // Return true if finished (i.e. back to start quad, direction and upper).
     bool follow_interior(
         Location& location, const Location& start_location, ChunkLocal& local,
-        unsigned long& point_count);
+        size_t& point_count);
 
     // These are quad chunk limits, not point chunk limits.
     // chunk is index in range 0.._n_chunks-1.
-    void get_chunk_limits(long chunk, ChunkLocal& local) const;
+    void get_chunk_limits(index_t chunk, ChunkLocal& local) const;
 
-    void get_point_xy(long point, double*& points) const;
+    void get_point_xy(index_t point, double*& points) const;
 
-    const double& get_point_x(long point) const;
-    const double& get_point_y(long point) const;
-    const double& get_point_z(long point) const;
+    const double& get_point_x(index_t point) const;
+    const double& get_point_y(index_t point) const;
+    const double& get_point_z(index_t point) const;
 
     void init_cache_grid(const MaskArray& mask);
 
@@ -107,20 +108,21 @@ private:
 
     // Increments local.points twice.
     void interp(
-        long point0, long point1, bool is_upper, ChunkLocal& local) const;
+        index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const;
 
-    bool is_point_in_chunk(long point, const ChunkLocal& local) const;
+    bool is_point_in_chunk(index_t point, const ChunkLocal& local) const;
 
     bool is_quad_in_bounds(
-        long quad, long istart, long iend, long jstart, long jend) const;
+        index_t quad, index_t istart, index_t iend, index_t jstart,
+        index_t jend) const;
 
-    bool is_quad_in_chunk(long quad, const ChunkLocal& local) const;
+    bool is_quad_in_chunk(index_t quad, const ChunkLocal& local) const;
 
     void line(const Location& start_location, ChunkLocal& local);
 
-    void move_to_next_boundary_edge(long& quad, long& forward) const;
+    void move_to_next_boundary_edge(index_t& quad, index_t& forward) const;
 
-    void set_look_flags(long hole_start_quad);
+    void set_look_flags(index_t hole_start_quad);
 
     void single_chunk_filled(
         ChunkLocal& local, std::vector<py::list>& return_lists);
@@ -128,16 +130,16 @@ private:
     void single_chunk_lines(
         ChunkLocal& local, std::vector<py::list>& return_lists);
 
-    void write_cache_quad(long quad) const;
+    void write_cache_quad(index_t quad) const;
 
 
 
     const CoordinateArray _x, _y, _z;
-    const long _nx, _ny;                // Number of points in each direction.
-    const long _n;                      // Total number of points (and quads).
-    const long _nx_chunks, _ny_chunks;  // Number of chunks in each direction.
-    const long _n_chunks;               // Total number of chunks.
-    const long _x_chunk_size, _y_chunk_size;
+    const index_t _nx, _ny;                // Number of points in each direction.
+    const index_t _n;                      // Total number of points (and quads).
+    const index_t _nx_chunks, _ny_chunks;  // Number of chunks in each direction.
+    const index_t _n_chunks;               // Total number of chunks.
+    const index_t _x_chunk_size, _y_chunk_size;
     const LineType _line_type;
     const FillType _fill_type;
 
