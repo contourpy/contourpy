@@ -92,6 +92,9 @@ class BokehRenderer:
     def grid(self, x, y, ax=0, color='black', alpha=0.1):
         fig = self._get_figure(ax)
 
+        if x.ndim == 1:
+            x, y = np.meshgrid(x, y)
+
         xs = [row for row in x] + [row for row in x.T]
         ys = [row for row in y] + [row for row in y.T]
         fig.multi_line(xs, ys, line_color=color, alpha=alpha)

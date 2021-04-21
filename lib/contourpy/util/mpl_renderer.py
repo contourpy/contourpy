@@ -69,6 +69,8 @@ class MplRenderer:
 
     def grid(self, x, y, ax=0, color='black', alpha=0.1):
         ax = self._get_ax(ax)
+        if x.ndim == 1:
+            x, y = np.meshgrid(x, y)
         ax.plot(x, y, x.T, y.T, color=color, alpha=alpha)
 
     def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0,
