@@ -11,15 +11,39 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
     y = np.asarray(y, dtype=np.float64)
     z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.
 
-    # Check arguments.
-    if x.ndim != 2 or y.ndim != 2 or z.ndim != 2:
-        raise ValueError('x, y and z must all be 2D arrays')
-
-    if x.shape != z.shape or y.shape != z.shape:
-        raise ValueError('x, y and z arrays must have the same shape')
-
+    # Check arguments: z.
+    if z.ndim != 2:
+        raise TypeError(f'Input z must be 2D, not {z.ndim}D')
     if z.shape[0] < 2 or z.shape[1] < 2:
-        raise ValueError('x, y and z must all be at least 2x2 arrays')
+        raise TypeError('Input z must be at least a (2, 2) shaped array, '
+                        f'but has shape {z.shape}')
+
+    # Check arguments: x and y.
+    if x.ndim != y.ndim:
+        raise TypeError(f'Number of dimensions of x ({x.ndim}) and y '
+                        f'({y.ndim}) do not match')
+    if x.ndim == 0:
+        x = np.arange(z.shape[1])
+        y = np.arange(z.shape[0])
+        x, y = np.meshgrid(x, y)
+    elif x.ndim == 1:
+        ny, nx = z.shape
+        if len(x) != nx:
+            raise TypeError(f'Length of x ({len(x)}) must match number of '
+                            f'columns in z ({nx})')
+        if len(y) != ny:
+            raise TypeError(f'Length of y ({len(y)}) must match number of '
+                            f'rows in z ({ny})')
+        x, y = np.meshgrid(x, y)
+    elif x.ndim == 2:
+        if x.shape != z.shape:
+            raise TypeError(
+                f'Shapes of x {x.shape} and z {z.shape} do not match')
+        if y.shape != z.shape:
+            raise TypeError(
+                f'Shapes of y {y.shape} and z {z.shape} do not match')
+    else:
+        raise TypeError(f'Inputs x and y must be None, 1D or 2D, not {x.ndim}D')
 
     # Extract optional mask from z array.
     mask = None

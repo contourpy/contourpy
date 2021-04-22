@@ -106,7 +106,8 @@ SerialContourGenerator::SerialContourGenerator(
             throw std::invalid_argument("mask array must be a 2D array");
 
         if (mask.shape(1) != _nx || mask.shape(0) != _ny)
-            throw std::invalid_argument("If mask is set it must be a 2D array with the same shape as z");
+            throw std::invalid_argument(
+                "If mask is set it must be a 2D array with the same shape as z");
     }
 
     if (!supports_fill_type(fill_type))
@@ -114,8 +115,6 @@ SerialContourGenerator::SerialContourGenerator(
 
     if (x_chunk_size < 0 || y_chunk_size < 0)  // Check inputs, not calculated.
         throw std::invalid_argument("chunk_sizes cannot be negative");
-
-std::cout << "serial " << _nx_chunks << " " << _ny_chunks << std::endl;
 
     init_cache_grid(mask);
 }
