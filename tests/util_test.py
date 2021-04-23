@@ -61,3 +61,12 @@ def all_line_types_str_value():
         ('ChunkCombinedCodes', 103),
         ('ChunkCombinedOffsets', 104),
     ]
+
+
+def all_interps_str_value():
+    return [
+        ('Linear', 1),
+        ('Log', 2),
+    ]
+
+

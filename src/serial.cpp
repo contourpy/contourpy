@@ -68,7 +68,8 @@
 SerialContourGenerator::SerialContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y,
     const CoordinateArray& z, const MaskArray& mask, LineType line_type,
-    FillType fill_type, index_t x_chunk_size, index_t y_chunk_size)
+    FillType fill_type, Interp interp, index_t x_chunk_size,
+    index_t y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
@@ -84,6 +85,7 @@ SerialContourGenerator::SerialContourGenerator(
       _y_chunk_size(static_cast<index_t>(std::ceil((_ny-1.0) / _ny_chunks))),
       _line_type(line_type),
       _fill_type(fill_type),
+      _interp(interp),
       _cache(new CacheItem[_n]),
       _filled(false),
       _lower_level(0.0),
@@ -992,13 +994,25 @@ void SerialContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
 void SerialContourGenerator::interp(
     index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const
 {
-    // point0 and 1 are point numbers.
     assert(is_point_in_chunk(point0, local));
     assert(is_point_in_chunk(point1, local));
 
     const double& z1 = get_point_z(point1);
     const double& level = is_upper ? _upper_level : _lower_level;
-    double frac = (z1 - level) / (z1 - get_point_z(point0));
+
+    double frac;
+    switch (_interp) {
+        case Interp::Log:
+            // Equivalent to
+            //   (log(z1) - log(level)) / (log(z1) - log(z0))
+            // Same result obtained regardless of logarithm base.
+            frac = log(z1/level) / log(z1/get_point_z(point0));
+            break;
+        default:  // Interp::Linear
+            frac = (z1 - level) / (z1 - get_point_z(point0));
+            break;
+    }
+
     assert(frac >= 0.0 && frac <= 1.0 && "Interp fraction out of bounds");
 
     *local.points++ =
