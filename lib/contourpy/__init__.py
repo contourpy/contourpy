@@ -1,12 +1,12 @@
 from ._contourpy import (
-    FillType, LineType, Mpl2014ContourGenerator, SerialContourGenerator,
-    SerialCornerContourGenerator)
+    FillType, Interp, LineType, Mpl2014ContourGenerator,
+    SerialContourGenerator, SerialCornerContourGenerator)
 from ._mpl2005 import Cntr as Mpl2005ContourGenerator
 import numpy as np
 
 
 def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
-                      fill_type=None, line_type=None):
+                      fill_type=None, line_type=None, interp=Interp.Linear):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.
@@ -81,8 +81,8 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
             raise ValueError('chunk_size cannot be negative')
 
         cont_gen = SerialContourGenerator(
-            x, y, z, mask, line_type, fill_type, x_chunk_size=x_chunk_size,
-            y_chunk_size=y_chunk_size)
+            x, y, z, mask, line_type, fill_type, interp,
+            x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
     elif name == 'serial_corner':
         if corner_mask is None:
             corner_mask = True
@@ -106,7 +106,7 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
             raise ValueError('chunk_size cannot be negative')
 
         cont_gen = SerialCornerContourGenerator(
-            x, y, z, mask, corner_mask, line_type, fill_type,
+            x, y, z, mask, corner_mask, line_type, fill_type, interp,
             x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
     else:
         if chunk_size < 0:
@@ -117,6 +117,9 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
 
         if fill_type not in (None, FillType.OuterCodes):
             raise ValueError(f'{name} contour generator does not support fill_type {fill_type}')
+
+        if interp != Interp.Linear:
+            raise ValueError(f'{name} contour generator does not support interp {interp}')
 
         if name == 'mpl2014':
             if corner_mask is None:

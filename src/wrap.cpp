@@ -1,8 +1,10 @@
 #include "common.h"
+#include "fill_type.h"
+#include "interp.h"
+#include "line_type.h"
 #include "mpl2014.h"
 #include "serial.h"
 #include "serial_corner.h"
-#include "fill_type.h"
 
 PYBIND11_MODULE(_contourpy, m) {
     m.doc() = "doc notes";
@@ -38,6 +40,7 @@ PYBIND11_MODULE(_contourpy, m) {
                       const MaskArray&,
                       LineType,
                       FillType,
+                      Interp,
                       index_t,
                       index_t>(),
              py::arg("x"),
@@ -46,6 +49,7 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("mask"),
              py::arg("line_type"),
              py::arg("fill_type"),
+             py::arg("interp"),
              py::kw_only(),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
@@ -85,6 +89,7 @@ PYBIND11_MODULE(_contourpy, m) {
                       bool,
                       LineType,
                       FillType,
+                      Interp,
                       index_t,
                       index_t>(),
              py::arg("x"),
@@ -94,6 +99,7 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("corner_mask"),
              py::arg("line_type"),
              py::arg("fill_type"),
+             py::arg("interp"),
              py::kw_only(),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
@@ -132,6 +138,11 @@ PYBIND11_MODULE(_contourpy, m) {
         .value("ChunkCombinedOffsets", FillType::ChunkCombinedOffsets)
         .value("ChunkCombinedCodesOffsets", FillType::ChunkCombinedCodesOffsets)
         .value("ChunkCombinedOffsets2", FillType::ChunkCombinedOffsets2)
+        .export_values();
+
+    py::enum_<Interp>(m, "Interp")
+        .value("Linear", Interp::Linear)
+        .value("Log", Interp::Log)
         .export_values();
 
     py::enum_<LineType>(m, "LineType")

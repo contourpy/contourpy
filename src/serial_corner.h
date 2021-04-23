@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "fill_type.h"
+#include "interp.h"
 #include "line_type.h"
 #include "outer_or_hole.h"
 #include <vector>
@@ -16,8 +17,8 @@ public:
     SerialCornerContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y,
         const CoordinateArray& z, const MaskArray& mask, bool corner_mask,
-        LineType line_type, FillType fill_type, index_t x_chunk_size,
-        index_t y_chunk_size);
+        LineType line_type, FillType fill_type, Interp interp,
+        index_t x_chunk_size, index_t y_chunk_size);
 
     ~SerialCornerContourGenerator();
 
@@ -152,6 +153,7 @@ private:
     const bool _corner_mask;
     const LineType _line_type;
     const FillType _fill_type;
+    const Interp _interp;
 
     CacheItem* _cache;
 
