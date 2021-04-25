@@ -3,7 +3,6 @@
 #include "interp.h"
 #include "line_type.h"
 #include "mpl2014.h"
-#include "serial.h"
 #include "serial_corner.h"
 
 PYBIND11_MODULE(_contourpy, m) {
@@ -32,54 +31,6 @@ PYBIND11_MODULE(_contourpy, m) {
         .def_property_readonly_static(
             "line_type",
             [](py::object /* self */) {return LineType::SeparateCodes;});
-
-    py::class_<SerialContourGenerator>(m, "SerialContourGenerator")
-        .def(py::init<const CoordinateArray&,
-                      const CoordinateArray&,
-                      const CoordinateArray&,
-                      const MaskArray&,
-                      LineType,
-                      FillType,
-                      Interp,
-                      index_t,
-                      index_t>(),
-             py::arg("x"),
-             py::arg("y"),
-             py::arg("z"),
-             py::arg("mask"),
-             py::arg("line_type"),
-             py::arg("fill_type"),
-             py::arg("interp"),
-             py::kw_only(),
-             py::arg("x_chunk_size") = 0,
-             py::arg("y_chunk_size") = 0)
-        .def("contour_filled", &SerialContourGenerator::contour_filled)
-        .def("contour_lines", &SerialContourGenerator::contour_lines)
-        .def("write_cache", &SerialContourGenerator::write_cache)
-        .def_property_readonly(
-            "chunk_count", &SerialContourGenerator::get_chunk_count)
-        .def_property_readonly(
-            "chunk_size", &SerialContourGenerator::get_chunk_size)
-        .def_property_readonly(
-            "fill_type", &SerialContourGenerator::get_fill_type)
-        .def_property_readonly(
-            "line_type", &SerialContourGenerator::get_line_type)
-        .def_property_readonly_static(
-            "default_fill_type",
-            [](py::object /* self */) {
-                return SerialContourGenerator::default_fill_type();
-            })
-        .def_property_readonly_static(
-            "default_line_type",
-            [](py::object /* self */) {
-                return SerialContourGenerator::default_line_type();
-            })
-        .def_static(
-            "supports_fill_type",
-            &SerialContourGenerator::supports_fill_type)
-        .def_static(
-            "supports_line_type",
-            &SerialContourGenerator::supports_line_type);
 
     py::class_<SerialCornerContourGenerator>(m, "SerialCornerContourGenerator")
         .def(py::init<const CoordinateArray&,

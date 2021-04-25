@@ -31,7 +31,6 @@ _contourpy = Pybind11Extension(
         'src/line_type.cpp',
         'src/mpl2014.cpp',
         'src/outer_or_hole.cpp',
-        'src/serial.cpp',
         'src/serial_corner.cpp',
         'src/wrap.cpp',
     ],

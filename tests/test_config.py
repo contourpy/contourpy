@@ -9,8 +9,7 @@ def test_config_filled(name):
     config = util_config.ConfigFilled(name)
     image_buffer = config.save_to_buffer()
     compare_images(image_buffer, 'config_filled.png', name,
-                   max_threshold=175 if name in
-                   ('serial', 'serial_corner') else 10)
+                   max_threshold=175 if name == 'serial_corner' else 10)
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())

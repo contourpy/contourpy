@@ -5,3 +5,4 @@ contourpy.egg-info/
 result_images/
 .pytest_cache/
 *.so
+.vscode/

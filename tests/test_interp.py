@@ -18,7 +18,7 @@ def xyz_log():
     return x, y, z
 
 
-@pytest.mark.parametrize('name', ['serial', 'serial_corner'])
+@pytest.mark.parametrize('name', ['serial_corner'])
 def test_interp_log(xyz_log, name):
     x, y, z = xyz_log
     cont_gen = contour_generator(
