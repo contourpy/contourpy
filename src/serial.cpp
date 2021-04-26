@@ -868,8 +868,8 @@ void SerialContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
         index_t quad = istart + j*_nx;
         const double* z_ptr = _z.data() + quad;
         bool start_in_row = false;
-        ZLevel z_nw = istart == 0 ? 0 : Z_NW;
-        ZLevel z_sw = istart == 0 ? 0 : Z_SW;
+        ZLevel z_nw = (istart > 0) ? Z_NW : 0;
+        ZLevel z_sw = (istart > 0 && j > 0) ? Z_SW : 0;
 
         for (index_t i = istart; i <= iend; ++i, ++quad, ++z_ptr) {
             _cache[quad] &= keep_mask;
@@ -888,7 +888,7 @@ void SerialContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
 
             // z-level of SE point already calculated if j > 0; not needed
             // if j == 0.
-            ZLevel z_se = (j > 0 ? Z_SE : 0);
+            ZLevel z_se = (j > 0) ? Z_SE : 0;
 
             if (EXISTS_QUAD(quad)) {
                 if (_filled) {
