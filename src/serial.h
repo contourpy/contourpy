@@ -1,5 +1,5 @@
-#ifndef CONTOURPY_SERIAL_CORNER_H
-#define CONTOURPY_SERIAL_CORNER_H
+#ifndef CONTOURPY_SERIAL_H
+#define CONTOURPY_SERIAL_H
 
 #include "common.h"
 #include "fill_type.h"
@@ -11,16 +11,16 @@
 // Forward declarations.
 struct ChunkLocal;
 
-class SerialCornerContourGenerator
+class SerialContourGenerator
 {
 public:
-    SerialCornerContourGenerator(
+    SerialContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y,
         const CoordinateArray& z, const MaskArray& mask, bool corner_mask,
         LineType line_type, FillType fill_type, Interp interp,
         index_t x_chunk_size, index_t y_chunk_size);
 
-    ~SerialCornerContourGenerator();
+    ~SerialContourGenerator();
 
     py::tuple contour_filled(
         const double& lower_level, const double& upper_level);
@@ -166,4 +166,4 @@ private:
     unsigned int _return_list_count;
 };
 
-#endif // CONTOURPY_SERIAL_CORNER_H
+#endif // CONTOURPY_SERIAL_H

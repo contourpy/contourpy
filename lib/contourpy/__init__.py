@@ -1,6 +1,6 @@
 from ._contourpy import (
     FillType, Interp, LineType, Mpl2014ContourGenerator,
-    SerialCornerContourGenerator)
+    SerialContourGenerator)
 from ._mpl2005 import Cntr as Mpl2005ContourGenerator
 import numpy as np
 
@@ -58,19 +58,19 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
     if name is None:
         name = 'mpl2014'
 
-    if name == 'serial_corner':
+    if name == 'serial':
         if corner_mask is None:
             corner_mask = True
 
         if line_type is None:
-            line_type = SerialCornerContourGenerator.default_line_type
-        if not SerialCornerContourGenerator.supports_line_type(line_type):
-            raise ValueError(f'serial_corner contour generator does not support line_type {line_type}')
+            line_type = SerialContourGenerator.default_line_type
+        if not SerialContourGenerator.supports_line_type(line_type):
+            raise ValueError(f'serial contour generator does not support line_type {line_type}')
 
         if fill_type is None:
-            fill_type = SerialCornerContourGenerator.default_fill_type
-        if not SerialCornerContourGenerator.supports_fill_type(fill_type):
-            raise ValueError(f'serial_corner contour generator does not support fill_type {fill_type}')
+            fill_type = SerialContourGenerator.default_fill_type
+        if not SerialContourGenerator.supports_fill_type(fill_type):
+            raise ValueError(f'serial contour generator does not support fill_type {fill_type}')
 
         if isinstance(chunk_size, tuple) and len(chunk_size) == 2:
             y_chunk_size, x_chunk_size = chunk_size
@@ -80,7 +80,7 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
         if x_chunk_size < 0 or y_chunk_size < 0:
             raise ValueError('chunk_size cannot be negative')
 
-        cont_gen = SerialCornerContourGenerator(
+        cont_gen = SerialContourGenerator(
             x, y, z, mask, corner_mask, line_type, fill_type, interp,
             x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
     else:

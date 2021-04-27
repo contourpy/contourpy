@@ -1,6 +1,6 @@
 #include "chunk_local.h"
 #include "converter.h"
-#include "serial_corner.h"
+#include "serial.h"
 #include <iostream>
 
 
@@ -88,7 +88,7 @@
 #define NO_MORE_STARTS(quad)       (_cache[quad] & MASK_NO_MORE_STARTS)
 
 
-SerialCornerContourGenerator::SerialCornerContourGenerator(
+SerialContourGenerator::SerialContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y,
     const CoordinateArray& z, const MaskArray& mask, bool corner_mask,
     LineType line_type, FillType fill_type, Interp interp, index_t x_chunk_size,
@@ -145,12 +145,12 @@ SerialCornerContourGenerator::SerialCornerContourGenerator(
     init_cache_grid(mask);
 }
 
-SerialCornerContourGenerator::~SerialCornerContourGenerator()
+SerialContourGenerator::~SerialContourGenerator()
 {
     delete [] _cache;
 }
 
-SerialCornerContourGenerator::ZLevel SerialCornerContourGenerator::calc_z_level_mid(
+SerialContourGenerator::ZLevel SerialContourGenerator::calc_z_level_mid(
     index_t quad)
 {
     assert(quad >= 0 && quad < _n);
@@ -173,7 +173,7 @@ SerialCornerContourGenerator::ZLevel SerialCornerContourGenerator::calc_z_level_
     return ret;
 }
 
-void SerialCornerContourGenerator::closed_line(
+void SerialContourGenerator::closed_line(
     const Location& start_location, OuterOrHole outer_or_hole,
     ChunkLocal& local)
 {
@@ -210,7 +210,7 @@ void SerialCornerContourGenerator::closed_line(
         local.hole_count++;
 }
 
-void SerialCornerContourGenerator::closed_line_wrapper(
+void SerialContourGenerator::closed_line_wrapper(
     const Location& start_location, OuterOrHole outer_or_hole,
     ChunkLocal& local)
 {
@@ -251,7 +251,7 @@ void SerialCornerContourGenerator::closed_line_wrapper(
     }
 }
 
-py::tuple SerialCornerContourGenerator::contour_filled(
+py::tuple SerialContourGenerator::contour_filled(
     const double& lower_level, const double& upper_level)
 {
     if (lower_level > upper_level)
@@ -297,7 +297,7 @@ py::tuple SerialCornerContourGenerator::contour_filled(
     }
 }
 
-py::sequence SerialCornerContourGenerator::contour_lines(const double& level)
+py::sequence SerialContourGenerator::contour_lines(const double& level)
 {
     _filled = false;
     _lower_level = _upper_level = level;
@@ -338,21 +338,21 @@ py::sequence SerialCornerContourGenerator::contour_lines(const double& level)
     }
 }
 
-FillType SerialCornerContourGenerator::default_fill_type()
+FillType SerialContourGenerator::default_fill_type()
 {
     FillType fill_type = FillType::OuterCodes;
     assert(supports_fill_type(fill_type));
     return fill_type;
 }
 
-LineType SerialCornerContourGenerator::default_line_type()
+LineType SerialContourGenerator::default_line_type()
 {
     LineType line_type = LineType::SeparateCodes;
     assert(supports_line_type(line_type));
     return line_type;
 }
 
-void SerialCornerContourGenerator::export_filled(
+void SerialContourGenerator::export_filled(
     ChunkLocal& local, const std::vector<double>& all_points,
     std::vector<py::list>& return_lists)
 {
@@ -429,7 +429,7 @@ void SerialCornerContourGenerator::export_filled(
     }
 }
 
-void SerialCornerContourGenerator::export_lines(
+void SerialContourGenerator::export_lines(
     ChunkLocal& local, const double* all_points_ptr,
     std::vector<py::list>& return_lists)
 {
@@ -487,7 +487,7 @@ void SerialCornerContourGenerator::export_lines(
     }
 }
 
-index_t SerialCornerContourGenerator::find_look_S(index_t look_N_quad) const
+index_t SerialContourGenerator::find_look_S(index_t look_N_quad) const
 {
     assert(_identify_holes);
 
@@ -513,7 +513,7 @@ index_t SerialCornerContourGenerator::find_look_S(index_t look_N_quad) const
     return quad;
 }
 
-bool SerialCornerContourGenerator::follow_boundary(
+bool SerialContourGenerator::follow_boundary(
     Location& location, const Location& start_location, ChunkLocal& local,
     size_t& point_count)
 {
@@ -695,7 +695,7 @@ bool SerialCornerContourGenerator::follow_boundary(
     return finished;
 }
 
-bool SerialCornerContourGenerator::follow_interior(
+bool SerialContourGenerator::follow_interior(
     Location& location, const Location& start_location, ChunkLocal& local,
     size_t& point_count)
 {
@@ -994,12 +994,12 @@ bool SerialCornerContourGenerator::follow_interior(
     return finished;
 }
 
-py::tuple SerialCornerContourGenerator::get_chunk_count() const
+py::tuple SerialContourGenerator::get_chunk_count() const
 {
     return py::make_tuple(_ny_chunks, _nx_chunks);
 }
 
-void SerialCornerContourGenerator::get_chunk_limits(
+void SerialContourGenerator::get_chunk_limits(
     index_t chunk, ChunkLocal& local) const
 {
     assert(chunk >= 0 && chunk < _n_chunks && "chunk index out of bounds");
@@ -1016,27 +1016,27 @@ void SerialCornerContourGenerator::get_chunk_limits(
     local.jend = (jchunk < _ny_chunks-1 ? (jchunk+1)*_y_chunk_size : _ny-1);
 }
 
-py::tuple SerialCornerContourGenerator::get_chunk_size() const
+py::tuple SerialContourGenerator::get_chunk_size() const
 {
     return py::make_tuple(_y_chunk_size, _x_chunk_size);
 }
 
-bool SerialCornerContourGenerator::get_corner_mask() const
+bool SerialContourGenerator::get_corner_mask() const
 {
     return false;
 }
 
-FillType SerialCornerContourGenerator::get_fill_type() const
+FillType SerialContourGenerator::get_fill_type() const
 {
     return _fill_type;
 }
 
-LineType SerialCornerContourGenerator::get_line_type() const
+LineType SerialContourGenerator::get_line_type() const
 {
     return _line_type;
 }
 
-void SerialCornerContourGenerator::get_point_xy(
+void SerialContourGenerator::get_point_xy(
     index_t point, double*& points) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
@@ -1044,25 +1044,25 @@ void SerialCornerContourGenerator::get_point_xy(
     *points++ = _y.data()[point];
 }
 
-const double& SerialCornerContourGenerator::get_point_x(index_t point) const
+const double& SerialContourGenerator::get_point_x(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _x.data()[point];
 }
 
-const double& SerialCornerContourGenerator::get_point_y(index_t point) const
+const double& SerialContourGenerator::get_point_y(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _y.data()[point];
 }
 
-const double& SerialCornerContourGenerator::get_point_z(index_t point) const
+const double& SerialContourGenerator::get_point_z(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _z.data()[point];
 }
 
-void SerialCornerContourGenerator::init_cache_grid(const MaskArray& mask)
+void SerialContourGenerator::init_cache_grid(const MaskArray& mask)
 {
     index_t i, j, quad;
     if (mask.ndim() == 0) {
@@ -1157,7 +1157,7 @@ void SerialCornerContourGenerator::init_cache_grid(const MaskArray& mask)
     }
 }
 
-void SerialCornerContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
+void SerialContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
 {
     CacheItem keep_mask =
         (_corner_mask ? MASK_EXISTS_ANY | MASK_BOUNDARY_N | MASK_BOUNDARY_E
@@ -1349,7 +1349,7 @@ void SerialCornerContourGenerator::init_cache_levels_and_starts(ChunkLocal& loca
     }
 }
 
-void SerialCornerContourGenerator::interp(
+void SerialContourGenerator::interp(
     index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const
 {
     assert(is_point_in_chunk(point0, local));
@@ -1379,14 +1379,14 @@ void SerialCornerContourGenerator::interp(
         get_point_y(point0)*frac + get_point_y(point1)*(1.0 - frac);
 }
 
-bool SerialCornerContourGenerator::is_point_in_chunk(
+bool SerialContourGenerator::is_point_in_chunk(
     index_t point, const ChunkLocal& local) const
 {
     return is_quad_in_bounds(
         point, local.istart-1, local.iend, local.jstart-1, local.jend);
 }
 
-bool SerialCornerContourGenerator::is_quad_in_bounds(
+bool SerialContourGenerator::is_quad_in_bounds(
     index_t quad, index_t istart, index_t iend, index_t jstart,
     index_t jend) const
 {
@@ -1394,14 +1394,14 @@ bool SerialCornerContourGenerator::is_quad_in_bounds(
             quad / _nx >= jstart && quad / _nx <= jend);
 }
 
-bool SerialCornerContourGenerator::is_quad_in_chunk(
+bool SerialContourGenerator::is_quad_in_chunk(
     index_t quad, const ChunkLocal& local) const
 {
     return is_quad_in_bounds(
         quad, local.istart, local.iend, local.jstart, local.jend);
 }
 
-void SerialCornerContourGenerator::line(
+void SerialContourGenerator::line(
     const Location& start_location, ChunkLocal& local)
 {
     // start_location.on_boundary indicates starts (and therefore also finishes)
@@ -1430,7 +1430,7 @@ void SerialCornerContourGenerator::line(
     local.total_point_count += point_count;
 }
 
-void SerialCornerContourGenerator::move_to_next_boundary_edge(
+void SerialContourGenerator::move_to_next_boundary_edge(
     index_t& quad, index_t& forward, index_t& left) const
 {
     // edge == 0 for E edge (facing N), forward = +_nx
@@ -1580,7 +1580,7 @@ void SerialCornerContourGenerator::move_to_next_boundary_edge(
     }
 }
 
-void SerialCornerContourGenerator::set_look_flags(index_t hole_start_quad)
+void SerialContourGenerator::set_look_flags(index_t hole_start_quad)
 {
     assert(_identify_holes);
 
@@ -1612,7 +1612,7 @@ void SerialCornerContourGenerator::set_look_flags(index_t hole_start_quad)
     }
 }
 
-void SerialCornerContourGenerator::single_chunk_filled(
+void SerialContourGenerator::single_chunk_filled(
     ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Allocated at end of pass 0, depending on _fill_type.
@@ -1793,7 +1793,7 @@ void SerialCornerContourGenerator::single_chunk_filled(
     export_filled(local, all_points, return_lists);
 }
 
-void SerialCornerContourGenerator::single_chunk_lines(
+void SerialContourGenerator::single_chunk_lines(
     ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Allocated at end of pass 0, depending on _line_type.
@@ -1934,7 +1934,7 @@ void SerialCornerContourGenerator::single_chunk_lines(
     export_lines(local, all_points_ptr, return_lists);
 }
 
-bool SerialCornerContourGenerator::supports_fill_type(FillType fill_type)
+bool SerialContourGenerator::supports_fill_type(FillType fill_type)
 {
     switch (fill_type) {
         case FillType::OuterCodes:
@@ -1949,7 +1949,7 @@ bool SerialCornerContourGenerator::supports_fill_type(FillType fill_type)
     }
 }
 
-bool SerialCornerContourGenerator::supports_line_type(LineType line_type)
+bool SerialContourGenerator::supports_line_type(LineType line_type)
 {
     switch (line_type) {
         case LineType::Separate:
@@ -1962,7 +1962,7 @@ bool SerialCornerContourGenerator::supports_line_type(LineType line_type)
     }
 }
 
-void SerialCornerContourGenerator::write_cache() const
+void SerialContourGenerator::write_cache() const
 {
     std::cout << "---------- Cache ----------" << std::endl;
     index_t ny = _n / _nx;
@@ -1981,7 +1981,7 @@ void SerialCornerContourGenerator::write_cache() const
     std::cout << "---------------------------" << std::endl;
 }
 
-void SerialCornerContourGenerator::write_cache_quad(index_t quad) const
+void SerialContourGenerator::write_cache_quad(index_t quad) const
 {
     assert(quad >= 0 && quad < _n && "quad index out of bounds");
     std::cout << (NO_MORE_STARTS(quad) ? 'x' :
