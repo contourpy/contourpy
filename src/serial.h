@@ -16,9 +16,9 @@ class SerialContourGenerator
 public:
     SerialContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y,
-        const CoordinateArray& z, const MaskArray& mask, LineType line_type,
-        FillType fill_type, Interp interp, index_t x_chunk_size,
-        index_t y_chunk_size);
+        const CoordinateArray& z, const MaskArray& mask, bool corner_mask,
+        LineType line_type, FillType fill_type, Interp interp,
+        index_t x_chunk_size, index_t y_chunk_size);
 
     ~SerialContourGenerator();
 
@@ -51,16 +51,23 @@ private:
 
     struct Location
     {
-        Location(index_t quad_, index_t forward_, index_t is_upper_,
+        Location(index_t quad_, index_t forward_, index_t left_, bool is_upper_,
                  bool on_boundary_)
-            : quad(quad_), forward(forward_), is_upper(is_upper_),
+            : quad(quad_), forward(forward_), left(left_), is_upper(is_upper_),
               on_boundary(on_boundary_)
         {}
 
-        index_t quad;
-        index_t forward;
-        bool is_upper;
-        bool on_boundary;
+        friend std::ostream &operator<<(
+            std::ostream &os, const Location& location)
+        {
+            os << "quad=" << location.quad << " forward=" << location.forward
+                << " left=" << location.left << " is_upper="
+                << location.is_upper << " on_boundary=" << location.on_boundary;
+            return os;
+        }
+
+        index_t quad, forward, left;
+        bool is_upper, on_boundary;
     };
 
     ZLevel calc_z_level_mid(index_t quad);
@@ -122,7 +129,8 @@ private:
 
     void line(const Location& start_location, ChunkLocal& local);
 
-    void move_to_next_boundary_edge(index_t& quad, index_t& forward) const;
+    void move_to_next_boundary_edge(
+        index_t& quad, index_t& forward, index_t& left) const;
 
     void set_look_flags(index_t hole_start_quad);
 
@@ -142,6 +150,7 @@ private:
     const index_t _nx_chunks, _ny_chunks;  // Number of chunks in each direction.
     const index_t _n_chunks;               // Total number of chunks.
     const index_t _x_chunk_size, _y_chunk_size;
+    const bool _corner_mask;
     const LineType _line_type;
     const FillType _fill_type;
     const Interp _interp;
