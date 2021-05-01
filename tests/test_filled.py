@@ -29,8 +29,8 @@ def test_filled_random_uniform_no_corner_mask(name, fill_type):
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.contour_filled(levels[i], levels[i+1]),
-                        fill_type, color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
+                        color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'filled_random_uniform_no_corner_mask.png',
@@ -52,8 +52,8 @@ def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.contour_filled(levels[i], levels[i+1]),
-                        fill_type, color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
+                        color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
     mean_threshold = 0.02
@@ -79,8 +79,8 @@ def test_filled_random_uniform_corner_mask(name):
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.contour_filled(levels[i], levels[i+1]),
-                        fill_type, color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
+                        color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'filled_random_uniform_corner_mask.png',
@@ -93,7 +93,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
     x, y, z = two_outers_one_hole
     cont_gen = contour_generator(x, y, z, name, fill_type=fill_type)
     assert cont_gen.fill_type == fill_type
-    filled = cont_gen.contour_filled(1.0, 2.0)
+    filled = cont_gen.filled(1.0, 2.0)
     if fill_type in (FillType.OuterCodes, FillType.OuterOffsets):
         assert isinstance(filled, tuple) and len(filled) == 2
         points = filled[0]

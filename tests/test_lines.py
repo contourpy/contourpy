@@ -33,7 +33,7 @@ def test_level_outside(xy_2x2, name, zlevel):
     z = x
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=LineType.SeparateCodes)
-    lines = cont_gen.contour_lines(zlevel)
+    lines = cont_gen.lines(zlevel)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
     assert isinstance(points, list) and len(points) == 0
@@ -46,7 +46,7 @@ def test_w_to_e(xy_2x2, name):
     z = y.copy()
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=LineType.SeparateCodes)
-    lines = cont_gen.contour_lines(0.5)
+    lines = cont_gen.lines(0.5)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
     assert isinstance(points, list) and len(points) == 1
@@ -61,7 +61,7 @@ def test_e_to_w(xy_2x2, name):
     z = 1.0 - y.copy()
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=LineType.SeparateCodes)
-    lines = cont_gen.contour_lines(0.5)
+    lines = cont_gen.lines(0.5)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
     assert isinstance(points, list) and len(points) == 1
@@ -80,7 +80,7 @@ def test_loop(xy_3x3, name):
     z[1, 1] = 1.0
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=LineType.SeparateCodes)
-    lines = cont_gen.contour_lines(0.5)
+    lines = cont_gen.lines(0.5)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
     assert isinstance(points, list) and len(points) == 1
@@ -104,8 +104,7 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)):
-        renderer.lines(cont_gen.contour_lines(levels[i]),
-                       line_type, color=f'C{i}')
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'lines_random_uniform_no_corner_mask.png',
@@ -126,8 +125,7 @@ def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)):
-        renderer.lines(cont_gen.contour_lines(levels[i]),
-                       line_type, color=f'C{i}')
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer,
@@ -146,8 +144,7 @@ def test_lines_random_uniform_corner_mask(name):
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)):
-        renderer.lines(cont_gen.contour_lines(levels[i]),
-                       line_type, color=f'C{i}')
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'lines_random_uniform_corner_mask.png',
@@ -160,7 +157,7 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
     x, y, z = one_loop_one_strip
     cont_gen = contour_generator(x, y, z, name, line_type=line_type)
     assert cont_gen.line_type == line_type
-    lines = cont_gen.contour_lines(2.0)
+    lines = cont_gen.lines(2.0)
     if line_type in (LineType.Separate, LineType.SeparateCodes):
         if line_type == LineType.SeparateCodes:
             assert isinstance(lines, tuple) and len(lines) == 2

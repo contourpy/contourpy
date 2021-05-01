@@ -22,11 +22,9 @@ public:
 
     ~SerialContourGenerator();
 
-    py::tuple contour_filled(
-        const double& lower_level, const double& upper_level);
+    py::sequence filled(const double& lower_level, const double& upper_level);
 
-    // Return py::tuple or py::list depending on _line_type.
-    py::sequence contour_lines(const double& level);
+    py::sequence lines(const double& level);
 
     static FillType default_fill_type();
     static LineType default_line_type();
@@ -129,16 +127,18 @@ private:
 
     void line(const Location& start_location, ChunkLocal& local);
 
+    py::sequence march();
+
+    void march_chunk_filled(
+        ChunkLocal& local, std::vector<py::list>& return_lists);
+
+    void march_chunk_lines(
+        ChunkLocal& local, std::vector<py::list>& return_lists);
+
     void move_to_next_boundary_edge(
         index_t& quad, index_t& forward, index_t& left) const;
 
     void set_look_flags(index_t hole_start_quad);
-
-    void single_chunk_filled(
-        ChunkLocal& local, std::vector<py::list>& return_lists);
-
-    void single_chunk_lines(
-        ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void write_cache_quad(index_t quad) const;
 
