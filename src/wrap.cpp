@@ -22,9 +22,8 @@ PYBIND11_MODULE(_contourpy, m) {
              py::kw_only(),
              py::arg("corner_mask") = true,
              py::arg("chunk_size") = 0)
-        .def("contour_filled",
-             &mpl2014::Mpl2014ContourGenerator::contour_filled)
-        .def("contour_lines", &mpl2014::Mpl2014ContourGenerator::contour_lines)
+        .def("filled", &mpl2014::Mpl2014ContourGenerator::filled)
+        .def("lines", &mpl2014::Mpl2014ContourGenerator::lines)
         .def_property_readonly_static(
             "fill_type",
             [](py::object /* self */) {return FillType::OuterCodes;})
@@ -54,8 +53,8 @@ PYBIND11_MODULE(_contourpy, m) {
              py::kw_only(),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
-        .def("contour_filled", &SerialContourGenerator::contour_filled)
-        .def("contour_lines", &SerialContourGenerator::contour_lines)
+        .def("filled", &SerialContourGenerator::filled)
+        .def("lines", &SerialContourGenerator::lines)
         .def("write_cache", &SerialContourGenerator::write_cache)
         .def_property_readonly(
             "chunk_count", &SerialContourGenerator::get_chunk_count)

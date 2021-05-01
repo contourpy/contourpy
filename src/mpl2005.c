@@ -1980,12 +1980,12 @@ Cntr_get_cdata(Cntr *self)
 }
 
 static PyMethodDef Cntr_methods[] = {
-    {"contour_filled", (PyCFunction)Cntr_trace_filled, METH_VARARGS | METH_KEYWORDS,
+    {"filled", (PyCFunction)Cntr_trace_filled, METH_VARARGS | METH_KEYWORDS,
      "Return a list of contour polygons.\n\n"
      "    Required arguments: lower_level, upper_level\n"
 
     },
-    {"contour_lines", (PyCFunction)Cntr_trace_lines, METH_VARARGS | METH_KEYWORDS,
+    {"lines", (PyCFunction)Cntr_trace_lines, METH_VARARGS | METH_KEYWORDS,
      "Return a list of contour line segments.\n\n"
      "    Required argument: level, a contour level\n"
     },

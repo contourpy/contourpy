@@ -113,10 +113,10 @@ class Config:
         cont_gen = contour_generator(self.x, self.y, z, name=self.name,
                                      corner_mask=self.corner_mask)
         if self.is_filled:
-            filled = cont_gen.contour_filled(zlower, zupper)
+            filled = cont_gen.filled(zlower, zupper)
             lines = filled[0]
         else:
-            lines = cont_gen.contour_lines(zlower)[0]
+            lines = cont_gen.lines(zlower)[0]
 
         # May be 0..2 polygons, and there cannot be any holes.
         for points in lines:

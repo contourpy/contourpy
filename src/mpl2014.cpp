@@ -532,7 +532,19 @@ index_t Mpl2014ContourGenerator::calc_chunk_count(index_t point_count) const
         return 1;
 }
 
-py::tuple Mpl2014ContourGenerator::contour_filled(
+void Mpl2014ContourGenerator::edge_interp(const QuadEdge& quad_edge,
+                                          const double& level,
+                                          ContourLine& contour_line)
+{
+    assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
+           "Quad index out of bounds");
+    assert(quad_edge.edge != Edge_None && "Invalid edge");
+    interp(get_edge_point_index(quad_edge, true),
+           get_edge_point_index(quad_edge, false),
+           level, contour_line);
+}
+
+py::tuple Mpl2014ContourGenerator::filled(
     const double& lower_level, const double& upper_level)
 {
     if (lower_level > upper_level)
@@ -575,106 +587,6 @@ py::tuple Mpl2014ContourGenerator::contour_filled(
     }
 
     return py::make_tuple(vertices, codes);
-}
-
-py::tuple Mpl2014ContourGenerator::contour_lines(const double& level)
-{
-    init_cache_levels(level, level);
-
-    py::list vertices_list, codes_list;
-
-    // Lines that start and end on boundaries.
-    index_t ichunk, jchunk, istart, iend, jstart, jend;
-    for (index_t ijchunk = 0; ijchunk < _chunk_count; ++ijchunk) {
-        get_chunk_limits(ijchunk, ichunk, jchunk, istart, iend, jstart, jend);
-
-        for (index_t j = jstart; j < jend; ++j) {
-            index_t quad_end = iend + j*_nx;
-            for (index_t quad = istart + j*_nx; quad < quad_end; ++quad) {
-                if (EXISTS_NONE(quad) || VISITED(quad,1)) continue;
-
-                if (BOUNDARY_S(quad) && Z_SW >= 1 && Z_SE < 1 &&
-                    start_line(vertices_list, codes_list, quad, Edge_S, level)) continue;
-
-                if (BOUNDARY_W(quad) && Z_NW >= 1 && Z_SW < 1 &&
-                    start_line(vertices_list, codes_list, quad, Edge_W, level)) continue;
-
-                if (BOUNDARY_N(quad) && Z_NE >= 1 && Z_NW < 1 &&
-                    start_line(vertices_list, codes_list, quad, Edge_N, level)) continue;
-
-                if (BOUNDARY_E(quad) && Z_SE >= 1 && Z_NE < 1 &&
-                    start_line(vertices_list, codes_list, quad, Edge_E, level)) continue;
-
-                if (_corner_mask) {
-                    // Equates to NE boundary.
-                    if (EXISTS_SW_CORNER(quad) && Z_SE >= 1 && Z_NW < 1 &&
-                        start_line(vertices_list, codes_list, quad, Edge_NE, level)) continue;
-
-                    // Equates to NW boundary.
-                    if (EXISTS_SE_CORNER(quad) && Z_NE >= 1 && Z_SW < 1 &&
-                        start_line(vertices_list, codes_list, quad, Edge_NW, level)) continue;
-
-                    // Equates to SE boundary.
-                    if (EXISTS_NW_CORNER(quad) && Z_SW >= 1 && Z_NE < 1 &&
-                        start_line(vertices_list, codes_list, quad, Edge_SE, level)) continue;
-
-                    // Equates to SW boundary.
-                    if (EXISTS_NE_CORNER(quad) && Z_NW >= 1 && Z_SE < 1 &&
-                        start_line(vertices_list, codes_list, quad, Edge_SW, level)) continue;
-                }
-            }
-        }
-    }
-
-    // Internal loops.
-    ContourLine contour_line(false);  // Reused for each contour line.
-    for (index_t ijchunk = 0; ijchunk < _chunk_count; ++ijchunk) {
-        get_chunk_limits(ijchunk, ichunk, jchunk, istart, iend, jstart, jend);
-
-        for (index_t j = jstart; j < jend; ++j) {
-            index_t quad_end = iend + j*_nx;
-            for (index_t quad = istart + j*_nx; quad < quad_end; ++quad) {
-                if (EXISTS_NONE(quad) || VISITED(quad,1))
-                    continue;
-
-                Edge start_edge = get_start_edge(quad, 1);
-                if (start_edge == Edge_None)
-                    continue;
-
-                QuadEdge quad_edge(quad, start_edge);
-                QuadEdge start_quad_edge(quad_edge);
-
-                // To obtain output identical to that produced by legacy code,
-                // sometimes need to ignore the first point and add it on the
-                // end instead.
-                bool ignore_first = (start_edge == Edge_N);
-                follow_interior(contour_line, quad_edge, 1, level,
-                                !ignore_first, &start_quad_edge, 1, false);
-                if (ignore_first && !contour_line.empty())
-                    contour_line.push_back(contour_line.front());
-                append_contour_line_to_vertices_and_codes(
-                    contour_line, vertices_list, codes_list);
-
-                // Repeat if saddle point but not visited.
-                if (SADDLE(quad,1) && !VISITED(quad,1))
-                    --quad;
-            }
-        }
-    }
-
-    return py::make_tuple(vertices_list, codes_list);
-}
-
-void Mpl2014ContourGenerator::edge_interp(const QuadEdge& quad_edge,
-                                          const double& level,
-                                          ContourLine& contour_line)
-{
-    assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
-           "Quad index out of bounds");
-    assert(quad_edge.edge != Edge_None && "Invalid edge");
-    interp(get_edge_point_index(quad_edge, true),
-           get_edge_point_index(quad_edge, false),
-           level, contour_line);
 }
 
 unsigned int Mpl2014ContourGenerator::follow_boundary(
@@ -1401,6 +1313,94 @@ bool Mpl2014ContourGenerator::is_edge_a_boundary(
         case Edge_SE: return EXISTS_NW_CORNER(quad_edge.quad);
         default: assert(0 && "Invalid edge"); return true;
     }
+}
+
+py::tuple Mpl2014ContourGenerator::lines(const double& level)
+{
+    init_cache_levels(level, level);
+
+    py::list vertices_list, codes_list;
+
+    // Lines that start and end on boundaries.
+    index_t ichunk, jchunk, istart, iend, jstart, jend;
+    for (index_t ijchunk = 0; ijchunk < _chunk_count; ++ijchunk) {
+        get_chunk_limits(ijchunk, ichunk, jchunk, istart, iend, jstart, jend);
+
+        for (index_t j = jstart; j < jend; ++j) {
+            index_t quad_end = iend + j*_nx;
+            for (index_t quad = istart + j*_nx; quad < quad_end; ++quad) {
+                if (EXISTS_NONE(quad) || VISITED(quad,1)) continue;
+
+                if (BOUNDARY_S(quad) && Z_SW >= 1 && Z_SE < 1 &&
+                    start_line(vertices_list, codes_list, quad, Edge_S, level)) continue;
+
+                if (BOUNDARY_W(quad) && Z_NW >= 1 && Z_SW < 1 &&
+                    start_line(vertices_list, codes_list, quad, Edge_W, level)) continue;
+
+                if (BOUNDARY_N(quad) && Z_NE >= 1 && Z_NW < 1 &&
+                    start_line(vertices_list, codes_list, quad, Edge_N, level)) continue;
+
+                if (BOUNDARY_E(quad) && Z_SE >= 1 && Z_NE < 1 &&
+                    start_line(vertices_list, codes_list, quad, Edge_E, level)) continue;
+
+                if (_corner_mask) {
+                    // Equates to NE boundary.
+                    if (EXISTS_SW_CORNER(quad) && Z_SE >= 1 && Z_NW < 1 &&
+                        start_line(vertices_list, codes_list, quad, Edge_NE, level)) continue;
+
+                    // Equates to NW boundary.
+                    if (EXISTS_SE_CORNER(quad) && Z_NE >= 1 && Z_SW < 1 &&
+                        start_line(vertices_list, codes_list, quad, Edge_NW, level)) continue;
+
+                    // Equates to SE boundary.
+                    if (EXISTS_NW_CORNER(quad) && Z_SW >= 1 && Z_NE < 1 &&
+                        start_line(vertices_list, codes_list, quad, Edge_SE, level)) continue;
+
+                    // Equates to SW boundary.
+                    if (EXISTS_NE_CORNER(quad) && Z_NW >= 1 && Z_SE < 1 &&
+                        start_line(vertices_list, codes_list, quad, Edge_SW, level)) continue;
+                }
+            }
+        }
+    }
+
+    // Internal loops.
+    ContourLine contour_line(false);  // Reused for each contour line.
+    for (index_t ijchunk = 0; ijchunk < _chunk_count; ++ijchunk) {
+        get_chunk_limits(ijchunk, ichunk, jchunk, istart, iend, jstart, jend);
+
+        for (index_t j = jstart; j < jend; ++j) {
+            index_t quad_end = iend + j*_nx;
+            for (index_t quad = istart + j*_nx; quad < quad_end; ++quad) {
+                if (EXISTS_NONE(quad) || VISITED(quad,1))
+                    continue;
+
+                Edge start_edge = get_start_edge(quad, 1);
+                if (start_edge == Edge_None)
+                    continue;
+
+                QuadEdge quad_edge(quad, start_edge);
+                QuadEdge start_quad_edge(quad_edge);
+
+                // To obtain output identical to that produced by legacy code,
+                // sometimes need to ignore the first point and add it on the
+                // end instead.
+                bool ignore_first = (start_edge == Edge_N);
+                follow_interior(contour_line, quad_edge, 1, level,
+                                !ignore_first, &start_quad_edge, 1, false);
+                if (ignore_first && !contour_line.empty())
+                    contour_line.push_back(contour_line.front());
+                append_contour_line_to_vertices_and_codes(
+                    contour_line, vertices_list, codes_list);
+
+                // Repeat if saddle point but not visited.
+                if (SADDLE(quad,1) && !VISITED(quad,1))
+                    --quad;
+            }
+        }
+    }
+
+    return py::make_tuple(vertices_list, codes_list);
 }
 
 void Mpl2014ContourGenerator::move_to_next_boundary_edge(

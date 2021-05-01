@@ -284,12 +284,11 @@ public:
 
     // Create and return polygons for a filled contour between the two
     // specified levels.
-    py::tuple contour_filled(const double& lower_level,
-                             const double& upper_level);
+    py::tuple filled(const double& lower_level, const double& upper_level);
 
     // Create and return polygons for a line (i.e. non-filled) contour at the
     // specified level.
-    py::tuple contour_lines(const double& level);
+    py::tuple lines(const double& level);
 
 private:
     // Typedef for following either a boundary of the domain or the interior;
