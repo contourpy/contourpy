@@ -1,26 +1,27 @@
-#ifndef CONTOURPY_SERIAL_H
-#define CONTOURPY_SERIAL_H
+#ifndef CONTOURPY_THREADED_H
+#define CONTOURPY_THREADED_H
 
 #include "common.h"
 #include "fill_type.h"
 #include "interp.h"
 #include "line_type.h"
 #include "outer_or_hole.h"
+#include <mutex>
 #include <vector>
 
 // Forward declarations.
 struct ChunkLocal;
 
-class SerialContourGenerator
+class ThreadedContourGenerator
 {
 public:
-    SerialContourGenerator(
+    ThreadedContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y,
         const CoordinateArray& z, const MaskArray& mask, bool corner_mask,
         LineType line_type, FillType fill_type, Interp interp,
-        index_t x_chunk_size, index_t y_chunk_size);
+        index_t x_chunk_size, index_t y_chunk_size, index_t n_threads);
 
-    ~SerialContourGenerator();
+    ~ThreadedContourGenerator();
 
     static FillType default_fill_type();
     static LineType default_line_type();
@@ -32,6 +33,9 @@ public:
 
     FillType get_fill_type() const;
     LineType get_line_type() const;
+
+    index_t get_max_threads() const;
+    index_t get_thread_count() const;
 
     py::sequence filled(const double& lower_level, const double& upper_level);
     py::sequence lines(const double& level);
@@ -138,6 +142,8 @@ private:
 
     void set_look_flags(index_t hole_start_quad);
 
+    void thread_function(std::vector<py::list>& return_lists);
+
     void write_cache_quad(index_t quad) const;
 
 
@@ -162,6 +168,12 @@ private:
     // Current contouring operation, based on return type and filled or lines.
     bool _identify_holes;
     unsigned int _return_list_count;
+
+    index_t _max_threads;      // Max number of threads available.
+    index_t _n_threads;        // Number of threads to use.
+    index_t _next_chunk;       // Next available chunk for thread to trace.
+    std::mutex _chunk_mutex;   // Locks access to _next_chunk.
+    std::mutex _python_mutex;  // Locks access to Python objects.
 };
 
-#endif // CONTOURPY_SERIAL_H
+#endif // CONTOURPY_THREADED_H

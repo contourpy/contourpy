@@ -4,6 +4,7 @@
 #include "line_type.h"
 #include "mpl2014.h"
 #include "serial.h"
+#include "threaded.h"
 
 PYBIND11_MODULE(_contourpy, m) {
     m.doc() = "doc notes";
@@ -80,6 +81,62 @@ PYBIND11_MODULE(_contourpy, m) {
         .def_static(
             "supports_line_type",
             &SerialContourGenerator::supports_line_type);
+
+    py::class_<ThreadedContourGenerator>(m, "ThreadedContourGenerator")
+        .def(py::init<const CoordinateArray&,
+                      const CoordinateArray&,
+                      const CoordinateArray&,
+                      const MaskArray&,
+                      bool,
+                      LineType,
+                      FillType,
+                      Interp,
+                      index_t,
+                      index_t,
+                      index_t>(),
+             py::arg("x"),
+             py::arg("y"),
+             py::arg("z"),
+             py::arg("mask"),
+             py::arg("corner_mask"),
+             py::arg("line_type"),
+             py::arg("fill_type"),
+             py::arg("interp"),
+             py::kw_only(),
+             py::arg("x_chunk_size") = 0,
+             py::arg("y_chunk_size") = 0,
+             py::arg("thread_count") = 0)
+        .def("filled", &ThreadedContourGenerator::filled)
+        .def("lines", &ThreadedContourGenerator::lines)
+        .def("write_cache", &ThreadedContourGenerator::write_cache)
+        .def_property_readonly(
+            "chunk_count", &ThreadedContourGenerator::get_chunk_count)
+        .def_property_readonly(
+            "chunk_size", &ThreadedContourGenerator::get_chunk_size)
+        .def_property_readonly(
+            "fill_type", &ThreadedContourGenerator::get_fill_type)
+        .def_property_readonly(
+            "line_type", &ThreadedContourGenerator::get_line_type)
+        .def_property_readonly(
+            "max_threads", &ThreadedContourGenerator::get_max_threads)
+        .def_property_readonly(
+            "thread_count", &ThreadedContourGenerator::get_thread_count)
+        .def_property_readonly_static(
+            "default_fill_type",
+            [](py::object /* self */) {
+                return ThreadedContourGenerator::default_fill_type();
+            })
+        .def_property_readonly_static(
+            "default_line_type",
+            [](py::object /* self */) {
+                return ThreadedContourGenerator::default_line_type();
+            })
+        .def_static(
+            "supports_fill_type",
+            &ThreadedContourGenerator::supports_fill_type)
+        .def_static(
+            "supports_line_type",
+            &ThreadedContourGenerator::supports_line_type);
 
     py::enum_<FillType>(m, "FillType")
         .value("OuterCodes", FillType::OuterCodes)

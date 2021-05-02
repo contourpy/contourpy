@@ -2,7 +2,7 @@ from contourpy import FillType, LineType
 
 
 def all_names():
-    return ['mpl2014', 'mpl2005', 'serial']
+    return ['mpl2014', 'mpl2005', 'serial', 'threaded']
 
 
 def all_names_and_fill_types():
@@ -15,6 +15,12 @@ def all_names_and_fill_types():
         ('serial', FillType.ChunkCombinedOffsets),
         ('serial', FillType.ChunkCombinedCodesOffsets),
         ('serial', FillType.ChunkCombinedOffsets2),
+        ('threaded', FillType.OuterCodes),
+        ('threaded', FillType.OuterOffsets),
+        ('threaded', FillType.ChunkCombinedCodes),
+        ('threaded', FillType.ChunkCombinedOffsets),
+        ('threaded', FillType.ChunkCombinedCodesOffsets),
+        ('threaded', FillType.ChunkCombinedOffsets2),
     ]
 
 
@@ -26,11 +32,15 @@ def all_names_and_line_types():
         ('serial', LineType.SeparateCodes),
         ('serial', LineType.ChunkCombinedCodes),
         ('serial', LineType.ChunkCombinedOffsets),
+        ('threaded', LineType.Separate),
+        ('threaded', LineType.SeparateCodes),
+        ('threaded', LineType.ChunkCombinedCodes),
+        ('threaded', LineType.ChunkCombinedOffsets),
     ]
 
 
 def corner_mask_names():
-    return ['mpl2014', 'serial']
+    return ['mpl2014', 'serial', 'threaded']
 
 
 def all_fill_types_str_value():
