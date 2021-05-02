@@ -1,12 +1,13 @@
 from ._contourpy import (
     FillType, Interp, LineType, Mpl2014ContourGenerator,
-    SerialContourGenerator)
+    SerialContourGenerator, ThreadedContourGenerator)
 from ._mpl2005 import Cntr as Mpl2005ContourGenerator
 import numpy as np
 
 
 def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
-                      fill_type=None, line_type=None, interp=Interp.Linear):
+                      fill_type=None, line_type=None, interp=Interp.Linear,
+                      thread_count=0):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.
@@ -58,19 +59,30 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
     if name is None:
         name = 'mpl2014'
 
-    if name == 'serial':
+    if name in ('serial', 'threaded'):
         if corner_mask is None:
             corner_mask = True
 
-        if line_type is None:
-            line_type = SerialContourGenerator.default_line_type
-        if not SerialContourGenerator.supports_line_type(line_type):
-            raise ValueError(f'serial contour generator does not support line_type {line_type}')
+        if name == 'serial':
+            if line_type is None:
+                line_type = SerialContourGenerator.default_line_type
+            if not SerialContourGenerator.supports_line_type(line_type):
+                raise ValueError(f'{name} contour generator does not support line_type {line_type}')
 
-        if fill_type is None:
-            fill_type = SerialContourGenerator.default_fill_type
-        if not SerialContourGenerator.supports_fill_type(fill_type):
-            raise ValueError(f'serial contour generator does not support fill_type {fill_type}')
+            if fill_type is None:
+                fill_type = SerialContourGenerator.default_fill_type
+            if not SerialContourGenerator.supports_fill_type(fill_type):
+                raise ValueError(f'{name} contour generator does not support fill_type {fill_type}')
+        else:
+            if line_type is None:
+                line_type = ThreadedContourGenerator.default_line_type
+            if not ThreadedContourGenerator.supports_line_type(line_type):
+                raise ValueError(f'{name} contour generator does not support line_type {line_type}')
+
+            if fill_type is None:
+                fill_type = ThreadedContourGenerator.default_fill_type
+            if not ThreadedContourGenerator.supports_fill_type(fill_type):
+                raise ValueError(f'{name} contour generator does not support fill_type {fill_type}')
 
         if isinstance(chunk_size, tuple) and len(chunk_size) == 2:
             y_chunk_size, x_chunk_size = chunk_size
@@ -80,9 +92,18 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
         if x_chunk_size < 0 or y_chunk_size < 0:
             raise ValueError('chunk_size cannot be negative')
 
-        cont_gen = SerialContourGenerator(
-            x, y, z, mask, corner_mask, line_type, fill_type, interp,
-            x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
+        if name == 'serial' and thread_count != 0:
+            raise ValueError(f'{name} contour generator does not support thread_count {thread_count}')
+
+        if name == 'serial':
+            cont_gen = SerialContourGenerator(
+                x, y, z, mask, corner_mask, line_type, fill_type, interp,
+                x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
+        else:
+            cont_gen = ThreadedContourGenerator(
+                x, y, z, mask, corner_mask, line_type, fill_type, interp,
+                x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size,
+                thread_count=thread_count)
     else:
         if chunk_size < 0:
             raise ValueError('chunk_size cannot be negative')
@@ -95,6 +116,9 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
 
         if interp != Interp.Linear:
             raise ValueError(f'{name} contour generator does not support interp {interp}')
+
+        if thread_count != 0:
+            raise ValueError(f'{name} contour generator does not support thread_count {thread_count}')
 
         if name == 'mpl2014':
             if corner_mask is None:

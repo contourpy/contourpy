@@ -32,6 +32,7 @@ _contourpy = Pybind11Extension(
         'src/mpl2014.cpp',
         'src/outer_or_hole.cpp',
         'src/serial.cpp',
+        'src/threaded.cpp',
         'src/wrap.cpp',
     ],
     define_macros=define_macros,
