@@ -155,6 +155,12 @@ ThreadedContourGenerator::~ThreadedContourGenerator()
     delete [] _cache;
 }
 
+ThreadedContourGenerator::ZLevel ThreadedContourGenerator::calc_z_level(
+    const double& z_value)
+{
+    return (_filled && z_value > _upper_level) ? 2 : (z_value > _lower_level ? 1 : 0);
+}
+
 ThreadedContourGenerator::ZLevel ThreadedContourGenerator::calc_z_level_mid(
     index_t quad)
 {
@@ -1123,8 +1129,19 @@ void ThreadedContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
         index_t quad = istart + j*_nx;
         const double* z_ptr = _z.data() + quad;
         bool start_in_row = false;
-        ZLevel z_nw = (istart > 0) ? Z_NW : 0;
-        ZLevel z_sw = (istart > 0 && j > 0) ? Z_SW : 0;
+
+        // z-level of NW point not needed if in W-most column, otherwise read it
+        // from cache as already calculated.  Do not read if from cache if it is
+        // in another chunk, calculate it now instead.
+        ZLevel z_nw = (istart == 0) ? 0 :
+            (istart == local.istart && istart > 1 ? calc_z_level(*(z_ptr-1)) : Z_NW);
+
+        // z-level of SW point not needed if in S-most row or W-most column,
+        // otherwise read it from cache as already calculated.  Do not read if
+        // from cache if it is in another chunk, calculate it now instead.
+        ZLevel z_sw = (istart == 0 || j == 0) ? 0 :
+            (j == jstart || (istart == local.istart && istart > 1) ?
+                calc_z_level(*(z_ptr-_nx-1)) : Z_SW);
 
         for (index_t i = istart; i <= iend; ++i, ++quad, ++z_ptr) {
             _cache[quad] &= keep_mask;
@@ -1141,9 +1158,11 @@ void ThreadedContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
                 z_ne = 1;
             }
 
-            // z-level of SE point already calculated if j > 0; not needed
-            // if j == 0.
-            ZLevel z_se = (j > 0) ? Z_SE : 0;
+            // z-level of SE point not needed if in S-most row, otherwise read
+            // it from cache as already calculated.  Do not read if from cache
+            // if it is in another chunk, calculate it now instead.
+            ZLevel z_se = (j == 0) ? 0 :
+                (j == jstart ? calc_z_level(*(z_ptr-_nx)) : Z_SE);
 
             if (EXISTS_ANY(quad)) {
                 if (_filled) {
@@ -1404,20 +1423,21 @@ py::sequence ThreadedContourGenerator::march()
     for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
         return_lists.emplace_back(list_len);
 
-    // Initialise cache z-levels and starting locations.
-    ChunkLocal local;
-    for (index_t chunk = 0; chunk < _n_chunks; ++chunk) {
-        get_chunk_limits(chunk, local);
-        init_cache_levels_and_starts(local);
-        local.clear();
-    }
+    // Start of multithreaded code.
 
-    // Multithreaded trace contours.
-    _next_chunk = 0;  // Reset next available chunk index.
+    // Each thread executes thread_function() which has two stages:
+    //   1) Initialise cache z-levels and starting locations
+    //   2) Trace contours
+    // Each stage is performed on a chunk by chunk basis.  There is a barrier
+    // between the two stages to synchronise the threads so that the cache setup
+    // is complete before being used by the trace.
+    _next_chunk = 0;      // Next available chunk index.
+    _finished_count = 0;  // Count of threads that have finished the cache init.
+
+    // Create (_n_threads-1) new worker threads.
     std::vector<std::thread> threads;
     threads.reserve(_n_threads);
-
-    for (unsigned int i = 1; i < _n_threads; ++i)
+    for (unsigned int i = 0; i < _n_threads-1; ++i)
         threads.emplace_back(
             &ThreadedContourGenerator::thread_function, this,
             std::ref(return_lists));
@@ -1426,8 +1446,10 @@ py::sequence ThreadedContourGenerator::march()
 
     for (auto& thread : threads)
         thread.join();
-    assert(_next_chunk == _n_chunks);
+    assert(_next_chunk == 2*_n_chunks);
     threads.clear();
+
+    // End of multithreaded code.
 
     // Return to python objects.
     if (_return_list_count == 1) {
@@ -1551,10 +1573,12 @@ void ThreadedContourGenerator::march_chunk_filled(
                 local.points = all_points.data();
             }
             else if (local.total_point_count > 0) {  // Combined points.
-                std::lock_guard<std::mutex> guard(_python_mutex);
-
                 py::size_t points_shape[2] = {local.total_point_count, 2};
+
+                std::unique_lock<std::mutex> lock(_python_mutex);
                 PointArray py_all_points(points_shape);
+                lock.unlock();
+
                 return_lists[0][local.chunk] = py_all_points;
 
                 // Where to store contour points.
@@ -1699,10 +1723,12 @@ void ThreadedContourGenerator::march_chunk_lines(
                 all_points_ptr = all_points.data();
             }
             else if (local.total_point_count > 0) {  // Combined points.
-                std::lock_guard<std::mutex> guard(_python_mutex);
-
                 py::size_t points_shape[2] = {local.total_point_count, 2};
+
+                std::unique_lock<std::mutex> lock(_python_mutex);
                 PointArray py_all_points(points_shape);
+                lock.unlock();
+
                 return_lists[0][local.chunk] = py_all_points;
 
                 // Where to store contour points.
@@ -1941,13 +1967,51 @@ bool ThreadedContourGenerator::supports_line_type(LineType line_type)
 void ThreadedContourGenerator::thread_function(
     std::vector<py::list>& return_lists)
 {
+    // Function that is executed by each of the threads.
+    // _next_chunk starts at zero and increases up to 2*_n_chunks.  A thread in
+    // need of work reads _next_chunk and incremements it, then processes that
+    // chunk.  For _next_chunk < _n_chunks this is stage 1 (init cache levels
+    // and starting locations) and for _next_chunk >= _n_chunks this is stage 2
+    // (trace contours).  There is a synchronisation barrier between the two
+    // stages so that the cache initialisation is complete before being used by
+    // the contour trace.
+
     index_t chunk;
     ChunkLocal local;
+
+    // Stage 1: Initialise cache z-levels and starting locations.
     while (true) {
         {
             std::lock_guard<std::mutex> guard(_chunk_mutex);
             if (_next_chunk < _n_chunks)
                 chunk = _next_chunk++;
+            else
+                break;  // No more work to do.
+        }
+
+        get_chunk_limits(chunk, local);
+        init_cache_levels_and_starts(local);
+        local.clear();
+    }
+
+    {
+        // Implementation of multithreaded barrier.  Each thread increments the
+        // shared counter.  Last thread to finish notifies the other threads
+        // that they can all continue.
+        std::unique_lock<std::mutex> lock(_chunk_mutex);  
+        _finished_count++;  
+        if (_finished_count == _n_threads)
+            _condition_variable.notify_all();
+        else
+            _condition_variable.wait(lock);
+    }
+
+    // Stage 2: Trace contours.
+    while (true) {
+        {
+            std::lock_guard<std::mutex> guard(_chunk_mutex);
+            if (_next_chunk < 2*_n_chunks)
+                chunk = _next_chunk++ - _n_chunks;
             else
                 break;  // No more work to do.
         }

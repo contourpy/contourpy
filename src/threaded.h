@@ -6,6 +6,7 @@
 #include "interp.h"
 #include "line_type.h"
 #include "outer_or_hole.h"
+#include <condition_variable>
 #include <mutex>
 #include <vector>
 
@@ -69,6 +70,8 @@ private:
         index_t quad, forward, left;
         bool is_upper, on_boundary;
     };
+
+    ZLevel calc_z_level(const double& z_value);
 
     ZLevel calc_z_level_mid(index_t quad);
 
@@ -169,11 +172,14 @@ private:
     bool _identify_holes;
     unsigned int _return_list_count;
 
+    // Multithreading member variables.
     index_t _max_threads;      // Max number of threads available.
-    index_t _n_threads;        // Number of threads to use.
-    index_t _next_chunk;       // Next available chunk for thread to trace.
-    std::mutex _chunk_mutex;   // Locks access to _next_chunk.
+    index_t _n_threads;        // Number of threads used.
+    index_t _next_chunk;       // Next available chunk for thread to process.
+    index_t _finished_count;   // Count of threads that have finished the cache init.
+    std::mutex _chunk_mutex;   // Locks access to _next_chunk/_finished_count.
     std::mutex _python_mutex;  // Locks access to Python objects.
+    std::condition_variable _condition_variable;
 };
 
 #endif // CONTOURPY_THREADED_H
