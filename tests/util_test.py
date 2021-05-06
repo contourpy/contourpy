@@ -1,8 +1,11 @@
 from contourpy import FillType, LineType
 
 
-def all_names():
-    return ['mpl2014', 'mpl2005', 'serial', 'threaded']
+def all_names(exclude=None):
+    all_ = ['mpl2014', 'mpl2005', 'serial', 'threaded']
+    if exclude is not None:
+        all_.remove(exclude)
+    return all_
 
 
 def all_names_and_fill_types():
