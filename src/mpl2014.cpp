@@ -337,7 +337,8 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(const CoordinateArray& x,
                                                  const CoordinateArray& z,
                                                  const MaskArray& mask,
                                                  bool corner_mask,
-                                                 index_t chunk_size)
+                                                 index_t x_chunk_size,
+                                                 index_t y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
@@ -345,15 +346,15 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(const CoordinateArray& x,
       _ny(_z.ndim() > 0 ? _z.shape(0) : 0),
       _n(_nx*_ny),
       _corner_mask(corner_mask),
-      _chunk_size(chunk_size > 0 ? std::min(chunk_size, std::max(_nx, _ny)-1)
-                                 : std::max(_nx, _ny)-1),
-      _nxchunk(calc_chunk_count(_nx)),
-      _nychunk(calc_chunk_count(_ny)),
+      _x_chunk_size(x_chunk_size > 0 ? std::min(x_chunk_size, _nx-1) : _nx-1),
+      _y_chunk_size(y_chunk_size > 0 ? std::min(y_chunk_size, _ny-1) : _ny-1),
+      _nxchunk(calc_chunk_count(_nx, _x_chunk_size)),
+      _nychunk(calc_chunk_count(_ny, _y_chunk_size)),
       _chunk_count(_nxchunk*_nychunk),
       _cache(new CacheItem[_n]),
       _parent_cache(_nx,
-                    chunk_size > 0 ? chunk_size+1 : _nx,
-                    chunk_size > 0 ? chunk_size+1 : _ny)
+                    _x_chunk_size > 0 ? _x_chunk_size+1 : _nx,
+                    _y_chunk_size > 0 ? _y_chunk_size+1 : _ny)
 {
     if (_x.ndim() != 2 || _y.ndim() != 2 || _z.ndim() != 2)
         throw std::invalid_argument("x, y and z must all be 2D arrays");
@@ -373,7 +374,7 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(const CoordinateArray& x,
             throw std::invalid_argument("If mask is set it must be a 2D array with the same shape as z");
     }
 
-    if (chunk_size < 0)
+    if (x_chunk_size < 0 || y_chunk_size < 0)
         throw std::invalid_argument("chunk_size cannot be negative");
 
     init_cache_grid(mask);
@@ -515,14 +516,15 @@ void Mpl2014ContourGenerator::append_contour_to_vertices_and_codes(
     contour.delete_contour_lines();
 }
 
-index_t Mpl2014ContourGenerator::calc_chunk_count(index_t point_count) const
+index_t Mpl2014ContourGenerator::calc_chunk_count(
+    index_t point_count, index_t chunk_size) const
 {
     assert(point_count > 0 && "point count must be positive");
-    assert(_chunk_size > 0 && "Chunk size must be positive");
+    assert(chunk_size > 0 && "Chunk size must be positive");
 
-    if (_chunk_size > 0) {
-        index_t count = (point_count-1) / _chunk_size;
-        if (count*_chunk_size < point_count-1)
+    if (chunk_size > 0) {
+        index_t count = (point_count-1) / chunk_size;
+        if (count*chunk_size < point_count-1)
             ++count;
 
         assert(count >= 1 && "Invalid chunk count");
@@ -885,6 +887,11 @@ void Mpl2014ContourGenerator::follow_interior(
     }
 }
 
+py::tuple Mpl2014ContourGenerator::get_chunk_count() const
+{
+    return py::make_tuple(_nychunk, _nxchunk);
+}
+
 void Mpl2014ContourGenerator::get_chunk_limits(index_t ijchunk,
                                                index_t& ichunk,
                                                index_t& jchunk,
@@ -896,10 +903,15 @@ void Mpl2014ContourGenerator::get_chunk_limits(index_t ijchunk,
     assert(ijchunk >= 0 && ijchunk < _chunk_count && "ijchunk out of bounds");
     ichunk = ijchunk % _nxchunk;
     jchunk = ijchunk / _nxchunk;
-    istart = ichunk*_chunk_size;
-    iend = (ichunk == _nxchunk-1 ? _nx : (ichunk+1)*_chunk_size);
-    jstart = jchunk*_chunk_size;
-    jend = (jchunk == _nychunk-1 ? _ny : (jchunk+1)*_chunk_size);
+    istart = ichunk*_x_chunk_size;
+    iend = (ichunk == _nxchunk-1 ? _nx : (ichunk+1)*_x_chunk_size);
+    jstart = jchunk*_y_chunk_size;
+    jend = (jchunk == _nychunk-1 ? _ny : (jchunk+1)*_y_chunk_size);
+}
+
+py::tuple Mpl2014ContourGenerator::get_chunk_size() const
+{
+    return py::make_tuple(_y_chunk_size, _x_chunk_size);
 }
 
 Edge Mpl2014ContourGenerator::get_corner_start_edge(
@@ -1162,10 +1174,10 @@ void Mpl2014ContourGenerator::init_cache_grid(const MaskArray& mask)
                 if (i < _nx-1 && j < _ny-1)
                     _cache[quad] |= MASK_EXISTS_QUAD;
 
-                if ((i % _chunk_size == 0 || i == _nx-1) && j < _ny-1)
+                if ((i % _x_chunk_size == 0 || i == _nx-1) && j < _ny-1)
                     _cache[quad] |= MASK_BOUNDARY_W;
 
-                if ((j % _chunk_size == 0 || j == _ny-1) && i < _nx-1)
+                if ((j % _y_chunk_size == 0 || j == _ny-1) && i < _nx-1)
                     _cache[quad] |= MASK_BOUNDARY_S;
             }
         }
@@ -1220,13 +1232,13 @@ void Mpl2014ContourGenerator::init_cache_grid(const MaskArray& mask)
 
                     if ((EXISTS_W_EDGE(quad) && W_exists_none) ||
                         (EXISTS_NONE(quad) && W_exists_E_edge) ||
-                        (i % _chunk_size == 0 && EXISTS_W_EDGE(quad) &&
+                        (i % _x_chunk_size == 0 && EXISTS_W_EDGE(quad) &&
                                                  W_exists_E_edge))
                          _cache[quad] |= MASK_BOUNDARY_W;
 
                     if ((EXISTS_S_EDGE(quad) && S_exists_none) ||
                         (EXISTS_NONE(quad) && S_exists_N_edge) ||
-                        (j % _chunk_size == 0 && EXISTS_S_EDGE(quad) &&
+                        (j % _y_chunk_size == 0 && EXISTS_S_EDGE(quad) &&
                                                  S_exists_N_edge))
                          _cache[quad] |= MASK_BOUNDARY_S;
                 }
@@ -1235,12 +1247,12 @@ void Mpl2014ContourGenerator::init_cache_grid(const MaskArray& mask)
                     bool S_exists_quad = (j > 0 && EXISTS_QUAD(quad-_nx));
 
                     if ((EXISTS_QUAD(quad) != W_exists_quad) ||
-                        (i % _chunk_size == 0 && EXISTS_QUAD(quad) &&
+                        (i % _x_chunk_size == 0 && EXISTS_QUAD(quad) &&
                                                  W_exists_quad))
                         _cache[quad] |= MASK_BOUNDARY_W;
 
                     if ((EXISTS_QUAD(quad) != S_exists_quad) ||
-                        (j % _chunk_size == 0 && EXISTS_QUAD(quad) &&
+                        (j % _y_chunk_size == 0 && EXISTS_QUAD(quad) &&
                                                  S_exists_quad))
                         _cache[quad] |= MASK_BOUNDARY_S;
                 }

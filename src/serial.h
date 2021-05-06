@@ -25,8 +25,8 @@ public:
     static FillType default_fill_type();
     static LineType default_line_type();
 
-    py::tuple get_chunk_count() const;
-    py::tuple get_chunk_size() const;
+    py::tuple get_chunk_count() const;  // Return (y_chunk_count, x_chunk_count)
+    py::tuple get_chunk_size() const;   // Return (y_chunk_size, x_chunk_size)
 
     bool get_corner_mask() const;
 

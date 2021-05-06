@@ -270,14 +270,17 @@ public:
     //   x, y, z: double arrays of shape (ny,nx).
     //   mask: boolean array, ether empty (if no mask), or of shape (ny,nx).
     //   corner_mask: flag for different masking behaviour.
-    //   chunk_size: 0 for no chunking, or +ve integer for size of chunks that
-    //     the domain is subdivided into.
+    //   x_chunk_size: 0 for no chunking, or +ve integer for size of chunks that
+    //     the x-direction is subdivided into.
+    //   y_chunk_size: 0 for no chunking, or +ve integer for size of chunks that
+    //     the y-direction is subdivided into.
     Mpl2014ContourGenerator(const CoordinateArray& x,
                             const CoordinateArray& y,
                             const CoordinateArray& z,
                             const MaskArray& mask,
                             bool corner_mask,
-                            index_t chunk_size);
+                            index_t x_chunk_size,
+                            index_t y_chunk_size);
 
     // Destructor.
     ~Mpl2014ContourGenerator();
@@ -285,6 +288,9 @@ public:
     // Create and return polygons for a filled contour between the two
     // specified levels.
     py::tuple filled(const double& lower_level, const double& upper_level);
+
+    py::tuple get_chunk_count() const;  // Return (y_chunk_count, x_chunk_count)
+    py::tuple get_chunk_size() const;   // Return (y_chunk_size, x_chunk_size)
 
     // Create and return polygons for a line (i.e. non-filled) contour at the
     // specified level.
@@ -334,7 +340,7 @@ private:
                                               py::list& codes_list) const;
 
     // Return number of chunks that fit in the specified point_count.
-    index_t calc_chunk_count(index_t point_count) const;
+    index_t calc_chunk_count(index_t point_count, index_t chunk_size) const;
 
     // Append the point on the specified QuadEdge that intersects the specified
     // level to the specified ContourLine.
@@ -519,9 +525,8 @@ private:
     index_t _n;                 // Total number of points (and hence quads).
 
     bool _corner_mask;
-    index_t _chunk_size;        // Number of quads per chunk (not points).
-                               // Always > 0, unlike python nchunk which is 0
-                               //     for no chunking.
+    index_t _x_chunk_size;      // Number of quads per chunk (not points).
+    index_t _y_chunk_size;      //   Always > 0.
 
     index_t _nxchunk, _nychunk; // Number of chunks in each direction.
     index_t _chunk_count;       // Total number of chunks.
