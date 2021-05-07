@@ -99,13 +99,11 @@ SerialContourGenerator::SerialContourGenerator(
       _nx(_z.ndim() > 1 ? _z.shape(1) : 0),
       _ny(_z.ndim() > 0 ? _z.shape(0) : 0),
       _n(_nx*_ny),
-      _nx_chunks(x_chunk_size == 0 ? 1 :
-                 static_cast<index_t>(std::ceil((_nx-1.0) / x_chunk_size))),
-      _ny_chunks(y_chunk_size == 0 ? 1 :
-                 static_cast<index_t>(std::ceil((_ny-1.0) / y_chunk_size))),
+      _x_chunk_size(x_chunk_size > 0 ? std::min(x_chunk_size, _nx-1) : _nx-1),
+      _y_chunk_size(y_chunk_size > 0 ? std::min(y_chunk_size, _ny-1) : _ny-1),
+      _nx_chunks(static_cast<index_t>(std::ceil((_nx-1.0) / _x_chunk_size))),
+      _ny_chunks(static_cast<index_t>(std::ceil((_ny-1.0) / _y_chunk_size))),
       _n_chunks(_nx_chunks*_ny_chunks),
-      _x_chunk_size(static_cast<index_t>(std::ceil((_nx-1.0) / _nx_chunks))),
-      _y_chunk_size(static_cast<index_t>(std::ceil((_ny-1.0) / _ny_chunks))),
       _corner_mask(corner_mask),
       _line_type(line_type),
       _fill_type(fill_type),

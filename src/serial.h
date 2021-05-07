@@ -25,8 +25,8 @@ public:
     static FillType default_fill_type();
     static LineType default_line_type();
 
-    py::tuple get_chunk_count() const;
-    py::tuple get_chunk_size() const;
+    py::tuple get_chunk_count() const;  // Return (y_chunk_count, x_chunk_count)
+    py::tuple get_chunk_size() const;   // Return (y_chunk_size, x_chunk_size)
 
     bool get_corner_mask() const;
 
@@ -145,9 +145,9 @@ private:
     const CoordinateArray _x, _y, _z;
     const index_t _nx, _ny;                // Number of points in each direction.
     const index_t _n;                      // Total number of points (and quads).
+    const index_t _x_chunk_size, _y_chunk_size;
     const index_t _nx_chunks, _ny_chunks;  // Number of chunks in each direction.
     const index_t _n_chunks;               // Total number of chunks.
-    const index_t _x_chunk_size, _y_chunk_size;
     const bool _corner_mask;
     const LineType _line_type;
     const FillType _fill_type;

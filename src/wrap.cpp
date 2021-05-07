@@ -15,6 +15,7 @@ PYBIND11_MODULE(_contourpy, m) {
                       const CoordinateArray&,
                       const MaskArray&,
                       bool,
+                      index_t,
                       index_t>(),
              py::arg("x"),
              py::arg("y"),
@@ -22,9 +23,14 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("mask"),
              py::kw_only(),
              py::arg("corner_mask") = true,
-             py::arg("chunk_size") = 0)
+             py::arg("x_chunk_size") = 0,
+             py::arg("y_chunk_size") = 0)
         .def("filled", &mpl2014::Mpl2014ContourGenerator::filled)
         .def("lines", &mpl2014::Mpl2014ContourGenerator::lines)
+        .def_property_readonly(
+            "chunk_count", &mpl2014::Mpl2014ContourGenerator::get_chunk_count)
+        .def_property_readonly(
+            "chunk_size", &mpl2014::Mpl2014ContourGenerator::get_chunk_size)
         .def_property_readonly_static(
             "fill_type",
             [](py::object /* self */) {return FillType::OuterCodes;})
