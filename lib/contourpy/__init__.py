@@ -2,12 +2,14 @@ from ._contourpy import (
     FillType, Interp, LineType, Mpl2014ContourGenerator,
     SerialContourGenerator, ThreadedContourGenerator)
 from ._mpl2005 import Cntr as Mpl2005ContourGenerator
+from .util.chunk import two_factors
+import math
 import numpy as np
 
 
-def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
+def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None,
                       fill_type=None, line_type=None, interp=Interp.Linear,
-                      thread_count=0):
+                      thread_count=0, chunk_count=None, total_chunk_count=None):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.
@@ -18,17 +20,18 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
     if z.shape[0] < 2 or z.shape[1] < 2:
         raise TypeError('Input z must be at least a (2, 2) shaped array, '
                         f'but has shape {z.shape}')
+    
+    ny, nx = z.shape
 
     # Check arguments: x and y.
     if x.ndim != y.ndim:
         raise TypeError(f'Number of dimensions of x ({x.ndim}) and y '
                         f'({y.ndim}) do not match')
     if x.ndim == 0:
-        x = np.arange(z.shape[1])
-        y = np.arange(z.shape[0])
+        x = np.arange(nx)
+        y = np.arange(ny)
         x, y = np.meshgrid(x, y)
     elif x.ndim == 1:
-        ny, nx = z.shape
         if len(x) != nx:
             raise TypeError(f'Length of x ({len(x)}) must match number of '
                             f'columns in z ({nx})')
@@ -59,8 +62,38 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=0,
     if name is None:
         name = 'mpl2014'
 
-    # Chunk size and/or count.
-    if isinstance(chunk_size, tuple) and len(chunk_size) == 2:
+    # Chunk size, count and total count.
+    if sum([chunk_size is not None, chunk_count is not None,
+        total_chunk_count is not None]) > 1:
+        raise ValueError('Only one of chunk_size, chunk_count and total_chunk_count should be set')
+
+    if total_chunk_count is not None:
+        max_chunk_count = (nx-1)*(ny-1)
+        total_chunk_count = min(max(total_chunk_count, 1), max_chunk_count)
+        if total_chunk_count == 1:
+            chunk_size = 0
+        elif total_chunk_count == max_chunk_count:
+            chunk_size = (1, 1)
+        else:
+            factors = two_factors(total_chunk_count)
+            if ny > nx:
+                chunk_count = factors
+            else:
+                chunk_count = (factors[1], factors[0])
+
+    if chunk_count is not None:
+        if isinstance(chunk_count, tuple):
+            y_chunk_count, x_chunk_count = chunk_count
+        else:
+            y_chunk_count = x_chunk_count = chunk_count
+        x_chunk_count = min(max(x_chunk_count, 1), nx-1)
+        y_chunk_count = min(max(y_chunk_count, 1), ny-1)
+        chunk_size = (math.ceil((ny-1) / y_chunk_count),
+                      math.ceil((nx-1) / x_chunk_count))
+
+    if chunk_size is None:
+        y_chunk_size = x_chunk_size = 0
+    elif isinstance(chunk_size, tuple):
         y_chunk_size, x_chunk_size = chunk_size
     else:
         y_chunk_size = x_chunk_size = chunk_size

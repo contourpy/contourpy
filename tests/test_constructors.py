@@ -23,7 +23,7 @@ def xyz_2x3_as_lists():  # shape (2, 3)
 
 @pytest.fixture
 def xyz_7x5_as_arrays():  # shape (7, 5)
-    x, y = np.meshgrid([0, 1, 2, 3, 4, 5, 6], [0, 1, 2, 3, 4])
+    x, y = np.meshgrid([0, 1, 2, 3, 4], [0, 1, 2, 3, 4, 5, 6])
     z = x + y
     return x, y, z
 
@@ -76,7 +76,7 @@ def test_xy_1d(name):
 @pytest.mark.parametrize('name', util_test.all_names())
 @pytest.mark.parametrize('diff_shape', ( [[1, 2, 3, 4], [5, 6, 7, 8]],
                                          [[1, 2], [3, 4], [5, 6]] ))
-def test_wrapper_diff_shapes(xyz_3x3_as_lists, name, diff_shape):
+def test_xyz_diff_shapes(xyz_3x3_as_lists, name, diff_shape):
     x, y, z = xyz_3x3_as_lists
     with pytest.raises(TypeError):
         cont_gen = contourpy.contour_generator(diff_shape, y, z, name=name)
@@ -89,11 +89,12 @@ def test_wrapper_diff_shapes(xyz_3x3_as_lists, name, diff_shape):
 @pytest.mark.parametrize('name', util_test.all_names())
 def test_chunk_size_negative(xyz_3x3_as_lists, name):
     x, y, z = xyz_3x3_as_lists
-    with pytest.raises(ValueError, match='chunk_size cannot be negative'):
+    msg = 'chunk_size cannot be negative'
+    with pytest.raises(ValueError, match=msg):
         cont_gen = contourpy.contour_generator(x, y, z, name=name, chunk_size=-1)
-    with pytest.raises(ValueError, match='chunk_size cannot be negative'):
+    with pytest.raises(ValueError, match=msg):
         cont_gen = contourpy.contour_generator(x, y, z, name=name, chunk_size=(-1, 0))
-    with pytest.raises(ValueError, match='chunk_size cannot be negative'):
+    with pytest.raises(ValueError, match=msg):
         cont_gen = contourpy.contour_generator(x, y, z, name=name, chunk_size=(0, -1))
 
 
@@ -135,6 +136,75 @@ def test_chunk_size_2d(xyz_7x5_as_arrays, name, x_chunk_size, y_chunk_size):
         assert ret_y_chunk_size == ny-1
     else:
         assert ret_y_chunk_size == min(y_chunk_size, ny-1)
+    assert ret_y_chunk_count*ret_y_chunk_size >= ny-1
+    assert (ret_y_chunk_count-1)*ret_y_chunk_size < ny-1
+    assert ret_x_chunk_count*ret_x_chunk_size >= nx-1
+    assert (ret_x_chunk_count-1)*ret_x_chunk_size < nx-1
+
+
+def test_chunk_size_and_count(xyz_7x5_as_arrays):
+    x, y, z = xyz_7x5_as_arrays
+    name = 'serial'
+    msg = 'Only one of chunk_size, chunk_count and total_chunk_count should be set'
+    with pytest.raises(ValueError, match=msg):
+        cont_gen = contourpy.contour_generator(
+            x, y, z, name=name, chunk_size=1, chunk_count=1)
+    with pytest.raises(ValueError, match=msg):
+        cont_gen = contourpy.contour_generator(
+            x, y, z, name=name, chunk_size=1, total_chunk_count=1)
+    with pytest.raises(ValueError, match=msg):
+        cont_gen = contourpy.contour_generator(
+            x, y, z, name=name, chunk_count=1, total_chunk_count=1)
+
+
+@pytest.mark.parametrize('name', util_test.all_names(exclude='mpl2005'))
+@pytest.mark.parametrize('chunk_count, ret_chunk_count',
+    [[0, (1, 1)], [1, (1, 1)], [2, (2, 2)], [3, (3, 2)], [4, (3, 4)], [9, (6, 4)]])
+def test_chunk_count_1d(xyz_7x5_as_arrays, name, chunk_count, ret_chunk_count):
+    x, y, z = xyz_7x5_as_arrays
+    ny, nx = z.shape
+    cont_gen = contourpy.contour_generator(
+        x, y, z, name=name, chunk_count=chunk_count)
+    ret_y_chunk_size, ret_x_chunk_size = cont_gen.chunk_size
+    assert cont_gen.chunk_count == ret_chunk_count
+    ret_y_chunk_count, ret_x_chunk_count = ret_chunk_count
+    assert ret_y_chunk_count*ret_y_chunk_size >= ny-1
+    assert (ret_y_chunk_count-1)*ret_y_chunk_size < ny-1
+    assert ret_x_chunk_count*ret_x_chunk_size >= nx-1
+    assert (ret_x_chunk_count-1)*ret_x_chunk_size < nx-1
+
+
+@pytest.mark.parametrize('name', util_test.all_names(exclude='mpl2005'))
+@pytest.mark.parametrize('chunk_count, ret_chunk_count',
+    [[(0, 1), (1, 1)], [(1, 0), (1, 1)], [(2, 3), (2, 2)], [(3, 2), (3, 2)],
+     [(1, 9), (1, 4)], [(9, 1), (6, 1)]])
+def test_chunk_count_1d(xyz_7x5_as_arrays, name, chunk_count, ret_chunk_count):
+    x, y, z = xyz_7x5_as_arrays
+    ny, nx = z.shape
+    cont_gen = contourpy.contour_generator(
+        x, y, z, name=name, chunk_count=chunk_count)
+    ret_y_chunk_size, ret_x_chunk_size = cont_gen.chunk_size
+    assert cont_gen.chunk_count == ret_chunk_count
+    ret_y_chunk_count, ret_x_chunk_count = ret_chunk_count
+    assert ret_y_chunk_count*ret_y_chunk_size >= ny-1
+    assert (ret_y_chunk_count-1)*ret_y_chunk_size < ny-1
+    assert ret_x_chunk_count*ret_x_chunk_size >= nx-1
+    assert (ret_x_chunk_count-1)*ret_x_chunk_size < nx-1
+
+
+@pytest.mark.parametrize('name', util_test.all_names(exclude='mpl2005'))
+@pytest.mark.parametrize('total_chunk_count, ret_chunk_count',
+    [[0, (1, 1)], [1, (1, 1)], [2, (2, 1)], [3, (3, 1)], [4, (2, 2)],
+     [6, (3, 2)], [9, (3, 2)], [25, (6, 4)]   ])
+def test_total_chunk_count(
+    xyz_7x5_as_arrays, name, total_chunk_count, ret_chunk_count):
+    x, y, z = xyz_7x5_as_arrays
+    ny, nx = z.shape
+    cont_gen = contourpy.contour_generator(
+        x, y, z, name=name, total_chunk_count=total_chunk_count)
+    ret_y_chunk_size, ret_x_chunk_size = cont_gen.chunk_size
+    assert cont_gen.chunk_count == ret_chunk_count
+    ret_y_chunk_count, ret_x_chunk_count = ret_chunk_count
     assert ret_y_chunk_count*ret_y_chunk_size >= ny-1
     assert (ret_y_chunk_count-1)*ret_y_chunk_size < ny-1
     assert ret_x_chunk_count*ret_x_chunk_size >= nx-1

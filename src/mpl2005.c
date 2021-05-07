@@ -207,7 +207,7 @@ struct Csite
     double *xcp, *ycp;          /* output contour points */
     short *kcp;                 /* kind of contour point */
 
-    long x_chunk_size, y_chunk_size;
+    long i_chunk_size, j_chunk_size;
 };
 
 void print_Csite(Csite *Csite)
@@ -1020,40 +1020,24 @@ data_init (Csite * site)
     int started = 0;
     int ibndy, jbndy, i_was_chunk;
 
-    long icsize = imax - 1;
-    long jcsize = jmax - 1;
-    long ichunk, jchunk, irem, jrem, i, j, ij;
-    long x_chunk_size = site->x_chunk_size;
-    long y_chunk_size = site->y_chunk_size;
+    long ichunk, jchunk, i, j, ij;
+    long i_chunk_size = site->i_chunk_size;
+    long j_chunk_size = site->j_chunk_size;
 
-    if ((x_chunk_size || y_chunk_size) && two_levels)
+    if ((i_chunk_size || j_chunk_size) && two_levels)
     {
         /* figure out chunk sizes
-         * -- input nchunk is square root of maximum allowed zones per chunk
          * -- start points for single level case are wrong, so don't try it */
-        long inum = (x_chunk_size * x_chunk_size) / (jmax - 1);
-        long jnum = (y_chunk_size * y_chunk_size) / (imax - 1);
-        if (inum < x_chunk_size)
-            inum = x_chunk_size;
-        if (jnum < y_chunk_size)
-            jnum = y_chunk_size;
-        /* ijnum= actual number of chunks,
-         * ijrem= number of those chunks needing one more zone (ijcsize+1) */
-        inum = (imax - 2) / inum + 1;
-        icsize = (imax - 1) / inum;
-        irem = (imax - 1) % inum;
-        jnum = (jmax - 2) / jnum + 1;
-        jcsize = (jmax - 1) / jnum;
-        jrem = (jmax - 1) % jnum;
-        /* convert ijrem into value of i or j at which to begin adding an
-         * extra zone */
-        irem = (inum - irem) * icsize;
-        jrem = (jnum - jrem) * jcsize;
+        if (i_chunk_size < 0 || i_chunk_size > imax - 1)
+            i_chunk_size = imax - 1;
+        
+        if (j_chunk_size < 0 || j_chunk_size > jmax - 1)
+            j_chunk_size = jmax - 1;
     }
     else
     {
-        irem = imax;
-        jrem = jmax;
+        i_chunk_size = imax - 1;
+        j_chunk_size = jmax - 1;
     }
 
     /* do everything in a single pass through the data array to
@@ -1196,11 +1180,11 @@ data_init (Csite * site)
 
             i_was_chunk = (i == ichunk);
             if (i_was_chunk)
-                ichunk += icsize + (ichunk >= irem);
+                ichunk += i_chunk_size;
         }
 
         if (j == jchunk)
-            jchunk += jcsize + (jchunk >= jrem);
+            jchunk += j_chunk_size;
 
         /* place first START_ROW marker */
         if (count && !started)
@@ -1298,7 +1282,7 @@ cntr_new(void)
 
 static int
 cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
-                double *z, char *mask, long x_chunk_size, long y_chunk_size)
+                double *z, char *mask, long i_chunk_size, long j_chunk_size)
 {
     long ijmax = iMax * jMax;
     long nreg = iMax * jMax + iMax + 1;
@@ -1339,8 +1323,8 @@ cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
     site->ycp = NULL;
     site->kcp = NULL;
 
-    site->x_chunk_size = x_chunk_size;
-    site->y_chunk_size = y_chunk_size;
+    site->i_chunk_size = i_chunk_size;
+    site->j_chunk_size = j_chunk_size;
 
     return 0;
 }
@@ -1843,13 +1827,13 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
     PyArrayObject *xpa, *ypa, *zpa, *mpa;
     long iMax, jMax;
     char *mask;
-    long x_chunk_size = 0L, y_chunk_size = 0L;
+    long i_chunk_size = 0L, j_chunk_size = 0L;
 
     marg = NULL;
 
     if (! PyArg_ParseTupleAndKeywords(
         args, kwds, "OOO|Oll", (char **)kwlist, &xarg, &yarg, &zarg, &marg,
-        &x_chunk_size, &y_chunk_size))
+        &i_chunk_size, &j_chunk_size))
         return -1;
     if (marg == Py_None)
         marg = NULL;
@@ -1903,7 +1887,7 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
     if ( cntr_init(
             self->site, iMax, jMax, (double *)PyArray_DATA(xpa),
             (double *)PyArray_DATA(ypa), (double *)PyArray_DATA(zpa), mask,
-            x_chunk_size, y_chunk_size))
+            i_chunk_size, j_chunk_size))
     {
         PyErr_SetString(PyExc_MemoryError,
             "Memory allocation failure in cntr_init");
