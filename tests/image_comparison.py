@@ -5,9 +5,11 @@ from shutil import copyfile
 
 
 def compare_images(test_buffer, baseline_filename, test_filename_suffix=None,
-                   max_threshold=100, mean_threshold=0.02):
+                   max_threshold=None, mean_threshold=None):
     if max_threshold is None:
         max_threshold = 100
+    if mean_threshold is None:
+        mean_threshold = 0.02
 
     if test_filename_suffix:
         basename, extension = os.path.splitext(baseline_filename)

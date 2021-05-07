@@ -114,8 +114,8 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
 @pytest.mark.parametrize(
     'name, line_type', util_test.all_names_and_line_types())
 def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
-    if name in ('mpl2005', 'mpl2014'):
-        pytest.skip()
+    if name in ('mpl2005'):
+        pytest.skip()  # mpl2005 does not support chunks for lines.
 
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(
@@ -136,11 +136,10 @@ def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
 def test_lines_random_uniform_corner_mask(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
-    cont_gen = contour_generator(x, y, z, name=name, corner_mask=True)
+    line_type = LineType.SeparateCodes
+    cont_gen = contour_generator(
+        x, y, z, name=name, corner_mask=True, line_type=line_type)
     levels = np.arange(0.0, 1.01, 0.2)
-
-    line_type = \
-        cont_gen.line_type if name != 'mpl2005' else LineType.Separate
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)):
@@ -148,6 +147,23 @@ def test_lines_random_uniform_corner_mask(name):
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'lines_random_uniform_corner_mask.png',
+                   f'{name}_{line_type}')
+
+
+@pytest.mark.parametrize('name', util_test.corner_mask_names())
+def test_lines_random_uniform_corner_mask_chunk(name):
+    x, y, z = random_uniform((30, 40), mask_fraction=0.05)
+    line_type = LineType.SeparateCodes
+    cont_gen = contour_generator(
+        x, y, z, name=name, corner_mask=True, line_type=line_type)
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    renderer = MplTestRenderer(x, y)
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, 'lines_random_uniform_corner_mask_chunk.png',
                    f'{name}_{line_type}')
 
 

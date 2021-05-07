@@ -195,7 +195,7 @@ def test_chunk_count_1d(xyz_7x5_as_arrays, name, chunk_count, ret_chunk_count):
 @pytest.mark.parametrize('name', util_test.all_names(exclude='mpl2005'))
 @pytest.mark.parametrize('total_chunk_count, ret_chunk_count',
     [[0, (1, 1)], [1, (1, 1)], [2, (2, 1)], [3, (3, 1)], [4, (2, 2)],
-     [6, (3, 2)], [9, (3, 2)], [25, (6, 4)]   ])
+     [6, (3, 2)], [9, (3, 2)], [25, (6, 4)]])
 def test_total_chunk_count(
     xyz_7x5_as_arrays, name, total_chunk_count, ret_chunk_count):
     x, y, z = xyz_7x5_as_arrays
