@@ -1,5 +1,5 @@
 from ._contourpy import (
-    FillType, Interp, LineType, Mpl2014ContourGenerator,
+    max_threads, FillType, Interp, LineType, Mpl2014ContourGenerator,
     SerialContourGenerator, ThreadedContourGenerator)
 from ._mpl2005 import Cntr as Mpl2005ContourGenerator
 from .util.chunk import two_factors

@@ -35,7 +35,6 @@ public:
     FillType get_fill_type() const;
     LineType get_line_type() const;
 
-    index_t get_max_threads() const;
     index_t get_thread_count() const;
 
     py::sequence filled(const double& lower_level, const double& upper_level);
@@ -173,7 +172,6 @@ private:
     unsigned int _return_list_count;
 
     // Multithreading member variables.
-    index_t _max_threads;      // Max number of threads available.
     index_t _n_threads;        // Number of threads used.
     index_t _next_chunk;       // Next available chunk for thread to process.
     index_t _finished_count;   // Count of threads that have finished the cache init.

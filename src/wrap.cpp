@@ -5,6 +5,7 @@
 #include "mpl2014.h"
 #include "serial.h"
 #include "threaded.h"
+#include "util.h"
 
 PYBIND11_MODULE(_contourpy, m) {
     m.doc() = "doc notes";
@@ -124,8 +125,6 @@ PYBIND11_MODULE(_contourpy, m) {
         .def_property_readonly(
             "line_type", &ThreadedContourGenerator::get_line_type)
         .def_property_readonly(
-            "max_threads", &ThreadedContourGenerator::get_max_threads)
-        .def_property_readonly(
             "thread_count", &ThreadedContourGenerator::get_thread_count)
         .def_property_readonly_static(
             "default_fill_type",
@@ -164,4 +163,6 @@ PYBIND11_MODULE(_contourpy, m) {
         .value("ChunkCombinedCodes", LineType::ChunkCombinedCodes)
         .value("ChunkCombinedOffsets", LineType::ChunkCombinedOffsets)
         .export_values();
+
+    m.def("max_threads", &Util::get_max_threads, "docs");
 }
