@@ -220,11 +220,11 @@ def test_thread_count(xyz_7x5_as_arrays, chunk_size, thread_count):
         x, y, z, name=name, chunk_size=chunk_size, thread_count=thread_count)
     ret_thread_count = cont_gen.thread_count
     ret_chunk_count = np.prod(cont_gen.chunk_count)
-    ret_max_threads = cont_gen.max_threads  
+    max_threads = contourpy.max_threads()  
     if chunk_size == 0:
         assert ret_chunk_count == 1
         assert ret_thread_count == 1
     elif thread_count == 0:
-        assert ret_thread_count == min(ret_max_threads, ret_chunk_count)
+        assert ret_thread_count == min(max_threads, ret_chunk_count)
     else:
-        assert ret_thread_count == min(ret_max_threads, ret_chunk_count, ret_thread_count)
+        assert ret_thread_count == min(max_threads, ret_chunk_count, ret_thread_count)

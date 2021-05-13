@@ -1,6 +1,7 @@
 #include "chunk_local.h"
 #include "converter.h"
 #include "threaded.h"
+#include "util.h"
 #include <iostream>
 #include <thread>
 
@@ -115,9 +116,8 @@ ThreadedContourGenerator::ThreadedContourGenerator(
       _upper_level(0.0),
       _identify_holes(false),
       _return_list_count(0),
-      _max_threads(static_cast<index_t>(std::thread::hardware_concurrency())),
-      _n_threads(n_threads == 0 ? std::min(_max_threads, _n_chunks)
-                                : std::min({_max_threads, _n_chunks, n_threads})),
+      _n_threads(n_threads == 0 ? std::min(Util::get_max_threads(), _n_chunks)
+                                : std::min({Util::get_max_threads(), _n_chunks, n_threads})),
       _next_chunk(0)
 {
     if (_x.ndim() != 2 || _y.ndim() != 2 || _z.ndim() != 2)
@@ -977,11 +977,6 @@ FillType ThreadedContourGenerator::get_fill_type() const
 LineType ThreadedContourGenerator::get_line_type() const
 {
     return _line_type;
-}
-
-index_t ThreadedContourGenerator::get_max_threads() const
-{
-    return _max_threads;
 }
 
 index_t ThreadedContourGenerator::get_thread_count() const
