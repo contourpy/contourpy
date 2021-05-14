@@ -116,8 +116,7 @@ ThreadedContourGenerator::ThreadedContourGenerator(
       _upper_level(0.0),
       _identify_holes(false),
       _return_list_count(0),
-      _n_threads(n_threads == 0 ? std::min(Util::get_max_threads(), _n_chunks)
-                                : std::min({Util::get_max_threads(), _n_chunks, n_threads})),
+      _n_threads(limit_n_threads(n_threads, _n_chunks)),
       _next_chunk(0)
 {
     if (_x.ndim() != 2 || _y.ndim() != 2 || _z.ndim() != 2)
@@ -1360,6 +1359,16 @@ bool ThreadedContourGenerator::is_quad_in_chunk(
 {
     return is_quad_in_bounds(
         quad, local.istart, local.iend, local.jstart, local.jend);
+}
+
+index_t ThreadedContourGenerator::limit_n_threads(
+    index_t n_threads, index_t n_chunks)
+{
+    index_t max_threads = std::max<index_t>(Util::get_max_threads(), 1);
+    if (n_threads == 0)
+        return std::min(max_threads, n_chunks);
+    else
+        return std::min({max_threads, n_chunks, n_threads});
 }
 
 void ThreadedContourGenerator::line(

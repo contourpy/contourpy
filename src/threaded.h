@@ -129,6 +129,8 @@ private:
 
     bool is_quad_in_chunk(index_t quad, const ChunkLocal& local) const;
 
+    static index_t limit_n_threads(index_t n_threads, index_t n_chunks);
+
     void line(const Location& start_location, ChunkLocal& local);
 
     py::sequence march();

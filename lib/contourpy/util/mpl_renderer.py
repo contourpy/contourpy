@@ -17,12 +17,13 @@ import numpy as np
 
 
 class MplRenderer:
-    def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
+    def __init__(self, x, y, nrows=1, ncols=1, figsize=(9, 9)):
         plt.switch_backend(_default_backend)
         self._fig, axes = plt.subplots(
             nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False,
             sharex=True, sharey=True, subplot_kw={'aspect': 'equal'})
         self._axes = axes.flatten()
+        self._set_limits(x, y)
 
     def __del__(self):
         if self._fig:
@@ -32,6 +33,17 @@ class MplRenderer:
         if isinstance(ax, int):
             ax = self._axes[ax]
         return ax
+
+    def _set_limits(self, x, y, hide_ticks=False):
+        xlim = (x.min(), x.max())
+        ylim = (y.min(), y.max())
+
+        for ax in self._axes:
+            ax.set_xlim(xlim)
+            ax.set_ylim(ylim)
+            if hide_ticks:
+                ax.set_xticks([])
+                ax.set_yticks([])
 
     def filled(self, filled, fill_type, ax=0, color='C0', alpha=0.7):
         ax = self._get_ax(ax)
@@ -128,15 +140,7 @@ class MplTestRenderer(MplRenderer):
             nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False,
             gridspec_kw=gridspec)
         self._axes = axes.flatten()
-
-        xlim = (x.min(), x.max())
-        ylim = (y.min(), y.max())
-
-        for ax in self._axes:
-            ax.set_xlim(xlim)
-            ax.set_ylim(ylim)
-            ax.set_xticks([])
-            ax.set_yticks([])
+        self._set_limits(x, y, True)
 
 
 class MplDebugRenderer(MplRenderer):

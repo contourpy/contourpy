@@ -70,8 +70,9 @@
     // pip (with all the conda available packages installed first,
     // followed by the pip installed packages).
     "matrix": {
-         "numpy": [],
-         "pybind11": [],
+        "matplotlib": [],
+        "numpy": [],
+        "pybind11": [],
     },
 
     // Combinations of libraries/python versions can be excluded/included
