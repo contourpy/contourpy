@@ -22,3 +22,9 @@ To run tests
 
     pip install -r requirements/test.txt
     pytest
+
+To build docs
+
+    pip install -r requirements/docs.txt
+    cd docs
+    make html

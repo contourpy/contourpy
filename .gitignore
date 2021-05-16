@@ -7,3 +7,4 @@ result_images/
 *.so
 .vscode/
 .asv/
+_build/
