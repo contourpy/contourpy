@@ -37,3 +37,22 @@ jobs:
       - name: Run tests
         run: |
           python -m pytest -v
+
+      - name: Collect test image failures
+        if: always()
+        shell: bash
+        run: |
+          if [[ -e result_images ]];
+          then
+            DIR="test-artifacts/${{ matrix.os }}_${{ matrix.python-version }}"
+            mkdir -p ${DIR}
+            mv result_images/* ${DIR}/
+          fi
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-artifacts
+          path: test-artifacts/
+          
