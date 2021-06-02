@@ -34,8 +34,7 @@ def test_filled_random_uniform_no_corner_mask(name, fill_type):
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, 'filled_random_uniform_no_corner_mask.png',
-                   f'{name}_{fill_type}',
-                   max_threshold=150 if name != 'mpl2014' else 10)
+                   f'{name}_{fill_type}')
 
 
 @pytest.mark.parametrize(
@@ -55,12 +54,17 @@ def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
 
     max_threshold = None
     mean_threshold = None
-    if name == 'mpl2014':
-        max_threshold = 110
-        mean_threshold = 0.22
-    elif name == 'mpl2005' or fill_type in (
-        FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets):
-        mean_threshold = 0.06
+    if name == 'mpl2005':
+        max_threshold = 128
+        mean_threshold = 0.19
+    elif name in ('serial', 'threaded'):
+        if fill_type in (
+            FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets):
+            max_threshold = 99
+            mean_threshold = 0.18
+        else:
+            max_threshold = 134
+            mean_threshold = 0.23
 
     compare_images(image_buffer,
                    'filled_random_uniform_no_corner_mask_chunk.png',
@@ -103,8 +107,8 @@ def test_filled_random_uniform_corner_mask_chunk(name):
     max_threshold = None
     mean_threshold = None
     if name in ('serial', 'threaded'):
-        max_threshold = 107
-        mean_threshold = 0.16
+        max_threshold = 134
+        mean_threshold = 0.17
 
     compare_images(image_buffer, 'filled_random_uniform_corner_mask_chunk.png',
                    f'{name}_{fill_type}', max_threshold=max_threshold,
