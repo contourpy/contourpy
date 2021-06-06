@@ -1,5 +1,5 @@
 from contourpy import FillType, LineType
-from .mpl_util import mpl_codes_to_offsets, offsets_to_mpl_codes
+from .mpl_util import mpl_codes_to_offsets
 
 from bokeh.io import export_png, export_svg
 from bokeh.layouts import gridplot

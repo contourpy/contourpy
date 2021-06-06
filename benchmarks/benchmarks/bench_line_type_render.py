@@ -1,5 +1,6 @@
 from contourpy import contour_generator
-from contourpy.util import random_uniform, MplTestRenderer
+from contourpy.util.data import random_uniform
+from contourpy.util.mpl_renderer import MplTestRenderer
 import numpy as np
 from .util_bench import corner_masks, line_types, problem_sizes
 

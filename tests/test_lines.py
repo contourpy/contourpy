@@ -1,5 +1,6 @@
 from contourpy import contour_generator, LineType
-from contourpy.util import random_uniform, MplTestRenderer
+from contourpy.util.data import random_uniform
+from contourpy.util.mpl_renderer import MplTestRenderer
 from image_comparison import compare_images
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
