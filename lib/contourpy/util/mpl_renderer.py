@@ -144,8 +144,8 @@ class MplTestRenderer(MplRenderer):
 
 
 class MplDebugRenderer(MplRenderer):
-    def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
-        super().__init__(nrows, ncols, figsize)
+    def __init__(self, x, y, nrows=1, ncols=1, figsize=(9, 9)):
+        super().__init__(x, y, nrows, ncols, figsize)
 
     def _arrow(self, ax, line_start, line_end, color, alpha, arrow_size):
         mid = 0.5*(line_start + line_end)

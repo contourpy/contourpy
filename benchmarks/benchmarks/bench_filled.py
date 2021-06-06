@@ -1,5 +1,5 @@
 from contourpy import contour_generator, FillType
-from contourpy.util import random_uniform
+from contourpy.util.data import random_uniform
 import numpy as np
 from .util_bench import corner_masks, problem_sizes
 
