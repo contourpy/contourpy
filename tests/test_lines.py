@@ -100,8 +100,7 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
         x, y, z, name=name, line_type=line_type, corner_mask=False)
     levels = np.arange(0.0, 1.01, 0.2)
 
-    if name != 'mpl2005':
-        assert cont_gen.line_type == line_type
+    assert cont_gen.line_type == line_type
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)):

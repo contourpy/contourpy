@@ -143,6 +143,8 @@
 #define CONTOURPY_MPL_2014_H
 
 #include "common.h"
+#include "fill_type.h"
+#include "line_type.h"
 #include <list>
 #include <iostream>
 #include <vector>
@@ -285,6 +287,9 @@ public:
     // Destructor.
     ~Mpl2014ContourGenerator();
 
+    static FillType default_fill_type();
+    static LineType default_line_type();
+
     // Create and return polygons for a filled contour between the two
     // specified levels.
     py::tuple filled(const double& lower_level, const double& upper_level);
@@ -292,9 +297,15 @@ public:
     py::tuple get_chunk_count() const;  // Return (y_chunk_count, x_chunk_count)
     py::tuple get_chunk_size() const;   // Return (y_chunk_size, x_chunk_size)
 
+    FillType get_fill_type() const;
+    LineType get_line_type() const;
+
     // Create and return polygons for a line (i.e. non-filled) contour at the
     // specified level.
     py::tuple lines(const double& level);
+
+    static bool supports_fill_type(FillType fill_type);
+    static bool supports_line_type(LineType line_type);
 
 private:
     // Typedef for following either a boundary of the domain or the interior;

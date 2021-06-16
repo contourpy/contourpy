@@ -534,6 +534,16 @@ index_t Mpl2014ContourGenerator::calc_chunk_count(
         return 1;
 }
 
+FillType Mpl2014ContourGenerator::default_fill_type()
+{
+    return FillType::OuterCodes;
+}
+
+LineType Mpl2014ContourGenerator::default_line_type()
+{
+    return LineType::SeparateCodes;
+}
+
 void Mpl2014ContourGenerator::edge_interp(const QuadEdge& quad_edge,
                                           const double& level,
                                           ContourLine& contour_line)
@@ -1071,6 +1081,16 @@ Edge Mpl2014ContourGenerator::get_exit_edge(const QuadEdge& quad_edge,
             default: assert(0 && "Invalid edge"); return Edge_None;
         }
     }
+}
+
+FillType Mpl2014ContourGenerator::get_fill_type() const
+{
+    return FillType::OuterCodes;
+}
+
+LineType Mpl2014ContourGenerator::get_line_type() const
+{
+    return LineType::SeparateCodes;
 }
 
 const double& Mpl2014ContourGenerator::get_point_x(index_t point) const
@@ -1802,6 +1822,16 @@ bool Mpl2014ContourGenerator::start_line(
         contour_line, vertices_list, codes_list);
 
     return VISITED(quad,1);
+}
+
+bool Mpl2014ContourGenerator::supports_fill_type(FillType fill_type)
+{
+    return fill_type == FillType::OuterCodes;
+}
+
+bool Mpl2014ContourGenerator::supports_line_type(LineType line_type)
+{
+    return line_type == LineType::SeparateCodes;
 }
 
 void Mpl2014ContourGenerator::write_cache(bool grid_only) const

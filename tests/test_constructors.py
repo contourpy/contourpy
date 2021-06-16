@@ -1,7 +1,6 @@
 import contourpy
 import numpy as np
 import pytest
-import re
 import util_test
 
 
@@ -98,7 +97,7 @@ def test_chunk_size_negative(xyz_3x3_as_lists, name):
         cont_gen = contourpy.contour_generator(x, y, z, name=name, chunk_size=(0, -1))
 
 
-@pytest.mark.parametrize('name', util_test.all_names(exclude='mpl2005'))
+@pytest.mark.parametrize('name', util_test.all_names())
 @pytest.mark.parametrize('chunk_size', np.arange(9))
 def test_chunk_size_1d(xyz_7x5_as_arrays, name, chunk_size):
     x, y, z = xyz_7x5_as_arrays
@@ -118,7 +117,7 @@ def test_chunk_size_1d(xyz_7x5_as_arrays, name, chunk_size):
     assert (ret_x_chunk_count-1)*ret_x_chunk_size < nx-1
 
 
-@pytest.mark.parametrize('name', util_test.all_names(exclude='mpl2005'))
+@pytest.mark.parametrize('name', util_test.all_names())
 @pytest.mark.parametrize('x_chunk_size', np.arange(9))
 @pytest.mark.parametrize('y_chunk_size', np.arange(9))
 def test_chunk_size_2d(xyz_7x5_as_arrays, name, x_chunk_size, y_chunk_size):
@@ -157,7 +156,7 @@ def test_chunk_size_and_count(xyz_7x5_as_arrays):
             x, y, z, name=name, chunk_count=1, total_chunk_count=1)
 
 
-@pytest.mark.parametrize('name', util_test.all_names(exclude='mpl2005'))
+@pytest.mark.parametrize('name', util_test.all_names())
 @pytest.mark.parametrize('chunk_count, ret_chunk_count',
     [[0, (1, 1)], [1, (1, 1)], [2, (2, 2)], [3, (3, 2)], [4, (3, 4)], [9, (6, 4)]])
 def test_chunk_count_1d(xyz_7x5_as_arrays, name, chunk_count, ret_chunk_count):
@@ -174,7 +173,7 @@ def test_chunk_count_1d(xyz_7x5_as_arrays, name, chunk_count, ret_chunk_count):
     assert (ret_x_chunk_count-1)*ret_x_chunk_size < nx-1
 
 
-@pytest.mark.parametrize('name', util_test.all_names(exclude='mpl2005'))
+@pytest.mark.parametrize('name', util_test.all_names())
 @pytest.mark.parametrize('chunk_count, ret_chunk_count',
     [[(0, 1), (1, 1)], [(1, 0), (1, 1)], [(2, 3), (2, 2)], [(3, 2), (3, 2)],
      [(1, 9), (1, 4)], [(9, 1), (6, 1)]])
@@ -192,7 +191,7 @@ def test_chunk_count_1d(xyz_7x5_as_arrays, name, chunk_count, ret_chunk_count):
     assert (ret_x_chunk_count-1)*ret_x_chunk_size < nx-1
 
 
-@pytest.mark.parametrize('name', util_test.all_names(exclude='mpl2005'))
+@pytest.mark.parametrize('name', util_test.all_names())
 @pytest.mark.parametrize('total_chunk_count, ret_chunk_count',
     [[0, (1, 1)], [1, (1, 1)], [2, (2, 1)], [3, (3, 1)], [4, (2, 2)],
      [6, (3, 2)], [9, (3, 2)], [25, (6, 4)]])
@@ -220,7 +219,7 @@ def test_thread_count(xyz_7x5_as_arrays, chunk_size, thread_count):
         x, y, z, name=name, chunk_size=chunk_size, thread_count=thread_count)
     ret_thread_count = cont_gen.thread_count
     ret_chunk_count = np.prod(cont_gen.chunk_count)
-    max_threads = contourpy.max_threads()  
+    max_threads = contourpy.max_threads()
     if chunk_size == 0:
         assert ret_chunk_count == 1
         assert ret_thread_count == 1

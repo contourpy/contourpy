@@ -25,8 +25,7 @@ def test_filled_random_uniform_no_corner_mask(name, fill_type):
         x, y, z, name=name, fill_type=fill_type, corner_mask=False)
     levels = np.arange(0.0, 1.01, 0.2)
 
-    if name != 'mpl2005':
-        assert cont_gen.fill_type == fill_type
+    assert cont_gen.fill_type == fill_type
 
     renderer = MplTestRenderer(x, y)
     for i in range(len(levels)-1):
@@ -110,6 +109,8 @@ def test_filled_random_uniform_corner_mask_chunk(name):
     if name in ('serial', 'threaded'):
         max_threshold = 134
         mean_threshold = 0.17
+
+
 
     compare_images(image_buffer, 'filled_random_uniform_corner_mask_chunk.png',
                    f'{name}_{fill_type}', max_threshold=max_threshold,

@@ -1,8 +1,17 @@
 from contourpy import FillType, LineType
 
 
+def all_class_names():
+    return [
+        'Mpl2005ContourGenerator',
+        'Mpl2014ContourGenerator',
+        'SerialContourGenerator',
+        'ThreadedContourGenerator',
+    ]
+
+
 def all_names(exclude=None):
-    all_ = ['mpl2014', 'mpl2005', 'serial', 'threaded']
+    all_ = ['mpl2005', 'mpl2014', 'serial', 'threaded']
     if exclude is not None:
         all_.remove(exclude)
     return all_
