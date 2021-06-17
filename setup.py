@@ -1,12 +1,11 @@
-from setuptools import setup, find_packages
+import numpy as np
+from setuptools import Extension, find_packages, setup
 from pybind11.setup_helpers import (
-    Pybind11Extension, build_ext, ParallelCompile, naive_recompile)
+    build_ext, naive_recompile, ParallelCompile, Pybind11Extension)
 
 
 # Set want_debug to True if want to enable asserts in C++ code.
 want_debug = False
-
-want_mpl2005 = True
 
 
 __version__ = '0.0.1'
@@ -40,27 +39,19 @@ _contourpy = Pybind11Extension(
     undef_macros=undef_macros,
 )
 
-ext_modules=[_contourpy]
+_mpl2005 = Extension(
+    'contourpy._mpl2005',
+    sources=['src/mpl2005.c'],
+    undef_macros=undef_macros,
+    include_dirs=[np.get_include()],
+    define_macros=define_macros + [
+        ('PY_ARRAY_UNIQUE_SYMBOL', 'CNTR_ARRAY_API'),
+        ('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION'),
+        ('__STDC_FORMAT_MACROS', 1),
+    ],
+)
 
-
-if want_mpl2005:
-    # Using original C code and Python/C API wrapper.
-    # numpy is in pyproject.toml rather than requirements/install.txt for this.
-    import numpy as np
-    from setuptools import Extension
-
-    _mpl2005 = Extension(
-        'contourpy._mpl2005',
-        sources=['src/mpl2005.c'],
-        undef_macros=undef_macros,
-        include_dirs=[np.get_include()],
-        define_macros=define_macros + [
-            ('PY_ARRAY_UNIQUE_SYMBOL', 'CNTR_ARRAY_API'),
-            ('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION'),
-            ('__STDC_FORMAT_MACROS', 1),
-        ],
-    )
-    ext_modules.append(_mpl2005)
+ext_modules=[_contourpy, _mpl2005]
 
 
 

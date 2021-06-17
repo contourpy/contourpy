@@ -1024,18 +1024,9 @@ data_init (Csite * site)
     long i_chunk_size = site->i_chunk_size;
     long j_chunk_size = site->j_chunk_size;
 
-    if ((i_chunk_size || j_chunk_size) && two_levels)
+    if (!two_levels)
     {
-        /* figure out chunk sizes
-         * -- start points for single level case are wrong, so don't try it */
-        if (i_chunk_size < 0 || i_chunk_size > imax - 1)
-            i_chunk_size = imax - 1;
-        
-        if (j_chunk_size < 0 || j_chunk_size > jmax - 1)
-            j_chunk_size = jmax - 1;
-    }
-    else
-    {
+        /* Chunking not used for lines as start points are not correct. */
         i_chunk_size = imax - 1;
         j_chunk_size = jmax - 1;
     }
@@ -1323,7 +1314,14 @@ cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
     site->ycp = NULL;
     site->kcp = NULL;
 
+    /* Store correct chunk sizes for filled contours.  Chunking not used for
+       line contours. */
+    if (i_chunk_size <= 0 || i_chunk_size > iMax - 1)
+        i_chunk_size = iMax - 1;
     site->i_chunk_size = i_chunk_size;
+
+    if (j_chunk_size <= 0 || j_chunk_size > jMax - 1)
+        j_chunk_size = jMax - 1;
     site->j_chunk_size = j_chunk_size;
 
     return 0;
@@ -1580,60 +1578,6 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
     return NULL;
 }
 
-#if 0   /* preprocess this out when we are not using it. */
-/* Build a list of XY 2-D arrays, shape (N,2), to which a list of K arrays
-        is concatenated.
-   This is kept in the code in case we need to switch back to it,
-   or in case we need it for investigating the infamous internal
-   masked region bug.
-*/
-
-static PyObject *
-__build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
-                                            int nparts, long ntotal)
-{
-    PyObject *all_contours;
-    PyArrayObject *xyv;
-    PyArrayObject *kv;
-    npy_intp dims[2];
-    npy_intp kdims[1];
-    int i;
-    long j, k;
-
-    all_contours = PyList_New(nparts*2);
-
-    k = 0;
-    for (i = 0; i < nparts; i++)
-    {
-        dims[0] = np[i];
-        dims[1] = 2;
-        kdims[0] = np[i];
-        xyv = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_DOUBLE);
-        if (xyv == NULL)  goto error;
-        kv = (PyArrayObject *) PyArray_SimpleNew(1, kdims, NPY_SHORT);
-        if (kv == NULL) goto error;
-
-        for (j = 0; j < dims[0]; j++)
-        {
-            ((double *)xyv->data)[2*j] = xp[k];
-            ((double *)xyv->data)[2*j+1] = yp[k];
-            ((short *)kv->data)[j] = kp[k];
-            k++;
-        }
-        if (PyList_SetItem(all_contours, i, (PyObject *)xyv)) goto error;
-        if (PyList_SetItem(all_contours, nparts+i,
-                                (PyObject *)kv)) goto error;
-    }
-    return all_contours;
-
-    error:
-    Py_XDECREF(all_contours);
-    return NULL;
-}
-
-#endif  /* preprocessing out the old version for now */
-
-
 /* cntr_trace is called once per contour level or level pair.
    If nlevels is 1, a set of contour lines will be returned; if nlevels
    is 2, the set of polygons bounded by the levels will be returned.
@@ -1651,7 +1595,6 @@ cntr_trace(Csite *site, double levels[], int nlevels)
     long *nseg0;
     int iseg;
 
-    /* long nchunk = 30; was hardwired */
     long n;
     long nparts = 0;
     long ntotal = 0;
@@ -1760,7 +1703,6 @@ typedef struct {
     Csite *site;
 } Cntr;
 
-
 static int
 Cntr_clear(Cntr* self)
 {
@@ -1791,6 +1733,22 @@ Cntr_dealloc(Cntr* self)
 {
     Cntr_clear(self);
     Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Cntr_get_chunk_count(Cntr *self)
+{
+    Csite *site = self->site;
+    long nx_chunks = (long)(ceil((site->imax-1.0) / site->i_chunk_size));
+    long ny_chunks = (long)(ceil((site->jmax-1.0) / site->j_chunk_size));
+    return Py_BuildValue("ll", ny_chunks, nx_chunks);
+}
+
+static PyObject *
+Cntr_get_chunk_size(Cntr *self)
+{
+    return Py_BuildValue(
+        "ll", self->site->j_chunk_size, self->site->i_chunk_size);
 }
 
 static PyObject *
@@ -1943,31 +1901,6 @@ Cntr_trace_lines(Cntr *self, PyObject *args, PyObject *kwds)
     return cntr_trace(self->site, levels, 1);
 }
 
-/* The following will not normally be called.  It is experimental,
-   and intended for future debugging.  It may go away at any time.
-*/
-static PyObject *
-Cntr_get_cdata(Cntr *self)
-{
-    PyArrayObject *Cdata;
-    npy_intp dims[2];
-    int i, j;
-    int ni, nj;
-    short *data;
-
-    dims[0] = ni = self->site->imax;
-    dims[1] = nj = self->site->jmax;
-
-    Cdata = (PyArrayObject *) PyArray_SimpleNew(2, dims, NPY_SHORT);
-    data = (short *) PyArray_DATA(Cdata);
-    for (j=0; j<nj; j++)
-        for (i=0; i<ni; i++)
-            data[j + i*nj] = self->site->data[i + j*ni];
-            /* output is C-order, input is F-order */
-    /* for now we are ignoring the last ni+1 values */
-    return (PyObject *)Cdata;
-}
-
 static PyMethodDef Cntr_methods[] = {
     {"filled", (PyCFunction)Cntr_trace_filled, METH_VARARGS | METH_KEYWORDS,
      "Return a list of contour polygons.\n\n"
@@ -1978,12 +1911,8 @@ static PyMethodDef Cntr_methods[] = {
      "Return a list of contour line segments.\n\n"
      "    Required argument: level, a contour level\n"
     },
-    {"get_cdata", (PyCFunction)Cntr_get_cdata, METH_NOARGS,
-     "Returns a copy of the mesh array with contour calculation codes.\n\n"
-     "Experimental and incomplete; we are not returning quite all of\n"
-     "the array.\n"
-     "Don't call this unless you are exploring the dark recesses of cntr.c\n"
-    },
+    {"_get_chunk_count", (PyCFunction)Cntr_get_chunk_count, METH_NOARGS},
+    {"_get_chunk_size", (PyCFunction)Cntr_get_chunk_size, METH_NOARGS},
     {0, 0, 0, 0}  /* Sentinel */
 };
 
@@ -2007,7 +1936,7 @@ static PyTypeObject CntrType = {
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT,        /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
     "Contour engine",          /* tp_doc */
     0,                         /* tp_traverse */
     (inquiry)Cntr_clear,       /* tp_clear */
@@ -2056,8 +1985,6 @@ PyInit__mpl2005(void)
         return NULL;
     }
 
-    PyModule_AddIntConstant(m, "_slitkind", (long)kind_slit_up );
-    /* We can add all the point_kinds values later if we need them. */
     import_array();
 
     Py_INCREF(&CntrType);
