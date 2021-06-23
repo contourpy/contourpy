@@ -27,7 +27,7 @@ def test_filled_random_uniform_no_corner_mask(name, fill_type):
 
     assert cont_gen.fill_type == fill_type
 
-    renderer = MplTestRenderer(x, y)
+    renderer = MplTestRenderer()
     for i in range(len(levels)-1):
         renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
                         color=f'C{i}')
@@ -46,7 +46,7 @@ def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
         chunk_size=2)
     levels = np.arange(0.0, 1.01, 0.2)
 
-    renderer = MplTestRenderer(x, y)
+    renderer = MplTestRenderer()
     for i in range(len(levels)-1):
         renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
                         color=f'C{i}')
@@ -80,7 +80,7 @@ def test_filled_random_uniform_corner_mask(name):
         x, y, z, name=name, corner_mask=True, fill_type=fill_type)
     levels = np.arange(0.0, 1.01, 0.2)
 
-    renderer = MplTestRenderer(x, y)
+    renderer = MplTestRenderer()
     for i in range(len(levels)-1):
         renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
                         color=f'C{i}')
@@ -98,7 +98,7 @@ def test_filled_random_uniform_corner_mask_chunk(name):
         x, y, z, name=name, corner_mask=True, fill_type=fill_type, chunk_size=2)
     levels = np.arange(0.0, 1.01, 0.2)
 
-    renderer = MplTestRenderer(x, y)
+    renderer = MplTestRenderer()
     for i in range(len(levels)-1):
         renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
                         color=f'C{i}')

@@ -7,77 +7,45 @@ _default_backend = matplotlib.get_backend()
 matplotlib.use('Agg')
 
 from contourpy import FillType, LineType
-from .mpl_util import mpl_codes_to_offsets, offsets_to_mpl_codes
+from .mpl_util import (
+    filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offsets)
 
 import io
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
-import matplotlib.path as mpath
 import numpy as np
 
 
 class MplRenderer:
-    def __init__(self, x, y, nrows=1, ncols=1, figsize=(9, 9)):
+    def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
         plt.switch_backend(_default_backend)
         self._fig, axes = plt.subplots(
             nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False,
             sharex=True, sharey=True, subplot_kw={'aspect': 'equal'})
         self._axes = axes.flatten()
-        self._set_limits(x, y)
 
     def __del__(self):
-        if self._fig:
+        if hasattr(self, '_fig'):
             plt.close(self._fig)
+
+    def _autoscale(self):
+        for ax in self._axes:
+            if getattr(ax, '_need_autoscale', False):
+                ax.autoscale_view(tight=True)
+                ax._need_autoscale = False
 
     def _get_ax(self, ax):
         if isinstance(ax, int):
             ax = self._axes[ax]
         return ax
 
-    def _set_limits(self, x, y, hide_ticks=False):
-        xlim = (x.min(), x.max())
-        ylim = (y.min(), y.max())
-
-        for ax in self._axes:
-            ax.set_xlim(xlim)
-            ax.set_ylim(ylim)
-            if hide_ticks:
-                ax.set_xticks([])
-                ax.set_yticks([])
-
     def filled(self, filled, fill_type, ax=0, color='C0', alpha=0.7):
         ax = self._get_ax(ax)
-        if fill_type in (FillType.OuterCodes,
-                         FillType.ChunkCombinedCodes):
-            paths = [mpath.Path(points, codes) for points, codes
-                     in zip(*filled) if points is not None]
-        elif fill_type in (FillType.OuterOffsets,
-                           FillType.ChunkCombinedOffsets):
-            paths = [mpath.Path(points, offsets_to_mpl_codes(offsets))
-                     for points, offsets in zip(*filled) if points is not None]
-        elif fill_type == FillType.ChunkCombinedCodesOffsets:
-            paths = []
-            for points, codes, outer_offsets in zip(*filled):
-                if points is None:
-                    continue
-                points = np.split(points, outer_offsets[1:-1])
-                codes = np.split(codes, outer_offsets[1:-1])
-                paths += [mpath.Path(p, c) for p, c in zip(points, codes)]
-        elif fill_type == FillType.ChunkCombinedOffsets2:
-            paths = []
-            for points, offsets, outer_offsets in zip(*filled):
-                if points is None:
-                    continue
-                for i in range(len(outer_offsets)-1):
-                    offs = offsets[outer_offsets[i]:outer_offsets[i+1]+1]
-                    pts = points[offs[0]:offs[-1]]
-                    paths += [mpath.Path(
-                        pts, offsets_to_mpl_codes(offs - offs[0]))]
-        else:
-            raise RuntimeError(f'Rendering FillType {fill_type} not implemented')
+        paths = filled_to_mpl_paths(filled, fill_type)
         collection = mcollections.PathCollection(
             paths, facecolors=color, edgecolors='none', lw=0, alpha=alpha)
         ax.add_collection(collection)
+        ax._need_autoscale = True
 
     def grid(self, x, y, ax=0, color='black', alpha=0.1):
         ax = self._get_ax(ax)
@@ -88,33 +56,15 @@ class MplRenderer:
     def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0,
               linewidth=1):
         ax = self._get_ax(ax)
-        if line_type == LineType.Separate:
-            paths = []
-            for line in lines:
-                # Drawing as Paths so that they can be closed correctly.
-                closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
-                paths.append(mpath.Path(line, closed=closed))
-        elif line_type in (LineType.SeparateCodes,
-                           LineType.ChunkCombinedCodes):
-            paths = [mpath.Path(points, codes) for points, codes
-                     in zip(*lines) if points is not None]
-        elif line_type == LineType.ChunkCombinedOffsets:
-            paths = []
-            for points, offsets in zip(*lines):
-                if points is None:
-                    continue
-                for i in range(len(offsets)-1):
-                    line = points[offsets[i]:offsets[i+1]]
-                    closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
-                    paths.append(mpath.Path(line, closed=closed))
-        else:
-            raise RuntimeError(f'Rendering LineType {line_type} not implemented')
+        paths = lines_to_mpl_paths(lines, line_type)
         collection = mcollections.PathCollection(
             paths, facecolors='none', edgecolors=color, lw=linewidth,
             alpha=alpha)
         ax.add_collection(collection)
+        ax._need_autoscale = True
 
     def save_to_buffer(self):
+        self._autoscale()
         buf = io.BytesIO()
         self._fig.savefig(buf, format='png')
         buf.seek(0)
@@ -122,30 +72,37 @@ class MplRenderer:
 
     # Save as PNG or SVG.
     def save(self, filename):
+        self._autoscale()
         self._fig.savefig(filename)
 
     def show(self):
+        self._autoscale()
         plt.show()
 
     def title(self, title, ax=0):
         self._get_ax(ax).set_title(title)
 
 
-# Test renderer without whitespace around plots or spines/ticks displayed.
+# Test renderer without whitespace around plots and no spines/ticks displayed.
+# Uses Agg backend, so can only save to file/buffer, cannot call show().
 class MplTestRenderer(MplRenderer):
-    def __init__(self, x, y, nrows=1, ncols=1, figsize=(9, 9)):
+    def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
         gridspec = {'left': 0.01, 'right': 0.99, 'top': 0.99, 'bottom': 0.01,
                     'wspace': 0.01, 'hspace': 0.01}
         self._fig, axes = plt.subplots(
             nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False,
             gridspec_kw=gridspec)
         self._axes = axes.flatten()
-        self._set_limits(x, y, True)
+        for ax in self._axes:
+            ax.set_xmargin(0.0)
+            ax.set_ymargin(0.0)
+            ax.set_xticks([])
+            ax.set_yticks([])
 
 
 class MplDebugRenderer(MplRenderer):
-    def __init__(self, x, y, nrows=1, ncols=1, figsize=(9, 9)):
-        super().__init__(x, y, nrows, ncols, figsize)
+    def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
+        super().__init__(nrows, ncols, figsize)
 
     def _arrow(self, ax, line_start, line_end, color, alpha, arrow_size):
         mid = 0.5*(line_start + line_end)
@@ -261,7 +218,6 @@ class MplDebugRenderer(MplRenderer):
             raise RuntimeError(f'Rendering LineType {line_type} not implemented')
 
         if arrow_size > 0.0:
-            # LineType.Separate
             for line in all_lines:
                 for i in range(len(line)-1):
                     self._arrow(ax, line[i], line[i+1], color, alpha,

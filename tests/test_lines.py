@@ -102,7 +102,7 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
 
     assert cont_gen.line_type == line_type
 
-    renderer = MplTestRenderer(x, y)
+    renderer = MplTestRenderer()
     for i in range(len(levels)):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
@@ -123,7 +123,7 @@ def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
         chunk_size=2)
     levels = np.arange(0.0, 1.01, 0.2)
 
-    renderer = MplTestRenderer(x, y)
+    renderer = MplTestRenderer()
     for i in range(len(levels)):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
@@ -141,7 +141,7 @@ def test_lines_random_uniform_corner_mask(name):
         x, y, z, name=name, corner_mask=True, line_type=line_type)
     levels = np.arange(0.0, 1.01, 0.2)
 
-    renderer = MplTestRenderer(x, y)
+    renderer = MplTestRenderer()
     for i in range(len(levels)):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
@@ -158,7 +158,7 @@ def test_lines_random_uniform_corner_mask_chunk(name):
         x, y, z, name=name, corner_mask=True, line_type=line_type)
     levels = np.arange(0.0, 1.01, 0.2)
 
-    renderer = MplTestRenderer(x, y)
+    renderer = MplTestRenderer()
     for i in range(len(levels)):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
