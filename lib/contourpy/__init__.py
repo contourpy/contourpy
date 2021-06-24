@@ -13,7 +13,7 @@ def _name_to_class(name):
 
 
 def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None,
-                      fill_type=None, line_type=None, interp=Interp.Linear,
+                      line_type=None, fill_type=None, interp=Interp.Linear,
                       thread_count=0, chunk_count=None, total_chunk_count=None):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
@@ -58,6 +58,9 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None,
     mask = None
     if np.ma.is_masked(z):
         mask = np.ma.getmask(z)
+        if mask is np.ma.nomask:
+            mask = None
+        z = np.ma.getdata(z)
 
     # Check mask shape just in case.
     if mask is not None and mask.shape != z.shape:
@@ -78,48 +81,48 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None,
 
     # Check arguments: corner_mask.
     if corner_mask is None:
-        # Set it to default.
-        corner_mask = getattr(cls, 'supports_corner_mask')()
-    elif corner_mask and not getattr(cls, 'supports_corner_mask')():
+        # Set it to default, which is True if the algorithm supports it.
+        corner_mask = cls.supports_corner_mask()
+    elif corner_mask and not cls.supports_corner_mask():
             raise ValueError(f'{name} contour generator does not support corner_mask=True')
 
     # Check arguments: line_type.
     if line_type is None:
-        line_type = getattr(cls, 'default_line_type')
-    if not getattr(cls, 'supports_line_type')(line_type):
+        line_type = cls.default_line_type
+    if not cls.supports_line_type(line_type):
         raise ValueError(f'{name} contour generator does not support line_type {line_type}')
 
     # Check arguments: fill_type.
     if fill_type is None:
-        fill_type = getattr(cls, 'default_fill_type')
-    if not getattr(cls, 'supports_fill_type')(fill_type):
+        fill_type = cls.default_fill_type
+    if not cls.supports_fill_type(fill_type):
         raise ValueError(f'{name} contour generator does not support fill_type {fill_type}')
 
     # Check arguments: interp.
-    if interp != Interp.Linear and not getattr(cls, 'supports_interp')():
+    if interp != Interp.Linear and not cls.supports_interp():
         raise ValueError(f'{name} contour generator does not support interp {interp}')
 
     # Check arguments: thread_count.
-    if thread_count not in (0, 1) and not getattr(cls, 'supports_threads')():
+    if thread_count not in (0, 1) and not cls.supports_threads():
         raise ValueError(f'{name} contour generator does not support thread_count {thread_count}')
 
+    # Prepare args and kwargs for contour generator constructor.
+    args = [x, y, z, mask]
+    kwargs = {
+        'line_type': line_type,
+        'fill_type': fill_type,
+        'x_chunk_size': x_chunk_size,
+        'y_chunk_size': y_chunk_size,
+    }
+
+    if cls.supports_corner_mask():
+        kwargs['corner_mask'] = corner_mask
+    if cls.supports_interp():
+        kwargs['interp'] = interp
+    if cls.supports_threads():
+        kwargs['thread_count'] = thread_count
+
     # Create contour generator.
-    if name == 'mpl2005':
-        cont_gen = Mpl2005ContourGenerator(
-            x, y, z, mask, x_chunk_size=x_chunk_size,
-            y_chunk_size=y_chunk_size)
-    elif name == 'mpl2014':
-        cont_gen = Mpl2014ContourGenerator(
-            x, y, z, mask, corner_mask=corner_mask,
-            x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
-    elif name == 'serial':
-        cont_gen = SerialContourGenerator(
-            x, y, z, mask, corner_mask, line_type, fill_type, interp,
-            x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size)
-    else:
-        cont_gen = ThreadedContourGenerator(
-            x, y, z, mask, corner_mask, line_type, fill_type, interp,
-            x_chunk_size=x_chunk_size, y_chunk_size=y_chunk_size,
-            thread_count=thread_count)
+    cont_gen = cls(*args, **kwargs)
 
     return cont_gen

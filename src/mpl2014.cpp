@@ -337,6 +337,8 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(const CoordinateArray& x,
                                                  const CoordinateArray& z,
                                                  const MaskArray& mask,
                                                  bool corner_mask,
+                                                 LineType line_type,
+                                                 FillType fill_type,
                                                  index_t x_chunk_size,
                                                  index_t y_chunk_size)
     : _x(x),
@@ -373,6 +375,12 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(const CoordinateArray& x,
         if (mask.shape(1) != _nx || mask.shape(0) != _ny)
             throw std::invalid_argument("If mask is set it must be a 2D array with the same shape as z");
     }
+
+    if (!supports_line_type(line_type))
+        throw std::invalid_argument("Unsupported LineType");
+
+    if (!supports_fill_type(fill_type))
+        throw std::invalid_argument("Unsupported FillType");
 
     if (x_chunk_size < 0 || y_chunk_size < 0)
         throw std::invalid_argument("chunk_size cannot be negative");

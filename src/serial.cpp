@@ -134,8 +134,11 @@ SerialContourGenerator::SerialContourGenerator(
                 "If mask is set it must be a 2D array with the same shape as z");
     }
 
+    if (!supports_line_type(line_type))
+        throw std::invalid_argument("Unsupported LineType");
+
     if (!supports_fill_type(fill_type))
-        throw std::invalid_argument("Invalid FillType");
+        throw std::invalid_argument("Unsupported FillType");
 
     if (x_chunk_size < 0 || y_chunk_size < 0)  // Check inputs, not calculated.
         throw std::invalid_argument("chunk_sizes cannot be negative");
@@ -411,7 +414,7 @@ py::sequence SerialContourGenerator::filled(
                        _fill_type != FillType::ChunkCombinedOffsets);
     _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
                           _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
-  
+
     return march();
 }
 
@@ -1364,7 +1367,7 @@ py::sequence SerialContourGenerator::lines(const double& level)
     _lower_level = _upper_level = level;
     _identify_holes = false;
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
-  
+
     return march();
 }
 
@@ -1376,7 +1379,7 @@ py::sequence SerialContourGenerator::march()
         (!_filled && (_line_type == LineType::Separate ||
                       _line_type == LineType::SeparateCodes)))
         list_len = 0;
-    
+
     // Prepare lists to return to python.
     std::vector<py::list> return_lists;
     return_lists.reserve(_return_list_count);
