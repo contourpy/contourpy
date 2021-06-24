@@ -10,12 +10,37 @@
 PYBIND11_MODULE(_contourpy, m) {
     m.doc() = "doc notes";
 
+    py::enum_<FillType>(m, "FillType")
+        .value("OuterCodes", FillType::OuterCodes)
+        .value("OuterOffsets", FillType::OuterOffsets)
+        .value("ChunkCombinedCodes", FillType::ChunkCombinedCodes)
+        .value("ChunkCombinedOffsets", FillType::ChunkCombinedOffsets)
+        .value("ChunkCombinedCodesOffsets", FillType::ChunkCombinedCodesOffsets)
+        .value("ChunkCombinedOffsets2", FillType::ChunkCombinedOffsets2)
+        .export_values();
+
+    py::enum_<Interp>(m, "Interp")
+        .value("Linear", Interp::Linear)
+        .value("Log", Interp::Log)
+        .export_values();
+
+    py::enum_<LineType>(m, "LineType")
+        .value("Separate", LineType::Separate)
+        .value("SeparateCodes", LineType::SeparateCodes)
+        .value("ChunkCombinedCodes", LineType::ChunkCombinedCodes)
+        .value("ChunkCombinedOffsets", LineType::ChunkCombinedOffsets)
+        .export_values();
+
+    m.def("max_threads", &Util::get_max_threads, "docs");
+
     py::class_<mpl2014::Mpl2014ContourGenerator>(m, "Mpl2014ContourGenerator")
         .def(py::init<const CoordinateArray&,
                       const CoordinateArray&,
                       const CoordinateArray&,
                       const MaskArray&,
                       bool,
+                      LineType,
+                      FillType,
                       index_t,
                       index_t>(),
              py::arg("x"),
@@ -23,7 +48,9 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("z"),
              py::arg("mask"),
              py::kw_only(),
-             py::arg("corner_mask") = true,
+             py::arg("corner_mask"),
+             py::arg("line_type"),
+             py::arg("fill_type"),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
         .def("filled", &mpl2014::Mpl2014ContourGenerator::filled)
@@ -71,11 +98,11 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("y"),
              py::arg("z"),
              py::arg("mask"),
+             py::kw_only(),
              py::arg("corner_mask"),
              py::arg("line_type"),
              py::arg("fill_type"),
              py::arg("interp"),
-             py::kw_only(),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
         .def("filled", &SerialContourGenerator::filled)
@@ -125,11 +152,11 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("y"),
              py::arg("z"),
              py::arg("mask"),
+             py::kw_only(),
              py::arg("corner_mask"),
              py::arg("line_type"),
              py::arg("fill_type"),
              py::arg("interp"),
-             py::kw_only(),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0,
              py::arg("thread_count") = 0)
@@ -165,27 +192,4 @@ PYBIND11_MODULE(_contourpy, m) {
             "supports_line_type",
             &ThreadedContourGenerator::supports_line_type)
         .def_static("supports_threads", []() {return true;});
-
-    py::enum_<FillType>(m, "FillType")
-        .value("OuterCodes", FillType::OuterCodes)
-        .value("OuterOffsets", FillType::OuterOffsets)
-        .value("ChunkCombinedCodes", FillType::ChunkCombinedCodes)
-        .value("ChunkCombinedOffsets", FillType::ChunkCombinedOffsets)
-        .value("ChunkCombinedCodesOffsets", FillType::ChunkCombinedCodesOffsets)
-        .value("ChunkCombinedOffsets2", FillType::ChunkCombinedOffsets2)
-        .export_values();
-
-    py::enum_<Interp>(m, "Interp")
-        .value("Linear", Interp::Linear)
-        .value("Log", Interp::Log)
-        .export_values();
-
-    py::enum_<LineType>(m, "LineType")
-        .value("Separate", LineType::Separate)
-        .value("SeparateCodes", LineType::SeparateCodes)
-        .value("ChunkCombinedCodes", LineType::ChunkCombinedCodes)
-        .value("ChunkCombinedOffsets", LineType::ChunkCombinedOffsets)
-        .export_values();
-
-    m.def("max_threads", &Util::get_max_threads, "docs");
 }

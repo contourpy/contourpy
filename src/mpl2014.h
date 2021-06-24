@@ -281,6 +281,8 @@ public:
                             const CoordinateArray& z,
                             const MaskArray& mask,
                             bool corner_mask,
+                            LineType line_type,
+                            FillType fill_type,
                             index_t x_chunk_size,
                             index_t y_chunk_size);
 
