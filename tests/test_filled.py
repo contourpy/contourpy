@@ -149,7 +149,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert isinstance(offsets, list) and len(offsets) == 2
             for o in offsets:
                 assert isinstance(o, np.ndarray)
-                assert o.dtype == np.uint32
+                assert o.dtype == np.intp
             assert_array_equal(offsets[0], [0, 8, 13])
             assert_array_equal(offsets[1], [0, 4])
     elif fill_type in (FillType.ChunkCombinedCodes,
@@ -184,7 +184,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert isinstance(offsets, list) and len(offsets) == 1
             offsets = offsets[0]
             assert isinstance(offsets, np.ndarray)
-            assert offsets.dtype == np.uint32
+            assert offsets.dtype == np.intp
             assert_array_equal(offsets, [0, 8, 13, 17])
 
         if fill_type in (FillType.ChunkCombinedCodesOffsets,
@@ -193,7 +193,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert isinstance(outer_offsets, list) and len(outer_offsets) == 1
             outer_offsets = outer_offsets[0]
             assert isinstance(outer_offsets, np.ndarray)
-            assert outer_offsets.dtype == np.uint32
+            assert outer_offsets.dtype == np.intp
             if fill_type == FillType.ChunkCombinedCodesOffsets:
                 assert_array_equal(outer_offsets, [0, 13, 17])
             else:
