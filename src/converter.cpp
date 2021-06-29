@@ -1,10 +1,20 @@
 #include "converter.h"
 #include "mpl_kind_code.h"
+#include <limits>
+
+void Converter::check_max_offset(size_t max_offset)
+{
+    if (max_offset > std::numeric_limits<OffsetArray::value_type>::max())
+        throw std::range_error("Max offset too large to fit in NumPy array of dtype npy_intp. Use smaller chunks.");
+}
 
 CodeArray Converter::convert_codes(
     size_t point_count, size_t cut_count, const size_t* cut_start,
     size_t subtract)
 {
+    assert(point_count > 0);
+    assert(cut_count > 0);
+
     py::ssize_t codes_shape[1] = {static_cast<py::ssize_t>(point_count)};
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
@@ -22,6 +32,9 @@ CodeArray Converter::convert_codes_check_closed(
     size_t point_count, size_t cut_count, const size_t* cut_start,
     const double* check_closed)
 {
+    assert(point_count > 0);
+    assert(cut_count > 0);
+
     py::ssize_t codes_shape[1] = {static_cast<py::ssize_t>(point_count)};
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
@@ -43,6 +56,8 @@ CodeArray Converter::convert_codes_check_closed(
 CodeArray Converter::convert_codes_check_closed_single(
     size_t point_count, const double* points)
 {
+    assert(point_count > 0);
+
     py::ssize_t codes_shape[1] = {static_cast<py::ssize_t>(point_count)};
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
@@ -64,6 +79,10 @@ CodeArray Converter::convert_codes_check_closed_single(
 OffsetArray Converter::convert_offsets(
     size_t offset_count, const size_t* start, size_t subtract)
 {
+    assert(offset_count > 0);
+
+    check_max_offset(*(start + offset_count - 1) - subtract);
+
     py::ssize_t offsets_shape[1] = {static_cast<py::ssize_t>(offset_count)};
     OffsetArray py_offsets(offsets_shape);
     if (subtract == 0)
@@ -80,6 +99,10 @@ OffsetArray Converter::convert_offsets(
 OffsetArray Converter::convert_offsets_nested(
     size_t offset_count, const size_t* start, const size_t* nested_start)
 {
+    assert(offset_count > 0);
+
+    check_max_offset(*(nested_start + *(start + offset_count - 1)));
+
     py::ssize_t offsets_shape[1] = {static_cast<py::ssize_t>(offset_count)};
     OffsetArray py_offsets(offsets_shape);
     auto py_ptr = py_offsets.mutable_data();
@@ -91,6 +114,8 @@ OffsetArray Converter::convert_offsets_nested(
 
 PointArray Converter::convert_points(size_t point_count, const double* start)
 {
+    assert(point_count > 0);
+
     py::ssize_t points_shape[2] = {static_cast<py::ssize_t>(point_count), 2};
     PointArray py_points(points_shape);
     std::copy(start, start + 2*point_count, py_points.mutable_data());
