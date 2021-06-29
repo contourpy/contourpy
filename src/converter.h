@@ -25,6 +25,9 @@ public:
         size_t offset_count, const size_t* start, const size_t* nested_start);
 
     static PointArray convert_points(size_t point_count, const double* start);
+
+private:
+    static void check_max_offset(size_t max_offset);
 };
 
 #endif // CONTOURPY_CONVERTER_H
