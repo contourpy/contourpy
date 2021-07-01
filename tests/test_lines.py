@@ -32,8 +32,7 @@ def one_loop_one_strip():
 def test_level_outside(xy_2x2, name, zlevel):
     x, y = xy_2x2
     z = x
-    cont_gen = contour_generator(
-        x, y, z, name=name, line_type=LineType.SeparateCodes)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCodes)
     lines = cont_gen.lines(zlevel)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
@@ -45,8 +44,7 @@ def test_level_outside(xy_2x2, name, zlevel):
 def test_w_to_e(xy_2x2, name):
     x, y = xy_2x2
     z = y.copy()
-    cont_gen = contour_generator(
-        x, y, z, name=name, line_type=LineType.SeparateCodes)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCodes)
     lines = cont_gen.lines(0.5)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
@@ -60,8 +58,7 @@ def test_w_to_e(xy_2x2, name):
 def test_e_to_w(xy_2x2, name):
     x, y = xy_2x2
     z = 1.0 - y.copy()
-    cont_gen = contour_generator(
-        x, y, z, name=name, line_type=LineType.SeparateCodes)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCodes)
     lines = cont_gen.lines(0.5)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
@@ -79,8 +76,7 @@ def test_loop(xy_3x3, name):
     x, y = xy_3x3
     z = np.zeros_like(x)
     z[1, 1] = 1.0
-    cont_gen = contour_generator(
-        x, y, z, name=name, line_type=LineType.SeparateCodes)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCodes)
     lines = cont_gen.lines(0.5)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
@@ -96,8 +92,7 @@ def test_loop(xy_3x3, name):
     'name, line_type', util_test.all_names_and_line_types())
 def test_lines_random_uniform_no_corner_mask(name, line_type):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
-    cont_gen = contour_generator(
-        x, y, z, name=name, line_type=line_type, corner_mask=False)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=False)
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.line_type == line_type
@@ -107,8 +102,11 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'lines_random_uniform_no_corner_mask.png',
-                   f'{name}_{line_type}')
+    compare_images(
+        image_buffer,
+        'lines_random_uniform_no_corner_mask.png',
+        f'{name}_{line_type}',
+    )
 
 
 @pytest.mark.parametrize(
@@ -119,8 +117,7 @@ def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
 
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(
-        x, y, z, name=name, line_type=line_type, corner_mask=False,
-        chunk_size=2)
+        x, y, z, name=name, line_type=line_type, corner_mask=False, chunk_size=2)
     levels = np.arange(0.0, 1.01, 0.2)
 
     renderer = MplTestRenderer()
@@ -128,17 +125,18 @@ def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer,
-                   'lines_random_uniform_no_corner_mask_chunk.png',
-                   f'{name}_{line_type}')
+    compare_images(
+        image_buffer,
+        'lines_random_uniform_no_corner_mask_chunk.png',
+        f'{name}_{line_type}',
+    )
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
 def test_lines_random_uniform_corner_mask(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     line_type = LineType.SeparateCodes
-    cont_gen = contour_generator(
-        x, y, z, name=name, corner_mask=True, line_type=line_type)
+    cont_gen = contour_generator(x, y, z, name=name, corner_mask=True, line_type=line_type)
     levels = np.arange(0.0, 1.01, 0.2)
 
     renderer = MplTestRenderer()
@@ -146,16 +144,18 @@ def test_lines_random_uniform_corner_mask(name):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'lines_random_uniform_corner_mask.png',
-                   f'{name}_{line_type}')
+    compare_images(
+        image_buffer,
+        'lines_random_uniform_corner_mask.png',
+        f'{name}_{line_type}',
+    )
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
 def test_lines_random_uniform_corner_mask_chunk(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     line_type = LineType.SeparateCodes
-    cont_gen = contour_generator(
-        x, y, z, name=name, corner_mask=True, line_type=line_type)
+    cont_gen = contour_generator(x, y, z, name=name, corner_mask=True, line_type=line_type)
     levels = np.arange(0.0, 1.01, 0.2)
 
     renderer = MplTestRenderer()
@@ -163,8 +163,11 @@ def test_lines_random_uniform_corner_mask_chunk(name):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'lines_random_uniform_corner_mask_chunk.png',
-                   f'{name}_{line_type}')
+    compare_images(
+        image_buffer,
+        'lines_random_uniform_corner_mask_chunk.png',
+        f'{name}_{line_type}',
+    )
 
 
 @pytest.mark.parametrize('line_type', LineType.__members__.values())

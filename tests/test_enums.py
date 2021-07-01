@@ -21,21 +21,21 @@ def test_all_fill_types():
     # Check that all_fill_types() matches FillType.__members__
     fill_types = dict(util_test.all_fill_types_str_value())
     for name, enum in dict(FillType.__members__).items():
-        assert(name in fill_types)
-        assert(fill_types[name] == enum.value)
+        assert name in fill_types
+        assert fill_types[name] == enum.value
 
 
 def test_all_line_types():
     # Check that all_line_types() matches LineType.__members__
     line_types = dict(util_test.all_line_types_str_value())
     for name, enum in dict(LineType.__members__).items():
-        assert(name in line_types)
-        assert(line_types[name] == enum.value)
+        assert name in line_types
+        assert line_types[name] == enum.value
 
 
 def test_all_interps():
     # Check that all_interps() matches Interp.__members__
     interps = dict(util_test.all_interps_str_value())
     for name, enum in dict(Interp.__members__).items():
-        assert(name in interps)
-        assert(interps[name] == enum.value)
+        assert name in interps
+        assert interps[name] == enum.value

@@ -1,6 +1,7 @@
 from contourpy import (
-    FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
-    SerialContourGenerator, ThreadedContourGenerator)
+    FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator, SerialContourGenerator,
+    ThreadedContourGenerator,
+)
 import pytest
 import util_test
 
@@ -45,8 +46,7 @@ def test_supports_fill_type(class_name):
     assert supports == expect
     supports = cls.supports_fill_type(FillType.ChunkCombinedOffsets2)
     assert isinstance(supports, bool)
-    expect = class_name not in (
-        'Mpl2005ContourGenerator', 'Mpl2014ContourGenerator')
+    expect = class_name not in ('Mpl2005ContourGenerator', 'Mpl2014ContourGenerator')
     assert supports == expect
 
 
@@ -55,8 +55,7 @@ def test_supports_interp(class_name):
     cls = get_class_from_name(class_name)
     supports = cls.supports_interp()
     assert isinstance(supports, bool)
-    expect = class_name not in (
-        'Mpl2005ContourGenerator', 'Mpl2014ContourGenerator')
+    expect = class_name not in ('Mpl2005ContourGenerator', 'Mpl2014ContourGenerator')
     assert supports == expect
 
 
@@ -69,8 +68,7 @@ def test_supports_line_type(class_name):
     assert supports == expect
     supports = cls.supports_line_type(LineType.ChunkCombinedOffsets)
     assert isinstance(supports, bool)
-    expect = class_name not in (
-        'Mpl2005ContourGenerator', 'Mpl2014ContourGenerator')
+    expect = class_name not in ('Mpl2005ContourGenerator', 'Mpl2014ContourGenerator')
     assert supports == expect
 
 

@@ -4,10 +4,8 @@ import numpy as np
 
 
 def filled_to_mpl_paths(filled, fill_type):
-    if fill_type in (FillType.OuterCodes,
-                        FillType.ChunkCombinedCodes):
-        paths = [mpath.Path(points, codes) for points, codes
-                 in zip(*filled) if points is not None]
+    if fill_type in (FillType.OuterCodes, FillType.ChunkCombinedCodes):
+        paths = [mpath.Path(points, codes) for points, codes in zip(*filled) if points is not None]
     elif fill_type in (FillType.OuterOffsets, FillType.ChunkCombinedOffsets):
         paths = [mpath.Path(points, offsets_to_mpl_codes(offsets))
                  for points, offsets in zip(*filled) if points is not None]
@@ -41,8 +39,7 @@ def lines_to_mpl_paths(lines, line_type):
             closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
             paths.append(mpath.Path(line, closed=closed))
     elif line_type in (LineType.SeparateCodes, LineType.ChunkCombinedCodes):
-        paths = [mpath.Path(points, codes) for points, codes
-                 in zip(*lines) if points is not None]
+        paths = [mpath.Path(points, codes) for points, codes in zip(*lines) if points is not None]
     elif line_type == LineType.ChunkCombinedOffsets:
         paths = []
         for points, offsets in zip(*lines):

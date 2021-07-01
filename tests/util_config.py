@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-
 class PointType(Enum):
     CORNER = 0,
     LOWER = 1,
@@ -57,10 +56,9 @@ class Config:
             mid - (along*0.5 - right)*self.arrowsize,
             mid + along*0.5*self.arrowsize,
             mid - (along*0.5 + right)*self.arrowsize))
-        ax.plot(arrow[:,0], arrow[:, 1], '-', c=color)
+        ax.plot(arrow[:, 0], arrow[:, 1], '-', c=color)
 
-    def _next_quad(self, config, corner=None, suffix='', zlower=None,
-                   zupper=None):
+    def _next_quad(self, config, corner=None, suffix='', zlower=None, zupper=None):
         if zlower is None:
             zlower = self.default_zlower
         if zupper is None:
@@ -105,13 +103,12 @@ class Config:
         if corner != Corner.SE:
             ax.text(-self.text_gap, 1, nw, va='center', size=fontsize, ha='right')
         if suffix:  # Suffix (without brackets) is the z-level of quad middle.
-            ax.text(0.5, 0.5, suffix[1:-1], va='center', size=fontsize,
-                    ha='center')
+            ax.text(0.5, 0.5, suffix[1:-1], va='center', size=fontsize, ha='center')
 
         z = np.asarray([[sw, se], [nw, ne]], dtype=np.float64)
         z = np.ma.array(z, mask=self.mask)
-        cont_gen = contour_generator(self.x, self.y, z, name=self.name,
-                                     corner_mask=self.corner_mask)
+        cont_gen = contour_generator(
+            self.x, self.y, z, name=self.name, corner_mask=self.corner_mask)
         if self.is_filled:
             filled = cont_gen.filled(zlower, zupper)
             lines = filled[0]
@@ -145,8 +142,7 @@ class Config:
                     s = points[i]
                     e = points[i+1]
                     c = 'C2'
-                    if (point_types[i] == point_types[i+1] and
-                        point_types[i] != PointType.CORNER):
+                    if point_types[i] == point_types[i+1] and point_types[i] != PointType.CORNER:
                         c = 'C3' if point_types[i] == PointType.LOWER else 'C0'
                     ax.plot([s[0], e[0]], [s[1], e[1]], '-', c=c)
 
@@ -157,11 +153,9 @@ class Config:
                 for i in range(n-1):
                     if point_types[i] != PointType.CORNER:
                         c = 'C3' if point_types[i] == PointType.LOWER else 'C0'
-                        ax.plot(points[i][0], points[i][1], 'o', c=c,
-                                ms=self.marker_size)
+                        ax.plot(points[i][0], points[i][1], 'o', c=c, ms=self.marker_size)
             else:
-                ax.plot(points[:, 0], points[:, 1], 'o-', c='C3',
-                        ms=self.marker_size)
+                ax.plot(points[:, 0], points[:, 1], 'o-', c='C3', ms=self.marker_size)
 
                 for i in range(n-1):
                     self._arrow(ax, points[i], points[i+1], 'C3')
@@ -238,8 +232,7 @@ class ConfigFilled(ConfigFilledCommon):
     def __init__(self, name):
         super().__init__(name, False)
 
-        self.fig, axes = plt.subplots(8, 12, figsize=(13, 9.8),
-                                      subplot_kw={'aspect': 'equal'})
+        self.fig, axes = plt.subplots(8, 12, figsize=(13, 9.8), subplot_kw={'aspect': 'equal'})
         self.axes = axes.flatten()
 
         self.axes_index = 0
@@ -284,8 +277,7 @@ class ConfigFilledCorner(ConfigFilledCommon):
     def __init__(self, name):
         super().__init__(name, True)
 
-        self.fig, axes = plt.subplots(8, 14, figsize=(15, 9.8),
-                                      subplot_kw={'aspect': 'equal'})
+        self.fig, axes = plt.subplots(8, 14, figsize=(15, 9.8), subplot_kw={'aspect': 'equal'})
         self.axes = axes.flatten()
 
         corners = [Corner.NW, Corner.NE, Corner.SW, Corner.SE]
@@ -336,8 +328,7 @@ class ConfigLines(ConfigLinesCommon):
     def __init__(self, name):
         super().__init__(name, False)
 
-        self.fig, axes = plt.subplots(3, 6, figsize=(6.6, 3.6),
-                                      subplot_kw={'aspect': 'equal'})
+        self.fig, axes = plt.subplots(3, 6, figsize=(6.6, 3.6), subplot_kw={'aspect': 'equal'})
         self.axes = axes.flatten()
 
         self.axes_index = 0
@@ -364,8 +355,7 @@ class ConfigLinesCorner(ConfigLinesCommon):
     def __init__(self, name):
         super().__init__(name, True)
 
-        self.fig, axes = plt.subplots(4, 8, figsize=(8.8, 4.9),
-                                      subplot_kw={'aspect': 'equal'})
+        self.fig, axes = plt.subplots(4, 8, figsize=(8.8, 4.9), subplot_kw={'aspect': 'equal'})
         self.axes = axes.flatten()
 
         self.axes_index = 0

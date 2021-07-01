@@ -15,7 +15,7 @@ define_macros = []
 undef_macros = []
 
 if want_debug:
-    define_macros.append(('DEBUG',1))
+    define_macros.append(('DEBUG', 1))
     undef_macros.append('NDEBUG')
 
 ParallelCompile(default=0, needs_recompile=naive_recompile).install()
@@ -51,8 +51,7 @@ _mpl2005 = Extension(
     ],
 )
 
-ext_modules=[_contourpy, _mpl2005]
-
+ext_modules = [_contourpy, _mpl2005]
 
 
 def read_requirements(filename):
