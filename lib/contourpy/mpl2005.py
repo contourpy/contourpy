@@ -26,6 +26,10 @@ class Mpl2005ContourGenerator(Cntr):
         return self._get_chunk_size()
 
     @property
+    def corner_mask(self):
+        return False
+
+    @property
     def fill_type(self):
         return self.default_fill_type
 

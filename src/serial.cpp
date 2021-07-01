@@ -938,7 +938,7 @@ py::tuple SerialContourGenerator::get_chunk_size() const
 
 bool SerialContourGenerator::get_corner_mask() const
 {
-    return false;
+    return _corner_mask;
 }
 
 FillType SerialContourGenerator::get_fill_type() const

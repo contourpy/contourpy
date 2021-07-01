@@ -84,7 +84,16 @@ def test_xyz_diff_shapes(xyz_3x3_as_lists, name, diff_shape):
         contourpy.contour_generator(x, y, diff_shape, name=name)
 
 
-@pytest.mark.parametrize("name", util_test.all_names())
+@pytest.mark.parametrize("name", util_test.corner_mask_names())
+def test_corner_mask(xyz_3x3_as_lists, name):
+    x, y, z = xyz_3x3_as_lists
+    for corner_mask in [False, True]:
+        cont_gen = contourpy.contour_generator(x, y, z, name=name, corner_mask=corner_mask)
+        assert cont_gen.corner_mask == corner_mask
+
+
+@pytest.mark.parametrize('name', util_test.all_names())
+>>>>>>> e981673... Add corner_mask property to algorithms
 def test_chunk_size_negative(xyz_3x3_as_lists, name):
     x, y, z = xyz_3x3_as_lists
     msg = "chunk_size cannot be negative"

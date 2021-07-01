@@ -293,6 +293,8 @@ public:
     py::tuple get_chunk_count() const;  // Return (y_chunk_count, x_chunk_count)
     py::tuple get_chunk_size() const;   // Return (y_chunk_size, x_chunk_size)
 
+    bool get_corner_mask() const;
+
     FillType get_fill_type() const;
     LineType get_line_type() const;
 

@@ -57,6 +57,7 @@ PYBIND11_MODULE(_contourpy, m) {
         .def("lines", &mpl2014::Mpl2014ContourGenerator::lines)
         .def_property_readonly("chunk_count", &mpl2014::Mpl2014ContourGenerator::get_chunk_count)
         .def_property_readonly("chunk_size", &mpl2014::Mpl2014ContourGenerator::get_chunk_size)
+        .def_property_readonly("corner_mask", &mpl2014::Mpl2014ContourGenerator::get_corner_mask)
         .def_property_readonly_static(
             "default_fill_type",
             [](py::object /* self */) {
@@ -102,6 +103,7 @@ PYBIND11_MODULE(_contourpy, m) {
         .def("write_cache", &SerialContourGenerator::write_cache)
         .def_property_readonly("chunk_count", &SerialContourGenerator::get_chunk_count)
         .def_property_readonly("chunk_size", &SerialContourGenerator::get_chunk_size)
+        .def_property_readonly("corner_mask", &SerialContourGenerator::get_corner_mask)
         .def_property_readonly_static(
             "default_fill_type",
             [](py::object /* self */) {
@@ -149,6 +151,7 @@ PYBIND11_MODULE(_contourpy, m) {
         .def("write_cache", &ThreadedContourGenerator::write_cache)
         .def_property_readonly("chunk_count", &ThreadedContourGenerator::get_chunk_count)
         .def_property_readonly("chunk_size", &ThreadedContourGenerator::get_chunk_size)
+        .def_property_readonly("corner_mask", &ThreadedContourGenerator::get_corner_mask)
         .def_property_readonly_static(
             "default_fill_type",
             [](py::object /* self */) {

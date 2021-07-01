@@ -950,7 +950,7 @@ py::tuple ThreadedContourGenerator::get_chunk_size() const
 
 bool ThreadedContourGenerator::get_corner_mask() const
 {
-    return false;
+    return _corner_mask;
 }
 
 FillType ThreadedContourGenerator::get_fill_type() const

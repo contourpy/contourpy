@@ -885,6 +885,11 @@ py::tuple Mpl2014ContourGenerator::get_chunk_size() const
     return py::make_tuple(_y_chunk_size, _x_chunk_size);
 }
 
+bool Mpl2014ContourGenerator::get_corner_mask() const
+{
+    return _corner_mask;
+}
+
 Edge Mpl2014ContourGenerator::get_corner_start_edge(
     index_t quad, unsigned int level_index) const
 {
