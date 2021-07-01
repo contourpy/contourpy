@@ -266,8 +266,7 @@ void Contour::write() const
 
 
 
-ParentCache::ParentCache(
-    index_t nx, index_t x_chunk_points, index_t y_chunk_points)
+ParentCache::ParentCache(index_t nx, index_t x_chunk_points, index_t y_chunk_points)
     : _nx(nx),
       _x_chunk_points(x_chunk_points),
       _y_chunk_points(y_chunk_points),
@@ -275,8 +274,7 @@ ParentCache::ParentCache(
       _istart(0),
       _jstart(0)
 {
-    assert(_x_chunk_points > 0 && _y_chunk_points > 0 &&
-           "Chunk sizes must be positive");
+    assert(_x_chunk_points > 0 && _y_chunk_points > 0 && "Chunk sizes must be positive");
 }
 
 ContourLine* ParentCache::get_parent(index_t quad)
@@ -298,10 +296,8 @@ index_t ParentCache::index_to_index(index_t quad) const
     index_t j = quad / _nx;
     index_t index = (i-_istart) + (j-_jstart)*_x_chunk_points;
 
-    assert(i >= _istart && i < _istart + _x_chunk_points &&
-           "i-index outside chunk");
-    assert(j >= _jstart && j < _jstart + _y_chunk_points &&
-           "j-index outside chunk");
+    assert(i >= _istart && i < _istart + _x_chunk_points && "i-index outside chunk");
+    assert(j >= _jstart && j < _jstart + _y_chunk_points && "j-index outside chunk");
     assert(index >= 0 && index < static_cast<index_t>(_lines.size()) &&
            "ParentCache index outside chunk");
 
@@ -310,8 +306,7 @@ index_t ParentCache::index_to_index(index_t quad) const
 
 void ParentCache::set_chunk_starts(index_t istart, index_t jstart)
 {
-    assert(istart >= 0 && jstart >= 0 &&
-           "Chunk start indices cannot be negative");
+    assert(istart >= 0 && jstart >= 0 && "Chunk start indices cannot be negative");
     _istart = istart;
     _jstart = jstart;
     if (_lines.empty())
@@ -322,25 +317,18 @@ void ParentCache::set_chunk_starts(index_t istart, index_t jstart)
 
 void ParentCache::set_parent(index_t quad, ContourLine& contour_line)
 {
-    assert(!_lines.empty() &&
-           "Accessing ParentCache before it has been initialised");
+    assert(!_lines.empty() && "Accessing ParentCache before it has been initialised");
     index_t index = index_to_index(quad);
     if (_lines[index] == 0)
-        _lines[index] = (contour_line.is_hole() ? contour_line.get_parent()
-                                                : &contour_line);
+        _lines[index] = contour_line.is_hole() ? contour_line.get_parent() : &contour_line;
 }
 
 
 
-Mpl2014ContourGenerator::Mpl2014ContourGenerator(const CoordinateArray& x,
-                                                 const CoordinateArray& y,
-                                                 const CoordinateArray& z,
-                                                 const MaskArray& mask,
-                                                 bool corner_mask,
-                                                 LineType line_type,
-                                                 FillType fill_type,
-                                                 index_t x_chunk_size,
-                                                 index_t y_chunk_size)
+Mpl2014ContourGenerator::Mpl2014ContourGenerator(
+    const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
+    const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
+    index_t x_chunk_size, index_t y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
@@ -373,7 +361,8 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(const CoordinateArray& x,
             throw std::invalid_argument("mask array must be a 2D array");
 
         if (mask.shape(1) != _nx || mask.shape(0) != _ny)
-            throw std::invalid_argument("If mask is set it must be a 2D array with the same shape as z");
+            throw std::invalid_argument(
+                "If mask is set it must be a 2D array with the same shape as z");
     }
 
     if (!supports_line_type(line_type))
@@ -394,9 +383,7 @@ Mpl2014ContourGenerator::~Mpl2014ContourGenerator()
 }
 
 void Mpl2014ContourGenerator::append_contour_line_to_vertices_and_codes(
-    ContourLine& contour_line,
-    py::list& vertices_list,
-    py::list& codes_list) const
+    ContourLine& contour_line, py::list& vertices_list, py::list& codes_list) const
 {
     // Convert ContourLine to Python equivalent, and clear it for reuse.
     // This function is called once for each line generated in create_contour().
@@ -438,9 +425,7 @@ void Mpl2014ContourGenerator::append_contour_line_to_vertices_and_codes(
 }
 
 void Mpl2014ContourGenerator::append_contour_to_vertices_and_codes(
-    Contour& contour,
-    py::list& vertices_list,
-    py::list& codes_list) const
+    Contour& contour, py::list& vertices_list, py::list& codes_list) const
 {
     // Convert Contour to Python equivalent, and clear it for reuse.
     // This function is called once for each polygon generated in
@@ -474,8 +459,7 @@ void Mpl2014ContourGenerator::append_contour_to_vertices_and_codes(
 
             const ContourLine::Children& children = line.get_children();
             py::ssize_t npoints = static_cast<py::ssize_t>(line.size() + 1);
-            for (children_it = children.begin(); children_it != children.end();
-                 ++children_it)
+            for (children_it = children.begin(); children_it != children.end(); ++children_it)
                  npoints += static_cast<py::ssize_t>((*children_it)->size() + 1);
 
             py::ssize_t vertices_dims[2] = {npoints, 2};
@@ -496,8 +480,7 @@ void Mpl2014ContourGenerator::append_contour_to_vertices_and_codes(
             *vertices_ptr++ = point->y;
             *codes_ptr++ = CLOSEPOLY;
 
-            for (children_it = children.begin(); children_it != children.end();
-                 ++children_it) {
+            for (children_it = children.begin(); children_it != children.end(); ++children_it) {
                 ContourLine& child = **children_it;
                 for (point = child.begin(); point != child.end(); ++point) {
                     *vertices_ptr++ = point->x;
@@ -552,12 +535,10 @@ LineType Mpl2014ContourGenerator::default_line_type()
     return LineType::SeparateCodes;
 }
 
-void Mpl2014ContourGenerator::edge_interp(const QuadEdge& quad_edge,
-                                          const double& level,
-                                          ContourLine& contour_line)
+void Mpl2014ContourGenerator::edge_interp(
+    const QuadEdge& quad_edge, const double& level, ContourLine& contour_line)
 {
-    assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
-           "Quad index out of bounds");
+    assert(quad_edge.quad >= 0 && quad_edge.quad < _n && "Quad index out of bounds");
     assert(quad_edge.edge != Edge_None && "Invalid edge");
     interp(get_edge_point_index(quad_edge, true),
            get_edge_point_index(quad_edge, false),
@@ -610,19 +591,13 @@ py::tuple Mpl2014ContourGenerator::filled(
 }
 
 unsigned int Mpl2014ContourGenerator::follow_boundary(
-    ContourLine& contour_line,
-    QuadEdge& quad_edge,
-    const double& lower_level,
-    const double& upper_level,
-    unsigned int level_index,
-    const QuadEdge& start_quad_edge)
+    ContourLine& contour_line, QuadEdge& quad_edge, const double& lower_level,
+    const double& upper_level, unsigned int level_index, const QuadEdge& start_quad_edge)
 {
-    assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
-           "Quad index out of bounds");
+    assert(quad_edge.quad >= 0 && quad_edge.quad < _n && "Quad index out of bounds");
     assert(quad_edge.edge != Edge_None && "Invalid edge");
     assert(is_edge_a_boundary(quad_edge) && "Not a boundary edge");
-    assert((level_index == 1 || level_index == 2) &&
-           "level index must be 1 or 2");
+    assert((level_index == 1 || level_index == 2) && "level index must be 1 or 2");
     assert(start_quad_edge.quad >= 0 && start_quad_edge.quad < _n &&
            "Start quad index out of bounds");
     assert(start_quad_edge.edge != Edge_None && "Invalid start edge");
@@ -636,8 +611,7 @@ unsigned int Mpl2014ContourGenerator::follow_boundary(
     while (true) {
         // Levels of start and end points of quad_edge.
         unsigned int start_level =
-            (first_edge ? Z_LEVEL(get_edge_point_index(quad_edge, true))
-                        : end_level);
+            (first_edge ? Z_LEVEL(get_edge_point_index(quad_edge, true)) : end_level);
         index_t end_point = get_edge_point_index(quad_edge, false);
         end_level = Z_LEVEL(end_point);
 
@@ -701,9 +675,7 @@ unsigned int Mpl2014ContourGenerator::follow_boundary(
 
         if (stop) {
             // Exiting boundary to enter interior.
-            edge_interp(quad_edge,
-                        level_index == 1 ? lower_level : upper_level,
-                        contour_line);
+            edge_interp(quad_edge, level_index == 1 ? lower_level : upper_level, contour_line);
             break;
         }
 
@@ -741,25 +713,17 @@ unsigned int Mpl2014ContourGenerator::follow_boundary(
 }
 
 void Mpl2014ContourGenerator::follow_interior(
-    ContourLine& contour_line,
-    QuadEdge& quad_edge,
-    unsigned int level_index,
-    const double& level,
-    bool want_initial_point,
-    const QuadEdge* start_quad_edge,
-    unsigned int start_level_index,
+    ContourLine& contour_line, QuadEdge& quad_edge, unsigned int level_index, const double& level,
+    bool want_initial_point, const QuadEdge* start_quad_edge, unsigned int start_level_index,
     bool set_parents)
 {
-    assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
-           "Quad index out of bounds.");
+    assert(quad_edge.quad >= 0 && quad_edge.quad < _n && "Quad index out of bounds.");
     assert(quad_edge.edge != Edge_None && "Invalid edge");
-    assert((level_index == 1 || level_index == 2) &&
-           "level index must be 1 or 2");
+    assert((level_index == 1 || level_index == 2) && "level index must be 1 or 2");
     assert((start_quad_edge == 0 ||
             (start_quad_edge->quad >= 0 && start_quad_edge->quad < _n)) &&
            "Start quad index out of bounds.");
-    assert((start_quad_edge == 0 || start_quad_edge->edge != Edge_None) &&
-           "Invalid start edge");
+    assert((start_quad_edge == 0 || start_quad_edge->edge != Edge_None) && "Invalid start edge");
     assert((start_level_index == 1 || start_level_index == 2) &&
            "start level index must be 1 or 2");
 
@@ -793,20 +757,16 @@ void Mpl2014ContourGenerator::follow_interior(
             index_t point_opposite = -1;
             switch (edge) {
                 case Edge_E:
-                    point_opposite = (EXISTS_SE_CORNER(quad) ? POINT_SW
-                                                             : POINT_NW);
+                    point_opposite = (EXISTS_SE_CORNER(quad) ? POINT_SW : POINT_NW);
                     break;
                 case Edge_N:
-                    point_opposite = (EXISTS_NW_CORNER(quad) ? POINT_SW
-                                                             : POINT_SE);
+                    point_opposite = (EXISTS_NW_CORNER(quad) ? POINT_SW : POINT_SE);
                     break;
                 case Edge_W:
-                    point_opposite = (EXISTS_SW_CORNER(quad) ? POINT_SE
-                                                             : POINT_NE);
+                    point_opposite = (EXISTS_SW_CORNER(quad) ? POINT_SE : POINT_NE);
                     break;
                 case Edge_S:
-                    point_opposite = (EXISTS_SW_CORNER(quad) ? POINT_NW
-                                                             : POINT_NE);
+                    point_opposite = (EXISTS_SW_CORNER(quad) ? POINT_NW : POINT_NE);
                     break;
                 case Edge_NE: point_opposite = POINT_SW; break;
                 case Edge_NW: point_opposite = POINT_SE; break;
@@ -859,19 +819,17 @@ void Mpl2014ContourGenerator::follow_interior(
                 }
                 else {
                     dir = Dir_Left;
-                    _cache[quad] |= (level_index == 1 ? MASK_SADDLE_LEFT_1
-                                                      : MASK_SADDLE_LEFT_2);
+                    _cache[quad] |= (level_index == 1 ? MASK_SADDLE_LEFT_1 : MASK_SADDLE_LEFT_2);
                 }
                 if (edge == Edge_N || edge == Edge_E) {
                     // Next visit to this quad must start on S or W.
-                    _cache[quad] |= (level_index == 1 ? MASK_SADDLE_START_SW_1
-                                                      : MASK_SADDLE_START_SW_2);
+                    _cache[quad] |=
+                        (level_index == 1 ? MASK_SADDLE_START_SW_1 : MASK_SADDLE_START_SW_2);
                 }
             }
             else {
                 // Normal (non-saddle) quad.
-                dir = (config == 0 ? Dir_Left
-                                   : (config == 3 ? Dir_Right : Dir_Straight));
+                dir = (config == 0 ? Dir_Left : (config == 3 ? Dir_Right : Dir_Straight));
                 _cache[quad] |= visited_mask;
             }
         }
@@ -894,8 +852,7 @@ void Mpl2014ContourGenerator::follow_interior(
             break;
 
         move_to_next_quad(quad_edge);
-        assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
-               "Quad index out of bounds");
+        assert(quad_edge.quad >= 0 && quad_edge.quad < _n && "Quad index out of bounds");
 
         // Return if reached start point of contour line.
         if (start_quad_edge != 0 &&
@@ -910,13 +867,9 @@ py::tuple Mpl2014ContourGenerator::get_chunk_count() const
     return py::make_tuple(_nychunk, _nxchunk);
 }
 
-void Mpl2014ContourGenerator::get_chunk_limits(index_t ijchunk,
-                                               index_t& ichunk,
-                                               index_t& jchunk,
-                                               index_t& istart,
-                                               index_t& iend,
-                                               index_t& jstart,
-                                               index_t& jend)
+void Mpl2014ContourGenerator::get_chunk_limits(
+    index_t ijchunk, index_t& ichunk, index_t& jchunk, index_t& istart, index_t& iend,
+    index_t& jstart, index_t& jend)
 {
     assert(ijchunk >= 0 && ijchunk < _chunk_count && "ijchunk out of bounds");
     ichunk = ijchunk % _nxchunk;
@@ -933,12 +886,10 @@ py::tuple Mpl2014ContourGenerator::get_chunk_size() const
 }
 
 Edge Mpl2014ContourGenerator::get_corner_start_edge(
-    index_t quad,
-    unsigned int level_index) const
+    index_t quad, unsigned int level_index) const
 {
     assert(quad >= 0 && quad < _n && "Quad index out of bounds");
-    assert((level_index == 1 || level_index == 2) &&
-           "level index must be 1 or 2");
+    assert((level_index == 1 || level_index == 2) && "level index must be 1 or 2");
     assert(EXISTS_ANY_CORNER(quad) && "Quad is not a corner");
 
     // Diagram for NE corner.  Rotate for other corners.
@@ -998,11 +949,9 @@ Edge Mpl2014ContourGenerator::get_corner_start_edge(
 }
 
 index_t Mpl2014ContourGenerator::get_edge_point_index(
-    const QuadEdge& quad_edge,
-    bool start) const
+    const QuadEdge& quad_edge, bool start) const
 {
-    assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
-           "Quad index out of bounds");
+    assert(quad_edge.quad >= 0 && quad_edge.quad < _n && "Quad index out of bounds");
     assert(quad_edge.edge != Edge_None && "Invalid edge");
 
     // Edges are ordered anticlockwise around their quad, as indicated by
@@ -1033,11 +982,9 @@ index_t Mpl2014ContourGenerator::get_edge_point_index(
     }
 }
 
-Edge Mpl2014ContourGenerator::get_exit_edge(const QuadEdge& quad_edge,
-                                            Dir dir) const
+Edge Mpl2014ContourGenerator::get_exit_edge(const QuadEdge& quad_edge, Dir dir) const
 {
-    assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
-           "Quad index out of bounds");
+    assert(quad_edge.quad >= 0 && quad_edge.quad < _n && "Quad index out of bounds");
     assert(quad_edge.edge != Edge_None && "Invalid edge");
 
     const index_t& quad = quad_edge.quad;
@@ -1075,17 +1022,13 @@ Edge Mpl2014ContourGenerator::get_exit_edge(const QuadEdge& quad_edge,
         // edges correspond to left, straight and right directions.
         switch (edge) {
             case Edge_E:
-                return (dir == Dir_Left ? Edge_S :
-                            (dir == Dir_Right ? Edge_N : Edge_W));
+                return (dir == Dir_Left ? Edge_S : (dir == Dir_Right ? Edge_N : Edge_W));
             case Edge_N:
-                return (dir == Dir_Left ? Edge_E :
-                            (dir == Dir_Right ? Edge_W : Edge_S));
+                return (dir == Dir_Left ? Edge_E : (dir == Dir_Right ? Edge_W : Edge_S));
             case Edge_W:
-                return (dir == Dir_Left ? Edge_N :
-                            (dir == Dir_Right ? Edge_S : Edge_E));
+                return (dir == Dir_Left ? Edge_N : (dir == Dir_Right ? Edge_S : Edge_E));
             case Edge_S:
-                return (dir == Dir_Left ? Edge_W :
-                            (dir == Dir_Right ? Edge_E : Edge_N));
+                return (dir == Dir_Left ? Edge_W : (dir == Dir_Right ? Edge_E : Edge_N));
             default: assert(0 && "Invalid edge"); return Edge_None;
         }
     }
@@ -1113,8 +1056,8 @@ const double& Mpl2014ContourGenerator::get_point_y(index_t point) const
     return _y.data()[point];
 }
 
-void Mpl2014ContourGenerator::get_point_xy(index_t point,
-                                           ContourLine& contour_line) const
+void Mpl2014ContourGenerator::get_point_xy(
+    index_t point, ContourLine& contour_line) const
 {
     assert(point >= 0 && point < _n && "Point index out of bounds.");
     contour_line.emplace_back(_x.data()[point], _y.data()[point]);
@@ -1127,12 +1070,10 @@ const double& Mpl2014ContourGenerator::get_point_z(index_t point) const
 }
 
 Edge Mpl2014ContourGenerator::get_quad_start_edge(
-    index_t quad,
-    unsigned int level_index) const
+    index_t quad, unsigned int level_index) const
 {
     assert(quad >= 0 && quad < _n && "Quad index out of bounds");
-    assert((level_index == 1 || level_index == 2) &&
-           "level index must be 1 or 2");
+    assert((level_index == 1 || level_index == 2) && "level index must be 1 or 2");
     assert(EXISTS_QUAD(quad) && "Quad does not exist");
 
     unsigned int config = (Z_NW >= level_index) << 3 |
@@ -1179,8 +1120,7 @@ Edge Mpl2014ContourGenerator::get_quad_start_edge(
     }
 }
 
-Edge Mpl2014ContourGenerator::get_start_edge(index_t quad,
-                                             unsigned int level_index) const
+Edge Mpl2014ContourGenerator::get_start_edge(index_t quad, unsigned int level_index) const
 {
     if (EXISTS_ANY_CORNER(quad))
         return get_corner_start_edge(quad, level_index);
@@ -1260,28 +1200,24 @@ void Mpl2014ContourGenerator::init_cache_grid(const MaskArray& mask)
 
                     if ((EXISTS_W_EDGE(quad) && W_exists_none) ||
                         (EXISTS_NONE(quad) && W_exists_E_edge) ||
-                        (i % _x_chunk_size == 0 && EXISTS_W_EDGE(quad) &&
-                                                 W_exists_E_edge))
-                         _cache[quad] |= MASK_BOUNDARY_W;
+                        (i % _x_chunk_size == 0 && EXISTS_W_EDGE(quad) && W_exists_E_edge))
+                        _cache[quad] |= MASK_BOUNDARY_W;
 
                     if ((EXISTS_S_EDGE(quad) && S_exists_none) ||
                         (EXISTS_NONE(quad) && S_exists_N_edge) ||
-                        (j % _y_chunk_size == 0 && EXISTS_S_EDGE(quad) &&
-                                                 S_exists_N_edge))
-                         _cache[quad] |= MASK_BOUNDARY_S;
+                        (j % _y_chunk_size == 0 && EXISTS_S_EDGE(quad) && S_exists_N_edge))
+                        _cache[quad] |= MASK_BOUNDARY_S;
                 }
                 else {
                     bool W_exists_quad = (i > 0 && EXISTS_QUAD(quad-1));
                     bool S_exists_quad = (j > 0 && EXISTS_QUAD(quad-_nx));
 
                     if ((EXISTS_QUAD(quad) != W_exists_quad) ||
-                        (i % _x_chunk_size == 0 && EXISTS_QUAD(quad) &&
-                                                 W_exists_quad))
+                        (i % _x_chunk_size == 0 && EXISTS_QUAD(quad) && W_exists_quad))
                         _cache[quad] |= MASK_BOUNDARY_W;
 
                     if ((EXISTS_QUAD(quad) != S_exists_quad) ||
-                        (j % _y_chunk_size == 0 && EXISTS_QUAD(quad) &&
-                                                 S_exists_quad))
+                        (j % _y_chunk_size == 0 && EXISTS_QUAD(quad) && S_exists_quad))
                         _cache[quad] |= MASK_BOUNDARY_S;
                 }
             }
@@ -1289,11 +1225,10 @@ void Mpl2014ContourGenerator::init_cache_grid(const MaskArray& mask)
     }
 }
 
-void Mpl2014ContourGenerator::init_cache_levels(const double& lower_level,
-                                                const double& upper_level)
+void Mpl2014ContourGenerator::init_cache_levels(
+    const double& lower_level, const double& upper_level)
 {
-    assert(!(upper_level < lower_level) &&
-           "upper and lower levels are wrong way round");
+    assert(!(upper_level < lower_level) && "upper and lower levels are wrong way round");
 
     bool two_levels = (lower_level != upper_level);
     CacheItem keep_mask =
@@ -1320,16 +1255,13 @@ void Mpl2014ContourGenerator::init_cache_levels(const double& lower_level,
    }
 }
 
-void Mpl2014ContourGenerator::interp(index_t point1,
-                                     index_t point2,
-                                     const double& level,
-                                     ContourLine& contour_line) const
+void Mpl2014ContourGenerator::interp(
+    index_t point1, index_t point2, const double& level, ContourLine& contour_line) const
 {
     assert(point1 >= 0 && point1 < _n && "Point index 1 out of bounds.");
     assert(point2 >= 0 && point2 < _n && "Point index 2 out of bounds.");
     assert(point1 != point2 && "Identical points");
-    double fraction = (get_point_z(point2) - level) /
-                          (get_point_z(point2) - get_point_z(point1));
+    double fraction = (get_point_z(point2) - level) / (get_point_z(point2) - get_point_z(point1));
     contour_line.emplace_back(
         get_point_x(point1)*fraction + get_point_x(point2)*(1.0 - fraction),
         get_point_y(point1)*fraction + get_point_y(point2)*(1.0 - fraction));
@@ -1338,8 +1270,7 @@ void Mpl2014ContourGenerator::interp(index_t point1,
 bool Mpl2014ContourGenerator::is_edge_a_boundary(
     const QuadEdge& quad_edge) const
 {
-    assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
-           "Quad index out of bounds");
+    assert(quad_edge.quad >= 0 && quad_edge.quad < _n && "Quad index out of bounds");
     assert(quad_edge.edge != Edge_None && "Invalid edge");
 
     switch (quad_edge.edge) {
@@ -1426,12 +1357,11 @@ py::tuple Mpl2014ContourGenerator::lines(const double& level)
                 // sometimes need to ignore the first point and add it on the
                 // end instead.
                 bool ignore_first = (start_edge == Edge_N);
-                follow_interior(contour_line, quad_edge, 1, level,
-                                !ignore_first, &start_quad_edge, 1, false);
+                follow_interior(
+                    contour_line, quad_edge, 1, level, !ignore_first, &start_quad_edge, 1, false);
                 if (ignore_first && !contour_line.empty())
                     contour_line.push_back(contour_line.front());
-                append_contour_line_to_vertices_and_codes(
-                    contour_line, vertices_list, codes_list);
+                append_contour_line_to_vertices_and_codes(contour_line, vertices_list, codes_list);
 
                 // Repeat if saddle point but not visited.
                 if (SADDLE(quad,1) && !VISITED(quad,1))
@@ -1551,8 +1481,7 @@ void Mpl2014ContourGenerator::move_to_next_boundary_edge(
 
 void Mpl2014ContourGenerator::move_to_next_quad(QuadEdge& quad_edge) const
 {
-    assert(quad_edge.quad >= 0 && quad_edge.quad < _n &&
-           "Quad index out of bounds");
+    assert(quad_edge.quad >= 0 && quad_edge.quad < _n && "Quad index out of bounds");
     assert(quad_edge.edge != Edge_None && "Invalid edge");
 
     // Move from quad_edge.quad to the neighbouring quad in the direction
@@ -1567,10 +1496,7 @@ void Mpl2014ContourGenerator::move_to_next_quad(QuadEdge& quad_edge) const
 }
 
 void Mpl2014ContourGenerator::single_quad_filled(
-    Contour& contour,
-    index_t quad,
-    const double& lower_level,
-    const double& upper_level)
+    Contour& contour, index_t quad, const double& lower_level, const double& upper_level)
 {
     assert(quad >= 0 && quad < _n && "Quad index out of bounds");
 
@@ -1583,23 +1509,23 @@ void Mpl2014ContourGenerator::single_quad_filled(
 
         // Lower-level start from S boundary into interior.
         if (!VISITED_S(quad) && Z_SW >= 1 && Z_SE == 0)
-            contour.push_back(start_filled(quad, Edge_S, 1, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_S, 1, NotHole, Interior, lower_level, upper_level));
 
         // Upper-level start from S boundary into interior.
         if (!VISITED_S(quad) && Z_SW < 2 && Z_SE == 2)
-            contour.push_back(start_filled(quad, Edge_S, 2, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_S, 2, NotHole, Interior, lower_level, upper_level));
 
         // Lower-level start following S boundary from W to E.
         if (!VISITED_S(quad) && Z_SW <= 1 && Z_SE == 1)
-            contour.push_back(start_filled(quad, Edge_S, 1, NotHole, Boundary,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_S, 1, NotHole, Boundary, lower_level, upper_level));
 
         // Upper-level start following S boundary from W to E.
         if (!VISITED_S(quad) && Z_SW == 2 && Z_SE == 1)
-            contour.push_back(start_filled(quad, Edge_S, 2, NotHole, Boundary,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_S, 2, NotHole, Boundary, lower_level, upper_level));
     }
 
     // Possible starts from W boundary.
@@ -1607,23 +1533,23 @@ void Mpl2014ContourGenerator::single_quad_filled(
 
         // Lower-level start from W boundary into interior.
         if (!VISITED_W(quad) && Z_NW >= 1 && Z_SW == 0)
-            contour.push_back(start_filled(quad, Edge_W, 1, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_W, 1, NotHole, Interior, lower_level, upper_level));
 
         // Upper-level start from W boundary into interior.
         if (!VISITED_W(quad) && Z_NW < 2 && Z_SW == 2)
-            contour.push_back(start_filled(quad, Edge_W, 2, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_W, 2, NotHole, Interior, lower_level, upper_level));
 
         // Lower-level start following W boundary from N to S.
         if (!VISITED_W(quad) && Z_NW <= 1 && Z_SW == 1)
-            contour.push_back(start_filled(quad, Edge_W, 1, NotHole, Boundary,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_W, 1, NotHole, Boundary, lower_level, upper_level));
 
         // Upper-level start following W boundary from N to S.
         if (!VISITED_W(quad) && Z_NW == 2 && Z_SW == 1)
-            contour.push_back(start_filled(quad, Edge_W, 2, NotHole, Boundary,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_W, 2, NotHole, Boundary, lower_level, upper_level));
     }
 
     // Possible starts from NE boundary.
@@ -1631,77 +1557,77 @@ void Mpl2014ContourGenerator::single_quad_filled(
 
         // Lower-level start following NE boundary from SE to NW, hole.
         if (!VISITED_CORNER(quad) && Z_NW == 1 && Z_SE == 1)
-            contour.push_back(start_filled(quad, Edge_NE, 1, Hole, Boundary,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_NE, 1, Hole, Boundary, lower_level, upper_level));
     }
     // Possible starts from SE boundary.
     else if (EXISTS_NW_CORNER(quad)) {  // i.e. BOUNDARY_SE
 
         // Lower-level start from N to SE.
         if (!VISITED(quad,1) && Z_NW == 0 && Z_SW == 0 && Z_NE >= 1)
-            contour.push_back(start_filled(quad, Edge_N, 1, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_N, 1, NotHole, Interior, lower_level, upper_level));
 
         // Upper-level start from SE to N, hole.
         if (!VISITED(quad,2) && Z_NW <  2 && Z_SW < 2 && Z_NE == 2)
-            contour.push_back(start_filled(quad, Edge_SE, 2, Hole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_SE, 2, Hole, Interior, lower_level, upper_level));
 
         // Upper-level start from N to SE.
         if (!VISITED(quad,2) && Z_NW == 2 && Z_SW == 2 && Z_NE < 2)
-            contour.push_back(start_filled(quad, Edge_N, 2, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_N, 2, NotHole, Interior, lower_level, upper_level));
 
         // Lower-level start from SE to N, hole.
         if (!VISITED(quad,1) && Z_NW >= 1 && Z_SW >= 1 && Z_NE == 0)
-            contour.push_back(start_filled(quad, Edge_SE, 1, Hole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_SE, 1, Hole, Interior, lower_level, upper_level));
     }
     // Possible starts from NW boundary.
     else if (EXISTS_SE_CORNER(quad)) {  // i.e. BOUNDARY_NW
 
         // Lower-level start from NW to E.
         if (!VISITED(quad,1) && Z_SW == 0 && Z_SE == 0 && Z_NE >= 1)
-            contour.push_back(start_filled(quad, Edge_NW, 1, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_NW, 1, NotHole, Interior, lower_level, upper_level));
 
         // Upper-level start from E to NW, hole.
         if (!VISITED(quad,2) && Z_SW < 2 && Z_SE < 2 && Z_NE == 2)
-            contour.push_back(start_filled(quad, Edge_E, 2, Hole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_E, 2, Hole, Interior, lower_level, upper_level));
 
         // Upper-level start from NW to E.
         if (!VISITED(quad,2) && Z_SW == 2 && Z_SE == 2 && Z_NE < 2)
-            contour.push_back(start_filled(quad, Edge_NW, 2, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_NW, 2, NotHole, Interior, lower_level, upper_level));
 
         // Lower-level start from E to NW, hole.
         if (!VISITED(quad,1) && Z_SW >= 1 && Z_SE >= 1 && Z_NE == 0)
-            contour.push_back(start_filled(quad, Edge_E, 1, Hole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_E, 1, Hole, Interior, lower_level, upper_level));
     }
     // Possible starts from SW boundary.
     else if (EXISTS_NE_CORNER(quad)) {  // i.e. BOUNDARY_SW
 
         // Lower-level start from SW boundary into interior.
         if (!VISITED_CORNER(quad) && Z_NW >= 1 && Z_SE == 0)
-            contour.push_back(start_filled(quad, Edge_SW, 1, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_SW, 1, NotHole, Interior, lower_level, upper_level));
 
         // Upper-level start from SW boundary into interior.
         if (!VISITED_CORNER(quad) && Z_NW < 2 && Z_SE == 2)
-            contour.push_back(start_filled(quad, Edge_SW, 2, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_SW, 2, NotHole, Interior, lower_level, upper_level));
 
         // Lower-level start following SW boundary from NW to SE.
         if (!VISITED_CORNER(quad) && Z_NW <= 1 && Z_SE == 1)
-            contour.push_back(start_filled(quad, Edge_SW, 1, NotHole, Boundary,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_SW, 1, NotHole, Boundary, lower_level, upper_level));
 
         // Upper-level start following SW boundary from NW to SE.
         if (!VISITED_CORNER(quad) && Z_NW == 2 && Z_SE == 1)
-            contour.push_back(start_filled(quad, Edge_SW, 2, NotHole, Boundary,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_SW, 2, NotHole, Boundary, lower_level, upper_level));
     }
 
     // A full (unmasked) quad can only have a start on the NE corner, i.e. from
@@ -1719,26 +1645,26 @@ void Mpl2014ContourGenerator::single_quad_filled(
         // Lower-level start from N to E.
         if (!VISITED(quad,1) && Z_NW == 0 && Z_SE == 0 && Z_NE >= 1 &&
             (!SADDLE(quad,1) || SADDLE_LEFT(quad,1)))
-            contour.push_back(start_filled(quad, Edge_N, 1, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_N, 1, NotHole, Interior, lower_level, upper_level));
 
         // Upper-level start from E to N, hole.
         if (!VISITED(quad,2) && Z_NW < 2 && Z_SE <  2 && Z_NE == 2 &&
             (!SADDLE(quad,2) || !SADDLE_LEFT(quad,2)))
-            contour.push_back(start_filled(quad, Edge_E, 2, Hole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_E, 2, Hole, Interior, lower_level, upper_level));
 
         // Upper-level start from N to E.
         if (!VISITED(quad,2) && Z_NW == 2 && Z_SE == 2 && Z_NE < 2 &&
             (!SADDLE(quad,2) || SADDLE_LEFT(quad,2)))
-            contour.push_back(start_filled(quad, Edge_N, 2, NotHole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_N, 2, NotHole, Interior, lower_level, upper_level));
 
         // Lower-level start from E to N, hole.
         if (!VISITED(quad,1) && Z_NW >= 1 && Z_SE >= 1 && Z_NE == 0 &&
             (!SADDLE(quad,1) || !SADDLE_LEFT(quad,1)))
-            contour.push_back(start_filled(quad, Edge_E, 1, Hole, Interior,
-                                           lower_level, upper_level));
+            contour.push_back(start_filled(
+                quad, Edge_E, 1, Hole, Interior, lower_level, upper_level));
 
         // All possible contours passing through the interior of this quad
         // should have already been created, so assert this.
@@ -1753,18 +1679,13 @@ void Mpl2014ContourGenerator::single_quad_filled(
     // surrounding contour line.
     if (BOUNDARY_N(quad) && EXISTS_N_EDGE(quad) &&
         !VISITED_S(quad+_nx) && Z_NW == 1 && Z_NE == 1)
-        contour.push_back(start_filled(quad, Edge_N, 1, Hole, Boundary,
-                                       lower_level, upper_level));
+        contour.push_back(start_filled(
+            quad, Edge_N, 1, Hole, Boundary, lower_level, upper_level));
 }
 
 ContourLine* Mpl2014ContourGenerator::start_filled(
-    index_t quad,
-    Edge edge,
-    unsigned int start_level_index,
-    HoleOrNot hole_or_not,
-    BoundaryOrInterior boundary_or_interior,
-    const double& lower_level,
-    const double& upper_level)
+    index_t quad, Edge edge, unsigned int start_level_index, HoleOrNot hole_or_not,
+    BoundaryOrInterior boundary_or_interior, const double& lower_level, const double& upper_level)
 {
     assert(quad >= 0 && quad < _n && "Quad index out of bounds");
     assert(edge != Edge_None && "Invalid edge");
@@ -1790,13 +1711,13 @@ ContourLine* Mpl2014ContourGenerator::start_filled(
     while (true) {
         if (boundary_or_interior == Interior) {
             double level = (level_index == 1 ? lower_level : upper_level);
-            follow_interior(*contour_line, quad_edge, level_index, level,
-                            false, &start_quad_edge, start_level_index, true);
+            follow_interior(
+                *contour_line, quad_edge, level_index, level, false, &start_quad_edge,
+                start_level_index, true);
         }
         else {
             level_index = follow_boundary(
-                                *contour_line, quad_edge, lower_level,
-                                upper_level, level_index, start_quad_edge);
+                *contour_line, quad_edge, lower_level, upper_level, level_index, start_quad_edge);
         }
 
         if (quad_edge == start_quad_edge && (boundary_or_interior == Boundary ||
@@ -1813,21 +1734,15 @@ ContourLine* Mpl2014ContourGenerator::start_filled(
 }
 
 bool Mpl2014ContourGenerator::start_line(
-    py::list& vertices_list,
-    py::list& codes_list,
-    index_t quad,
-    Edge edge,
-    const double& level)
+    py::list& vertices_list, py::list& codes_list, index_t quad, Edge edge, const double& level)
 {
-    assert(is_edge_a_boundary(QuadEdge(quad, edge)) &&
-           "QuadEdge is not a boundary");
+    assert(is_edge_a_boundary(QuadEdge(quad, edge)) && "QuadEdge is not a boundary");
 
     QuadEdge quad_edge(quad, edge);
     ContourLine contour_line(false);
     follow_interior(contour_line, quad_edge, 1, level, true, 0, 1, false);
 
-    append_contour_line_to_vertices_and_codes(
-        contour_line, vertices_list, codes_list);
+    append_contour_line_to_vertices_and_codes(contour_line, vertices_list, codes_list);
 
     return VISITED(quad,1);
 }
@@ -1855,8 +1770,7 @@ void Mpl2014ContourGenerator::write_cache_quad(
 {
     index_t j = quad / _nx;
     index_t i = quad - j*_nx;
-    std::cout << quad << ": i=" << i << " j=" << j
-        << " EXISTS=" << EXISTS_QUAD(quad);
+    std::cout << quad << ": i=" << i << " j=" << j << " EXISTS=" << EXISTS_QUAD(quad);
     if (_corner_mask)
         std::cout << " CORNER=" << EXISTS_SW_CORNER(quad) << EXISTS_SE_CORNER(quad)
             << EXISTS_NW_CORNER(quad) << EXISTS_NE_CORNER(quad);

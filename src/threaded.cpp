@@ -91,10 +91,9 @@
 
 
 ThreadedContourGenerator::ThreadedContourGenerator(
-    const CoordinateArray& x, const CoordinateArray& y,
-    const CoordinateArray& z, const MaskArray& mask, bool corner_mask,
-    LineType line_type, FillType fill_type, Interp interp, index_t x_chunk_size,
-    index_t y_chunk_size, index_t n_threads)
+    const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
+    const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type, Interp interp,
+    index_t x_chunk_size, index_t y_chunk_size, index_t n_threads)
     : _x(x),
       _y(y),
       _z(z),
@@ -161,8 +160,7 @@ ThreadedContourGenerator::ZLevel ThreadedContourGenerator::calc_z_level(
     return (_filled && z_value > _upper_level) ? 2 : (z_value > _lower_level ? 1 : 0);
 }
 
-ThreadedContourGenerator::ZLevel ThreadedContourGenerator::calc_z_level_mid(
-    index_t quad)
+ThreadedContourGenerator::ZLevel ThreadedContourGenerator::calc_z_level_mid(index_t quad)
 {
     assert(quad >= 0 && quad < _n);
 
@@ -185,8 +183,7 @@ ThreadedContourGenerator::ZLevel ThreadedContourGenerator::calc_z_level_mid(
 }
 
 void ThreadedContourGenerator::closed_line(
-    const Location& start_location, OuterOrHole outer_or_hole,
-    ChunkLocal& local)
+    const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local)
 {
     assert(is_quad_in_chunk(start_location.quad, local));
 
@@ -199,11 +196,9 @@ void ThreadedContourGenerator::closed_line(
 
     while (!finished) {
         if (location.on_boundary)
-            finished = follow_boundary(
-                location, start_location, local, point_count);
+            finished = follow_boundary(location, start_location, local, point_count);
         else
-            finished = follow_interior(
-                location, start_location, local, point_count);
+            finished = follow_interior(location, start_location, local, point_count);
         location.on_boundary = !location.on_boundary;
     }
 
@@ -222,8 +217,7 @@ void ThreadedContourGenerator::closed_line(
 }
 
 void ThreadedContourGenerator::closed_line_wrapper(
-    const Location& start_location, OuterOrHole outer_or_hole,
-    ChunkLocal& local)
+    const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local)
 {
     assert(is_quad_in_chunk(start_location.quad, local));
 
@@ -277,8 +271,7 @@ LineType ThreadedContourGenerator::default_line_type()
 }
 
 void ThreadedContourGenerator::export_filled(
-    ChunkLocal& local, const std::vector<double>& all_points,
-    std::vector<py::list>& return_lists)
+    ChunkLocal& local, const std::vector<double>& all_points, std::vector<py::list>& return_lists)
 {
     // all_points is only used for fill_types OuterCodes and OuterOffsets.
 
@@ -304,12 +297,10 @@ void ThreadedContourGenerator::export_filled(
                     if (_fill_type == FillType::OuterCodes)
                         return_lists[1].append(Converter::convert_codes(
                             point_count, outer_end - outer_start + 1,
-                            local.line_offsets.data() + outer_start,
-                            point_start));
+                            local.line_offsets.data() + outer_start, point_start));
                     else
                         return_lists[1].append(Converter::convert_offsets(
-                            outer_end - outer_start + 1,
-                            local.line_offsets.data() + outer_start,
+                            outer_end - outer_start + 1, local.line_offsets.data() + outer_start,
                             point_start));
                 }
             }
@@ -320,14 +311,12 @@ void ThreadedContourGenerator::export_filled(
                 // return_lists[0] already set.
                 assert(!local.line_offsets.empty());
                 return_lists[1][local.chunk] = Converter::convert_codes(
-                    local.total_point_count, local.line_offsets.size(),
-                    local.line_offsets.data());
+                    local.total_point_count, local.line_offsets.size(), local.line_offsets.data());
 
                 if (_fill_type == FillType::ChunkCombinedCodesOffsets)
                     return_lists[2][local.chunk] =
                         Converter::convert_offsets_nested(
-                            local.outer_offsets.size(),
-                            local.outer_offsets.data(),
+                            local.outer_offsets.size(), local.outer_offsets.data(),
                             local.line_offsets.data());
             }
             else {
@@ -356,8 +345,7 @@ void ThreadedContourGenerator::export_filled(
 }
 
 void ThreadedContourGenerator::export_lines(
-    ChunkLocal& local, const double* all_points_ptr,
-    std::vector<py::list>& return_lists)
+    ChunkLocal& local, const double* all_points_ptr, std::vector<py::list>& return_lists)
 {
     std::lock_guard<std::mutex> guard(_python_mutex);
 
@@ -415,8 +403,7 @@ void ThreadedContourGenerator::export_lines(
     }
 }
 
-py::sequence ThreadedContourGenerator::filled(
-    const double& lower_level, const double& upper_level)
+py::sequence ThreadedContourGenerator::filled(const double& lower_level, const double& upper_level)
 {
     if (lower_level > upper_level)
         throw std::invalid_argument("upper and lower levels are the wrong way round");
@@ -459,8 +446,7 @@ index_t ThreadedContourGenerator::find_look_S(index_t look_N_quad) const
 }
 
 bool ThreadedContourGenerator::follow_boundary(
-    Location& location, const Location& start_location, ChunkLocal& local,
-    size_t& point_count)
+    Location& location, const Location& start_location, ChunkLocal& local, size_t& point_count)
 {
     // forward values for boundaries:
     //     -1 = N boundary, E to W.
@@ -641,11 +627,9 @@ bool ThreadedContourGenerator::follow_boundary(
 }
 
 bool ThreadedContourGenerator::follow_interior(
-    Location& location, const Location& start_location, ChunkLocal& local,
-    size_t& point_count)
+    Location& location, const Location& start_location, ChunkLocal& local, size_t& point_count)
 {
-    // Adds the start point in each quad visited, but not the end point unless
-    // closing the polygon.
+    // Adds the start point in each quad visited, but not the end point unless closing the polygon.
     // Only need to consider a single level of course.
     assert(is_quad_in_chunk(start_location.quad, local));
     assert(is_quad_in_chunk(location.quad, local));
@@ -802,18 +786,17 @@ bool ThreadedContourGenerator::follow_interior(
         }
 
         // Clear unwanted start locations.
-        if (pass == 0 && !(quad == start_quad && forward == start_forward &&
-                           left == start_left)) {
-            if (START_E(quad) && forward == -1 && left == -_nx &&
-                turn_left == -1 && (is_upper ? Z_NE > 0 : Z_NE < 2)) {
+        if (pass == 0 && !(quad == start_quad && forward == start_forward && left == start_left)) {
+            if (START_E(quad) && forward == -1 && left == -_nx && turn_left == -1 &&
+                (is_upper ? Z_NE > 0 : Z_NE < 2)) {
                 _cache[quad] &= ~MASK_START_E;  // E high if is_upper else low.
 
                 if (!_filled && quad < start_location.quad)
                     // Already counted points from here onwards.
                     break;
             }
-            else if (START_N(quad) && forward == -_nx && left == 1 &&
-                     turn_left == 1 && (is_upper ? Z_NW > 0 : Z_NW < 2)) {
+            else if (START_N(quad) && forward == -_nx && left == 1 && turn_left == 1 &&
+                     (is_upper ? Z_NW > 0 : Z_NW < 2)) {
                 _cache[quad] &= ~MASK_START_N;  // E high if is_upper else low.
 
                 if (!_filled && quad < start_location.quad)
@@ -944,8 +927,7 @@ py::tuple ThreadedContourGenerator::get_chunk_count() const
     return py::make_tuple(_ny_chunks, _nx_chunks);
 }
 
-void ThreadedContourGenerator::get_chunk_limits(
-    index_t chunk, ChunkLocal& local) const
+void ThreadedContourGenerator::get_chunk_limits(index_t chunk, ChunkLocal& local) const
 {
     assert(chunk >= 0 && chunk < _n_chunks && "chunk index out of bounds");
 
@@ -986,8 +968,7 @@ index_t ThreadedContourGenerator::get_thread_count() const
     return _n_threads;
 }
 
-void ThreadedContourGenerator::get_point_xy(
-    index_t point, double*& points) const
+void ThreadedContourGenerator::get_point_xy(index_t point, double*& points) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     *points++ = _x.data()[point];
@@ -1094,12 +1075,10 @@ void ThreadedContourGenerator::init_cache_grid(const MaskArray& mask)
                     bool N_exists_quad = (j < _ny-1 && EXISTS_QUAD(quad+_nx));
                     bool exists = EXISTS_QUAD(quad);
 
-                    if (exists != E_exists_quad ||
-                        (i_chunk_boundary && exists && E_exists_quad))
+                    if (exists != E_exists_quad || (i_chunk_boundary && exists && E_exists_quad))
                         _cache[quad] |= MASK_BOUNDARY_E;
 
-                    if (exists != N_exists_quad ||
-                        (j_chunk_boundary && exists && N_exists_quad))
+                    if (exists != N_exists_quad || (j_chunk_boundary && exists && N_exists_quad))
                         _cache[quad] |= MASK_BOUNDARY_N;
                 }
             }
@@ -1163,35 +1142,31 @@ void ThreadedContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
                 if (_filled) {
                     if (EXISTS_N_AND_E_EDGES(quad)) {
                         if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
-                            (EXISTS_NE_CORNER(quad) ||
-                             z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
+                            (EXISTS_NE_CORNER(quad) || z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
                             _cache[quad] |= MASK_START_N;  // N to E low.
                             start_in_row = true;
                         }
                         else if (z_nw == 2 && z_se == 2 && z_ne < 2 &&
-                                 (EXISTS_NE_CORNER(quad) ||
-                                  z_sw == 2 || SADDLE_Z_LEVEL(quad) == 2)) {
+                                 (EXISTS_NE_CORNER(quad) || z_sw == 2 ||
+                                  SADDLE_Z_LEVEL(quad) == 2)) {
                             _cache[quad] |= MASK_START_N;  // N to E high.
                             start_in_row = true;
                         }
 
                         if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
-                            (EXISTS_NE_CORNER(quad) ||
-                             z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
+                            (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
                             _cache[quad] |= MASK_START_E;  // E to N low.
                             start_in_row = true;
                         }
                         else if (z_ne == 2 && z_nw < 2 && z_se < 2 &&
-                                 (EXISTS_NE_CORNER(quad) ||
-                                  z_sw < 2 || SADDLE_Z_LEVEL(quad) < 2)) {
+                                 (EXISTS_NE_CORNER(quad) || z_sw < 2 || SADDLE_Z_LEVEL(quad) < 2)) {
                             _cache[quad] |= MASK_START_E;  // E to N high.
                             start_in_row = true;
                         }
                     }
 
                     if (BOUNDARY_S(quad) &&
-                        ((z_sw == 2 && z_se < 2) || (z_sw == 0 && z_se > 0) ||
-                         z_sw == 1)) {
+                        ((z_sw == 2 && z_se < 2) || (z_sw == 0 && z_se > 0) || z_sw == 1)) {
                         _cache[quad] |= MASK_START_BOUNDARY_S;
                         start_in_row = true;
                     }
@@ -1205,25 +1180,21 @@ void ThreadedContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
 
                     if (EXISTS_ANY_CORNER(quad)) {
                         if (EXISTS_NE_CORNER(quad) &&
-                            ((z_nw == 2 && z_se < 2) ||
-                             (z_nw == 0 && z_se > 0) || z_nw == 1)) {
+                            ((z_nw == 2 && z_se < 2) || (z_nw == 0 && z_se > 0) || z_nw == 1)) {
                             _cache[quad] |= MASK_START_CORNER;
                             start_in_row = true;
                         }
                         else if (EXISTS_NW_CORNER(quad) &&
-                                 ((z_sw == 2 && z_ne < 2) ||
-                                  (z_sw == 0 && z_ne > 0))) {
+                                 ((z_sw == 2 && z_ne < 2) || (z_sw == 0 && z_ne > 0))) {
                             _cache[quad] |= MASK_START_CORNER;
                             start_in_row = true;
                         }
-                        else if (EXISTS_SE_CORNER(quad) &&
-                                 ((z_sw == 0 && z_se == 0 && z_ne > 0) ||
-                                  (z_sw == 2 && z_se == 2 && z_ne < 2))) {
+                        else if (EXISTS_SE_CORNER(quad) && ((z_sw == 0 && z_se == 0 && z_ne > 0) ||
+                                                            (z_sw == 2 && z_se == 2 && z_ne < 2))) {
                             _cache[quad] |= MASK_START_CORNER;
                             start_in_row = true;
                         }
-                        else if (EXISTS_SW_CORNER(quad) &&
-                                 z_nw == 1 && z_se == 1) {
+                        else if (EXISTS_SW_CORNER(quad) && z_nw == 1 && z_se == 1) {
                             _cache[quad] |= MASK_START_CORNER;
                             start_in_row = true;
                         }
@@ -1232,9 +1203,8 @@ void ThreadedContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
                     // Start following N boundary from E to W which is a hole.
                     // Required for an internal masked region which is a hole in
                     // a filled polygon.
-                    if (BOUNDARY_N(quad) && EXISTS_N_EDGE(quad) &&
-                        z_nw == 1 && z_ne == 1 && !START_HOLE_N(quad-1) &&
-                        j % _y_chunk_size != 0 && j != _ny-1) {
+                    if (BOUNDARY_N(quad) && EXISTS_N_EDGE(quad) && z_nw == 1 && z_ne == 1 &&
+                        !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1) {
                         _cache[quad] |= MASK_START_HOLE_N;
                         start_in_row = true;
                     }
@@ -1260,11 +1230,9 @@ void ThreadedContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
                         start_in_row = true;
                     }
 
-                    if (EXISTS_N_AND_E_EDGES(quad) &&
-                        !BOUNDARY_N(quad) && !BOUNDARY_E(quad)) {
+                    if (EXISTS_N_AND_E_EDGES(quad) && !BOUNDARY_N(quad) && !BOUNDARY_E(quad)) {
                         if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
-                            (EXISTS_NE_CORNER(quad) || z_sw > 0 ||
-                             SADDLE_Z_LEVEL(quad) > 0)) {
+                            (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
                             _cache[quad] |= MASK_START_E;  // E to N low.
                             start_in_row = true;
                         }
@@ -1336,36 +1304,29 @@ void ThreadedContourGenerator::interp(
 
     assert(frac >= 0.0 && frac <= 1.0 && "Interp fraction out of bounds");
 
-    *local.points++ =
-        get_point_x(point0)*frac + get_point_x(point1)*(1.0 - frac);
-    *local.points++ =
-        get_point_y(point0)*frac + get_point_y(point1)*(1.0 - frac);
+    *local.points++ = get_point_x(point0)*frac + get_point_x(point1)*(1.0 - frac);
+    *local.points++ = get_point_y(point0)*frac + get_point_y(point1)*(1.0 - frac);
 }
 
-bool ThreadedContourGenerator::is_point_in_chunk(
-    index_t point, const ChunkLocal& local) const
+bool ThreadedContourGenerator::is_point_in_chunk(index_t point, const ChunkLocal& local) const
 {
     return is_quad_in_bounds(
         point, local.istart-1, local.iend, local.jstart-1, local.jend);
 }
 
 bool ThreadedContourGenerator::is_quad_in_bounds(
-    index_t quad, index_t istart, index_t iend, index_t jstart,
-    index_t jend) const
+    index_t quad, index_t istart, index_t iend, index_t jstart, index_t jend) const
 {
     return (quad % _nx >= istart && quad % _nx <= iend &&
             quad / _nx >= jstart && quad / _nx <= jend);
 }
 
-bool ThreadedContourGenerator::is_quad_in_chunk(
-    index_t quad, const ChunkLocal& local) const
+bool ThreadedContourGenerator::is_quad_in_chunk(index_t quad, const ChunkLocal& local) const
 {
-    return is_quad_in_bounds(
-        quad, local.istart, local.iend, local.jstart, local.jend);
+    return is_quad_in_bounds(quad, local.istart, local.iend, local.jstart, local.jend);
 }
 
-index_t ThreadedContourGenerator::limit_n_threads(
-    index_t n_threads, index_t n_chunks)
+index_t ThreadedContourGenerator::limit_n_threads(index_t n_threads, index_t n_chunks)
 {
     index_t max_threads = std::max<index_t>(Util::get_max_threads(), 1);
     if (n_threads == 0)
@@ -1374,8 +1335,7 @@ index_t ThreadedContourGenerator::limit_n_threads(
         return std::min({max_threads, n_chunks, n_threads});
 }
 
-void ThreadedContourGenerator::line(
-    const Location& start_location, ChunkLocal& local)
+void ThreadedContourGenerator::line(const Location& start_location, ChunkLocal& local)
 {
     // start_location.on_boundary indicates starts (and therefore also finishes)
 
@@ -1385,8 +1345,7 @@ void ThreadedContourGenerator::line(
     size_t point_count = 0;
 
     // finished == true indicates closed line loop.
-    bool finished = follow_interior(
-        location, start_location, local, point_count);
+    bool finished = follow_interior(location, start_location, local, point_count);
 
     if (local.pass > 0)
         local.line_offsets[local.line_count] = local.total_point_count;
@@ -1416,10 +1375,8 @@ py::sequence ThreadedContourGenerator::lines(const double& level)
 py::sequence ThreadedContourGenerator::march()
 {
     index_t list_len = _n_chunks;
-    if ((_filled && (_fill_type == FillType::OuterCodes ||
-                     _fill_type == FillType::OuterOffsets)) ||
-        (!_filled && (_line_type == LineType::Separate ||
-                      _line_type == LineType::SeparateCodes)))
+    if ((_filled && (_fill_type == FillType::OuterCodes || _fill_type == FillType::OuterOffsets)) ||
+        (!_filled && (_line_type == LineType::Separate || _line_type == LineType::SeparateCodes)))
         list_len = 0;
 
     // Prepare lists to return to python.
@@ -1444,8 +1401,7 @@ py::sequence ThreadedContourGenerator::march()
     threads.reserve(_n_threads);
     for (unsigned int i = 0; i < _n_threads-1; ++i)
         threads.emplace_back(
-            &ThreadedContourGenerator::thread_function, this,
-            std::ref(return_lists));
+            &ThreadedContourGenerator::thread_function, this, std::ref(return_lists));
 
     thread_function(std::ref(return_lists));  // Main thread work.
 
@@ -1491,8 +1447,7 @@ void ThreadedContourGenerator::march_chunk_filled(
             // Want to count number of starts in this row, so store how many
             // starts at start of row.
             size_t prev_start_count =
-                (_identify_holes ? local.line_count - local.hole_count
-                                 : local.line_count);
+                (_identify_holes ? local.line_count - local.hole_count : local.line_count);
 
             for (index_t i = local.istart; i <= local.iend; ++i, ++quad) {
                 if (!ANY_START_FILLED(quad))
@@ -1558,8 +1513,7 @@ void ThreadedContourGenerator::march_chunk_filled(
 
             // Number of starts at end of row.
             size_t start_count =
-                (_identify_holes ? local.line_count - local.hole_count
-                                 : local.line_count);
+                (_identify_holes ? local.line_count - local.hole_count : local.line_count);
             if (start_count - prev_start_count)
                 j_final_start = j;
             else
@@ -1570,8 +1524,7 @@ void ThreadedContourGenerator::march_chunk_filled(
             _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
 
         if (local.pass == 0) {
-            if (_fill_type == FillType::OuterCodes ||
-                _fill_type == FillType::OuterOffsets) {
+            if (_fill_type == FillType::OuterCodes || _fill_type == FillType::OuterOffsets) {
                 all_points.resize(2*local.total_point_count);
 
                 // Where to store contour points.
@@ -1614,8 +1567,7 @@ void ThreadedContourGenerator::march_chunk_filled(
     assert(local.line_offsets.back() == local.total_point_count);
 
     if (_identify_holes) {
-        assert(local.outer_offsets.size() ==
-               local.line_count - local.hole_count + 1);
+        assert(local.outer_offsets.size() == local.line_count - local.hole_count + 1);
         assert(local.outer_offsets.back() == local.line_count);
     }
     else {
@@ -1717,8 +1669,7 @@ void ThreadedContourGenerator::march_chunk_lines(
             _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
 
         if (local.pass == 0) {
-            if (_line_type == LineType::Separate ||
-                _line_type == LineType::SeparateCodes) {
+            if (_line_type == LineType::Separate || _line_type == LineType::SeparateCodes) {
                 all_points.resize(2*local.total_point_count);
 
                 // Where to store contour points.
@@ -1927,11 +1878,9 @@ void ThreadedContourGenerator::set_look_flags(index_t hole_start_quad)
 
     while (true) {
         assert(quad >= 0 && quad < _n);
-        assert(EXISTS_N_EDGE(quad) ||
-               (quad == hole_start_quad && EXISTS_SW_CORNER(quad)));
+        assert(EXISTS_N_EDGE(quad) || (quad == hole_start_quad && EXISTS_SW_CORNER(quad)));
 
-        if (BOUNDARY_S(quad) || EXISTS_NE_CORNER(quad) ||
-            EXISTS_NW_CORNER(quad) || Z_SE != 1) {
+        if (BOUNDARY_S(quad) || EXISTS_NE_CORNER(quad) || EXISTS_NW_CORNER(quad) || Z_SE != 1) {
             assert(!LOOK_N(quad) && "Look N already set");
             _cache[quad] |= MASK_LOOK_N;
             break;
@@ -1969,8 +1918,7 @@ bool ThreadedContourGenerator::supports_line_type(LineType line_type)
     }
 }
 
-void ThreadedContourGenerator::thread_function(
-    std::vector<py::list>& return_lists)
+void ThreadedContourGenerator::thread_function(std::vector<py::list>& return_lists)
 {
     // Function that is executed by each of the threads.
     // _next_chunk starts at zero and increases up to 2*_n_chunks.  A thread in

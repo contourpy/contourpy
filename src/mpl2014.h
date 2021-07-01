@@ -177,8 +177,7 @@ struct QuadEdge
     bool operator<(const QuadEdge& other) const;
     bool operator==(const QuadEdge& other) const;
     bool operator!=(const QuadEdge& other) const;
-    friend std::ostream& operator<<(std::ostream& os,
-                                    const QuadEdge& quad_edge);
+    friend std::ostream& operator<<(std::ostream& os, const QuadEdge& quad_edge);
 
     index_t quad;
     Edge edge;
@@ -276,15 +275,10 @@ public:
     //     the x-direction is subdivided into.
     //   y_chunk_size: 0 for no chunking, or +ve integer for size of chunks that
     //     the y-direction is subdivided into.
-    Mpl2014ContourGenerator(const CoordinateArray& x,
-                            const CoordinateArray& y,
-                            const CoordinateArray& z,
-                            const MaskArray& mask,
-                            bool corner_mask,
-                            LineType line_type,
-                            FillType fill_type,
-                            index_t x_chunk_size,
-                            index_t y_chunk_size);
+    Mpl2014ContourGenerator(
+        const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
+        const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
+        index_t x_chunk_size, index_t y_chunk_size);
 
     // Destructor.
     ~Mpl2014ContourGenerator();
@@ -337,9 +331,8 @@ private:
     // contours where each ContourLine is converted to a separate numpy array
     // of (x,y) points and a second numpy array of 'kinds' or 'codes'.
     // Clears the ContourLine too.
-    void append_contour_line_to_vertices_and_codes(ContourLine& contour_line,
-                                                   py::list& vertices_list,
-                                                   py::list& codes_list) const;
+    void append_contour_line_to_vertices_and_codes(
+        ContourLine& contour_line, py::list& vertices_list, py::list& codes_list) const;
 
     // Append a C++ Contour to the end of two python lists.  Used for filled
     // contours where each non-hole ContourLine and its child holes are
@@ -348,17 +341,15 @@ private:
     // individual polygons.
     // Clears the Contour too, freeing each ContourLine as soon as possible
     // for minimum RAM usage.
-    void append_contour_to_vertices_and_codes(Contour& contour,
-                                              py::list& vertices_list,
-                                              py::list& codes_list) const;
+    void append_contour_to_vertices_and_codes(
+        Contour& contour, py::list& vertices_list, py::list& codes_list) const;
 
     // Return number of chunks that fit in the specified point_count.
     index_t calc_chunk_count(index_t point_count, index_t chunk_size) const;
 
     // Append the point on the specified QuadEdge that intersects the specified
     // level to the specified ContourLine.
-    void edge_interp(const QuadEdge& quad_edge, const double& level,
-                     ContourLine& contour_line);
+    void edge_interp(const QuadEdge& quad_edge, const double& level, ContourLine& contour_line);
 
     // Follow a contour along a boundary, appending points to the ContourLine
     // as it progresses.  Only called for filled contours.  Stops when the
@@ -377,12 +368,9 @@ private:
     //   start_quad_edge: QuadEdge that the ContourLine started from, which is
     //     used to check if the ContourLine is finished.
     // Returns the end level_index.
-    unsigned int follow_boundary(ContourLine& contour_line,
-                                 QuadEdge& quad_edge,
-                                 const double& lower_level,
-                                 const double& upper_level,
-                                 unsigned int level_index,
-                                 const QuadEdge& start_quad_edge);
+    unsigned int follow_boundary(
+        ContourLine& contour_line, QuadEdge& quad_edge, const double& lower_level,
+        const double& upper_level, unsigned int level_index, const QuadEdge& start_quad_edge);
 
     // Follow a contour across the interior of the domain, appending points to
     // the ContourLine as it progresses.  Called for both line and filled
@@ -403,23 +391,15 @@ private:
     //   start_level_index: the level_index that the ContourLine started from.
     //   set_parents: whether should set ParentCache as it progresses or not.
     //     This is true for filled contours, false for line contours.
-    void follow_interior(ContourLine& contour_line,
-                         QuadEdge& quad_edge,
-                         unsigned int level_index,
-                         const double& level,
-                         bool want_initial_point,
-                         const QuadEdge* start_quad_edge,
-                         unsigned int start_level_index,
-                         bool set_parents);
+    void follow_interior(
+        ContourLine& contour_line, QuadEdge& quad_edge, unsigned int level_index,
+        const double& level, bool want_initial_point, const QuadEdge* start_quad_edge,
+        unsigned int start_level_index, bool set_parents);
 
     // Return the index limits of a particular chunk.
-    void get_chunk_limits(index_t ijchunk,
-                          index_t& ichunk,
-                          index_t& jchunk,
-                          index_t& istart,
-                          index_t& iend,
-                          index_t& jstart,
-                          index_t& jend);
+    void get_chunk_limits(
+        index_t ijchunk, index_t& ichunk, index_t& jchunk, index_t& istart, index_t& iend,
+        index_t& jstart, index_t& jend);
 
     // Check if a contour starts within the specified corner quad on the
     // specified level_index, and if so return the start edge.  Otherwise
@@ -462,13 +442,12 @@ private:
     // Initialise the cache with information that is specific to contouring the
     // specified two levels.  The levels are the same for contour lines,
     // different for filled contours.
-    void init_cache_levels(const double& lower_level,
-                           const double& upper_level);
+    void init_cache_levels(const double& lower_level, const double& upper_level);
 
     // Append the (x,y) point at which the level intersects the line connecting
     // the two specified point indices to the specified ContourLine.
-    void interp(index_t point1, index_t point2, const double& level,
-                ContourLine& contour_line) const;
+    void interp(
+        index_t point1, index_t point2, const double& level, ContourLine& contour_line) const;
 
     // Return true if the specified QuadEdge is a boundary, i.e. is either an
     // edge between a masked and non-masked quad/corner or is a chunk boundary.
@@ -484,10 +463,8 @@ private:
 
     // Check for filled contours starting within the specified quad and
     // complete any that are found, appending them to the specified Contour.
-    void single_quad_filled(Contour& contour,
-                            index_t quad,
-                            const double& lower_level,
-                            const double& upper_level);
+    void single_quad_filled(
+        Contour& contour, index_t quad, const double& lower_level, const double& upper_level);
 
     // Start and complete a filled contour line.
     //   quad: index of quad to start ContourLine in.
@@ -499,13 +476,10 @@ private:
     //   lower_level: lower contour z-value.
     //   upper_level: upper contour z-value.
     // Returns newly created ContourLine.
-    ContourLine* start_filled(index_t quad,
-                              Edge edge,
-                              unsigned int start_level_index,
-                              HoleOrNot hole_or_not,
-                              BoundaryOrInterior boundary_or_interior,
-                              const double& lower_level,
-                              const double& upper_level);
+    ContourLine* start_filled(
+        index_t quad, Edge edge, unsigned int start_level_index, HoleOrNot hole_or_not,
+        BoundaryOrInterior boundary_or_interior, const double& lower_level,
+        const double& upper_level);
 
     // Start and complete a line contour that both starts and end on a
     // boundary, traversing the interior of the domain.
@@ -516,11 +490,9 @@ private:
     //   level: contour z-value.
     // Returns true if the start quad does not need to be visited again, i.e.
     // VISITED(quad,1).
-    bool start_line(py::list& vertices_list,
-                    py::list& codes_list,
-                    index_t quad,
-                    Edge edge,
-                    const double& level);
+    bool start_line(
+        py::list& vertices_list, py::list& codes_list, index_t quad, Edge edge,
+        const double& level);
 
     // Debug function that writes the cache status to stdout.
     void write_cache(bool grid_only = false) const;
