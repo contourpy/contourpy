@@ -1,9 +1,23 @@
 from ._contourpy import (
-    max_threads, FillType, Interp, LineType, Mpl2014ContourGenerator,
-    SerialContourGenerator, ThreadedContourGenerator)
+    max_threads, FillType, Interp, LineType, Mpl2014ContourGenerator, SerialContourGenerator,
+    ThreadedContourGenerator,
+)
 from .mpl2005 import Mpl2005ContourGenerator
 from .util.chunk import calc_chunk_sizes
 import numpy as np
+
+
+__all__ = [
+    'contour_generator',
+    'max_threads',
+    'FillType',
+    'Interp',
+    'LineType',
+    'Mpl2005ContourGenerator',
+    'Mpl2014ContourGenerator',
+    'SerialContourGenerator',
+    'ThreadedContourGenerator',
+]
 
 
 def _name_to_class(name):
@@ -12,9 +26,9 @@ def _name_to_class(name):
     return cls
 
 
-def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None,
-                      line_type=None, fill_type=None, interp=Interp.Linear,
-                      thread_count=0, chunk_count=None, total_chunk_count=None):
+def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, line_type=None,
+                      fill_type=None, interp=Interp.Linear, thread_count=0, chunk_count=None,
+                      total_chunk_count=None):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.
@@ -23,34 +37,28 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None,
     if z.ndim != 2:
         raise TypeError(f'Input z must be 2D, not {z.ndim}D')
     if z.shape[0] < 2 or z.shape[1] < 2:
-        raise TypeError('Input z must be at least a (2, 2) shaped array, '
-                        f'but has shape {z.shape}')
+        raise TypeError(f'Input z must be at least a (2, 2) shaped array, but has shape {z.shape}')
 
     ny, nx = z.shape
 
     # Check arguments: x and y.
     if x.ndim != y.ndim:
-        raise TypeError(f'Number of dimensions of x ({x.ndim}) and y '
-                        f'({y.ndim}) do not match')
+        raise TypeError(f'Number of dimensions of x ({x.ndim}) and y ({y.ndim}) do not match')
     if x.ndim == 0:
         x = np.arange(nx)
         y = np.arange(ny)
         x, y = np.meshgrid(x, y)
     elif x.ndim == 1:
         if len(x) != nx:
-            raise TypeError(f'Length of x ({len(x)}) must match number of '
-                            f'columns in z ({nx})')
+            raise TypeError(f'Length of x ({len(x)}) must match number of columns in z ({nx})')
         if len(y) != ny:
-            raise TypeError(f'Length of y ({len(y)}) must match number of '
-                            f'rows in z ({ny})')
+            raise TypeError(f'Length of y ({len(y)}) must match number of rows in z ({ny})')
         x, y = np.meshgrid(x, y)
     elif x.ndim == 2:
         if x.shape != z.shape:
-            raise TypeError(
-                f'Shapes of x {x.shape} and z {z.shape} do not match')
+            raise TypeError(f'Shapes of x {x.shape} and z {z.shape} do not match')
         if y.shape != z.shape:
-            raise TypeError(
-                f'Shapes of y {y.shape} and z {z.shape} do not match')
+            raise TypeError(f'Shapes of y {y.shape} and z {z.shape} do not match')
     else:
         raise TypeError(f'Inputs x and y must be None, 1D or 2D, not {x.ndim}D')
 
@@ -84,7 +92,7 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None,
         # Set it to default, which is True if the algorithm supports it.
         corner_mask = cls.supports_corner_mask()
     elif corner_mask and not cls.supports_corner_mask():
-            raise ValueError(f'{name} contour generator does not support corner_mask=True')
+        raise ValueError(f'{name} contour generator does not support corner_mask=True')
 
     # Check arguments: line_type.
     if line_type is None:

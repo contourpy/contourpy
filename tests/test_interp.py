@@ -21,8 +21,7 @@ def xyz_log():
 @pytest.mark.parametrize('name', ['serial', 'threaded'])
 def test_interp_log(xyz_log, name):
     x, y, z = xyz_log
-    cont_gen = contour_generator(
-        x, y, z, name, interp=Interp.Log, line_type=LineType.Separate)
+    cont_gen = contour_generator(x, y, z, name, interp=Interp.Log, line_type=LineType.Separate)
     for level in [0.3, 1, 3, 10, 30, 100]:
         expected_y = np.log10(level) / 2.5
         lines = cont_gen.lines(level)

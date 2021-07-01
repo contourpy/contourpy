@@ -3,6 +3,7 @@ from contourpy.util.data import random_uniform
 import numpy as np
 from .util_bench import corner_masks, problem_sizes
 
+
 class BenchFilled:
     params = (['mpl2005', 'mpl2014', 'serial'], corner_masks(), problem_sizes())
     param_names = ['name', 'corner_mask', 'n']
@@ -14,10 +15,12 @@ class BenchFilled:
         self.levels = np.arange(0.0, 1.01, 0.1)
 
     def time_lines(self, name, corner_mask, n):
-        if name == 'mpl2005' and corner_mask == True:
+        if name == 'mpl2005' and corner_mask is True:
             raise NotImplementedError  # Does not support corner_mask=True
+        if corner_mask == 'no mask':
+            corner_mask = False
         cont_gen = contour_generator(
             self.x, self.y, self.z, name=name, line_type=LineType.SeparateCodes,
-            corner_mask=corner_mask if corner_mask != 'no mask' else False)
-        all_lines = [cont_gen.lines(level) for level in self.levels]
-        
+            corner_mask=corner_mask)
+        for level in self.levels:
+            cont_gen.lines(level)

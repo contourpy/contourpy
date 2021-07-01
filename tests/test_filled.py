@@ -17,39 +17,32 @@ def two_outers_one_hole():
     return x, y, z
 
 
-@pytest.mark.parametrize(
-    'name, fill_type', util_test.all_names_and_fill_types())
+@pytest.mark.parametrize('name, fill_type', util_test.all_names_and_fill_types())
 def test_filled_random_uniform_no_corner_mask(name, fill_type):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
-    cont_gen = contour_generator(
-        x, y, z, name=name, fill_type=fill_type, corner_mask=False)
+    cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, corner_mask=False)
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.fill_type == fill_type
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
-                        color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'filled_random_uniform_no_corner_mask.png',
-                   f'{name}_{fill_type}')
+    compare_images(image_buffer, 'filled_random_uniform_no_corner_mask.png', f'{name}_{fill_type}')
 
 
-@pytest.mark.parametrize(
-    'name, fill_type', util_test.all_names_and_fill_types())
+@pytest.mark.parametrize('name, fill_type', util_test.all_names_and_fill_types())
 def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(
-        x, y, z, name=name, fill_type=fill_type, corner_mask=False,
-        chunk_size=2)
+        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2)
     levels = np.arange(0.0, 1.01, 0.2)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
-                        color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
     max_threshold = None
@@ -58,36 +51,35 @@ def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
         max_threshold = 128
         mean_threshold = 0.19
     elif name in ('serial', 'threaded'):
-        if fill_type in (
-            FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets):
+        if fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets):
             max_threshold = 99
             mean_threshold = 0.18
         else:
             max_threshold = 134
             mean_threshold = 0.23
 
-    compare_images(image_buffer,
-                   'filled_random_uniform_no_corner_mask_chunk.png',
-                   f'{name}_{fill_type}', max_threshold=max_threshold,
-                   mean_threshold=mean_threshold)
+    compare_images(
+        image_buffer,
+        'filled_random_uniform_no_corner_mask_chunk.png',
+        f'{name}_{fill_type}',
+        max_threshold=max_threshold,
+        mean_threshold=mean_threshold,
+    )
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
 def test_filled_random_uniform_corner_mask(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     fill_type = FillType.OuterCodes
-    cont_gen = contour_generator(
-        x, y, z, name=name, corner_mask=True, fill_type=fill_type)
+    cont_gen = contour_generator(x, y, z, name=name, corner_mask=True, fill_type=fill_type)
     levels = np.arange(0.0, 1.01, 0.2)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
-                        color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'filled_random_uniform_corner_mask.png',
-                   f'{name}_{fill_type}')
+    compare_images(image_buffer, 'filled_random_uniform_corner_mask.png', f'{name}_{fill_type}')
 
 
 @pytest.mark.parametrize('name', util_test.corner_mask_names())
@@ -100,8 +92,7 @@ def test_filled_random_uniform_corner_mask_chunk(name):
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type,
-                        color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f'C{i}')
     image_buffer = renderer.save_to_buffer()
 
     max_threshold = None
@@ -110,11 +101,12 @@ def test_filled_random_uniform_corner_mask_chunk(name):
         max_threshold = 134
         mean_threshold = 0.17
 
-
-
-    compare_images(image_buffer, 'filled_random_uniform_corner_mask_chunk.png',
-                   f'{name}_{fill_type}', max_threshold=max_threshold,
-                   mean_threshold=mean_threshold)
+    compare_images(
+        image_buffer, 'filled_random_uniform_corner_mask_chunk.png',
+        f'{name}_{fill_type}',
+        max_threshold=max_threshold,
+        mean_threshold=mean_threshold,
+    )
 
 
 @pytest.mark.parametrize('fill_type', FillType.__members__.values())
@@ -152,12 +144,9 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
                 assert o.dtype == np.intp
             assert_array_equal(offsets[0], [0, 8, 13])
             assert_array_equal(offsets[1], [0, 4])
-    elif fill_type in (FillType.ChunkCombinedCodes,
-                       FillType.ChunkCombinedOffsets,
-                       FillType.ChunkCombinedCodesOffsets,
-                       FillType.ChunkCombinedOffsets2):
-        if fill_type in (FillType.ChunkCombinedCodes,
-                         FillType.ChunkCombinedOffsets):
+    elif fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets,
+                       FillType.ChunkCombinedCodesOffsets, FillType.ChunkCombinedOffsets2):
+        if fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets):
             assert isinstance(filled, tuple) and len(filled) == 2
         else:
             assert isinstance(filled, tuple) and len(filled) == 3
@@ -170,15 +159,13 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
         assert_array_equal(points[0], points[7])
         assert_array_equal(points[8], points[12])
         assert_array_equal(points[13], points[16])
-        if fill_type in (FillType.ChunkCombinedCodes,
-                         FillType.ChunkCombinedCodesOffsets):
+        if fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedCodesOffsets):
             codes = filled[1]
             assert isinstance(codes, list) and len(codes) == 1
             codes = codes[0]
             assert isinstance(codes, np.ndarray)
             assert codes.dtype == np.uint8
-            assert_array_equal(
-                codes, [1, 2, 2, 2, 2, 2, 2, 79, 1, 2, 2, 2, 79, 1, 2, 2, 79])
+            assert_array_equal(codes, [1, 2, 2, 2, 2, 2, 2, 79, 1, 2, 2, 2, 79, 1, 2, 2, 79])
         else:
             offsets = filled[1]
             assert isinstance(offsets, list) and len(offsets) == 1
@@ -187,8 +174,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert offsets.dtype == np.intp
             assert_array_equal(offsets, [0, 8, 13, 17])
 
-        if fill_type in (FillType.ChunkCombinedCodesOffsets,
-                         FillType.ChunkCombinedOffsets2):
+        if fill_type in (FillType.ChunkCombinedCodesOffsets, FillType.ChunkCombinedOffsets2):
             outer_offsets = filled[2]
             assert isinstance(outer_offsets, list) and len(outer_offsets) == 1
             outer_offsets = outer_offsets[0]

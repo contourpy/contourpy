@@ -4,6 +4,7 @@ from contourpy.util.mpl_renderer import MplTestRenderer
 import numpy as np
 from .util_bench import corner_masks, line_types, problem_sizes
 
+
 class BenchLineTypeRender:
     params = (corner_masks(), line_types(), problem_sizes())
     param_names = ['corner_mask', 'line_type', 'n']
@@ -15,9 +16,10 @@ class BenchLineTypeRender:
         self.levels = np.arange(0.0, 1.01, 0.1)
 
     def time_line_type_render(self, corner_mask, line_type, n):
+        if corner_mask == 'no mask':
+            corner_mask = False
         cont_gen = contour_generator(
-            self.x, self.y, self.z, name='serial', line_type=line_type,
-            corner_mask=corner_mask if corner_mask != 'no mask' else False)
+            self.x, self.y, self.z, name='serial', line_type=line_type, corner_mask=corner_mask)
         renderer = MplTestRenderer(self.x, self.y)
         for i, level in enumerate(self.levels):
             lines = cont_gen.lines(level)

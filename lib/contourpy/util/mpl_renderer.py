@@ -7,8 +7,7 @@ _default_backend = matplotlib.get_backend()
 matplotlib.use('Agg')
 
 from contourpy import FillType, LineType
-from .mpl_util import (
-    filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offsets)
+from .mpl_util import filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offsets
 
 import io
 import matplotlib.pyplot as plt
@@ -20,8 +19,8 @@ class MplRenderer:
     def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
         plt.switch_backend(_default_backend)
         self._fig, axes = plt.subplots(
-            nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False,
-            sharex=True, sharey=True, subplot_kw={'aspect': 'equal'})
+            nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False, sharex=True, sharey=True,
+            subplot_kw={'aspect': 'equal'})
         self._axes = axes.flatten()
 
     def __del__(self):
@@ -29,6 +28,9 @@ class MplRenderer:
             plt.close(self._fig)
 
     def _autoscale(self):
+        # Using axes._need_autoscale attribute if need to autoscale before rendering after adding
+        # lines/filled.  Only want to autoscale once per axes regardless of how many lines/filled
+        # added.
         for ax in self._axes:
             if getattr(ax, '_need_autoscale', False):
                 ax.autoscale_view(tight=True)
@@ -53,13 +55,11 @@ class MplRenderer:
             x, y = np.meshgrid(x, y)
         ax.plot(x, y, x.T, y.T, color=color, alpha=alpha)
 
-    def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0,
-              linewidth=1):
+    def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0, linewidth=1):
         ax = self._get_ax(ax)
         paths = lines_to_mpl_paths(lines, line_type)
         collection = mcollections.PathCollection(
-            paths, facecolors='none', edgecolors=color, lw=linewidth,
-            alpha=alpha)
+            paths, facecolors='none', edgecolors=color, lw=linewidth, alpha=alpha)
         ax.add_collection(collection)
         ax._need_autoscale = True
 
@@ -87,11 +87,16 @@ class MplRenderer:
 # Uses Agg backend, so can only save to file/buffer, cannot call show().
 class MplTestRenderer(MplRenderer):
     def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
-        gridspec = {'left': 0.01, 'right': 0.99, 'top': 0.99, 'bottom': 0.01,
-                    'wspace': 0.01, 'hspace': 0.01}
+        gridspec = {
+            'left': 0.01,
+            'right': 0.99,
+            'top': 0.99,
+            'bottom': 0.01,
+            'wspace': 0.01,
+            'hspace': 0.01,
+        }
         self._fig, axes = plt.subplots(
-            nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False,
-            gridspec_kw=gridspec)
+            nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False, gridspec_kw=gridspec)
         self._axes = axes.flatten()
         for ax in self._axes:
             ax.set_xmargin(0.0)
@@ -112,12 +117,12 @@ class MplDebugRenderer(MplRenderer):
         arrow = np.stack((
             mid - (along*0.5 - right)*arrow_size,
             mid + along*0.5*arrow_size,
-            mid - (along*0.5 + right)*arrow_size))
-        ax.plot(arrow[:,0], arrow[:, 1], '-', c=color, alpha=alpha)
+            mid - (along*0.5 + right)*arrow_size,
+        ))
+        ax.plot(arrow[:, 0], arrow[:, 1], '-', c=color, alpha=alpha)
 
-    def filled(self, filled, fill_type, ax=0, color='C1', alpha=0.7,
-               line_color='C0', point_color='C0', start_point_color='red',
-               arrow_size=0.1):
+    def filled(self, filled, fill_type, ax=0, color='C1', alpha=0.7, line_color='C0',
+               point_color='C0', start_point_color='red', arrow_size=0.1):
         super().filled(filled, fill_type, ax, color, alpha)
 
         if line_color is None and point_color is None:
@@ -130,15 +135,13 @@ class MplDebugRenderer(MplRenderer):
             all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1]]
         elif fill_type == FillType.ChunkCombinedCodes:
             all_points = [points for points in filled[0] if points is not None]
-            all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1]
-                           if codes is not None]
+            all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1] if codes is not None]
         elif fill_type == FillType.OuterOffsets:
             all_points = filled[0]
             all_offsets = filled[1]
         elif fill_type == FillType.ChunkCombinedOffsets:
-              all_points = [points for points in filled[0] if points is not None]
-              all_offsets = [offsets for offsets in filled[1]
-                             if offsets is not None]
+            all_points = [points for points in filled[0] if points is not None]
+            all_offsets = [offsets for offsets in filled[1] if offsets is not None]
         elif fill_type == FillType.ChunkCombinedCodesOffsets:
             all_points = []
             all_offsets = []
@@ -171,8 +174,7 @@ class MplDebugRenderer(MplRenderer):
                     if arrow_size > 0.0:
                         n = len(xys)
                         for i in range(n-1):
-                            self._arrow(ax, xys[i], xys[i+1], line_color, alpha,
-                                        arrow_size)
+                            self._arrow(ax, xys[i], xys[i+1], line_color, alpha, arrow_size)
 
         # Points.
         if point_color is not None:
@@ -182,16 +184,14 @@ class MplDebugRenderer(MplRenderer):
                 if start_point_color is not None:
                     start_indices = offsets[:-1]
                     mask[start_indices] = False  # Exclude start points.
-                ax.plot(points[:, 0][mask], points[:, 1][mask], 'o',
-                        c=point_color, alpha=alpha)
+                ax.plot(points[:, 0][mask], points[:, 1][mask], 'o', c=point_color, alpha=alpha)
 
                 if start_point_color is not None:
-                    ax.plot(points[:, 0][start_indices],
-                            points[:, 1][start_indices], 'o',
+                    ax.plot(points[:, 0][start_indices], points[:, 1][start_indices], 'o',
                             c=start_point_color, alpha=alpha)
 
-    def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0, linewidth=1,
-              point_color='C0', start_point_color='red', arrow_size=0.1):
+    def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0, linewidth=1, point_color='C0',
+              start_point_color='red', arrow_size=0.1):
         super().lines(lines, line_type, ax, color, alpha, linewidth)
 
         if arrow_size == 0.0 and point_color is None:
@@ -220,22 +220,19 @@ class MplDebugRenderer(MplRenderer):
         if arrow_size > 0.0:
             for line in all_lines:
                 for i in range(len(line)-1):
-                    self._arrow(ax, line[i], line[i+1], color, alpha,
-                                arrow_size)
+                    self._arrow(ax, line[i], line[i+1], color, alpha, arrow_size)
 
         if point_color is not None:
             for line in all_lines:
                 start_index = 0
                 end_index = len(line)
                 if start_point_color is not None:
-                    ax.plot(line[0, 0], line[0, 1], 'o', c=start_point_color,
-                            alpha=alpha)
+                    ax.plot(line[0, 0], line[0, 1], 'o', c=start_point_color, alpha=alpha)
                     start_index = 1
                     if line[0][0] == line[-1][0] and line[0][1] == line[-1][1]:
                         end_index -= 1
-                ax.plot(line[start_index:end_index, 0],
-                        line[start_index:end_index, 1], 'o', c=color,
-                        alpha=alpha)
+                ax.plot(line[start_index:end_index, 0], line[start_index:end_index, 1], 'o',
+                        c=color, alpha=alpha)
 
     def point_numbers(self, x, y, z, ax=0, color='red'):
         ax = self._get_ax(ax)
@@ -243,8 +240,8 @@ class MplDebugRenderer(MplRenderer):
         for j in range(ny):
             for i in range(nx):
                 quad = i + j*nx
-                ax.text(x[j, i], y[j, i], str(quad), ha='right', va='top',
-                        color=color, clip_on=True)
+                ax.text(x[j, i], y[j, i], str(quad), ha='right', va='top', color=color,
+                        clip_on=True)
 
     def quad_numbers(self, x, y, z, ax=0, color='blue'):
         ax = self._get_ax(ax)
@@ -254,21 +251,19 @@ class MplDebugRenderer(MplRenderer):
                 quad = i + j*nx
                 xmid = x[j-1:j+1, i-1:i+1].mean()
                 ymid = y[j-1:j+1, i-1:i+1].mean()
-                ax.text(xmid, ymid, str(quad), ha='center', va='center',
-                        color=color, clip_on=True)
+                ax.text(xmid, ymid, str(quad), ha='center', va='center', color=color, clip_on=True)
 
-    def z_levels(self, x, y, z, lower_level, upper_level=None, ax=0,
-                 color='green'):
+    def z_levels(self, x, y, z, lower_level, upper_level=None, ax=0, color='green'):
         ax = self._get_ax(ax)
         ny, nx = z.shape
         for j in range(ny):
             for i in range(nx):
-                zz = z[j,i]
+                zz = z[j, i]
                 if upper_level is not None and zz > upper_level:
                     z_level = 2
                 elif zz > lower_level:
                     z_level = 1
                 else:
                     z_level = 0
-                ax.text(x[j, i], y[j, i], z_level, ha='left', va='bottom',
-                        color=color, clip_on=True)
+                ax.text(x[j, i], y[j, i], z_level, ha='left', va='bottom', color=color,
+                        clip_on=True)

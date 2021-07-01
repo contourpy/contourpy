@@ -1,5 +1,4 @@
 from contourpy import max_threads
-import pytest
 
 
 def test_max_threads():

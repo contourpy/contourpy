@@ -1,16 +1,13 @@
 from contourpy import FillType, LineType
 from .mpl_util import mpl_codes_to_offsets
-import numpy as np
 
 
 def filled_to_bokeh(filled, fill_type):
     xs = []
     ys = []
-    if fill_type in (
-        FillType.OuterOffsets, FillType.ChunkCombinedOffsets,
-        FillType.OuterCodes, FillType.ChunkCombinedCodes):
-        have_codes = \
-            fill_type in (FillType.OuterCodes, FillType.ChunkCombinedCodes)
+    if fill_type in (FillType.OuterOffsets, FillType.ChunkCombinedOffsets,
+                     FillType.OuterCodes, FillType.ChunkCombinedCodes):
+        have_codes = fill_type in (FillType.OuterCodes, FillType.ChunkCombinedCodes)
 
         for points, offsets in zip(*filled):
             if points is None:
@@ -23,8 +20,7 @@ def filled_to_bokeh(filled, fill_type):
                 xys = points[offsets[i]:offsets[i+1]]
                 xs[-1].append(xys[:, 0])
                 ys[-1].append(xys[:, 1])
-    elif fill_type in (
-        FillType.ChunkCombinedCodesOffsets, FillType.ChunkCombinedOffsets2):
+    elif fill_type in (FillType.ChunkCombinedCodesOffsets, FillType.ChunkCombinedOffsets2):
         for points, codes_or_offsets, outer_offsets in zip(*filled):
             if points is None:
                 continue

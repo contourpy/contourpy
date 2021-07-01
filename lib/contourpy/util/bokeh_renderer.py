@@ -44,8 +44,7 @@ class BokehRenderer:
         color = self._convert_color(color)
         xs, ys = filled_to_bokeh(filled, fill_type)
         if len(xs) > 0:
-            fig.multi_polygons(
-                xs=[xs], ys=[ys], color=color, fill_alpha=alpha, line_width=0)
+            fig.multi_polygons(xs=[xs], ys=[ys], color=color, fill_alpha=alpha, line_width=0)
 
     def grid(self, x, y, ax=0, color='black', alpha=0.1):
         fig = self._get_figure(ax)
@@ -57,15 +56,13 @@ class BokehRenderer:
         ys = [row for row in y] + [row for row in y.T]
         fig.multi_line(xs, ys, line_color=color, alpha=alpha)
 
-    def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0,
-              linewidth=1):
+    def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0, linewidth=1):
         # Assumes all lines are open line loops.
         fig = self._get_figure(ax)
         color = self._convert_color(color)
         xs, ys = lines_to_bokeh(lines, line_type)
         if len(xs) > 0:
-            fig.multi_line(xs, ys, line_color=color, line_alpha=alpha,
-                           line_width=linewidth)
+            fig.multi_line(xs, ys, line_color=color, line_alpha=alpha, line_width=linewidth)
 
     def save(self, filename):
         if self._want_svg:

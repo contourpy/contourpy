@@ -4,8 +4,8 @@ from PIL import Image
 from shutil import copyfile
 
 
-def compare_images(test_buffer, baseline_filename, test_filename_suffix=None,
-                   max_threshold=None, mean_threshold=None):
+def compare_images(test_buffer, baseline_filename, test_filename_suffix=None, max_threshold=None,
+                   mean_threshold=None):
     if max_threshold is None:
         max_threshold = 100
     if mean_threshold is None:
@@ -21,19 +21,18 @@ def compare_images(test_buffer, baseline_filename, test_filename_suffix=None,
     mean_diff = None
 
     try:
-        test_image = np.asarray(Image.open(test_buffer).convert("RGBA"),
-                                dtype=np.int16)
+        test_image = np.asarray(Image.open(test_buffer).convert('RGBA'))
+        test_image = test_image.astype(np.int16)
 
-        full_baseline_filename = os.path.join('tests', 'baseline_images',
-                                              baseline_filename)
+        full_baseline_filename = os.path.join('tests', 'baseline_images', baseline_filename)
         assert os.path.isfile(full_baseline_filename)
 
-        baseline_image = np.asarray(
-            Image.open(full_baseline_filename).convert("RGBA"), dtype=np.int16)
+        baseline_image = np.asarray(Image.open(full_baseline_filename).convert('RGBA'))
+        baseline_image = baseline_image.astype(np.int16)
 
         diff = np.abs(test_image - baseline_image)
-        max_diff = diff[:,:,:3].max()
-        mean_diff = diff[:,:,:3].mean()
+        max_diff = diff[:, :, :3].max()
+        mean_diff = diff[:, :, :3].mean()
 
         assert max_diff < max_threshold and mean_diff < mean_threshold
     except AssertionError:
