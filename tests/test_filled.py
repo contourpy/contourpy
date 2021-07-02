@@ -17,7 +17,7 @@ def two_outers_one_hole():
     return x, y, z
 
 
-@pytest.mark.parametrize('name, fill_type', util_test.all_names_and_fill_types())
+@pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random_uniform_no_corner_mask(name, fill_type):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, corner_mask=False)
@@ -27,13 +27,13 @@ def test_filled_random_uniform_no_corner_mask(name, fill_type):
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'filled_random_uniform_no_corner_mask.png', f'{name}_{fill_type}')
+    compare_images(image_buffer, "filled_random_uniform_no_corner_mask.png", f"{name}_{fill_type}")
 
 
-@pytest.mark.parametrize('name, fill_type', util_test.all_names_and_fill_types())
+@pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(
@@ -42,15 +42,15 @@ def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
     max_threshold = None
     mean_threshold = None
-    if name == 'mpl2005':
+    if name == "mpl2005":
         max_threshold = 128
         mean_threshold = 0.19
-    elif name in ('serial', 'threaded'):
+    elif name in ("serial", "threaded"):
         if fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets):
             max_threshold = 99
             mean_threshold = 0.18
@@ -60,14 +60,14 @@ def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
 
     compare_images(
         image_buffer,
-        'filled_random_uniform_no_corner_mask_chunk.png',
-        f'{name}_{fill_type}',
+        "filled_random_uniform_no_corner_mask_chunk.png",
+        f"{name}_{fill_type}",
         max_threshold=max_threshold,
         mean_threshold=mean_threshold,
     )
 
 
-@pytest.mark.parametrize('name', util_test.corner_mask_names())
+@pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_random_uniform_corner_mask(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     fill_type = FillType.OuterCodes
@@ -76,13 +76,13 @@ def test_filled_random_uniform_corner_mask(name):
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, 'filled_random_uniform_corner_mask.png', f'{name}_{fill_type}')
+    compare_images(image_buffer, "filled_random_uniform_corner_mask.png", f"{name}_{fill_type}")
 
 
-@pytest.mark.parametrize('name', util_test.corner_mask_names())
+@pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_random_uniform_corner_mask_chunk(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     fill_type = FillType.OuterCodes
@@ -92,25 +92,26 @@ def test_filled_random_uniform_corner_mask_chunk(name):
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f'C{i}')
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
     max_threshold = None
     mean_threshold = None
-    if name in ('serial', 'threaded'):
+    if name in ("serial", "threaded"):
         max_threshold = 134
         mean_threshold = 0.17
 
     compare_images(
-        image_buffer, 'filled_random_uniform_corner_mask_chunk.png',
-        f'{name}_{fill_type}',
+        image_buffer,
+        "filled_random_uniform_corner_mask_chunk.png",
+        f"{name}_{fill_type}",
         max_threshold=max_threshold,
         mean_threshold=mean_threshold,
     )
 
 
-@pytest.mark.parametrize('fill_type', FillType.__members__.values())
-@pytest.mark.parametrize('name', ['serial'])
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("name", ["serial"])
 def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
     x, y, z = two_outers_one_hole
     cont_gen = contour_generator(x, y, z, name, fill_type=fill_type)
@@ -185,4 +186,4 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             else:
                 assert_array_equal(outer_offsets, [0, 2, 3])
     else:
-        raise RuntimeError(f'Unexpected fill_type {fill_type}')
+        raise RuntimeError(f"Unexpected fill_type {fill_type}")

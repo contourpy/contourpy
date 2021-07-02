@@ -3,7 +3,7 @@ import math
 
 def calc_chunk_sizes(chunk_size, chunk_count, total_chunk_count, ny, nx):
     if sum([chunk_size is not None, chunk_count is not None, total_chunk_count is not None]) > 1:
-        raise ValueError('Only one of chunk_size, chunk_count and total_chunk_count should be set')
+        raise ValueError("Only one of chunk_size, chunk_count and total_chunk_count should be set")
 
     if total_chunk_count is not None:
         max_chunk_count = (nx-1)*(ny-1)
@@ -36,7 +36,7 @@ def calc_chunk_sizes(chunk_size, chunk_count, total_chunk_count, ny, nx):
         y_chunk_size = x_chunk_size = chunk_size
 
     if x_chunk_size < 0 or y_chunk_size < 0:
-        raise ValueError('chunk_size cannot be negative')
+        raise ValueError("chunk_size cannot be negative")
 
     return y_chunk_size, x_chunk_size
 

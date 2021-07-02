@@ -37,7 +37,7 @@ def filled_to_bokeh(filled, fill_type):
                     xs[-1].append(xys[:, 0])
                     ys[-1].append(xys[:, 1])
     else:
-        raise RuntimeError(f'Conversion of FillType {fill_type} to Bokeh is not implemented')
+        raise RuntimeError(f"Conversion of FillType {fill_type} to Bokeh is not implemented")
 
     return xs, ys
 
@@ -66,6 +66,6 @@ def lines_to_bokeh(lines, line_type):
                 xs.append(line[:, 0])
                 ys.append(line[:, 1])
     else:
-        raise RuntimeError(f'Conversion of LineType {line_type} to Bokeh is not implemented')
+        raise RuntimeError(f"Conversion of LineType {line_type} to Bokeh is not implemented")
 
     return xs, ys

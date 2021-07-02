@@ -16,7 +16,7 @@ class BokehRenderer:
 
         nfigures = nrows*ncols
         self._figures = []
-        backend = 'svg' if self._want_svg else 'canvas'
+        backend = "svg" if self._want_svg else "canvas"
         for i in range(nfigures):
             fig = figure(output_backend=backend)
             fig.xgrid.visible = False
@@ -29,7 +29,7 @@ class BokehRenderer:
             plot_height=total_size[1] // nrows)
 
     def _convert_color(self, color):
-        if isinstance(color, str) and color[0] == 'C':
+        if isinstance(color, str) and color[0] == "C":
             index = int(color[1:])
             color = self._palette[index]
         return color
@@ -39,14 +39,14 @@ class BokehRenderer:
             ax = self._figures[ax]
         return ax
 
-    def filled(self, filled, fill_type, ax=0, color='C0', alpha=0.7):
+    def filled(self, filled, fill_type, ax=0, color="C0", alpha=0.7):
         fig = self._get_figure(ax)
         color = self._convert_color(color)
         xs, ys = filled_to_bokeh(filled, fill_type)
         if len(xs) > 0:
             fig.multi_polygons(xs=[xs], ys=[ys], color=color, fill_alpha=alpha, line_width=0)
 
-    def grid(self, x, y, ax=0, color='black', alpha=0.1):
+    def grid(self, x, y, ax=0, color="black", alpha=0.1):
         fig = self._get_figure(ax)
 
         if x.ndim == 1:
@@ -56,7 +56,7 @@ class BokehRenderer:
         ys = [row for row in y] + [row for row in y.T]
         fig.multi_line(xs, ys, line_color=color, alpha=alpha)
 
-    def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0, linewidth=1):
+    def lines(self, lines, line_type, ax=0, color="C0", alpha=1.0, linewidth=1):
         # Assumes all lines are open line loops.
         fig = self._get_figure(ax)
         color = self._convert_color(color)

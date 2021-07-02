@@ -7,13 +7,13 @@ class Mpl2005ContourGenerator(Cntr):
     default_fill_type = FillType.OuterCodes
 
     def __init__(self, *args, **kwargs):
-        line_type = kwargs.pop('line_type', None)
+        line_type = kwargs.pop("line_type", None)
         if line_type is not None and line_type != self.default_line_type:
-            raise ValueError(f'mpl2005 contour generator does not support line_type {line_type}')
+            raise ValueError(f"mpl2005 contour generator does not support line_type {line_type}")
 
-        fill_type = kwargs.pop('fill_type', None)
+        fill_type = kwargs.pop("fill_type", None)
         if fill_type is not None and fill_type != self.default_fill_type:
-            raise ValueError(f'mpl2005 contour generator does not support fill_type {fill_type}')
+            raise ValueError(f"mpl2005 contour generator does not support fill_type {fill_type}")
 
         super().__init__(*args, **kwargs)
 

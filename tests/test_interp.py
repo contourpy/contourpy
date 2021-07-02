@@ -12,13 +12,13 @@ def xyz_log():
 
     # Rotate grid
     rot = [[np.cos(angle), np.sin(angle)], [-np.sin(angle), np.cos(angle)]]
-    x, y = np.einsum('ji,mni->jmn', rot, np.dstack([x, y]))
+    x, y = np.einsum("ji,mni->jmn", rot, np.dstack([x, y]))
 
     z = 10.0**(2.5*y)
     return x, y, z
 
 
-@pytest.mark.parametrize('name', ['serial', 'threaded'])
+@pytest.mark.parametrize("name", ["serial", "threaded"])
 def test_interp_log(xyz_log, name):
     x, y, z = xyz_log
     cont_gen = contour_generator(x, y, z, name, interp=Interp.Log, line_type=LineType.Separate)

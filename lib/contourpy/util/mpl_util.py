@@ -27,7 +27,7 @@ def filled_to_mpl_paths(filled, fill_type):
                 pts = points[offs[0]:offs[-1]]
                 paths += [mpath.Path(pts, offsets_to_mpl_codes(offs - offs[0]))]
     else:
-        raise RuntimeError(f'Conversion of FillType {fill_type} to MPL Paths is not implemented')
+        raise RuntimeError(f"Conversion of FillType {fill_type} to MPL Paths is not implemented")
     return paths
 
 
@@ -50,7 +50,7 @@ def lines_to_mpl_paths(lines, line_type):
                 closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
                 paths.append(mpath.Path(line, closed=closed))
     else:
-        raise RuntimeError(f'Conversion of LineType {line_type} to MPL Paths is not implemented')
+        raise RuntimeError(f"Conversion of LineType {line_type} to MPL Paths is not implemented")
     return paths
 
 
