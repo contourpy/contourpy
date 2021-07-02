@@ -3,14 +3,14 @@ import pytest
 import util_test
 
 
-@pytest.mark.parametrize('name, value', util_test.all_fill_types_str_value())
+@pytest.mark.parametrize("name, value", util_test.all_fill_types_str_value())
 def test_fill_type(name, value):
     t = FillType.__members__[name]
     assert t.name == name
     assert t.value == value
 
 
-@pytest.mark.parametrize('name, value', util_test.all_line_types_str_value())
+@pytest.mark.parametrize("name, value", util_test.all_line_types_str_value())
 def test_line_type(name, value):
     t = LineType.__members__[name]
     assert t.name == name

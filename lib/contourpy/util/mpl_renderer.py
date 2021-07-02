@@ -4,7 +4,7 @@
 # constructors.
 import matplotlib
 _default_backend = matplotlib.get_backend()
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 
 from contourpy import FillType, LineType
 from .mpl_util import filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offsets
@@ -20,11 +20,11 @@ class MplRenderer:
         plt.switch_backend(_default_backend)
         self._fig, axes = plt.subplots(
             nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False, sharex=True, sharey=True,
-            subplot_kw={'aspect': 'equal'})
+            subplot_kw={"aspect": "equal"})
         self._axes = axes.flatten()
 
     def __del__(self):
-        if hasattr(self, '_fig'):
+        if hasattr(self, "_fig"):
             plt.close(self._fig)
 
     def _autoscale(self):
@@ -32,7 +32,7 @@ class MplRenderer:
         # lines/filled.  Only want to autoscale once per axes regardless of how many lines/filled
         # added.
         for ax in self._axes:
-            if getattr(ax, '_need_autoscale', False):
+            if getattr(ax, "_need_autoscale", False):
                 ax.autoscale_view(tight=True)
                 ax._need_autoscale = False
 
@@ -41,32 +41,32 @@ class MplRenderer:
             ax = self._axes[ax]
         return ax
 
-    def filled(self, filled, fill_type, ax=0, color='C0', alpha=0.7):
+    def filled(self, filled, fill_type, ax=0, color="C0", alpha=0.7):
         ax = self._get_ax(ax)
         paths = filled_to_mpl_paths(filled, fill_type)
         collection = mcollections.PathCollection(
-            paths, facecolors=color, edgecolors='none', lw=0, alpha=alpha)
+            paths, facecolors=color, edgecolors="none", lw=0, alpha=alpha)
         ax.add_collection(collection)
         ax._need_autoscale = True
 
-    def grid(self, x, y, ax=0, color='black', alpha=0.1):
+    def grid(self, x, y, ax=0, color="black", alpha=0.1):
         ax = self._get_ax(ax)
         if x.ndim == 1:
             x, y = np.meshgrid(x, y)
         ax.plot(x, y, x.T, y.T, color=color, alpha=alpha)
 
-    def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0, linewidth=1):
+    def lines(self, lines, line_type, ax=0, color="C0", alpha=1.0, linewidth=1):
         ax = self._get_ax(ax)
         paths = lines_to_mpl_paths(lines, line_type)
         collection = mcollections.PathCollection(
-            paths, facecolors='none', edgecolors=color, lw=linewidth, alpha=alpha)
+            paths, facecolors="none", edgecolors=color, lw=linewidth, alpha=alpha)
         ax.add_collection(collection)
         ax._need_autoscale = True
 
     def save_to_buffer(self):
         self._autoscale()
         buf = io.BytesIO()
-        self._fig.savefig(buf, format='png')
+        self._fig.savefig(buf, format="png")
         buf.seek(0)
         return buf
 
@@ -88,12 +88,12 @@ class MplRenderer:
 class MplTestRenderer(MplRenderer):
     def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
         gridspec = {
-            'left': 0.01,
-            'right': 0.99,
-            'top': 0.99,
-            'bottom': 0.01,
-            'wspace': 0.01,
-            'hspace': 0.01,
+            "left": 0.01,
+            "right": 0.99,
+            "top": 0.99,
+            "bottom": 0.01,
+            "wspace": 0.01,
+            "hspace": 0.01,
         }
         self._fig, axes = plt.subplots(
             nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False, gridspec_kw=gridspec)
@@ -119,10 +119,10 @@ class MplDebugRenderer(MplRenderer):
             mid + along*0.5*arrow_size,
             mid - (along*0.5 + right)*arrow_size,
         ))
-        ax.plot(arrow[:, 0], arrow[:, 1], '-', c=color, alpha=alpha)
+        ax.plot(arrow[:, 0], arrow[:, 1], "-", c=color, alpha=alpha)
 
-    def filled(self, filled, fill_type, ax=0, color='C1', alpha=0.7, line_color='C0',
-               point_color='C0', start_point_color='red', arrow_size=0.1):
+    def filled(self, filled, fill_type, ax=0, color="C1", alpha=0.7, line_color="C0",
+               point_color="C0", start_point_color="red", arrow_size=0.1):
         super().filled(filled, fill_type, ax, color, alpha)
 
         if line_color is None and point_color is None:
@@ -162,7 +162,7 @@ class MplDebugRenderer(MplRenderer):
                     all_points.append(points[offs[0]:offs[-1]])
                     all_offsets.append(offs - offs[0])
         else:
-            raise RuntimeError(f'Rendering FillType {fill_type} not implemented')
+            raise RuntimeError(f"Rendering FillType {fill_type} not implemented")
 
         # Lines.
         if line_color is not None:
@@ -184,14 +184,14 @@ class MplDebugRenderer(MplRenderer):
                 if start_point_color is not None:
                     start_indices = offsets[:-1]
                     mask[start_indices] = False  # Exclude start points.
-                ax.plot(points[:, 0][mask], points[:, 1][mask], 'o', c=point_color, alpha=alpha)
+                ax.plot(points[:, 0][mask], points[:, 1][mask], "o", c=point_color, alpha=alpha)
 
                 if start_point_color is not None:
-                    ax.plot(points[:, 0][start_indices], points[:, 1][start_indices], 'o',
+                    ax.plot(points[:, 0][start_indices], points[:, 1][start_indices], "o",
                             c=start_point_color, alpha=alpha)
 
-    def lines(self, lines, line_type, ax=0, color='C0', alpha=1.0, linewidth=1, point_color='C0',
-              start_point_color='red', arrow_size=0.1):
+    def lines(self, lines, line_type, ax=0, color="C0", alpha=1.0, linewidth=1, point_color="C0",
+              start_point_color="red", arrow_size=0.1):
         super().lines(lines, line_type, ax, color, alpha, linewidth)
 
         if arrow_size == 0.0 and point_color is None:
@@ -215,7 +215,7 @@ class MplDebugRenderer(MplRenderer):
                 for i in range(len(offsets)-1):
                     all_lines.append(points[offsets[i]:offsets[i+1]])
         else:
-            raise RuntimeError(f'Rendering LineType {line_type} not implemented')
+            raise RuntimeError(f"Rendering LineType {line_type} not implemented")
 
         if arrow_size > 0.0:
             for line in all_lines:
@@ -227,23 +227,23 @@ class MplDebugRenderer(MplRenderer):
                 start_index = 0
                 end_index = len(line)
                 if start_point_color is not None:
-                    ax.plot(line[0, 0], line[0, 1], 'o', c=start_point_color, alpha=alpha)
+                    ax.plot(line[0, 0], line[0, 1], "o", c=start_point_color, alpha=alpha)
                     start_index = 1
                     if line[0][0] == line[-1][0] and line[0][1] == line[-1][1]:
                         end_index -= 1
-                ax.plot(line[start_index:end_index, 0], line[start_index:end_index, 1], 'o',
+                ax.plot(line[start_index:end_index, 0], line[start_index:end_index, 1], "o",
                         c=color, alpha=alpha)
 
-    def point_numbers(self, x, y, z, ax=0, color='red'):
+    def point_numbers(self, x, y, z, ax=0, color="red"):
         ax = self._get_ax(ax)
         ny, nx = z.shape
         for j in range(ny):
             for i in range(nx):
                 quad = i + j*nx
-                ax.text(x[j, i], y[j, i], str(quad), ha='right', va='top', color=color,
+                ax.text(x[j, i], y[j, i], str(quad), ha="right", va="top", color=color,
                         clip_on=True)
 
-    def quad_numbers(self, x, y, z, ax=0, color='blue'):
+    def quad_numbers(self, x, y, z, ax=0, color="blue"):
         ax = self._get_ax(ax)
         ny, nx = z.shape
         for j in range(1, ny):
@@ -251,9 +251,9 @@ class MplDebugRenderer(MplRenderer):
                 quad = i + j*nx
                 xmid = x[j-1:j+1, i-1:i+1].mean()
                 ymid = y[j-1:j+1, i-1:i+1].mean()
-                ax.text(xmid, ymid, str(quad), ha='center', va='center', color=color, clip_on=True)
+                ax.text(xmid, ymid, str(quad), ha="center", va="center", color=color, clip_on=True)
 
-    def z_levels(self, x, y, z, lower_level, upper_level=None, ax=0, color='green'):
+    def z_levels(self, x, y, z, lower_level, upper_level=None, ax=0, color="green"):
         ax = self._get_ax(ax)
         ny, nx = z.shape
         for j in range(ny):
@@ -265,5 +265,5 @@ class MplDebugRenderer(MplRenderer):
                     z_level = 1
                 else:
                     z_level = 0
-                ax.text(x[j, i], y[j, i], z_level, ha='left', va='bottom', color=color,
+                ax.text(x[j, i], y[j, i], z_level, ha="left", va="bottom", color=color,
                         clip_on=True)

@@ -2,7 +2,7 @@ from contourpy import FillType, LineType, max_threads
 
 
 def corner_masks():
-    return ['no mask', False, True]
+    return ["no mask", False, True]
 
 
 def fill_types():

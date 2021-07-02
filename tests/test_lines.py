@@ -27,8 +27,8 @@ def one_loop_one_strip():
     return x, y, z
 
 
-@pytest.mark.parametrize('name', util_test.all_names())
-@pytest.mark.parametrize('zlevel', [-1e-10, 1.0+1e10, np.nan, -np.nan, np.inf, -np.inf])
+@pytest.mark.parametrize("name", util_test.all_names())
+@pytest.mark.parametrize("zlevel", [-1e-10, 1.0+1e10, np.nan, -np.nan, np.inf, -np.inf])
 def test_level_outside(xy_2x2, name, zlevel):
     x, y = xy_2x2
     z = x
@@ -40,7 +40,7 @@ def test_level_outside(xy_2x2, name, zlevel):
     assert isinstance(codes, list) and len(codes) == 0
 
 
-@pytest.mark.parametrize('name', util_test.all_names())
+@pytest.mark.parametrize("name", util_test.all_names())
 def test_w_to_e(xy_2x2, name):
     x, y = xy_2x2
     z = y.copy()
@@ -54,7 +54,7 @@ def test_w_to_e(xy_2x2, name):
     assert_array_equal(codes[0], [1, 2])
 
 
-@pytest.mark.parametrize('name', util_test.all_names())
+@pytest.mark.parametrize("name", util_test.all_names())
 def test_e_to_w(xy_2x2, name):
     x, y = xy_2x2
     z = 1.0 - y.copy()
@@ -64,14 +64,14 @@ def test_e_to_w(xy_2x2, name):
     points, codes = lines
     assert isinstance(points, list) and len(points) == 1
     assert isinstance(codes, list) and len(codes) == 1
-    if name == 'mpl2005':    # Line directions are not consistent.
+    if name == "mpl2005":    # Line directions are not consistent.
         assert_allclose(points[0], [[0.0, 0.5], [1.0, 0.5]])
     else:
         assert_allclose(points[0], [[1.0, 0.5], [0.0, 0.5]])
     assert_array_equal(codes[0], [1, 2])
 
 
-@pytest.mark.parametrize('name', util_test.all_names())
+@pytest.mark.parametrize("name", util_test.all_names())
 def test_loop(xy_3x3, name):
     x, y = xy_3x3
     z = np.zeros_like(x)
@@ -88,8 +88,7 @@ def test_loop(xy_3x3, name):
     assert_array_equal(codes[0], [1, 2, 2, 2, 79])
 
 
-@pytest.mark.parametrize(
-    'name, line_type', util_test.all_names_and_line_types())
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random_uniform_no_corner_mask(name, line_type):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=False)
@@ -99,20 +98,19 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
-        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
         image_buffer,
-        'lines_random_uniform_no_corner_mask.png',
-        f'{name}_{line_type}',
+        "lines_random_uniform_no_corner_mask.png",
+        f"{name}_{line_type}",
     )
 
 
-@pytest.mark.parametrize(
-    'name, line_type', util_test.all_names_and_line_types())
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
-    if name in ('mpl2005'):
+    if name in ("mpl2005"):
         pytest.skip()  # mpl2005 does not support chunks for lines.
 
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
@@ -122,17 +120,17 @@ def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
-        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
         image_buffer,
-        'lines_random_uniform_no_corner_mask_chunk.png',
-        f'{name}_{line_type}',
+        "lines_random_uniform_no_corner_mask_chunk.png",
+        f"{name}_{line_type}",
     )
 
 
-@pytest.mark.parametrize('name', util_test.corner_mask_names())
+@pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_random_uniform_corner_mask(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     line_type = LineType.SeparateCodes
@@ -141,17 +139,17 @@ def test_lines_random_uniform_corner_mask(name):
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
-        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
         image_buffer,
-        'lines_random_uniform_corner_mask.png',
-        f'{name}_{line_type}',
+        "lines_random_uniform_corner_mask.png",
+        f"{name}_{line_type}",
     )
 
 
-@pytest.mark.parametrize('name', util_test.corner_mask_names())
+@pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_random_uniform_corner_mask_chunk(name):
     x, y, z = random_uniform((30, 40), mask_fraction=0.05)
     line_type = LineType.SeparateCodes
@@ -160,18 +158,18 @@ def test_lines_random_uniform_corner_mask_chunk(name):
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
-        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f'C{i}')
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
         image_buffer,
-        'lines_random_uniform_corner_mask_chunk.png',
-        f'{name}_{line_type}',
+        "lines_random_uniform_corner_mask_chunk.png",
+        f"{name}_{line_type}",
     )
 
 
-@pytest.mark.parametrize('line_type', LineType.__members__.values())
-@pytest.mark.parametrize('name', ['serial'])
+@pytest.mark.parametrize("line_type", LineType.__members__.values())
+@pytest.mark.parametrize("name", ["serial"])
 def test_return_by_line_type(one_loop_one_strip, name, line_type):
     x, y, z = one_loop_one_strip
     cont_gen = contour_generator(x, y, z, name, line_type=line_type)
@@ -220,4 +218,4 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
             assert offsets[0].dtype == np.intp
             assert_array_equal(offsets[0], [0, 5, 7])
     else:
-        raise RuntimeError(f'Unexpected line_type {line_type}')
+        raise RuntimeError(f"Unexpected line_type {line_type}")

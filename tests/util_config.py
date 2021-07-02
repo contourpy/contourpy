@@ -2,7 +2,7 @@ from contourpy import contour_generator
 from enum import Enum
 import io
 import matplotlib
-matplotlib.use('agg')
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -56,9 +56,9 @@ class Config:
             mid - (along*0.5 - right)*self.arrowsize,
             mid + along*0.5*self.arrowsize,
             mid - (along*0.5 + right)*self.arrowsize))
-        ax.plot(arrow[:, 0], arrow[:, 1], '-', c=color)
+        ax.plot(arrow[:, 0], arrow[:, 1], "-", c=color)
 
-    def _next_quad(self, config, corner=None, suffix='', zlower=None, zupper=None):
+    def _next_quad(self, config, corner=None, suffix="", zlower=None, zupper=None):
         if zlower is None:
             zlower = self.default_zlower
         if zupper is None:
@@ -68,24 +68,24 @@ class Config:
         nw, ne, sw, se = self._decode_config(config, corner)
 
         # Quad edge.
-        ax.axis('off')
+        ax.axis("off")
         if corner is None:
-            ax.plot([0, 1, 1, 0, 0], [0, 0, 1, 1, 0], 'k-', lw=0.25)
-            title = f'{nw}{ne}{sw}{se} = {config}{suffix}'
+            ax.plot([0, 1, 1, 0, 0], [0, 0, 1, 1, 0], "k-", lw=0.25)
+            title = f"{nw}{ne}{sw}{se} = {config}{suffix}"
         elif corner == Corner.NW:
-            ax.plot([0, 1, 0, 0], [0, 1, 1, 0], 'k-', lw=0.25)
-            title = f'{nw}{ne}{sw} = {config}{suffix}'
+            ax.plot([0, 1, 0, 0], [0, 1, 1, 0], "k-", lw=0.25)
+            title = f"{nw}{ne}{sw} = {config}{suffix}"
         elif corner == Corner.NE:
-            ax.plot([1, 1, 0, 1], [0, 1, 1, 0], 'k-', lw=0.25)
-            title = f'{nw}{ne}{se} = {config}{suffix}'
+            ax.plot([1, 1, 0, 1], [0, 1, 1, 0], "k-", lw=0.25)
+            title = f"{nw}{ne}{se} = {config}{suffix}"
         elif corner == Corner.SW:
-            ax.plot([0, 1, 0, 0], [0, 0, 1, 0], 'k-', lw=0.25)
-            title = f'{nw}{sw}{se} = {config}{suffix}'
+            ax.plot([0, 1, 0, 0], [0, 0, 1, 0], "k-", lw=0.25)
+            title = f"{nw}{sw}{se} = {config}{suffix}"
         elif corner == Corner.SE:
-            ax.plot([0, 1, 1, 0], [0, 0, 1, 0], 'k-', lw=0.25)
-            title = f'{ne}{sw}{se} = {config}{suffix}'
+            ax.plot([0, 1, 1, 0], [0, 0, 1, 0], "k-", lw=0.25)
+            title = f"{ne}{sw}{se} = {config}{suffix}"
         else:
-            raise RuntimeError('xxx')
+            raise RuntimeError("Invalid corner")
         ax.set_title(title, size=self.title_fontsize)
 
         # Axes bounds include gap for arrows and corner points.
@@ -95,15 +95,15 @@ class Config:
         # Text for corner and optional middle z-levels.
         fontsize = self.fontsize
         if corner != Corner.NW:
-            ax.text(1+self.text_gap, 0, se, va='center', size=fontsize, ha='left')
+            ax.text(1+self.text_gap, 0, se, va="center", size=fontsize, ha="left")
         if corner != Corner.SW:
-            ax.text(1+self.text_gap, 1, ne, va='center', size=fontsize, ha='left')
+            ax.text(1+self.text_gap, 1, ne, va="center", size=fontsize, ha="left")
         if corner != Corner.NE:
-            ax.text(-self.text_gap, 0, sw, va='center', size=fontsize, ha='right')
+            ax.text(-self.text_gap, 0, sw, va="center", size=fontsize, ha="right")
         if corner != Corner.SE:
-            ax.text(-self.text_gap, 1, nw, va='center', size=fontsize, ha='right')
+            ax.text(-self.text_gap, 1, nw, va="center", size=fontsize, ha="right")
         if suffix:  # Suffix (without brackets) is the z-level of quad middle.
-            ax.text(0.5, 0.5, suffix[1:-1], va='center', size=fontsize, ha='center')
+            ax.text(0.5, 0.5, suffix[1:-1], va="center", size=fontsize, ha="center")
 
         z = np.asarray([[sw, se], [nw, ne]], dtype=np.float64)
         z = np.ma.array(z, mask=self.mask)
@@ -120,7 +120,7 @@ class Config:
             n = len(points)
 
             if self.is_filled:
-                ax.fill(points[:, 0], points[:, 1], c='C2', alpha=0.2, ec=None)
+                ax.fill(points[:, 0], points[:, 1], c="C2", alpha=0.2, ec=None)
 
                 # Classify points, either corner, lower level or upper level.
                 point_types = []
@@ -141,10 +141,10 @@ class Config:
                 for i in range(n-1):
                     s = points[i]
                     e = points[i+1]
-                    c = 'C2'
+                    c = "C2"
                     if point_types[i] == point_types[i+1] and point_types[i] != PointType.CORNER:
-                        c = 'C3' if point_types[i] == PointType.LOWER else 'C0'
-                    ax.plot([s[0], e[0]], [s[1], e[1]], '-', c=c)
+                        c = "C3" if point_types[i] == PointType.LOWER else "C0"
+                    ax.plot([s[0], e[0]], [s[1], e[1]], "-", c=c)
 
                     if point_types[i] == point_types[i+1]:
                         self._arrow(ax, s, e, c)
@@ -152,13 +152,13 @@ class Config:
                 # Draw markers.
                 for i in range(n-1):
                     if point_types[i] != PointType.CORNER:
-                        c = 'C3' if point_types[i] == PointType.LOWER else 'C0'
-                        ax.plot(points[i][0], points[i][1], 'o', c=c, ms=self.marker_size)
+                        c = "C3" if point_types[i] == PointType.LOWER else "C0"
+                        ax.plot(points[i][0], points[i][1], "o", c=c, ms=self.marker_size)
             else:
-                ax.plot(points[:, 0], points[:, 1], 'o-', c='C3', ms=self.marker_size)
+                ax.plot(points[:, 0], points[:, 1], "o-", c="C3", ms=self.marker_size)
 
                 for i in range(n-1):
-                    self._arrow(ax, points[i], points[i+1], 'C3')
+                    self._arrow(ax, points[i], points[i+1], "C3")
 
         self.axes_index += 1
 
@@ -172,7 +172,7 @@ class Config:
 
     def save_to_buffer(self):
         buf = io.BytesIO()
-        self.fig.savefig(buf, format='png')
+        self.fig.savefig(buf, format="png")
         buf.seek(0)
         return buf
 
@@ -203,7 +203,7 @@ class ConfigFilledCommon(Config):
             else:  # Corner.SE
                 [nw, ne, sw, se] = [-1, a, b, c]
         if nw == 3 or ne == 3 or sw == 3 or se == 3:
-            raise ValueError('Invalid config')
+            raise ValueError("Invalid config")
         return nw, ne, sw, se
 
     def _interp(self, zquad, x, y, corner=None):
@@ -232,7 +232,7 @@ class ConfigFilled(ConfigFilledCommon):
     def __init__(self, name):
         super().__init__(name, False)
 
-        self.fig, axes = plt.subplots(8, 12, figsize=(13, 9.8), subplot_kw={'aspect': 'equal'})
+        self.fig, axes = plt.subplots(8, 12, figsize=(13, 9.8), subplot_kw={"aspect": "equal"})
         self.axes = axes.flatten()
 
         self.axes_index = 0
@@ -251,21 +251,21 @@ class ConfigFilled(ConfigFilledCommon):
 
             if degenerate_lower and degenerate_upper:
                 # middle needs to be 0, 1 and 2.
-                self._next_quad(config, suffix='(0)', zlower=1.01)
-                self._next_quad(config, suffix='(1)')
-                self._next_quad(config, suffix='(2)', zupper=0.99)
+                self._next_quad(config, suffix="(0)", zlower=1.01)
+                self._next_quad(config, suffix="(1)")
+                self._next_quad(config, suffix="(2)", zupper=0.99)
             elif degenerate_lower:
                 # middle needs to be 0 and >0.
                 zmean = np.mean((nw, ne, sw, se))
                 zlower = max(self.default_zlower, zmean)
-                self._next_quad(config, suffix='(0)', zlower=zlower+0.01)
-                self._next_quad(config, suffix='(>0)', zlower=zlower-0.01)
+                self._next_quad(config, suffix="(0)", zlower=zlower+0.01)
+                self._next_quad(config, suffix="(>0)", zlower=zlower-0.01)
             elif degenerate_upper:
                 # middle needs to be <2 and 2.
                 zmean = np.mean((nw, ne, sw, se))
                 zupper = min(self.default_zupper, zmean)
-                self._next_quad(config, suffix='(<2)', zupper=zupper+0.01)
-                self._next_quad(config, suffix='(2)', zupper=zupper-0.01)
+                self._next_quad(config, suffix="(<2)", zupper=zupper+0.01)
+                self._next_quad(config, suffix="(2)", zupper=zupper-0.01)
             else:
                 # Not degenerate.
                 self._next_quad(config)
@@ -277,7 +277,7 @@ class ConfigFilledCorner(ConfigFilledCommon):
     def __init__(self, name):
         super().__init__(name, True)
 
-        self.fig, axes = plt.subplots(8, 14, figsize=(15, 9.8), subplot_kw={'aspect': 'equal'})
+        self.fig, axes = plt.subplots(8, 14, figsize=(15, 9.8), subplot_kw={"aspect": "equal"})
         self.axes = axes.flatten()
 
         corners = [Corner.NW, Corner.NE, Corner.SW, Corner.SE]
@@ -293,7 +293,7 @@ class ConfigFilledCorner(ConfigFilledCommon):
 
                 self._next_quad(config, corner=corner)
 
-            self.axes[self.axes_index].axis('off')
+            self.axes[self.axes_index].axis("off")
             self.axes_index += 1
 
         self.fig.tight_layout()
@@ -328,7 +328,7 @@ class ConfigLines(ConfigLinesCommon):
     def __init__(self, name):
         super().__init__(name, False)
 
-        self.fig, axes = plt.subplots(3, 6, figsize=(6.6, 3.6), subplot_kw={'aspect': 'equal'})
+        self.fig, axes = plt.subplots(3, 6, figsize=(6.6, 3.6), subplot_kw={"aspect": "equal"})
         self.axes = axes.flatten()
 
         self.axes_index = 0
@@ -342,8 +342,8 @@ class ConfigLines(ConfigLinesCommon):
             if degenerate:
                 zmean = np.mean((nw, ne, sw, se))
                 zlower = max(self.default_zlower, zmean)
-                self._next_quad(config, suffix='(0)', zlower=zlower+0.01)
-                self._next_quad(config, suffix='(1)', zlower=zlower-0.01)
+                self._next_quad(config, suffix="(0)", zlower=zlower+0.01)
+                self._next_quad(config, suffix="(1)", zlower=zlower-0.01)
             else:
                 self._next_quad(config)
 
@@ -355,7 +355,7 @@ class ConfigLinesCorner(ConfigLinesCommon):
     def __init__(self, name):
         super().__init__(name, True)
 
-        self.fig, axes = plt.subplots(4, 8, figsize=(8.8, 4.9), subplot_kw={'aspect': 'equal'})
+        self.fig, axes = plt.subplots(4, 8, figsize=(8.8, 4.9), subplot_kw={"aspect": "equal"})
         self.axes = axes.flatten()
 
         self.axes_index = 0

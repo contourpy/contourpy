@@ -6,19 +6,19 @@ from .util_bench import corner_masks, problem_sizes, thread_counts
 
 class BenchFilledThreaded:
     params = (thread_counts(), corner_masks(), problem_sizes())
-    param_names = ['thread_count', 'corner_mask', 'n']
+    param_names = ["thread_count", "corner_mask", "n"]
 
     def setup(self, thread_count, corner_mask, n):
         self.x, self.y, self.z = random_uniform((n, n), mask_fraction=0.05)
-        if corner_mask == 'no mask':
+        if corner_mask == "no mask":
             self.z = np.ma.getdata(self.z)
         self.levels = np.arange(0.0, 1.01, 0.1)
 
     def time_filled_threaded(self, thread_count, corner_mask, n):
-        if corner_mask == 'no mask':
+        if corner_mask == "no mask":
             corner_mask = False
         cont_gen = contour_generator(
-            self.x, self.y, self.z, name='threaded', thread_count=thread_count,
+            self.x, self.y, self.z, name="threaded", thread_count=thread_count,
             chunk_count=24, fill_type=FillType.ChunkCombinedOffsets2, corner_mask=corner_mask)
         for lower, upper in zip(self.levels[:-1], self.levels[1:]):
             cont_gen.filled(lower, upper)
