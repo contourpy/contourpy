@@ -55,10 +55,9 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("y_chunk_size") = 0)
         .def("filled", &mpl2014::Mpl2014ContourGenerator::filled)
         .def("lines", &mpl2014::Mpl2014ContourGenerator::lines)
-        .def_property_readonly(
-            "chunk_count", &mpl2014::Mpl2014ContourGenerator::get_chunk_count)
-        .def_property_readonly(
-            "chunk_size", &mpl2014::Mpl2014ContourGenerator::get_chunk_size)
+        .def_property_readonly("chunk_count", &mpl2014::Mpl2014ContourGenerator::get_chunk_count)
+        .def_property_readonly("chunk_size", &mpl2014::Mpl2014ContourGenerator::get_chunk_size)
+        .def_property_readonly("corner_mask", &mpl2014::Mpl2014ContourGenerator::get_corner_mask)
         .def_property_readonly_static(
             "default_fill_type",
             [](py::object /* self */) {
@@ -69,18 +68,12 @@ PYBIND11_MODULE(_contourpy, m) {
             [](py::object /* self */) {
                 return mpl2014::Mpl2014ContourGenerator::default_line_type();
             })
-        .def_property_readonly(
-            "fill_type", &mpl2014::Mpl2014ContourGenerator::get_fill_type)
-        .def_property_readonly(
-            "line_type", &mpl2014::Mpl2014ContourGenerator::get_line_type)
+        .def_property_readonly("fill_type", &mpl2014::Mpl2014ContourGenerator::get_fill_type)
+        .def_property_readonly("line_type", &mpl2014::Mpl2014ContourGenerator::get_line_type)
         .def_static("supports_corner_mask", []() {return true;})
-        .def_static(
-            "supports_fill_type",
-            &mpl2014::Mpl2014ContourGenerator::supports_fill_type)
+        .def_static("supports_fill_type", &mpl2014::Mpl2014ContourGenerator::supports_fill_type)
         .def_static("supports_interp", []() {return false;})
-        .def_static(
-            "supports_line_type",
-            &mpl2014::Mpl2014ContourGenerator::supports_line_type)
+        .def_static("supports_line_type", &mpl2014::Mpl2014ContourGenerator::supports_line_type)
         .def_static("supports_threads", []() {return false;});
 
     py::class_<SerialContourGenerator>(m, "SerialContourGenerator")
@@ -108,10 +101,9 @@ PYBIND11_MODULE(_contourpy, m) {
         .def("filled", &SerialContourGenerator::filled)
         .def("lines", &SerialContourGenerator::lines)
         .def("write_cache", &SerialContourGenerator::write_cache)
-        .def_property_readonly(
-            "chunk_count", &SerialContourGenerator::get_chunk_count)
-        .def_property_readonly(
-            "chunk_size", &SerialContourGenerator::get_chunk_size)
+        .def_property_readonly("chunk_count", &SerialContourGenerator::get_chunk_count)
+        .def_property_readonly("chunk_size", &SerialContourGenerator::get_chunk_size)
+        .def_property_readonly("corner_mask", &SerialContourGenerator::get_corner_mask)
         .def_property_readonly_static(
             "default_fill_type",
             [](py::object /* self */) {
@@ -122,18 +114,12 @@ PYBIND11_MODULE(_contourpy, m) {
             [](py::object /* self */) {
                 return SerialContourGenerator::default_line_type();
             })
-        .def_property_readonly(
-            "fill_type", &SerialContourGenerator::get_fill_type)
-        .def_property_readonly(
-            "line_type", &SerialContourGenerator::get_line_type)
+        .def_property_readonly("fill_type", &SerialContourGenerator::get_fill_type)
+        .def_property_readonly("line_type", &SerialContourGenerator::get_line_type)
         .def_static("supports_corner_mask", []() {return true;})
-        .def_static(
-            "supports_fill_type",
-            &SerialContourGenerator::supports_fill_type)
+        .def_static("supports_fill_type", &SerialContourGenerator::supports_fill_type)
         .def_static("supports_interp", []() {return true;})
-        .def_static(
-            "supports_line_type",
-            &SerialContourGenerator::supports_line_type)
+        .def_static("supports_line_type", &SerialContourGenerator::supports_line_type)
         .def_static("supports_threads", []() {return false;});
 
     py::class_<ThreadedContourGenerator>(m, "ThreadedContourGenerator")
@@ -163,10 +149,9 @@ PYBIND11_MODULE(_contourpy, m) {
         .def("filled", &ThreadedContourGenerator::filled)
         .def("lines", &ThreadedContourGenerator::lines)
         .def("write_cache", &ThreadedContourGenerator::write_cache)
-        .def_property_readonly(
-            "chunk_count", &ThreadedContourGenerator::get_chunk_count)
-        .def_property_readonly(
-            "chunk_size", &ThreadedContourGenerator::get_chunk_size)
+        .def_property_readonly("chunk_count", &ThreadedContourGenerator::get_chunk_count)
+        .def_property_readonly("chunk_size", &ThreadedContourGenerator::get_chunk_size)
+        .def_property_readonly("corner_mask", &ThreadedContourGenerator::get_corner_mask)
         .def_property_readonly_static(
             "default_fill_type",
             [](py::object /* self */) {
@@ -177,19 +162,12 @@ PYBIND11_MODULE(_contourpy, m) {
             [](py::object /* self */) {
                 return ThreadedContourGenerator::default_line_type();
             })
-        .def_property_readonly(
-            "fill_type", &ThreadedContourGenerator::get_fill_type)
-        .def_property_readonly(
-            "line_type", &ThreadedContourGenerator::get_line_type)
-        .def_property_readonly(
-            "thread_count", &ThreadedContourGenerator::get_thread_count)
+        .def_property_readonly("fill_type", &ThreadedContourGenerator::get_fill_type)
+        .def_property_readonly("line_type", &ThreadedContourGenerator::get_line_type)
+        .def_property_readonly("thread_count", &ThreadedContourGenerator::get_thread_count)
         .def_static("supports_corner_mask", []() {return true;})
-        .def_static(
-            "supports_fill_type",
-            &ThreadedContourGenerator::supports_fill_type)
+        .def_static("supports_fill_type", &ThreadedContourGenerator::supports_fill_type)
         .def_static("supports_interp", []() {return true;})
-        .def_static(
-            "supports_line_type",
-            &ThreadedContourGenerator::supports_line_type)
+        .def_static("supports_line_type", &ThreadedContourGenerator::supports_line_type)
         .def_static("supports_threads", []() {return true;});
 }

@@ -5,12 +5,12 @@
 void Converter::check_max_offset(size_t max_offset)
 {
     if (max_offset > std::numeric_limits<OffsetArray::value_type>::max())
-        throw std::range_error("Max offset too large to fit in NumPy array of dtype npy_intp. Use smaller chunks.");
+        throw std::range_error(
+            "Max offset too large to fit in NumPy array of dtype npy_intp. Use smaller chunks.");
 }
 
 CodeArray Converter::convert_codes(
-    size_t point_count, size_t cut_count, const size_t* cut_start,
-    size_t subtract)
+    size_t point_count, size_t cut_count, const size_t* cut_start, size_t subtract)
 {
     assert(point_count > 0);
     assert(cut_count > 0);
@@ -29,8 +29,7 @@ CodeArray Converter::convert_codes(
 }
 
 CodeArray Converter::convert_codes_check_closed(
-    size_t point_count, size_t cut_count, const size_t* cut_start,
-    const double* check_closed)
+    size_t point_count, size_t cut_count, const size_t* cut_start, const double* check_closed)
 {
     assert(point_count > 0);
     assert(cut_count > 0);
@@ -53,8 +52,7 @@ CodeArray Converter::convert_codes_check_closed(
     return py_codes;
 }
 
-CodeArray Converter::convert_codes_check_closed_single(
-    size_t point_count, const double* points)
+CodeArray Converter::convert_codes_check_closed_single(size_t point_count, const double* points)
 {
     assert(point_count > 0);
 
@@ -68,6 +66,7 @@ CodeArray Converter::convert_codes_check_closed_single(
     bool closed = *start == *(end-2) && *(start+1) == *(end-1);
     if (closed) {
         std::fill(py_ptr + 1, py_ptr + point_count - 1, LINETO);
+        // cppcheck-suppress unreadVariable
         py_ptr[point_count-1] = CLOSEPOLY;
     }
     else
@@ -76,8 +75,7 @@ CodeArray Converter::convert_codes_check_closed_single(
     return py_codes;
 }
 
-OffsetArray Converter::convert_offsets(
-    size_t offset_count, const size_t* start, size_t subtract)
+OffsetArray Converter::convert_offsets(size_t offset_count, const size_t* start, size_t subtract)
 {
     assert(offset_count > 0);
 

@@ -55,7 +55,7 @@ def test_filled_random_uniform_no_corner_mask_chunk(name, fill_type):
             max_threshold = 99
             mean_threshold = 0.18
         else:
-            max_threshold = 134
+            max_threshold = 135
             mean_threshold = 0.23
 
     compare_images(

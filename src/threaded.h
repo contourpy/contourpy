@@ -17,10 +17,13 @@ class ThreadedContourGenerator
 {
 public:
     ThreadedContourGenerator(
-        const CoordinateArray& x, const CoordinateArray& y,
-        const CoordinateArray& z, const MaskArray& mask, bool corner_mask,
-        LineType line_type, FillType fill_type, Interp interp,
-        index_t x_chunk_size, index_t y_chunk_size, index_t n_threads);
+        const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
+        const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
+        Interp interp, index_t x_chunk_size, index_t y_chunk_size, index_t n_threads);
+
+    // Non-copyable.
+    ThreadedContourGenerator(const ThreadedContourGenerator& other) = delete;
+    const ThreadedContourGenerator& operator=(const ThreadedContourGenerator& other) = delete;
 
     ~ThreadedContourGenerator();
 
@@ -51,8 +54,7 @@ private:
 
     struct Location
     {
-        Location(index_t quad_, index_t forward_, index_t left_, bool is_upper_,
-                 bool on_boundary_)
+        Location(index_t quad_, index_t forward_, index_t left_, bool is_upper_, bool on_boundary_)
             : quad(quad_), forward(forward_), left(left_), is_upper(is_upper_),
               on_boundary(on_boundary_)
         {}
@@ -60,9 +62,9 @@ private:
         friend std::ostream &operator<<(
             std::ostream &os, const Location& location)
         {
-            os << "quad=" << location.quad << " forward=" << location.forward
-                << " left=" << location.left << " is_upper="
-                << location.is_upper << " on_boundary=" << location.on_boundary;
+            os << "quad=" << location.quad << " forward=" << location.forward << " left="
+                << location.left << " is_upper=" << location.is_upper << " on_boundary="
+                << location.on_boundary;
             return os;
         }
 
@@ -74,13 +76,10 @@ private:
 
     ZLevel calc_z_level_mid(index_t quad);
 
-    void closed_line(
-        const Location& start_location, OuterOrHole outer_or_hole,
-        ChunkLocal& local);
+    void closed_line(const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);
 
     void closed_line_wrapper(
-        const Location& start_location, OuterOrHole outer_or_hole,
-        ChunkLocal& local);
+        const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);
 
     // Write points and offsets/codes to output numpy arrays.
     void export_filled(
@@ -88,20 +87,17 @@ private:
         std::vector<py::list>& return_lists);
 
     void export_lines(
-        ChunkLocal& local, const double* all_points_ptr,
-        std::vector<py::list>& return_lists);
+        ChunkLocal& local, const double* all_points_ptr, std::vector<py::list>& return_lists);
 
     index_t find_look_S(index_t look_N_quad) const;
 
     // Return true if finished (i.e. back to start quad, direction and upper).
     bool follow_boundary(
-        Location& location, const Location& start_location, ChunkLocal& local,
-        size_t& point_count);
+        Location& location, const Location& start_location, ChunkLocal& local, size_t& point_count);
 
     // Return true if finished (i.e. back to start quad, direction and upper).
     bool follow_interior(
-        Location& location, const Location& start_location, ChunkLocal& local,
-        size_t& point_count);
+        Location& location, const Location& start_location, ChunkLocal& local, size_t& point_count);
 
     // These are quad chunk limits, not point chunk limits.
     // chunk is index in range 0.._n_chunks-1.
@@ -115,17 +111,15 @@ private:
 
     void init_cache_grid(const MaskArray& mask);
 
-    void init_cache_levels_and_starts(ChunkLocal& local);
+    void init_cache_levels_and_starts(const ChunkLocal& local);
 
     // Increments local.points twice.
-    void interp(
-        index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const;
+    void interp(index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const;
 
     bool is_point_in_chunk(index_t point, const ChunkLocal& local) const;
 
     bool is_quad_in_bounds(
-        index_t quad, index_t istart, index_t iend, index_t jstart,
-        index_t jend) const;
+        index_t quad, index_t istart, index_t iend, index_t jstart, index_t jend) const;
 
     bool is_quad_in_chunk(index_t quad, const ChunkLocal& local) const;
 
@@ -135,14 +129,11 @@ private:
 
     py::sequence march();
 
-    void march_chunk_filled(
-        ChunkLocal& local, std::vector<py::list>& return_lists);
+    void march_chunk_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
 
-    void march_chunk_lines(
-        ChunkLocal& local, std::vector<py::list>& return_lists);
+    void march_chunk_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
 
-    void move_to_next_boundary_edge(
-        index_t& quad, index_t& forward, index_t& left) const;
+    void move_to_next_boundary_edge(index_t& quad, index_t& forward, index_t& left) const;
 
     void set_look_flags(index_t hole_start_quad);
 

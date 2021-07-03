@@ -34,6 +34,11 @@ jobs:
         run: |
           python -m pip install --no-deps -ve .
 
+      - name: Install cppcheck
+        if: startsWith(runner.os, 'Linux')
+        run: |
+          sudo apt install -y cppcheck
+
       - name: Run tests
         run: |
           python -m pytest -v
@@ -55,4 +60,3 @@ jobs:
         with:
           name: test-artifacts
           path: test-artifacts/
-          
