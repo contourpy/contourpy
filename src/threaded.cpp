@@ -691,9 +691,8 @@ bool ThreadedContourGenerator::follow_interior(
     auto right_point = left_point - left;
     bool want_look_N = _identify_holes && pass > 0;
 
-    bool abort = false;     // Whether to about the loop.
     bool finished = false;  // Whether finished line, i.e. returned to start.
-    while (!abort) {
+    while (true) {
         assert(is_quad_in_chunk(quad, local));
         assert(is_point_in_chunk(left_point, local));
         assert(is_point_in_chunk(right_point, local));
@@ -1086,7 +1085,7 @@ void ThreadedContourGenerator::init_cache_grid(const MaskArray& mask)
     }
 }
 
-void ThreadedContourGenerator::init_cache_levels_and_starts(ChunkLocal& local)
+void ThreadedContourGenerator::init_cache_levels_and_starts(const ChunkLocal& local)
 {
     CacheItem keep_mask =
         (_corner_mask ? MASK_EXISTS_ANY | MASK_BOUNDARY_N | MASK_BOUNDARY_E

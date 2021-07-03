@@ -93,7 +93,6 @@ def test_corner_mask(xyz_3x3_as_lists, name):
 
 
 @pytest.mark.parametrize('name', util_test.all_names())
->>>>>>> e981673... Add corner_mask property to algorithms
 def test_chunk_size_negative(xyz_3x3_as_lists, name):
     x, y, z = xyz_3x3_as_lists
     msg = "chunk_size cannot be negative"

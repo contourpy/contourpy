@@ -21,6 +21,10 @@ public:
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
         Interp interp, index_t x_chunk_size, index_t y_chunk_size, index_t n_threads);
 
+    // Non-copyable.
+    ThreadedContourGenerator(const ThreadedContourGenerator& other) = delete;
+    const ThreadedContourGenerator& operator=(const ThreadedContourGenerator& other) = delete;
+
     ~ThreadedContourGenerator();
 
     static FillType default_fill_type();
@@ -107,7 +111,7 @@ private:
 
     void init_cache_grid(const MaskArray& mask);
 
-    void init_cache_levels_and_starts(ChunkLocal& local);
+    void init_cache_levels_and_starts(const ChunkLocal& local);
 
     // Increments local.points twice.
     void interp(index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const;

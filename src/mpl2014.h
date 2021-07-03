@@ -211,7 +211,7 @@ class ContourLine : public std::vector<XY>
 public:
     typedef std::list<ContourLine*> Children;
 
-    ContourLine(bool is_hole);
+    explicit ContourLine(bool is_hole);
     void add_child(ContourLine* child);
     void clear_parent();
     const Children& get_children() const;
@@ -279,6 +279,10 @@ public:
         const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
         index_t x_chunk_size, index_t y_chunk_size);
+
+    // Non-copyable.
+    Mpl2014ContourGenerator(const Mpl2014ContourGenerator& other) = delete;
+    const Mpl2014ContourGenerator& operator=(const Mpl2014ContourGenerator& other) = delete;
 
     // Destructor.
     ~Mpl2014ContourGenerator();

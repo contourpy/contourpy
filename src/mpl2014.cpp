@@ -797,8 +797,8 @@ void Mpl2014ContourGenerator::follow_interior(
                 default: assert(0 && "Invalid edge"); break;
             }
 
-            unsigned int config = (Z_LEVEL(point_left) >= level_index) << 1 |
-                                  (Z_LEVEL(point_right) >= level_index);
+            unsigned int config = ((Z_LEVEL(point_left) >= level_index) << 1) |
+                                   (Z_LEVEL(point_right) >= level_index);
 
             // Upper level (level_index == 2) polygons are reversed compared to
             // lower level ones, i.e. higher values on the right rather than
@@ -931,9 +931,9 @@ Edge Mpl2014ContourGenerator::get_corner_start_edge(
             return Edge_None;
     }
 
-    unsigned int config = (Z_LEVEL(point1) >= level_index) << 2 |
-                          (Z_LEVEL(point2) >= level_index) << 1 |
-                          (Z_LEVEL(point3) >= level_index);
+    unsigned int config = ((Z_LEVEL(point1) >= level_index) << 2) |
+                          ((Z_LEVEL(point2) >= level_index) << 1) |
+                          ((Z_LEVEL(point3) >= level_index) << 0);
 
     // Upper level (level_index == 2) polygons are reversed compared to lower
     // level ones, i.e. higher values on the right rather than the left.
@@ -1081,10 +1081,10 @@ Edge Mpl2014ContourGenerator::get_quad_start_edge(
     assert((level_index == 1 || level_index == 2) && "level index must be 1 or 2");
     assert(EXISTS_QUAD(quad) && "Quad does not exist");
 
-    unsigned int config = (Z_NW >= level_index) << 3 |
-                          (Z_NE >= level_index) << 2 |
-                          (Z_SW >= level_index) << 1 |
-                          (Z_SE >= level_index);
+    unsigned int config = ((Z_NW >= level_index) << 3) |
+                          ((Z_NE >= level_index) << 2) |
+                          ((Z_SW >= level_index) << 1) |
+                          ((Z_SE >= level_index) << 0);
 
     // Upper level (level_index == 2) polygons are reversed compared to lower
     // level ones, i.e. higher values on the right rather than the left.
@@ -1166,10 +1166,10 @@ void Mpl2014ContourGenerator::init_cache_grid(const MaskArray& mask)
                 _cache[quad] = 0;
 
                 if (i < _nx-1 && j < _ny-1) {
-                    unsigned int config = mask_ptr[POINT_NW] << 3 |
-                                          mask_ptr[POINT_NE] << 2 |
-                                          mask_ptr[POINT_SW] << 1 |
-                                          mask_ptr[POINT_SE];
+                    unsigned int config = (mask_ptr[POINT_NW] << 3) |
+                                          (mask_ptr[POINT_NE] << 2) |
+                                          (mask_ptr[POINT_SW] << 1) |
+                                          (mask_ptr[POINT_SE] << 0);
 
                     if (_corner_mask) {
                          switch (config) {
