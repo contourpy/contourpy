@@ -67,6 +67,8 @@ protected:
         bool is_upper, on_boundary;
     };
 
+    ZLevel calc_z_level(const double& z_value);
+
     ZLevel calc_z_level_mid(index_t quad);
 
     void closed_line(const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);

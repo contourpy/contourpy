@@ -1,7 +1,6 @@
 #include "base_impl.h"
 #include "serial.h"
 
-
 SerialContourGenerator::SerialContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
     const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type, Interp interp,

@@ -155,6 +155,13 @@ BaseContourGenerator<Derived>::~BaseContourGenerator()
 }
 
 template <typename Derived>
+typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::calc_z_level(
+    const double& z_value)
+{
+    return (_filled && z_value > _upper_level) ? 2 : (z_value > _lower_level ? 1 : 0);
+}
+
+template <typename Derived>
 typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::calc_z_level_mid(
     index_t quad)
 {
