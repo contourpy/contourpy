@@ -8,14 +8,10 @@
 #include "outer_or_hole.h"
 #include <vector>
 
-template <typename Derived>
+template <typename Derived> //////////// typename or class ///////////
 class BaseContourGenerator
 {
 public:
-    // Non-copyable.
-    BaseContourGenerator(const BaseContourGenerator& other) = delete;
-    const BaseContourGenerator& operator=(const BaseContourGenerator& other) = delete;
-
     ~BaseContourGenerator();
 
     static FillType default_fill_type();
@@ -37,13 +33,18 @@ public:
 
     void write_cache() const;  // For debug purposes only.
 
+    // Non-copyable.
+    BaseContourGenerator(const BaseContourGenerator& other) = delete;
+    const BaseContourGenerator& operator=(const BaseContourGenerator& other) = delete;
+
 protected:
     BaseContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
         Interp interp, index_t x_chunk_size, index_t y_chunk_size);
 
-private:
+//private: ///////////////////////////////
+protected:
     typedef uint32_t CacheItem;
     typedef CacheItem ZLevel;
 
@@ -73,14 +74,6 @@ private:
     void closed_line_wrapper(
         const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);
 
-    // Write points and offsets/codes to output numpy arrays.
-    void export_filled(
-        ChunkLocal& local, const std::vector<double>& all_points,
-        std::vector<py::list>& return_lists);
-
-    void export_lines(
-        ChunkLocal& local, const double* all_points_ptr, std::vector<py::list>& return_lists);
-
     index_t find_look_S(index_t look_N_quad) const;
 
     // Return true if finished (i.e. back to start quad, direction and upper).
@@ -103,8 +96,6 @@ private:
 
     void init_cache_grid(const MaskArray& mask);
 
-    void init_cache_levels_and_starts(const ChunkLocal& local);
-
     // Increments local.points twice.
     void interp(index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const;
 
@@ -117,12 +108,6 @@ private:
 
     void line(const Location& start_location, ChunkLocal& local);
 
-    py::sequence march();
-
-    void march_chunk_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
-
-    void march_chunk_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
-
     void move_to_next_boundary_edge(index_t& quad, index_t& forward, index_t& left) const;
 
     void set_look_flags(index_t hole_start_quad);
@@ -130,7 +115,7 @@ private:
     void write_cache_quad(index_t quad) const;
 
 
-
+protected: ///////////////////////////////////////////////////////////////////////
     const CoordinateArray _x, _y, _z;
     const index_t _nx, _ny;                // Number of points in each direction.
     const index_t _n;                      // Total number of points (and quads).
