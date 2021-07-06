@@ -23,5 +23,5 @@ class BenchLineTypeRender:
         renderer = MplTestRenderer(self.x, self.y)
         for i, level in enumerate(self.levels):
             lines = cont_gen.lines(level)
-            renderer.lines(lines, line_type, color=f"C{i}"")
+            renderer.lines(lines, line_type, color=f"C{i}")
         renderer.save(f"line_type_render_{corner_mask}_{line_type}_{n}.png")
