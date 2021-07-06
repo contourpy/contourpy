@@ -18,23 +18,19 @@ public:
     friend class BaseContourGenerator;  ////////////// in public section or not?????? //////
 
 private:
-    // Write points and offsets/codes to output numpy arrays.
-    void export_filled(
-        ChunkLocal& local, const std::vector<double>& all_points,
-        std::vector<py::list>& return_lists);
-
-    void export_lines(
-        ChunkLocal& local, const double* all_points_ptr, std::vector<py::list>& return_lists);
+    class Lock : public std::unique_lock<std::mutex>
+    {
+    public:
+        explicit Lock(ThreadedContourGenerator& contour_generator)
+            : std::unique_lock<std::mutex>(contour_generator._python_mutex)
+        {}
+    };
 
     void init_cache_levels_and_starts(const ChunkLocal& local);
 
     static index_t limit_n_threads(index_t n_threads, index_t n_chunks);
 
     py::sequence march();
-
-    void march_chunk_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
-
-    void march_chunk_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void thread_function(std::vector<py::list>& return_lists);
 

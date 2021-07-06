@@ -76,6 +76,14 @@ protected:
     void closed_line_wrapper(
         const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);
 
+    // Write points and offsets/codes to output numpy arrays.
+    void export_filled(
+        ChunkLocal& local, const std::vector<double>& all_points,
+        std::vector<py::list>& return_lists);
+
+    void export_lines(
+        ChunkLocal& local, const double* all_points_ptr, std::vector<py::list>& return_lists);
+
     index_t find_look_S(index_t look_N_quad) const;
 
     // Return true if finished (i.e. back to start quad, direction and upper).
@@ -109,6 +117,10 @@ protected:
     bool is_quad_in_chunk(index_t quad, const ChunkLocal& local) const;
 
     void line(const Location& start_location, ChunkLocal& local);
+
+    void march_chunk_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
+
+    void march_chunk_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void move_to_next_boundary_edge(index_t& quad, index_t& forward, index_t& left) const;
 

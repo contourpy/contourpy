@@ -14,21 +14,19 @@ public:
     friend class BaseContourGenerator;  ////////////// in public section or not?????? //////
 
 private:
-    // Write points and offsets/codes to output numpy arrays.
-    void export_filled(
-        ChunkLocal& local, const std::vector<double>& all_points,
-        std::vector<py::list>& return_lists);
+    class Lock
+    {
+    public:
+        explicit Lock(SerialContourGenerator& contour_generator)
+        {}
 
-    void export_lines(
-        ChunkLocal& local, const double* all_points_ptr, std::vector<py::list>& return_lists);
+        void unlock()
+        {}
+    };
 
     void init_cache_levels_and_starts(const ChunkLocal& local);
 
     py::sequence march();
-
-    void march_chunk_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
-
-    void march_chunk_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
 };
 
 #endif // CONTOURPY_SERIAL_H
