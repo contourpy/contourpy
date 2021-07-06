@@ -8,7 +8,7 @@
 #include "outer_or_hole.h"
 #include <vector>
 
-template <typename Derived> //////////// typename or class ///////////
+template <typename Derived>
 class BaseContourGenerator
 {
 public:
@@ -121,6 +121,8 @@ protected:
     void march_chunk_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void march_chunk_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
+
+    py::sequence march_wrapper();
 
     void move_to_next_boundary_edge(index_t& quad, index_t& forward, index_t& left) const;
 

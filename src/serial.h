@@ -11,9 +11,9 @@ public:
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
         Interp interp, index_t x_chunk_size, index_t y_chunk_size);
 
-    friend class BaseContourGenerator;  ////////////// in public section or not?????? //////
-
 private:
+    friend class BaseContourGenerator;
+
     class Lock
     {
     public:
@@ -26,7 +26,7 @@ private:
 
     void init_cache_levels_and_starts(const ChunkLocal& local);
 
-    py::sequence march();
+    void march(std::vector<py::list>& return_lists);
 };
 
 #endif // CONTOURPY_SERIAL_H

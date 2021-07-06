@@ -221,21 +221,8 @@ index_t ThreadedContourGenerator::limit_n_threads(index_t n_threads, index_t n_c
         return std::min({max_threads, n_chunks, n_threads});
 }
 
-py::sequence ThreadedContourGenerator::march()
+void ThreadedContourGenerator::march(std::vector<py::list>& return_lists)
 {
-    index_t list_len = _n_chunks;
-    if ((_filled && (_fill_type == FillType::OuterCodes || _fill_type == FillType::OuterOffsets)) ||
-        (!_filled && (_line_type == LineType::Separate || _line_type == LineType::SeparateCodes)))
-        list_len = 0;
-
-    // Prepare lists to return to python.
-    std::vector<py::list> return_lists;
-    return_lists.reserve(_return_list_count);
-    for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
-        return_lists.emplace_back(list_len);
-
-    // Start of multithreaded code.
-
     // Each thread executes thread_function() which has two stages:
     //   1) Initialise cache z-levels and starting locations
     //   2) Trace contours
@@ -258,20 +245,6 @@ py::sequence ThreadedContourGenerator::march()
         thread.join();
     assert(_next_chunk == 2*_n_chunks);
     threads.clear();
-
-    // End of multithreaded code.
-
-    // Return to python objects.
-    if (_return_list_count == 1) {
-        assert(!_filled && _line_type == LineType::Separate);
-        return return_lists[0];
-    }
-    else if (_return_list_count == 2)
-        return py::make_tuple(return_lists[0], return_lists[1]);
-    else {
-        assert(_return_list_count == 3);
-        return py::make_tuple(return_lists[0], return_lists[1], return_lists[2]);
-    }
 }
 
 void ThreadedContourGenerator::thread_function(std::vector<py::list>& return_lists)

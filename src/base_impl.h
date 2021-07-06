@@ -427,7 +427,7 @@ py::sequence BaseContourGenerator<Derived>::filled(
     _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
                           _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
 
-    return static_cast<Derived*>(this)->march();
+    return static_cast<Derived*>(this)->march_wrapper();
 }
 
 template <typename Derived>
@@ -1191,7 +1191,7 @@ py::sequence BaseContourGenerator<Derived>::lines(const double& level)
     _identify_holes = false;
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
 
-    return static_cast<Derived*>(this)->march();
+    return static_cast<Derived*>(this)->march_wrapper();
 }
 
 template <typename Derived>
@@ -1479,6 +1479,35 @@ void BaseContourGenerator<Derived>::march_chunk_lines(
     assert(local.line_offsets.back() == local.total_point_count);
 
     export_lines(local, all_points_ptr, return_lists);
+}
+
+template <typename Derived>
+py::sequence BaseContourGenerator<Derived>::march_wrapper()
+{
+    index_t list_len = _n_chunks;
+    if ((_filled && (_fill_type == FillType::OuterCodes || _fill_type == FillType::OuterOffsets)) ||
+        (!_filled && (_line_type == LineType::Separate || _line_type == LineType::SeparateCodes)))
+        list_len = 0;
+
+    // Prepare lists to return to python.
+    std::vector<py::list> return_lists;
+    return_lists.reserve(_return_list_count);
+    for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
+        return_lists.emplace_back(list_len);
+
+    static_cast<Derived*>(this)->march(return_lists);
+
+    // Return to python objects.
+    if (_return_list_count == 1) {
+        assert(!_filled && _line_type == LineType::Separate);
+        return return_lists[0];
+    }
+    else if (_return_list_count == 2)
+        return py::make_tuple(return_lists[0], return_lists[1]);
+    else {
+        assert(_return_list_count == 3);
+        return py::make_tuple(return_lists[0], return_lists[1], return_lists[2]);
+    }
 }
 
 template <typename Derived>

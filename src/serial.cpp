@@ -190,19 +190,8 @@ void SerialContourGenerator::init_cache_levels_and_starts(const ChunkLocal& loca
     }
 }
 
-py::sequence SerialContourGenerator::march()
+void SerialContourGenerator::march(std::vector<py::list>& return_lists)
 {
-    index_t list_len = _n_chunks;
-    if ((_filled && (_fill_type == FillType::OuterCodes || _fill_type == FillType::OuterOffsets)) ||
-        (!_filled && (_line_type == LineType::Separate || _line_type == LineType::SeparateCodes)))
-        list_len = 0;
-
-    // Prepare lists to return to python.
-    std::vector<py::list> return_lists;
-    return_lists.reserve(_return_list_count);
-    for (decltype(_return_list_count) i = 0; i < _return_list_count; ++i)
-        return_lists.emplace_back(list_len);
-
     // Initialise cache z-levels and starting locations.
     ChunkLocal local;
     for (index_t chunk = 0; chunk < _n_chunks; ++chunk) {
@@ -219,17 +208,5 @@ py::sequence SerialContourGenerator::march()
         else
             march_chunk_lines(local, return_lists);
         local.clear();
-    }
-
-    // Return to python objects.
-    if (_return_list_count == 1) {
-        assert(!_filled && _line_type == LineType::Separate);
-        return return_lists[0];
-    }
-    else if (_return_list_count == 2)
-        return py::make_tuple(return_lists[0], return_lists[1]);
-    else {
-        assert(_return_list_count == 3);
-        return py::make_tuple(return_lists[0], return_lists[1], return_lists[2]);
     }
 }

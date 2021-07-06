@@ -15,9 +15,9 @@ public:
 
     index_t get_thread_count() const;
 
-    friend class BaseContourGenerator;  ////////////// in public section or not?????? //////
-
 private:
+    friend class BaseContourGenerator;
+
     class Lock : public std::unique_lock<std::mutex>
     {
     public:
@@ -30,7 +30,7 @@ private:
 
     static index_t limit_n_threads(index_t n_threads, index_t n_chunks);
 
-    py::sequence march();
+    void march(std::vector<py::list>& return_lists);
 
     void thread_function(std::vector<py::list>& return_lists);
 
@@ -42,7 +42,7 @@ private:
     index_t _finished_count;   // Count of threads that have finished the cache init.
     std::mutex _chunk_mutex;   // Locks access to _next_chunk/_finished_count.
     std::mutex _python_mutex;  // Locks access to Python objects.
-    std::condition_variable _condition_variable;
+    std::condition_variable _condition_variable;  // Implements multithreaded barrier.
 };
 
 #endif // CONTOURPY_THREADED_H
