@@ -7,7 +7,7 @@ from .util_bench import corner_masks, fill_types, problem_sizes
 
 class BenchFillTypeRender:
     params = (corner_masks(), fill_types(), problem_sizes())
-    param_names = "corner_mask", "fill_type", "n"]
+    param_names = ["corner_mask", "fill_type", "n"]
 
     def setup(self, corner_mask, fill_type, n):
         self.x, self.y, self.z = random_uniform((n, n), mask_fraction=0.05)
@@ -23,5 +23,5 @@ class BenchFillTypeRender:
         renderer = MplTestRenderer(self.x, self.y)
         for i in range(len(self.levels)-1):
             filled = cont_gen.filled(self.levels[i], self.levels[i+1])
-            renderer.filled(filled, fill_type, color=f"C{i}"")
+            renderer.filled(filled, fill_type, color=f"C{i}")
         renderer.save(f"fill_type_render_{corner_mask}_{fill_type}_{n}.png")
