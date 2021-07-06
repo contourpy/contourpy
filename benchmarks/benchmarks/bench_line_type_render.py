@@ -20,7 +20,7 @@ class BenchLineTypeRender:
             corner_mask = False
         cont_gen = contour_generator(
             self.x, self.y, self.z, name="serial", line_type=line_type, corner_mask=corner_mask)
-        renderer = MplTestRenderer(self.x, self.y)
+        renderer = MplTestRenderer()
         for i, level in enumerate(self.levels):
             lines = cont_gen.lines(level)
             renderer.lines(lines, line_type, color=f"C{i}")

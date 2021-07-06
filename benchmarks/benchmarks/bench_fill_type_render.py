@@ -20,7 +20,7 @@ class BenchFillTypeRender:
             corner_mask = False
         cont_gen = contour_generator(
             self.x, self.y, self.z, name="serial", fill_type=fill_type, corner_mask=corner_mask)
-        renderer = MplTestRenderer(self.x, self.y)
+        renderer = MplTestRenderer()
         for i in range(len(self.levels)-1):
             filled = cont_gen.filled(self.levels[i], self.levels[i+1])
             renderer.filled(filled, fill_type, color=f"C{i}")
