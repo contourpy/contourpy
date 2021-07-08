@@ -1,9 +1,9 @@
+from .chunk import calc_chunk_sizes
 from ._contourpy import (
     max_threads, FillType, Interp, LineType, Mpl2014ContourGenerator, SerialContourGenerator,
     ThreadedContourGenerator,
 )
 from .mpl2005 import Mpl2005ContourGenerator
-from .util.chunk import calc_chunk_sizes
 import numpy as np
 
 
