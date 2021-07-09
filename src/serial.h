@@ -24,8 +24,6 @@ private:
         {}
     };
 
-    void init_cache_levels_and_starts(const ChunkLocal& local);
-
     void march(std::vector<py::list>& return_lists);
 };
 

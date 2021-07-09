@@ -26,8 +26,6 @@ private:
         {}
     };
 
-    void init_cache_levels_and_starts(const ChunkLocal& local);
-
     static index_t limit_n_threads(index_t n_threads, index_t n_chunks);
 
     void march(std::vector<py::list>& return_lists);

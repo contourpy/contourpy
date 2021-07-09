@@ -67,8 +67,6 @@ protected:
         bool is_upper, on_boundary;
     };
 
-    ZLevel calc_z_level(const double& z_value);
-
     ZLevel calc_z_level_mid(index_t quad);
 
     void closed_line(const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);
@@ -106,6 +104,8 @@ protected:
 
     void init_cache_grid(const MaskArray& mask);
 
+    void init_cache_levels_and_starts(const ChunkLocal& local, bool ordered_chunks);
+
     // Increments local.points twice.
     void interp(index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const;
 
@@ -129,6 +129,8 @@ protected:
     void set_look_flags(index_t hole_start_quad);
 
     void write_cache_quad(index_t quad) const;
+
+    ZLevel z_to_zlevel(const double& z_value);
 
 
 protected: ///////////////////////////////////////////////////////////////////////

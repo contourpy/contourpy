@@ -155,13 +155,6 @@ BaseContourGenerator<Derived>::~BaseContourGenerator()
 }
 
 template <typename Derived>
-typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::calc_z_level(
-    const double& z_value)
-{
-    return (_filled && z_value > _upper_level) ? 2 : (z_value > _lower_level ? 1 : 0);
-}
-
-template <typename Derived>
 typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::calc_z_level_mid(
     index_t quad)
 {
@@ -1106,6 +1099,203 @@ void BaseContourGenerator<Derived>::init_cache_grid(const MaskArray& mask)
 }
 
 template <typename Derived>
+void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
+    const ChunkLocal& local, bool ordered_chunks)
+{
+    CacheItem keep_mask =
+        (_corner_mask ? MASK_EXISTS_ANY | MASK_BOUNDARY_N | MASK_BOUNDARY_E
+                      : MASK_EXISTS_QUAD | MASK_BOUNDARY_N | MASK_BOUNDARY_E);
+
+    index_t istart = local.istart > 1 ? local.istart : 0;
+    index_t iend = local.iend;
+    index_t jstart = local.jstart > 1 ? local.jstart : 0;
+    index_t jend = local.jend;
+
+    index_t j_final_start = jstart - 1;
+
+    for (index_t j = jstart; j <= jend; ++j) {
+        index_t quad = istart + j*_nx;
+        const double* z_ptr = _z.data() + quad;
+        bool start_in_row = false;
+
+        // z-level of NW point not needed if i == 0, otherwise read it from cache as already
+        // calculated.  Do not read if from cache if !ordered_chunks and it is in another chunk as
+        // it may not have been set yet, so calculate it now for temporary use.
+        ZLevel z_nw = (istart == 0) ? 0 :
+            ((!ordered_chunks && istart == local.istart && istart > 1) ?
+                z_to_zlevel(*(z_ptr-1)) : Z_NW);
+
+        // z-level of SW point not needed if i == 0 or j == 0, otherwise read it from cache as
+        // already calculated.  Do not read it from cache if !ordered_chunks and it is in another
+        // chunk as it may not have been set yet, so calculate it now for temporary use.
+        ZLevel z_sw = (istart == 0 || j == 0) ? 0 :
+            ((!ordered_chunks && (j == jstart || (istart == local.istart && istart > 1))) ?
+                z_to_zlevel(*(z_ptr-_nx-1)) : Z_SW);
+
+        for (index_t i = istart; i <= iend; ++i, ++quad, ++z_ptr) {
+            // z-level of SE point not needed if j == 0, otherwise read it from cache as already
+            // calculated.  Do not read it from cache if !ordered_chunks and it is in another chunk
+            // as it may have not been set yet, so calculate it now for temporary use.
+            ZLevel z_se = (j == 0) ? 0 :
+                ((!ordered_chunks && j == jstart) ? z_to_zlevel(*(z_ptr-_nx)) : Z_SE);
+
+            _cache[quad] &= keep_mask;
+            _cache[quad] |= MASK_SADDLE;
+
+            // Cache z-level of NE point.
+            ZLevel z_ne = 0;
+            if (_filled && *z_ptr > _upper_level) {
+                _cache[quad] |= MASK_Z_LEVEL_2;
+                z_ne = 2;
+            }
+            else if (*z_ptr > _lower_level) {
+                _cache[quad] |= MASK_Z_LEVEL_1;
+                z_ne = 1;
+            }
+
+            if (EXISTS_ANY(quad)) {
+                if (_filled) {
+                    if (EXISTS_N_AND_E_EDGES(quad)) {
+                        if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
+                            (EXISTS_NE_CORNER(quad) || z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
+                            _cache[quad] |= MASK_START_N;  // N to E low.
+                            start_in_row = true;
+                        }
+                        else if (z_nw == 2 && z_se == 2 && z_ne < 2 &&
+                                 (EXISTS_NE_CORNER(quad) || z_sw == 2 ||
+                                  SADDLE_Z_LEVEL(quad) == 2)) {
+                            _cache[quad] |= MASK_START_N;  // N to E high.
+                            start_in_row = true;
+                        }
+
+                        if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
+                            (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
+                            _cache[quad] |= MASK_START_E;  // E to N low.
+                            start_in_row = true;
+                        }
+                        else if (z_ne == 2 && z_nw < 2 && z_se < 2 &&
+                                 (EXISTS_NE_CORNER(quad) || z_sw < 2 || SADDLE_Z_LEVEL(quad) < 2)) {
+                            _cache[quad] |= MASK_START_E;  // E to N high.
+                            start_in_row = true;
+                        }
+                    }
+
+                    if (BOUNDARY_S(quad) &&
+                        ((z_sw == 2 && z_se < 2) || (z_sw == 0 && z_se > 0) || z_sw == 1)) {
+                        _cache[quad] |= MASK_START_BOUNDARY_S;
+                        start_in_row = true;
+                    }
+
+                    if (BOUNDARY_W(quad) &&
+                        ((z_nw == 2 && z_sw < 2) || (z_nw == 0 && z_sw > 0) ||
+                         (z_nw == 1 && (z_sw != 1 || EXISTS_NW_CORNER(quad))))) {
+                        _cache[quad] |= MASK_START_BOUNDARY_W;
+                        start_in_row = true;
+                    }
+
+                    if (EXISTS_ANY_CORNER(quad)) {
+                        if (EXISTS_NE_CORNER(quad) &&
+                            ((z_nw == 2 && z_se < 2) || (z_nw == 0 && z_se > 0) || z_nw == 1)) {
+                            _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
+                        }
+                        else if (EXISTS_NW_CORNER(quad) &&
+                                 ((z_sw == 2 && z_ne < 2) || (z_sw == 0 && z_ne > 0))) {
+                            _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
+                        }
+                        else if (EXISTS_SE_CORNER(quad) && ((z_sw == 0 && z_se == 0 && z_ne > 0) ||
+                                                            (z_sw == 2 && z_se == 2 && z_ne < 2))) {
+                            _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
+                        }
+                        else if (EXISTS_SW_CORNER(quad) && z_nw == 1 && z_se == 1) {
+                            _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
+                        }
+                    }
+
+                    // Start following N boundary from E to W which is a hole.
+                    // Required for an internal masked region which is a hole in
+                    // a filled polygon.
+                    if (BOUNDARY_N(quad) && EXISTS_N_EDGE(quad) && z_nw == 1 && z_ne == 1 &&
+                        !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1) {
+                        _cache[quad] |= MASK_START_HOLE_N;
+                        start_in_row = true;
+                    }
+                }
+                else {  // !_filled
+                    if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0) {
+                        _cache[quad] |= MASK_START_BOUNDARY_S;
+                        start_in_row = true;
+                    }
+
+                    if (BOUNDARY_W(quad) && z_nw == 1 && z_sw == 0) {
+                        _cache[quad] |= MASK_START_BOUNDARY_W;
+                        start_in_row = true;
+                    }
+
+                    if (BOUNDARY_E(quad) && z_se == 1 && z_ne == 0) {
+                        _cache[quad] |= MASK_START_BOUNDARY_E;
+                        start_in_row = true;
+                    }
+
+                    if (BOUNDARY_N(quad) && z_ne == 1 && z_nw == 0) {
+                        _cache[quad] |= MASK_START_BOUNDARY_N;
+                        start_in_row = true;
+                    }
+
+                    if (EXISTS_N_AND_E_EDGES(quad) && !BOUNDARY_N(quad) && !BOUNDARY_E(quad)) {
+                        if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
+                            (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
+                            _cache[quad] |= MASK_START_E;  // E to N low.
+                            start_in_row = true;
+                        }
+                        else if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
+                                 (EXISTS_NE_CORNER(quad) || z_sw == 0 ||
+                                  SADDLE_Z_LEVEL(quad) == 0)) {
+                            _cache[quad] |= MASK_START_N;  // N to E low.
+                            start_in_row = true;
+                        }
+                    }
+
+                    if (EXISTS_ANY_CORNER(quad)) {
+                        bool corner_start = false;
+                        if (EXISTS_NW_CORNER(quad))
+                            corner_start = (z_sw == 1 && z_ne == 0);
+                        else if (EXISTS_NE_CORNER(quad))
+                            corner_start = (z_nw == 1 && z_se == 0);
+                        else if (EXISTS_SW_CORNER(quad))
+                            corner_start = (z_se == 1 && z_nw == 0);
+                        else  // EXISTS_SE_CORNER
+                            corner_start = (z_ne == 1 && z_sw == 0);
+
+                        if (corner_start) {
+                            _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
+                        }
+                    }
+                }
+            }
+
+            z_nw = z_ne;
+            z_sw = z_se;
+        } // i-loop.
+
+        if (start_in_row)
+            j_final_start = j;
+        else if (j > 0)
+            _cache[local.istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
+    } // j-loop.
+
+    if (j_final_start < local.jend) {
+        //std::cout << "NO MORE STARTS j_final_start=" << j_final_start
+          //  << " quad=" << local.istart + (j_final_start+1)*_nx << std::endl;
+        _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
+    }
+}
+
+template <typename Derived>
 void BaseContourGenerator<Derived>::interp(
     index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const
 {
@@ -1772,6 +1962,13 @@ void BaseContourGenerator<Derived>::write_cache_quad(index_t quad) const
         std::cout << (LOOK_N(quad) && LOOK_S(quad) ? 'B' :
             (LOOK_N(quad) ? '^' : (LOOK_S(quad) ? 'v' : '.')));
     std::cout << ' ';
+}
+
+template <typename Derived>
+typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::z_to_zlevel(
+    const double& z_value)
+{
+    return (_filled && z_value > _upper_level) ? 2 : (z_value > _lower_level ? 1 : 0);
 }
 
 #endif // CONTOURPY_BASE_IMPL_H
