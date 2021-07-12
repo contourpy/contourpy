@@ -42,7 +42,7 @@
 #define MASK_START_HOLE_N      (0x1 << 17) // N boundary of EXISTS, E to W, filled only.
 #define MASK_START_CORNER      (0x1 << 18) // Filled and lines.
 #define MASK_ANY_START_FILLED  (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_HOLE_N | MASK_START_CORNER)
-#define MASK_ANY_START_LINES   (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E | MASK_START_CORNER)
+#define MASK_ANY_START_LINES   (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_W | MASK_START_CORNER)
 #define MASK_LOOK_N            (0x1 << 19)
 #define MASK_LOOK_S            (0x1 << 20)
 #define MASK_NO_STARTS_IN_ROW  (0x1 << 21)
@@ -1165,59 +1165,49 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
                         if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
                             (EXISTS_NE_CORNER(quad) || z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
                             _cache[quad] |= MASK_START_N;  // N to E low.
-                            start_in_row = true;
                         }
                         else if (z_nw == 2 && z_se == 2 && z_ne < 2 &&
                                  (EXISTS_NE_CORNER(quad) || z_sw == 2 ||
                                   SADDLE_Z_LEVEL(quad) == 2)) {
                             _cache[quad] |= MASK_START_N;  // N to E high.
-                            start_in_row = true;
                         }
 
                         if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
                             (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
                             _cache[quad] |= MASK_START_E;  // E to N low.
-                            start_in_row = true;
                         }
                         else if (z_ne == 2 && z_nw < 2 && z_se < 2 &&
                                  (EXISTS_NE_CORNER(quad) || z_sw < 2 || SADDLE_Z_LEVEL(quad) < 2)) {
                             _cache[quad] |= MASK_START_E;  // E to N high.
-                            start_in_row = true;
                         }
                     }
 
                     if (BOUNDARY_S(quad) &&
                         ((z_sw == 2 && z_se < 2) || (z_sw == 0 && z_se > 0) || z_sw == 1)) {
                         _cache[quad] |= MASK_START_BOUNDARY_S;
-                        start_in_row = true;
                     }
 
                     if (BOUNDARY_W(quad) &&
                         ((z_nw == 2 && z_sw < 2) || (z_nw == 0 && z_sw > 0) ||
                          (z_nw == 1 && (z_sw != 1 || EXISTS_NW_CORNER(quad))))) {
                         _cache[quad] |= MASK_START_BOUNDARY_W;
-                        start_in_row = true;
                     }
 
                     if (EXISTS_ANY_CORNER(quad)) {
                         if (EXISTS_NE_CORNER(quad) &&
                             ((z_nw == 2 && z_se < 2) || (z_nw == 0 && z_se > 0) || z_nw == 1)) {
                             _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
                         }
                         else if (EXISTS_NW_CORNER(quad) &&
                                  ((z_sw == 2 && z_ne < 2) || (z_sw == 0 && z_ne > 0))) {
                             _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
                         }
                         else if (EXISTS_SE_CORNER(quad) && ((z_sw == 0 && z_se == 0 && z_ne > 0) ||
                                                             (z_sw == 2 && z_se == 2 && z_ne < 2))) {
                             _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
                         }
                         else if (EXISTS_SW_CORNER(quad) && z_nw == 1 && z_se == 1) {
                             _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
                         }
                     }
 
@@ -1227,41 +1217,32 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
                     if (BOUNDARY_N(quad) && EXISTS_N_EDGE(quad) && z_nw == 1 && z_ne == 1 &&
                         !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1) {
                         _cache[quad] |= MASK_START_HOLE_N;
-                        start_in_row = true;
                     }
+
+                    start_in_row |= ANY_START_FILLED(quad);
                 }
                 else {  // !_filled
-                    if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0) {
+                    if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0)
                         _cache[quad] |= MASK_START_BOUNDARY_S;
-                        start_in_row = true;
-                    }
 
-                    if (BOUNDARY_W(quad) && z_nw == 1 && z_sw == 0) {
+                    if (BOUNDARY_W(quad) && z_nw == 1 && z_sw == 0)
                         _cache[quad] |= MASK_START_BOUNDARY_W;
-                        start_in_row = true;
-                    }
 
-                    if (BOUNDARY_E(quad) && z_se == 1 && z_ne == 0) {
+                    if (BOUNDARY_E(quad) && z_se == 1 && z_ne == 0)
                         _cache[quad] |= MASK_START_BOUNDARY_E;
-                        start_in_row = true;
-                    }
 
-                    if (BOUNDARY_N(quad) && z_ne == 1 && z_nw == 0) {
+                    if (BOUNDARY_N(quad) && z_ne == 1 && z_nw == 0)
                         _cache[quad] |= MASK_START_BOUNDARY_N;
-                        start_in_row = true;
-                    }
 
                     if (EXISTS_N_AND_E_EDGES(quad) && !BOUNDARY_N(quad) && !BOUNDARY_E(quad)) {
                         if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
                             (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
                             _cache[quad] |= MASK_START_E;  // E to N low.
-                            start_in_row = true;
                         }
                         else if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
                                  (EXISTS_NE_CORNER(quad) || z_sw == 0 ||
                                   SADDLE_Z_LEVEL(quad) == 0)) {
                             _cache[quad] |= MASK_START_N;  // N to E low.
-                            start_in_row = true;
                         }
                     }
 
@@ -1276,13 +1257,13 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
                         else  // EXISTS_SE_CORNER
                             corner_start = (z_ne == 1 && z_sw == 0);
 
-                        if (corner_start) {
-                            _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
-                        }
+                        if (corner_start)
+                           _cache[quad] |= MASK_START_CORNER;
                     }
+
+                    start_in_row |= ANY_START_LINES(quad);
                 }
-            }
+            } // EXISTS_ANY(quad)
 
             z_nw = z_ne;
             z_sw = z_se;
