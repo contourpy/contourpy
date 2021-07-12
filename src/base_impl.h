@@ -976,6 +976,12 @@ LineType BaseContourGenerator<Derived>::get_line_type() const
 }
 
 template <typename Derived>
+index_t BaseContourGenerator<Derived>::get_n_chunks() const
+{
+    return _n_chunks;
+}
+
+template <typename Derived>
 void BaseContourGenerator<Derived>::get_point_xy(index_t point, double*& points) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
@@ -1322,6 +1328,12 @@ void BaseContourGenerator<Derived>::interp(
 
     *local.points++ = get_point_x(point0)*frac + get_point_x(point1)*(1.0 - frac);
     *local.points++ = get_point_y(point0)*frac + get_point_y(point1)*(1.0 - frac);
+}
+
+template <typename Derived>
+bool BaseContourGenerator<Derived>::is_filled() const
+{
+    return _filled;
 }
 
 template <typename Derived>

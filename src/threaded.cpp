@@ -9,7 +9,7 @@ ThreadedContourGenerator::ThreadedContourGenerator(
     index_t x_chunk_size, index_t y_chunk_size, index_t n_threads)
     : BaseContourGenerator(x, y, z, mask, corner_mask, line_type, fill_type, interp, x_chunk_size,
                            y_chunk_size),
-      _n_threads(limit_n_threads(n_threads, _n_chunks)),
+      _n_threads(limit_n_threads(n_threads, get_n_chunks())),
       _next_chunk(0)
 {}
 
@@ -64,6 +64,7 @@ void ThreadedContourGenerator::thread_function(std::vector<py::list>& return_lis
     // stages so that the cache initialisation is complete before being used by
     // the contour trace.
 
+    auto n_chunks = get_n_chunks();
     index_t chunk;
     ChunkLocal local;
 
@@ -71,7 +72,7 @@ void ThreadedContourGenerator::thread_function(std::vector<py::list>& return_lis
     while (true) {
         {
             std::lock_guard<std::mutex> guard(_chunk_mutex);
-            if (_next_chunk < _n_chunks)
+            if (_next_chunk < n_chunks)
                 chunk = _next_chunk++;
             else
                 break;  // No more work to do.
@@ -98,14 +99,14 @@ void ThreadedContourGenerator::thread_function(std::vector<py::list>& return_lis
     while (true) {
         {
             std::lock_guard<std::mutex> guard(_chunk_mutex);
-            if (_next_chunk < 2*_n_chunks)
-                chunk = _next_chunk++ - _n_chunks;
+            if (_next_chunk < 2*n_chunks)
+                chunk = _next_chunk++ - n_chunks;
             else
                 break;  // No more work to do.
         }
 
         get_chunk_limits(chunk, local);
-        if (_filled)
+        if (is_filled())
             march_chunk_filled(local, return_lists);
         else
             march_chunk_lines(local, return_lists);

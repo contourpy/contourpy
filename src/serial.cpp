@@ -11,18 +11,20 @@ SerialContourGenerator::SerialContourGenerator(
 
 void SerialContourGenerator::march(std::vector<py::list>& return_lists)
 {
-    // Initialise cache z-levels and starting locations.
+    auto n_chunks = get_n_chunks();
     ChunkLocal local;
-    for (index_t chunk = 0; chunk < _n_chunks; ++chunk) {
+
+    // Stage 1: Initialise cache z-levels and starting locations.
+    for (index_t chunk = 0; chunk < n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
         init_cache_levels_and_starts(local, true);
         local.clear();
     }
 
-    // Trace contours.
-    for (index_t chunk = 0; chunk < _n_chunks; ++chunk) {
+    // Stage 2: Trace contours.
+    for (index_t chunk = 0; chunk < n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
-        if (_filled)
+        if (is_filled())
             march_chunk_filled(local, return_lists);
         else
             march_chunk_lines(local, return_lists);

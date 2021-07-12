@@ -43,8 +43,6 @@ protected:
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
         Interp interp, index_t x_chunk_size, index_t y_chunk_size);
 
-//private: ///////////////////////////////
-protected:
     typedef uint32_t CacheItem;
     typedef CacheItem ZLevel;
 
@@ -96,6 +94,8 @@ protected:
     // chunk is index in range 0.._n_chunks-1.
     void get_chunk_limits(index_t chunk, ChunkLocal& local) const;
 
+    index_t get_n_chunks() const;
+
     void get_point_xy(index_t point, double*& points) const;
 
     const double& get_point_x(index_t point) const;
@@ -108,6 +108,8 @@ protected:
 
     // Increments local.points twice.
     void interp(index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const;
+
+    bool is_filled() const;
 
     bool is_point_in_chunk(index_t point, const ChunkLocal& local) const;
 
@@ -133,7 +135,7 @@ protected:
     ZLevel z_to_zlevel(const double& z_value);
 
 
-protected: ///////////////////////////////////////////////////////////////////////
+private:
     const CoordinateArray _x, _y, _z;
     const index_t _nx, _ny;                // Number of points in each direction.
     const index_t _n;                      // Total number of points (and quads).
