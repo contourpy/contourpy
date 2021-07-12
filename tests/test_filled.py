@@ -98,7 +98,7 @@ def test_filled_random_uniform_corner_mask_chunk(name):
     max_threshold = None
     mean_threshold = None
     if name in ("serial", "threaded"):
-        max_threshold = 134
+        max_threshold = 135
         mean_threshold = 0.17
 
     compare_images(

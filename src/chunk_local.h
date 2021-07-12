@@ -17,7 +17,7 @@ struct ChunkLocal
 
     index_t chunk;                      // Index in range 0 to _n_chunks-1.
 
-    index_t istart, iend, jstart, jend; // Chunk limits.
+    index_t istart, iend, jstart, jend; // Chunk limits, inclusive.
     int pass;
     double* points;                     // Where to store next point.
 

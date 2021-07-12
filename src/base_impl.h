@@ -1108,7 +1108,18 @@ template <typename Derived>
 void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
     const ChunkLocal& local, bool ordered_chunks)
 {
-    const CacheItem keep_mask = (MASK_EXISTS_ANY | MASK_BOUNDARY_N | MASK_BOUNDARY_E);
+    // This function initialises the cache z-levels and starts for either a single chunk or the
+    // whole domain.  If a single chunk, only the quads contained in the chunk are calculated and
+    // this includes the z-levels of the points that on the NE corners of those quads.  In addition,
+    // chunks that are on the W (starting at i=1) also calculate the most westerly points (i=0),
+    // and similarly chunks that are on the S (starting at j=1) also calculate the most southerly
+    // points (j=0).  Non W/S chunks do not do this as their neighboring chunks to the W/S are
+    // responsible for it.  If ordered_chunks is true then those W/S points will already have been
+    // processed so that their z-levels can be read from the cache as usual.  But if ordered_chunks
+    // is false then we cannot rely upon those neighboring W/S points having their cache values
+    // already set and so must temporarily calculate those z-levels rather than reading the cache.
+
+    constexpr CacheItem keep_mask = (MASK_EXISTS_ANY | MASK_BOUNDARY_N | MASK_BOUNDARY_E);
 
     index_t istart = local.istart > 1 ? local.istart : 0;
     index_t iend = local.iend;
@@ -1116,32 +1127,24 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
     index_t jend = local.jend;
 
     index_t j_final_start = jstart - 1;
+    bool calc_W_z_level = (!ordered_chunks && istart == local.istart);
 
     for (index_t j = jstart; j <= jend; ++j) {
         index_t quad = istart + j*_nx;
         const double* z_ptr = _z.data() + quad;
         bool start_in_row = false;
+        bool calc_S_z_level = (!ordered_chunks && j == jstart);
 
-        // z-level of NW point not needed if i == 0, otherwise read it from cache as already
-        // calculated.  Do not read if from cache if !ordered_chunks and it is in another chunk as
-        // it may not have been set yet, so calculate it now for temporary use.
-        ZLevel z_nw = (istart == 0) ? 0 :
-            ((!ordered_chunks && istart == local.istart && istart > 1) ?
-                z_to_zlevel(*(z_ptr-1)) : Z_NW);
+        // z-level of NW point not needed if i == 0.
+        ZLevel z_nw = (istart == 0) ? 0 : (calc_W_z_level ? z_to_zlevel(*(z_ptr-1)) : Z_NW);
 
-        // z-level of SW point not needed if i == 0 or j == 0, otherwise read it from cache as
-        // already calculated.  Do not read it from cache if !ordered_chunks and it is in another
-        // chunk as it may not have been set yet, so calculate it now for temporary use.
+        // z-level of SW point not needed if i == 0 or j == 0.
         ZLevel z_sw = (istart == 0 || j == 0) ? 0 :
-            ((!ordered_chunks && (j == jstart || (istart == local.istart && istart > 1))) ?
-                z_to_zlevel(*(z_ptr-_nx-1)) : Z_SW);
+            ((calc_W_z_level || calc_S_z_level) ? z_to_zlevel(*(z_ptr-_nx-1)) : Z_SW);
 
         for (index_t i = istart; i <= iend; ++i, ++quad, ++z_ptr) {
-            // z-level of SE point not needed if j == 0, otherwise read it from cache as already
-            // calculated.  Do not read it from cache if !ordered_chunks and it is in another chunk
-            // as it may have not been set yet, so calculate it now for temporary use.
-            ZLevel z_se = (j == 0) ? 0 :
-                ((!ordered_chunks && j == jstart) ? z_to_zlevel(*(z_ptr-_nx)) : Z_SE);
+            // z-level of SE point not needed if j == 0.
+            ZLevel z_se = (j == 0) ? 0 : (calc_S_z_level ? z_to_zlevel(*(z_ptr-_nx)) : Z_SE);
 
             _cache[quad] &= keep_mask;
             _cache[quad] |= MASK_SADDLE;  // Saddle existance not yet determined.
@@ -1273,9 +1276,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
             _cache[local.istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
     } // j-loop.
 
-    if (j_final_start < local.jend) {
-        //std::cout << "NO MORE STARTS j_final_start=" << j_final_start
-          //  << " quad=" << local.istart + (j_final_start+1)*_nx << std::endl;
+    if (j_final_start < jend) {
         _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
     }
 }
