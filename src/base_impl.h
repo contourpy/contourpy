@@ -1108,9 +1108,7 @@ template <typename Derived>
 void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
     const ChunkLocal& local, bool ordered_chunks)
 {
-    CacheItem keep_mask =
-        (_corner_mask ? MASK_EXISTS_ANY | MASK_BOUNDARY_N | MASK_BOUNDARY_E
-                      : MASK_EXISTS_QUAD | MASK_BOUNDARY_N | MASK_BOUNDARY_E);
+    const CacheItem keep_mask = (MASK_EXISTS_ANY | MASK_BOUNDARY_N | MASK_BOUNDARY_E);
 
     index_t istart = local.istart > 1 ? local.istart : 0;
     index_t iend = local.iend;
@@ -1146,7 +1144,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
                 ((!ordered_chunks && j == jstart) ? z_to_zlevel(*(z_ptr-_nx)) : Z_SE);
 
             _cache[quad] &= keep_mask;
-            _cache[quad] |= MASK_SADDLE;
+            _cache[quad] |= MASK_SADDLE;  // Saddle existance not yet determined.
 
             // Cache z-level of NE point.
             ZLevel z_ne = 0;
