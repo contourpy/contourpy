@@ -18,6 +18,8 @@ public:
 private:
     friend class BaseContourGenerator;
 
+    // Lock class is used to lock access to a single thread when creating/modifying Python objects.
+    // Automatically unlocks in destructor or when unlock() member function is called.
     class Lock : public std::unique_lock<std::mutex>
     {
     public:

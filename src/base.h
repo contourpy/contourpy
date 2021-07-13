@@ -1,3 +1,12 @@
+// BaseContourGenerator class provides functionality common to multiple contouring algorithms.
+// Uses the Curiously Recurring Template Pattern idiom whereby classes derived from this are
+// declared as
+//     class Derived : public BaseContourGenerator<Derived>
+//
+// It provides static polymorphism at compile-time rather than the more common dynamic polymorphism
+// at run-time using virtual functions.  Hence it avoids the runtime overhead of calling virtual
+// functions.
+
 #ifndef CONTOURPY_BASE_H
 #define CONTOURPY_BASE_H
 
@@ -65,6 +74,7 @@ protected:
         bool is_upper, on_boundary;
     };
 
+    // Calculate and set z-level of saddle quad.
     ZLevel calc_z_level_mid(index_t quad);
 
     void closed_line(const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);
@@ -104,7 +114,8 @@ protected:
 
     void init_cache_grid(const MaskArray& mask);
 
-    void init_cache_levels_and_starts(const ChunkLocal& local, bool ordered_chunks);
+    // Either for a single chunk, or the whole domain (all chunks) if local == nullptr.
+    void init_cache_levels_and_starts(const ChunkLocal* local = nullptr);
 
     // Increments local.points twice.
     void interp(index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const;

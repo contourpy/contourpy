@@ -14,6 +14,9 @@ public:
 private:
     friend class BaseContourGenerator;
 
+    // Dummy Lock class which is the single-threaded version of ThreadedContourGenerator::Lock and
+    // does not do anything, allowing base class code to use Lock objects for both serial and
+    // multithreaded code.
     class Lock
     {
     public:

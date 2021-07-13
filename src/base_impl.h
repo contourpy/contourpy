@@ -13,34 +13,33 @@
 #define POINT_NE (quad)
 
 
-// CacheItem masks, only accessed directly to set.  To read, use accessors
-// detailed below.  1 and 2 refer to level indices (lower and upper).
-#define MASK_Z_LEVEL_1         (0x1 <<  0) // z > lower_level.
-#define MASK_Z_LEVEL_2         (0x1 <<  1) // z > upper_level.
+// CacheItem masks, only accessed directly to set.  To read, use accessors detailed below.
+// 1 and 2 refer to level indices (lower and upper).
+#define MASK_Z_LEVEL_1         (0x1 <<  0)  // z > lower_level.
+#define MASK_Z_LEVEL_2         (0x1 <<  1)  // z > upper_level.
 #define MASK_Z_LEVEL           (MASK_Z_LEVEL_1 | MASK_Z_LEVEL_2)
-#define MASK_SADDLE_Z_LEVEL_1  (0x1 <<  2) // saddle z > lower_level
-#define MASK_SADDLE_Z_LEVEL_2  (0x1 <<  3) // saddle z > upper_level
+#define MASK_SADDLE_Z_LEVEL_1  (0x1 <<  2)  // saddle z > lower_level
+#define MASK_SADDLE_Z_LEVEL_2  (0x1 <<  3)  // saddle z > upper_level
 #define MASK_SADDLE            (MASK_SADDLE_Z_LEVEL_1 | MASK_SADDLE_Z_LEVEL_2)
-#define MASK_BOUNDARY_N        (0x1 <<  4) // N edge of quad is a boundary.
-#define MASK_BOUNDARY_E        (0x1 <<  5) // E edge of quad is a boundary.
-// EXISTS_QUAD bit is always used, but the 4 EXISTS_CORNER are only used if
-// _corner_mask is true.  Only one of EXISTS_QUAD or EXISTS_??_CORNER is ever
-// set per quad.
-#define MASK_EXISTS_QUAD       (0x1 <<  6) // All of quad exists (is not masked).
-#define MASK_EXISTS_NE_CORNER  (0x1 <<  7) // NE corner exists, SW corner is masked.
+#define MASK_BOUNDARY_N        (0x1 <<  4)  // N edge of quad is a boundary.
+#define MASK_BOUNDARY_E        (0x1 <<  5)  // E edge of quad is a boundary.
+// EXISTS_QUAD bit is always used, but the 4 EXISTS_CORNER are only used if _corner_mask is true.
+// Only one of EXISTS_QUAD or EXISTS_??_CORNER is ever set per quad.
+#define MASK_EXISTS_QUAD       (0x1 <<  6)  // All of quad exists (is not masked).
+#define MASK_EXISTS_NE_CORNER  (0x1 <<  7)  // NE corner exists, SW corner is masked.
 #define MASK_EXISTS_NW_CORNER  (0x1 <<  8)
 #define MASK_EXISTS_SE_CORNER  (0x1 <<  9)
 #define MASK_EXISTS_SW_CORNER  (0x1 << 10)
 #define MASK_EXISTS_ANY_CORNER (MASK_EXISTS_NW_CORNER | MASK_EXISTS_NE_CORNER | MASK_EXISTS_SW_CORNER | MASK_EXISTS_SE_CORNER)
 #define MASK_EXISTS_ANY        (MASK_EXISTS_QUAD | MASK_EXISTS_ANY_CORNER)
-#define MASK_START_N           (0x1 << 11) // N to E, filled and lines.
-#define MASK_START_E           (0x1 << 12) // E to N, filled and lines.
-#define MASK_START_BOUNDARY_N  (0x1 << 13) // Filled and lines.
-#define MASK_START_BOUNDARY_E  (0x1 << 14) // Filled and lines.
-#define MASK_START_BOUNDARY_S  (0x1 << 15) // Filled only.
-#define MASK_START_BOUNDARY_W  (0x1 << 16) // Filled only.
-#define MASK_START_HOLE_N      (0x1 << 17) // N boundary of EXISTS, E to W, filled only.
-#define MASK_START_CORNER      (0x1 << 18) // Filled and lines.
+#define MASK_START_N           (0x1 << 11)  // N to E, filled and lines.
+#define MASK_START_E           (0x1 << 12)  // E to N, filled and lines.
+#define MASK_START_BOUNDARY_N  (0x1 << 13)  // Lines only.
+#define MASK_START_BOUNDARY_E  (0x1 << 14)  // Lines only.
+#define MASK_START_BOUNDARY_S  (0x1 << 15)  // Filled and lines.
+#define MASK_START_BOUNDARY_W  (0x1 << 16)  // Filled and lines.
+#define MASK_START_HOLE_N      (0x1 << 17)  // N boundary of EXISTS, E to W, filled only.
+#define MASK_START_CORNER      (0x1 << 18)  // Filled and lines.
 #define MASK_ANY_START_FILLED  (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_HOLE_N | MASK_START_CORNER)
 #define MASK_ANY_START_LINES   (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_W | MASK_START_CORNER)
 #define MASK_LOOK_N            (0x1 << 19)
@@ -431,12 +430,11 @@ index_t BaseContourGenerator<Derived>::find_look_S(index_t look_N_quad) const
     // Might need to be careful when looking in the same quad as the LOOK_UP.
     index_t quad = look_N_quad;
 
-    // look_S quad must have 1 of only 3 possible types of hole start (START_E,
-    // START_HOLE_N, START_CORNER for SW corner) but it may have other starts
-    // as well.
+    // look_S quad must have 1 of only 3 possible types of hole start (START_E, START_HOLE_N,
+    // START_CORNER for SW corner) but it may have other starts as well.
 
-    // Start quad may be both a look_N and look_S quad.  Only want to stop
-    // search here if look_S hole start is N of look_N.
+    // Start quad may be both a look_N and look_S quad.  Only want to stop search here if look_S
+    // hole start is N of look_N.
 
     if (!LOOK_S(quad)) {
         do
@@ -522,8 +520,8 @@ bool BaseContourGenerator<Derived>::follow_boundary(
     auto start_z = Z_LEVEL(start_point);
     auto end_z = Z_LEVEL(end_point);
 
-    // Add new point, somewhere along start line.  May be at start point of edge
-    // if this is a boundary start.
+    // Add new point, somewhere along start line.  May be at start point of edge if this is a
+    // boundary start.
     point_count++;
     if (pass > 0) {
         if (start_z == 1)
@@ -721,9 +719,8 @@ bool BaseContourGenerator<Derived>::follow_interior(
         bool corner_opposite_is_right = false;  // Only used for corners.
 
         if (start_corner_diagonal) {
-            // To avoid dealing with diagonal forward and left below, switch to
-            // direction 45 degrees to left, e.g. NW corner faces west using
-            // forward == -1.
+            // To avoid dealing with diagonal forward and left below, switch to direction 45 degrees
+            // to left, e.g. NW corner faces west using forward == -1.
             corner_opposite_is_right = true;
             switch (EXISTS_ANY_CORNER(quad)) {
                 case MASK_EXISTS_NW_CORNER:
@@ -875,16 +872,14 @@ bool BaseContourGenerator<Derived>::follow_interior(
 
         if (want_look_N && LOOK_N(quad) && forward == 1) {
             // Only consider look_N if pass across E edge of this quad.
-            // Care needed if both look_N and look_S set in quad because this
-            // line corresponds to only one of them, so want to ignore the
-            // look_N if it is the other line otherwise it will be double
-            // counted.
+            // Care needed if both look_N and look_S set in quad because this line corresponds to
+            // only one of them, so want to ignore the look_N if it is the other line otherwise it
+            // will be double counted.
             if (!LOOK_S(quad) || (is_upper ? Z_NE < 2 : Z_NE > 0))
                 local.look_up_quads.push_back(quad);
         }
 
-        // Check if reached NSEW boundary; already checked and noted if reached
-        // corner boundary.
+        // Check if reached NSEW boundary; already checked and noted if reached corner boundary.
         if (!reached_boundary) {
             if (forward > 0) {
                 if (forward == 1)
@@ -1105,29 +1100,44 @@ void BaseContourGenerator<Derived>::init_cache_grid(const MaskArray& mask)
 }
 
 template <typename Derived>
-void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
-    const ChunkLocal& local, bool ordered_chunks)
+void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLocal* local)
 {
+    bool ordered_chunks = (local == nullptr);
+
     // This function initialises the cache z-levels and starts for either a single chunk or the
     // whole domain.  If a single chunk, only the quads contained in the chunk are calculated and
     // this includes the z-levels of the points that on the NE corners of those quads.  In addition,
     // chunks that are on the W (starting at i=1) also calculate the most westerly points (i=0),
     // and similarly chunks that are on the S (starting at j=1) also calculate the most southerly
     // points (j=0).  Non W/S chunks do not do this as their neighboring chunks to the W/S are
-    // responsible for it.  If ordered_chunks is true then those W/S points will already have been
-    // processed so that their z-levels can be read from the cache as usual.  But if ordered_chunks
-    // is false then we cannot rely upon those neighboring W/S points having their cache values
-    // already set and so must temporarily calculate those z-levels rather than reading the cache.
+    // responsible for it.  If ordered_chunks is true then those W/S points will already have had
+    // their cache items set so that their z-levels can be read from the cache as usual.  But if
+    // ordered_chunks is false then we cannot rely upon those neighboring W/S points having their
+    // cache items already set and so must temporarily calculate those z-levels rather than reading
+    // the cache.
 
     constexpr CacheItem keep_mask = (MASK_EXISTS_ANY | MASK_BOUNDARY_N | MASK_BOUNDARY_E);
 
-    index_t istart = local.istart > 1 ? local.istart : 0;
-    index_t iend = local.iend;
-    index_t jstart = local.jstart > 1 ? local.jstart : 0;
-    index_t jend = local.jend;
+    index_t istart, iend, jstart, jend;  // Loop indices.
+    index_t chunk_istart;  // Actual start i-index of chunk.
+
+    if (local != nullptr) {
+        chunk_istart = local->istart;
+        istart = chunk_istart > 1 ? chunk_istart : 0;
+        iend = local->iend;
+        jstart = local->jstart > 1 ? local->jstart : 0;
+        jend = local->jend;
+    }
+    else {
+        chunk_istart = 1;
+        istart = 0;
+        iend = _nx-1;
+        jstart = 0;
+        jend = _ny-1;
+    }
 
     index_t j_final_start = jstart - 1;
-    bool calc_W_z_level = (!ordered_chunks && istart == local.istart);
+    bool calc_W_z_level = (!ordered_chunks && istart == chunk_istart);
 
     for (index_t j = jstart; j <= jend; ++j) {
         index_t quad = istart + j*_nx;
@@ -1149,7 +1159,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
             _cache[quad] &= keep_mask;
             _cache[quad] |= MASK_SADDLE;  // Saddle existance not yet determined.
 
-            // Cache z-level of NE point.
+            // Calculate and cache z-level of NE point.
             ZLevel z_ne = 0;
             if (_filled && *z_ptr > _upper_level) {
                 _cache[quad] |= MASK_Z_LEVEL_2;
@@ -1166,84 +1176,102 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
                         if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
                             (EXISTS_NE_CORNER(quad) || z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
                             _cache[quad] |= MASK_START_N;  // N to E low.
+                            start_in_row = true;
                         }
                         else if (z_nw == 2 && z_se == 2 && z_ne < 2 &&
                                  (EXISTS_NE_CORNER(quad) || z_sw == 2 ||
                                   SADDLE_Z_LEVEL(quad) == 2)) {
                             _cache[quad] |= MASK_START_N;  // N to E high.
+                            start_in_row = true;
                         }
 
                         if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
                             (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
                             _cache[quad] |= MASK_START_E;  // E to N low.
+                            start_in_row = true;
                         }
                         else if (z_ne == 2 && z_nw < 2 && z_se < 2 &&
                                  (EXISTS_NE_CORNER(quad) || z_sw < 2 || SADDLE_Z_LEVEL(quad) < 2)) {
                             _cache[quad] |= MASK_START_E;  // E to N high.
+                            start_in_row = true;
                         }
                     }
 
                     if (BOUNDARY_S(quad) &&
                         ((z_sw == 2 && z_se < 2) || (z_sw == 0 && z_se > 0) || z_sw == 1)) {
                         _cache[quad] |= MASK_START_BOUNDARY_S;
+                        start_in_row = true;
                     }
 
                     if (BOUNDARY_W(quad) &&
                         ((z_nw == 2 && z_sw < 2) || (z_nw == 0 && z_sw > 0) ||
                          (z_nw == 1 && (z_sw != 1 || EXISTS_NW_CORNER(quad))))) {
                         _cache[quad] |= MASK_START_BOUNDARY_W;
+                        start_in_row = true;
                     }
 
                     if (EXISTS_ANY_CORNER(quad)) {
                         if (EXISTS_NE_CORNER(quad) &&
                             ((z_nw == 2 && z_se < 2) || (z_nw == 0 && z_se > 0) || z_nw == 1)) {
                             _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
                         }
                         else if (EXISTS_NW_CORNER(quad) &&
                                  ((z_sw == 2 && z_ne < 2) || (z_sw == 0 && z_ne > 0))) {
                             _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
                         }
                         else if (EXISTS_SE_CORNER(quad) && ((z_sw == 0 && z_se == 0 && z_ne > 0) ||
                                                             (z_sw == 2 && z_se == 2 && z_ne < 2))) {
                             _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
                         }
                         else if (EXISTS_SW_CORNER(quad) && z_nw == 1 && z_se == 1) {
                             _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
                         }
                     }
 
                     // Start following N boundary from E to W which is a hole.
-                    // Required for an internal masked region which is a hole in
-                    // a filled polygon.
+                    // Required for an internal masked region which is a hole in a filled polygon.
                     if (BOUNDARY_N(quad) && EXISTS_N_EDGE(quad) && z_nw == 1 && z_ne == 1 &&
                         !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1) {
                         _cache[quad] |= MASK_START_HOLE_N;
+                        start_in_row = true;
                     }
-
-                    start_in_row |= ANY_START_FILLED(quad);
                 }
                 else {  // !_filled
-                    if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0)
+                    if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0) {
                         _cache[quad] |= MASK_START_BOUNDARY_S;
+                        start_in_row = true;
+                    }
 
-                    if (BOUNDARY_W(quad) && z_nw == 1 && z_sw == 0)
+                    if (BOUNDARY_W(quad) && z_nw == 1 && z_sw == 0) {
                         _cache[quad] |= MASK_START_BOUNDARY_W;
+                        start_in_row = true;
+                    }
 
-                    if (BOUNDARY_E(quad) && z_se == 1 && z_ne == 0)
+                    if (BOUNDARY_E(quad) && z_se == 1 && z_ne == 0) {
                         _cache[quad] |= MASK_START_BOUNDARY_E;
+                        start_in_row = true;
+                    }
 
-                    if (BOUNDARY_N(quad) && z_ne == 1 && z_nw == 0)
+                    if (BOUNDARY_N(quad) && z_ne == 1 && z_nw == 0) {
                         _cache[quad] |= MASK_START_BOUNDARY_N;
+                        start_in_row = true;
+                    }
 
                     if (EXISTS_N_AND_E_EDGES(quad) && !BOUNDARY_N(quad) && !BOUNDARY_E(quad)) {
                         if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
                             (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
                             _cache[quad] |= MASK_START_E;  // E to N low.
+                            start_in_row = true;
                         }
                         else if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
                                  (EXISTS_NE_CORNER(quad) || z_sw == 0 ||
                                   SADDLE_Z_LEVEL(quad) == 0)) {
                             _cache[quad] |= MASK_START_N;  // N to E low.
+                            start_in_row = true;
                         }
                     }
 
@@ -1258,11 +1286,11 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
                         else  // EXISTS_SE_CORNER
                             corner_start = (z_ne == 1 && z_sw == 0);
 
-                        if (corner_start)
-                           _cache[quad] |= MASK_START_CORNER;
+                        if (corner_start) {
+                            _cache[quad] |= MASK_START_CORNER;
+                            start_in_row = true;
+                        }
                     }
-
-                    start_in_row |= ANY_START_LINES(quad);
                 }
             } // EXISTS_ANY(quad)
 
@@ -1273,11 +1301,11 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(
         if (start_in_row)
             j_final_start = j;
         else if (j > 0)
-            _cache[local.istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
+            _cache[chunk_istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
     } // j-loop.
 
     if (j_final_start < jend) {
-        _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
+        _cache[chunk_istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
     }
 }
 
@@ -1354,10 +1382,9 @@ void BaseContourGenerator<Derived>::line(const Location& start_location, ChunkLo
         local.line_offsets[local.line_count] = local.total_point_count;
 
     if (local.pass == 0 && !start_location.on_boundary && !finished)
-        // An internal start that isn't a line loop is part of a line strip that
-        // starts on a boundary and will be traced later.  Do not count it as a
-        // valid start in pass 0 and remove the first point or it will be
-        // duplicated by the correct boundary-started line later.
+        // An internal start that isn't a line loop is part of a line strip that starts on a
+        // boundary and will be traced later.  Do not count it as a valid start in pass 0 and remove
+        // the first point or it will be duplicated by the correct boundary-started line later.
         point_count--;
     else
         local.line_count++;
@@ -1396,8 +1423,7 @@ void BaseContourGenerator<Derived>::march_chunk_filled(
             if (NO_STARTS_IN_ROW(quad))
                 continue;
 
-            // Want to count number of starts in this row, so store how many
-            // starts at start of row.
+            // Want to count number of starts in this row, so store how many starts at start of row.
             size_t prev_start_count =
                 (_identify_holes ? local.line_count - local.hole_count : local.line_count);
 
@@ -1548,8 +1574,7 @@ void BaseContourGenerator<Derived>::march_chunk_lines(
             if (NO_STARTS_IN_ROW(quad))
                 continue;
 
-            // Want to count number of starts in this row, so store how many
-            // starts at start of row.
+            // Want to count number of starts in this row, so store how many starts at start of row.
             auto prev_start_count = local.line_count;
 
             for (index_t i = local.istart; i <= local.iend; ++i, ++quad) {
@@ -1706,9 +1731,8 @@ void BaseContourGenerator<Derived>::move_to_next_boundary_edge(
     //         7 for NE edge (SW corner) from SE facing NW, forward = +_nx-1
     int edge = 0;
 
-    // Need index of quad that is the same as the end point, i.e. quad to SW of
-    // end point, as it is this point which we need to find the next available
-    // boundary of, looking clockwise.
+    // Need index of quad that is the same as the end point, i.e. quad to SW of end point, as it is
+    // this point which we need to find the next available boundary of, looking clockwise.
     if (forward > 0) {
         if (forward == _nx) {
             assert(left == -1);
@@ -1759,8 +1783,8 @@ void BaseContourGenerator<Derived>::move_to_next_boundary_edge(
 
     while (true) {
         // Look at possible edges that leave NE point of quad.
-        // If something is wrong here or in the setup of the boundary flags,
-        // can end up with an infinite loop!
+        // If something is wrong here or in the setup of the boundary flags, can end up with an
+        // infinite loop!
         switch (edge) {
             case 0:
                 // Is there an edge to follow towards SW?
@@ -1848,9 +1872,8 @@ void BaseContourGenerator<Derived>::set_look_flags(index_t hole_start_quad)
 {
     assert(_identify_holes);
 
-    // The only possible hole starts are START_E (from E to N) and START_HOLE_N
-    // (on N boundary, E to W) and START_CORNER for SW corner (on boundary,
-    // SE to NW).
+    // The only possible hole starts are START_E (from E to N), START_HOLE_N (on N boundary, E to W)
+    // and START_CORNER for SW corner (on boundary, SE to NW).
     assert(hole_start_quad >= 0 && hole_start_quad < _n);
     assert(EXISTS_N_EDGE(hole_start_quad) || EXISTS_SW_CORNER(hole_start_quad));
     assert(!LOOK_S(hole_start_quad) && "Look S already set");

@@ -32,9 +32,8 @@ void ThreadedContourGenerator::march(std::vector<py::list>& return_lists)
     // Each thread executes thread_function() which has two stages:
     //   1) Initialise cache z-levels and starting locations
     //   2) Trace contours
-    // Each stage is performed on a chunk by chunk basis.  There is a barrier
-    // between the two stages to synchronise the threads so that the cache setup
-    // is complete before being used by the trace.
+    // Each stage is performed on a chunk by chunk basis.  There is a barrier between the two stages
+    // to synchronise the threads so the cache setup is complete before being used by the trace.
     _next_chunk = 0;      // Next available chunk index.
     _finished_count = 0;  // Count of threads that have finished the cache init.
 
@@ -56,13 +55,11 @@ void ThreadedContourGenerator::march(std::vector<py::list>& return_lists)
 void ThreadedContourGenerator::thread_function(std::vector<py::list>& return_lists)
 {
     // Function that is executed by each of the threads.
-    // _next_chunk starts at zero and increases up to 2*_n_chunks.  A thread in
-    // need of work reads _next_chunk and incremements it, then processes that
-    // chunk.  For _next_chunk < _n_chunks this is stage 1 (init cache levels
-    // and starting locations) and for _next_chunk >= _n_chunks this is stage 2
-    // (trace contours).  There is a synchronisation barrier between the two
-    // stages so that the cache initialisation is complete before being used by
-    // the contour trace.
+    // _next_chunk starts at zero and increases up to 2*_n_chunks.  A thread in need of work reads
+    // _next_chunk and incremements it, then processes that chunk.  For _next_chunk < _n_chunks this
+    // is stage 1 (init cache levels and starting locations) and for _next_chunk >= _n_chunks this
+    // is stage 2 (trace contours).  There is a synchronisation barrier between the two stages so
+    // that the cache initialisation is complete before being used by the contour trace.
 
     auto n_chunks = get_n_chunks();
     index_t chunk;
@@ -79,14 +76,13 @@ void ThreadedContourGenerator::thread_function(std::vector<py::list>& return_lis
         }
 
         get_chunk_limits(chunk, local);
-        init_cache_levels_and_starts(local, false);
+        init_cache_levels_and_starts(&local);
         local.clear();
     }
 
     {
-        // Implementation of multithreaded barrier.  Each thread increments the
-        // shared counter.  Last thread to finish notifies the other threads
-        // that they can all continue.
+        // Implementation of multithreaded barrier.  Each thread increments the shared counter.
+        // Last thread to finish notifies the other threads that they can all continue.
         std::unique_lock<std::mutex> lock(_chunk_mutex);
         _finished_count++;
         if (_finished_count == _n_threads)
