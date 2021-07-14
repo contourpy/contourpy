@@ -1,4 +1,4 @@
-#include "common.h"
+#include "base_impl.h"
 #include "fill_type.h"
 #include "interp.h"
 #include "line_type.h"

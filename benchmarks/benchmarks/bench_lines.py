@@ -4,7 +4,7 @@ import numpy as np
 from .util_bench import corner_masks, problem_sizes
 
 
-class BenchFilled:
+class BenchLines:
     params = (["mpl2005", "mpl2014", "serial"], corner_masks(), problem_sizes())
     param_names = ["name", "corner_mask", "n"]
 
