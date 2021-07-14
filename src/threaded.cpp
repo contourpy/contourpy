@@ -48,7 +48,7 @@ void ThreadedContourGenerator::march(std::vector<py::list>& return_lists)
 
     for (auto& thread : threads)
         thread.join();
-    assert(_next_chunk == 2*_n_chunks);
+    assert(_next_chunk == 2*get_n_chunks());
     threads.clear();
 }
 
