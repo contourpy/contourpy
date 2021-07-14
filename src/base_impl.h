@@ -414,6 +414,8 @@ py::sequence BaseContourGenerator<Derived>::filled(
     _upper_level = upper_level;
     _identify_holes = (_fill_type != FillType::ChunkCombinedCodes &&
                        _fill_type != FillType::ChunkCombinedOffsets);
+    _combined_points = (_fill_type != FillType::OuterCodes &&
+                        _fill_type != FillType::OuterOffsets);
     _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
                           _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
 
@@ -1396,6 +1398,8 @@ py::sequence BaseContourGenerator<Derived>::lines(const double& level)
     _filled = false;
     _lower_level = _upper_level = level;
     _identify_holes = false;
+    _combined_points = (_line_type != LineType::Separate &&
+                        _line_type != LineType::SeparateCodes);
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
 
     return static_cast<Derived*>(this)->march_wrapper();
@@ -1556,10 +1560,7 @@ void BaseContourGenerator<Derived>::march_chunk(
             _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
 
         if (local.pass == 0) {
-            if ((_filled && (_fill_type == FillType::OuterCodes ||
-                             _fill_type == FillType::OuterOffsets)) ||
-                (!_filled && (_line_type == LineType::Separate ||
-                              _line_type == LineType::SeparateCodes))) {
+            if (!_combined_points) {
                 all_points.resize(2*local.total_point_count);
 
                 // Where to store contour points.

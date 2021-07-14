@@ -164,6 +164,7 @@ private:
 
     // Current contouring operation, based on return type and filled or lines.
     bool _identify_holes;
+    bool _combined_points;
     unsigned int _return_list_count;
 };
 
