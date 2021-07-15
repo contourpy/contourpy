@@ -131,9 +131,7 @@ protected:
 
     void line(const Location& start_location, ChunkLocal& local);
 
-    void march_chunk_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
-
-    void march_chunk_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
+    void march_chunk(ChunkLocal& local, std::vector<py::list>& return_lists);
 
     py::sequence march_wrapper();
 
@@ -166,6 +164,7 @@ private:
 
     // Current contouring operation, based on return type and filled or lines.
     bool _identify_holes;
+    bool _combined_points;
     unsigned int _return_list_count;
 };
 

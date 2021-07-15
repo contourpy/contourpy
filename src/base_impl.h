@@ -40,8 +40,7 @@
 #define MASK_START_BOUNDARY_W  (0x1 << 16)  // Filled and lines.
 #define MASK_START_HOLE_N      (0x1 << 17)  // N boundary of EXISTS, E to W, filled only.
 #define MASK_START_CORNER      (0x1 << 18)  // Filled and lines.
-#define MASK_ANY_START_FILLED  (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_W | MASK_START_BOUNDARY_S | MASK_START_HOLE_N | MASK_START_CORNER)
-#define MASK_ANY_START_LINES   (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_W | MASK_START_CORNER)
+#define MASK_ANY_START         (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_W | MASK_START_HOLE_N | MASK_START_CORNER)
 #define MASK_LOOK_N            (0x1 << 19)
 #define MASK_LOOK_S            (0x1 << 20)
 #define MASK_NO_STARTS_IN_ROW  (0x1 << 21)
@@ -81,8 +80,7 @@
 #define START_BOUNDARY_W(quad)     (_cache[quad] & MASK_START_BOUNDARY_W)
 #define START_HOLE_N(quad)         (_cache[quad] & MASK_START_HOLE_N)
 #define START_CORNER(quad)         (_cache[quad] & MASK_START_CORNER)
-#define ANY_START_FILLED(quad)     (_cache[quad] & MASK_ANY_START_FILLED)
-#define ANY_START_LINES(quad)      (_cache[quad] & MASK_ANY_START_LINES)
+#define ANY_START(quad)            (_cache[quad] & MASK_ANY_START)
 #define LOOK_N(quad)               (_cache[quad] & MASK_LOOK_N)
 #define LOOK_S(quad)               (_cache[quad] & MASK_LOOK_S)
 #define NO_STARTS_IN_ROW(quad)     (_cache[quad] & MASK_NO_STARTS_IN_ROW)
@@ -416,6 +414,8 @@ py::sequence BaseContourGenerator<Derived>::filled(
     _upper_level = upper_level;
     _identify_holes = (_fill_type != FillType::ChunkCombinedCodes &&
                        _fill_type != FillType::ChunkCombinedOffsets);
+    _combined_points = (_fill_type != FillType::OuterCodes &&
+                        _fill_type != FillType::OuterOffsets);
     _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
                           _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
 
@@ -1398,17 +1398,20 @@ py::sequence BaseContourGenerator<Derived>::lines(const double& level)
     _filled = false;
     _lower_level = _upper_level = level;
     _identify_holes = false;
+    _combined_points = (_line_type != LineType::Separate &&
+                        _line_type != LineType::SeparateCodes);
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
 
     return static_cast<Derived*>(this)->march_wrapper();
 }
 
 template <typename Derived>
-void BaseContourGenerator<Derived>::march_chunk_filled(
+void BaseContourGenerator<Derived>::march_chunk(
     ChunkLocal& local, std::vector<py::list>& return_lists)
 {
-    // Allocated at end of pass 0, depending on _fill_type.
+    // May be allocated at end of pass 0, depending on _filled and _fill_type or _line_type.
     std::vector<double> all_points;
+    const double* all_points_ptr = nullptr;  // Only used for lines.
 
     for (local.pass = 0; local.pass < 2; ++local.pass) {
         bool ignore_holes = (_identify_holes && local.pass == 1);
@@ -1428,65 +1431,120 @@ void BaseContourGenerator<Derived>::march_chunk_filled(
                 (_identify_holes ? local.line_count - local.hole_count : local.line_count);
 
             for (index_t i = local.istart; i <= local.iend; ++i, ++quad) {
-                if (!ANY_START_FILLED(quad))
+                if (!ANY_START(quad))
                     continue;
 
                 assert(EXISTS_ANY(quad));
 
-                if (START_BOUNDARY_S(quad)) {
-                    Location location(quad, 1, _nx, Z_SW == 2, true);
-                    closed_line_wrapper(location, Outer, local);
-                }
+                if (_filled) {
+                    if (START_BOUNDARY_S(quad)) {
+                        Location location(quad, 1, _nx, Z_SW == 2, true);
+                        closed_line_wrapper(location, Outer, local);
+                    }
 
-                if (START_BOUNDARY_W(quad)) {
-                    Location location(quad, -_nx, 1, Z_NW == 2, true);
-                    closed_line_wrapper(location, Outer, local);
-                }
+                    if (START_BOUNDARY_W(quad)) {
+                        Location location(quad, -_nx, 1, Z_NW == 2, true);
+                        closed_line_wrapper(location, Outer, local);
+                    }
 
-                if (START_CORNER(quad)) {
-                    switch (EXISTS_ANY_CORNER(quad)) {
-                        case MASK_EXISTS_NE_CORNER: {
-                            Location location(quad, -_nx+1, _nx+1, Z_NW == 2, true);
-                            closed_line_wrapper(location, Outer, local);
-                            break;
-                        }
-                        case MASK_EXISTS_NW_CORNER: {
-                            Location location(quad, _nx+1, _nx-1, Z_SW == 2, true);
-                            closed_line_wrapper(location, Outer, local);
-                            break;
-                        }
-                        case MASK_EXISTS_SE_CORNER: {
-                            Location location(quad, -_nx-1, -_nx+1, Z_NE == 2, true);
-                            closed_line_wrapper(location, Outer, local);
-                            break;
-                        }
-                        default:
-                            assert(EXISTS_SW_CORNER(quad));
-                            if (!ignore_holes) {
-                                Location location(quad, _nx-1, -_nx-1, false, true);
-                                closed_line_wrapper(location, Hole, local);
+                    if (START_CORNER(quad)) {
+                        switch (EXISTS_ANY_CORNER(quad)) {
+                            case MASK_EXISTS_NE_CORNER: {
+                                Location location(quad, -_nx+1, _nx+1, Z_NW == 2, true);
+                                closed_line_wrapper(location, Outer, local);
+                                break;
                             }
-                            break;
+                            case MASK_EXISTS_NW_CORNER: {
+                                Location location(quad, _nx+1, _nx-1, Z_SW == 2, true);
+                                closed_line_wrapper(location, Outer, local);
+                                break;
+                            }
+                            case MASK_EXISTS_SE_CORNER: {
+                                Location location(quad, -_nx-1, -_nx+1, Z_NE == 2, true);
+                                closed_line_wrapper(location, Outer, local);
+                                break;
+                            }
+                            default:
+                                assert(EXISTS_SW_CORNER(quad));
+                                if (!ignore_holes) {
+                                    Location location(quad, _nx-1, -_nx-1, false, true);
+                                    closed_line_wrapper(location, Hole, local);
+                                }
+                                break;
+                        }
+                    }
+
+                    if (START_N(quad)) {
+                        Location location(quad, -_nx, 1, Z_NW > 0, false);
+                        closed_line_wrapper(location, Outer, local);
+                    }
+
+                    if (ignore_holes)
+                        continue;
+
+                    if (START_E(quad)) {
+                        Location location(quad, -1, -_nx, Z_NE > 0, false);
+                        closed_line_wrapper(location, Hole, local);
+                    }
+
+                    if (START_HOLE_N(quad)) {
+                        Location location(quad, -1, -_nx, false, true);
+                        closed_line_wrapper(location, Hole, local);
                     }
                 }
+                else {  // !_filled
+                    if (START_BOUNDARY_S(quad)) {
+                        Location location(quad, _nx, -1, false, true);
+                        line(location, local);
+                    }
 
-                if (START_N(quad)) {
-                    Location location(quad, -_nx, 1, Z_NW > 0, false);
-                    closed_line_wrapper(location, Outer, local);
-                }
+                    if (START_BOUNDARY_W(quad)) {
+                        Location location(quad, 1, _nx, false, true);
+                        line(location, local);
+                    }
 
-                if (ignore_holes)
-                    continue;
+                    if (START_BOUNDARY_E(quad)) {
+                        Location location(quad, -1, -_nx, false, true);
+                        line(location, local);
+                    }
 
-                if (START_E(quad)) {
-                    Location location(quad, -1, -_nx, Z_NE > 0, false);
-                    closed_line_wrapper(location, Hole, local);
-                }
+                    if (START_BOUNDARY_N(quad)) {
+                        Location location(quad, -_nx, 1, false, true);
+                        line(location, local);
+                    }
 
-                if (START_HOLE_N(quad)) {
-                    Location location(quad, -1, -_nx, false, true);
-                    closed_line_wrapper(location, Hole, local);
-                }
+                    if (START_E(quad)) {
+                        Location location(quad, -1, -_nx, false, false);
+                        line(location, local);
+                    }
+
+                    if (START_N(quad)) {
+                        Location location(quad, -_nx, 1, false, false);
+                        line(location, local);
+                    }
+
+                    if (START_CORNER(quad)) {
+                        index_t forward, left;
+                        if (EXISTS_NW_CORNER(quad)) {
+                            forward = _nx-1;
+                            left = -_nx-1;
+                        }
+                        else if (EXISTS_NE_CORNER(quad)) {
+                            forward = _nx+1;
+                            left = _nx-1;
+                        }
+                        else if (EXISTS_SW_CORNER(quad)) {
+                            forward = -_nx-1;
+                            left = -_nx+1;
+                        }
+                        else {  // EXISTS_SE_CORNER
+                            forward = -_nx+1;
+                            left = _nx+1;
+                        }
+                        Location location(quad, forward, left, false, true);
+                        line(location, local);
+                    }
+                } // _filled
             } // i
 
             // Number of starts at end of row.
@@ -1502,11 +1560,16 @@ void BaseContourGenerator<Derived>::march_chunk_filled(
             _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
 
         if (local.pass == 0) {
-            if (_fill_type == FillType::OuterCodes || _fill_type == FillType::OuterOffsets) {
+            if (!_combined_points) {
                 all_points.resize(2*local.total_point_count);
 
                 // Where to store contour points.
                 local.points = all_points.data();
+
+                if (!_filled) {
+                    // Needed to check if lines are closed loops or not.
+                    all_points_ptr = all_points.data();
+                }
             }
             else if (local.total_point_count > 0) {  // Combined points.
                 py::size_t points_shape[2] = {local.total_point_count, 2};
@@ -1519,6 +1582,11 @@ void BaseContourGenerator<Derived>::march_chunk_filled(
 
                 // Where to store contour points.
                 local.points = py_all_points.mutable_data();
+
+                if (!_filled) {
+                    // Needed to check if lines are closed loops or not.
+                    all_points_ptr = py_all_points.data();
+                }
             }
 
             // Allocate space for line_offsets, and set final offsets.
@@ -1531,8 +1599,9 @@ void BaseContourGenerator<Derived>::march_chunk_filled(
                 local.outer_offsets.resize(outer_count + 1);
                 local.outer_offsets.back() = local.line_count;
             }
-            else
+            else {
                 local.outer_offsets.resize(0);
+            }
 
             local.total_point_count = 0;
             local.line_count = 0;
@@ -1552,140 +1621,10 @@ void BaseContourGenerator<Derived>::march_chunk_filled(
         assert(local.outer_offsets.empty());
     }
 
-    export_filled(local, all_points, return_lists);
-}
-
-template <typename Derived>
-void BaseContourGenerator<Derived>::march_chunk_lines(
-    ChunkLocal& local, std::vector<py::list>& return_lists)
-{
-    // Allocated at end of pass 0, depending on _line_type.
-    std::vector<double> all_points;
-    const double* all_points_ptr = nullptr;
-
-    for (local.pass = 0; local.pass < 2; ++local.pass) {
-        index_t j_final_start = local.jstart;
-        for (index_t j = local.jstart; j <= local.jend; ++j) {
-            index_t quad = local.istart + j*_nx;
-
-            if (NO_MORE_STARTS(quad))
-                break;
-
-            if (NO_STARTS_IN_ROW(quad))
-                continue;
-
-            // Want to count number of starts in this row, so store how many starts at start of row.
-            auto prev_start_count = local.line_count;
-
-            for (index_t i = local.istart; i <= local.iend; ++i, ++quad) {
-                if (!ANY_START_LINES(quad))
-                    continue;
-
-                assert(EXISTS_ANY(quad));
-
-                if (START_BOUNDARY_S(quad)) {
-                    Location location(quad, _nx, -1, false, true);
-                    line(location, local);
-                }
-
-                if (START_BOUNDARY_W(quad)) {
-                    Location location(quad, 1, _nx, false, true);
-                    line(location, local);
-                }
-
-                if (START_BOUNDARY_E(quad)) {
-                    Location location(quad, -1, -_nx, false, true);
-                    line(location, local);
-                }
-
-                if (START_BOUNDARY_N(quad)) {
-                    Location location(quad, -_nx, 1, false, true);
-                    line(location, local);
-                }
-
-                if (START_E(quad)) {
-                    Location location(quad, -1, -_nx, false, false);
-                    line(location, local);
-                }
-
-                if (START_N(quad)) {
-                    Location location(quad, -_nx, 1, false, false);
-                    line(location, local);
-                }
-
-                if (START_CORNER(quad)) {
-                    index_t forward, left;
-                    if (EXISTS_NW_CORNER(quad)) {
-                        forward = _nx-1;
-                        left = -_nx-1;
-                    }
-                    else if (EXISTS_NE_CORNER(quad)) {
-                        forward = _nx+1;
-                        left = _nx-1;
-                    }
-                    else if (EXISTS_SW_CORNER(quad)) {
-                        forward = -_nx-1;
-                        left = -_nx+1;
-                    }
-                    else {  // EXISTS_SE_CORNER
-                        forward = -_nx+1;
-                        left = _nx+1;
-                    }
-                    Location location(quad, forward, left, false, true);
-                    line(location, local);
-                }
-            } // i
-
-            // Number of starts at end of row.
-            if (local.line_count - prev_start_count)
-                j_final_start = j;
-            else
-                _cache[local.istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
-        } // j
-
-        if (j_final_start < local.jend)
-            _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
-
-        if (local.pass == 0) {
-            if (_line_type == LineType::Separate || _line_type == LineType::SeparateCodes) {
-                all_points.resize(2*local.total_point_count);
-
-                // Where to store contour points.
-                local.points = all_points.data();
-
-                // Needed to check if lines are closed loops or not.
-                all_points_ptr = all_points.data();
-            }
-            else if (local.total_point_count > 0) {  // Combined points.
-                py::size_t points_shape[2] = {local.total_point_count, 2};
-
-                typename Derived::Lock lock(static_cast<Derived&>(*this));
-                PointArray py_all_points(points_shape);
-                lock.unlock();
-
-                return_lists[0][local.chunk] = py_all_points;
-
-                // Where to store contour points.
-                local.points = py_all_points.mutable_data();
-
-                // Needed to check if lines are closed loops or not.
-                all_points_ptr = py_all_points.data();
-            }
-
-            // Allocate space for line_offsets, and set final offsets.
-            local.line_offsets.resize(local.line_count + 1);
-            local.line_offsets.back() = local.total_point_count;
-
-            local.total_point_count = 0;
-            local.line_count = 0;
-        }
-    } // pass
-
-    // Check both passes returned same number of points, lines, etc.
-    assert(local.line_offsets.size() == local.line_count + 1);
-    assert(local.line_offsets.back() == local.total_point_count);
-
-    export_lines(local, all_points_ptr, return_lists);
+    if (_filled)
+        export_filled(local, all_points, return_lists);
+    else
+        export_lines(local, all_points_ptr, return_lists);
 }
 
 template <typename Derived>
