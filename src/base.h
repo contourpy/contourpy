@@ -42,9 +42,11 @@ public:
 
     void write_cache() const;  // For debug purposes only.
 
-    // Non-copyable.
+    // Non-copyable and non-moveable.
     BaseContourGenerator(const BaseContourGenerator& other) = delete;
-    const BaseContourGenerator& operator=(const BaseContourGenerator& other) = delete;
+    BaseContourGenerator(const BaseContourGenerator&& other) = delete;
+    BaseContourGenerator& operator=(const BaseContourGenerator& other) = delete;
+    BaseContourGenerator& operator=(const BaseContourGenerator&& other) = delete;
 
 protected:
     BaseContourGenerator(
