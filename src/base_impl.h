@@ -235,17 +235,14 @@ void BaseContourGenerator<Derived>::closed_line_wrapper(
             // Only 3 possible types of hole start: START_E, START_HOLE_N or
             // START_CORNER for SW corner.
             if (START_E(quad)) {
-                Location location(quad, -1, -_nx, Z_NE > 0, false);
-                closed_line(location, Hole, local);
+                closed_line(Location(quad, -1, -_nx, Z_NE > 0, false), Hole, local);
             }
             else if (START_HOLE_N(quad)) {
-                Location location(quad, -1, -_nx, false, true);
-                closed_line(location, Hole, local);
+                closed_line(Location(quad, -1, -_nx, false, true), Hole, local);
             }
             else {
                 assert(START_CORNER(quad) && EXISTS_SW_CORNER(quad));
-                Location location(quad, _nx-1, -_nx-1, false, true);
-                closed_line(location, Hole, local);
+                closed_line(Location(quad, _nx-1, -_nx-1, false, true), Hole, local);
             }
         }
     }
@@ -1437,91 +1434,65 @@ void BaseContourGenerator<Derived>::march_chunk(
                 assert(EXISTS_ANY(quad));
 
                 if (_filled) {
-                    if (START_BOUNDARY_S(quad)) {
-                        Location location(quad, 1, _nx, Z_SW == 2, true);
-                        closed_line_wrapper(location, Outer, local);
-                    }
+                    if (START_BOUNDARY_S(quad))
+                        closed_line_wrapper(Location(quad, 1, _nx, Z_SW == 2, true), Outer, local);
 
-                    if (START_BOUNDARY_W(quad)) {
-                        Location location(quad, -_nx, 1, Z_NW == 2, true);
-                        closed_line_wrapper(location, Outer, local);
-                    }
+                    if (START_BOUNDARY_W(quad))
+                        closed_line_wrapper(Location(quad, -_nx, 1, Z_NW == 2, true), Outer, local);
 
                     if (START_CORNER(quad)) {
                         switch (EXISTS_ANY_CORNER(quad)) {
-                            case MASK_EXISTS_NE_CORNER: {
-                                Location location(quad, -_nx+1, _nx+1, Z_NW == 2, true);
-                                closed_line_wrapper(location, Outer, local);
+                            case MASK_EXISTS_NE_CORNER:
+                                closed_line_wrapper(
+                                    Location(quad, -_nx+1, _nx+1, Z_NW == 2, true), Outer, local);
                                 break;
-                            }
-                            case MASK_EXISTS_NW_CORNER: {
-                                Location location(quad, _nx+1, _nx-1, Z_SW == 2, true);
-                                closed_line_wrapper(location, Outer, local);
+                            case MASK_EXISTS_NW_CORNER:
+                                closed_line_wrapper(
+                                    Location(quad, _nx+1, _nx-1, Z_SW == 2, true), Outer, local);
                                 break;
-                            }
-                            case MASK_EXISTS_SE_CORNER: {
-                                Location location(quad, -_nx-1, -_nx+1, Z_NE == 2, true);
-                                closed_line_wrapper(location, Outer, local);
+                            case MASK_EXISTS_SE_CORNER:
+                                closed_line_wrapper(
+                                    Location(quad, -_nx-1, -_nx+1, Z_NE == 2, true), Outer, local);
                                 break;
-                            }
                             default:
                                 assert(EXISTS_SW_CORNER(quad));
-                                if (!ignore_holes) {
-                                    Location location(quad, _nx-1, -_nx-1, false, true);
-                                    closed_line_wrapper(location, Hole, local);
-                                }
+                                if (!ignore_holes)
+                                    closed_line_wrapper(
+                                        Location(quad, _nx-1, -_nx-1, false, true), Hole, local);
                                 break;
                         }
                     }
 
-                    if (START_N(quad)) {
-                        Location location(quad, -_nx, 1, Z_NW > 0, false);
-                        closed_line_wrapper(location, Outer, local);
-                    }
+                    if (START_N(quad))
+                        closed_line_wrapper(Location(quad, -_nx, 1, Z_NW > 0, false), Outer, local);
 
                     if (ignore_holes)
                         continue;
 
-                    if (START_E(quad)) {
-                        Location location(quad, -1, -_nx, Z_NE > 0, false);
-                        closed_line_wrapper(location, Hole, local);
-                    }
+                    if (START_E(quad))
+                        closed_line_wrapper(Location(quad, -1, -_nx, Z_NE > 0, false), Hole, local);
 
-                    if (START_HOLE_N(quad)) {
-                        Location location(quad, -1, -_nx, false, true);
-                        closed_line_wrapper(location, Hole, local);
-                    }
+                    if (START_HOLE_N(quad))
+                        closed_line_wrapper(Location(quad, -1, -_nx, false, true), Hole, local);
                 }
                 else {  // !_filled
-                    if (START_BOUNDARY_S(quad)) {
-                        Location location(quad, _nx, -1, false, true);
-                        line(location, local);
-                    }
+                    if (START_BOUNDARY_S(quad))
+                        line(Location(quad, _nx, -1, false, true), local);
 
-                    if (START_BOUNDARY_W(quad)) {
-                        Location location(quad, 1, _nx, false, true);
-                        line(location, local);
-                    }
+                    if (START_BOUNDARY_W(quad))
+                        line(Location(quad, 1, _nx, false, true), local);
 
-                    if (START_BOUNDARY_E(quad)) {
-                        Location location(quad, -1, -_nx, false, true);
-                        line(location, local);
-                    }
+                    if (START_BOUNDARY_E(quad))
+                        line(Location(quad, -1, -_nx, false, true), local);
 
-                    if (START_BOUNDARY_N(quad)) {
-                        Location location(quad, -_nx, 1, false, true);
-                        line(location, local);
-                    }
+                    if (START_BOUNDARY_N(quad))
+                        line(Location(quad, -_nx, 1, false, true), local);
 
-                    if (START_E(quad)) {
-                        Location location(quad, -1, -_nx, false, false);
-                        line(location, local);
-                    }
+                    if (START_E(quad))
+                        line(Location(quad, -1, -_nx, false, false), local);
 
-                    if (START_N(quad)) {
-                        Location location(quad, -_nx, 1, false, false);
-                        line(location, local);
-                    }
+                    if (START_N(quad))
+                        line(Location(quad, -_nx, 1, false, false), local);
 
                     if (START_CORNER(quad)) {
                         index_t forward, left;
@@ -1541,8 +1512,7 @@ void BaseContourGenerator<Derived>::march_chunk(
                             forward = -_nx+1;
                             left = _nx+1;
                         }
-                        Location location(quad, forward, left, false, true);
-                        line(location, local);
+                        line(Location(quad, forward, left, false, true), local);
                     }
                 } // _filled
             } // i
