@@ -102,9 +102,14 @@ protected:
     bool follow_interior(
         Location& location, const Location& start_location, ChunkLocal& local, size_t& point_count);
 
+    index_t get_boundary_start_point(const Location& location) const;
+
     // These are quad chunk limits, not point chunk limits.
     // chunk is index in range 0.._n_chunks-1.
     void get_chunk_limits(index_t chunk, ChunkLocal& local) const;
+
+    index_t get_interior_start_left_point(
+        const Location& location, bool& start_corner_diagonal) const;
 
     index_t get_n_chunks() const;
 
