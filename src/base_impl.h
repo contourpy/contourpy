@@ -471,44 +471,7 @@ bool BaseContourGenerator<Derived>::follow_boundary(
     auto start_left = start_location.left;
     auto pass = local.pass;
 
-    index_t start_point = 0;
-    if (forward > 0) {
-        if (forward == _nx) {
-            assert(left == -1);
-            start_point = quad-_nx;
-        }
-        else if (left == _nx) {
-            assert(forward == 1);
-            start_point = quad-_nx-1;
-        }
-        else if (EXISTS_SW_CORNER(quad)) {
-            assert(forward == _nx-1 && left == -_nx-1);
-            start_point = quad-_nx;
-        }
-        else {
-            assert(EXISTS_NW_CORNER(quad) && forward == _nx+1 && left == _nx-1);
-            start_point = quad-_nx-1;
-        }
-    }
-    else if (forward < 0) {
-        if (forward == -_nx) {
-            assert(left == 1);
-            start_point = quad-1;
-        }
-        else if (left == -_nx) {
-            assert(forward == -1);
-            start_point = quad;
-        }
-        else if (EXISTS_NE_CORNER(quad)) {
-            assert(forward == -_nx+1 && left == _nx+1);
-            start_point = quad-1;
-        }
-        else {
-            assert(EXISTS_SE_CORNER(quad) && forward == -_nx-1 && left == -_nx+1);
-            start_point = quad;
-        }
-    }
-
+    auto start_point = get_boundary_start_point(location);
     auto end_point = start_point + forward;
 
     assert(is_point_in_chunk(start_point, local));
@@ -647,49 +610,8 @@ bool BaseContourGenerator<Derived>::follow_interior(
     auto pass = local.pass;
 
     // left direction, and indices of points on entry edge.
-    index_t left_point = 0;
     bool start_corner_diagonal = false;
-    if (forward > 0) {
-        if (forward == _nx) {
-            assert(left == -1);
-            left_point = quad-_nx-1;
-        }
-        else if (left == _nx) {
-            assert(forward == 1);
-            left_point = quad-1;
-        }
-        else if (EXISTS_NW_CORNER(quad)) {
-            assert(forward == _nx-1 && left == -_nx-1);
-            left_point = quad-_nx-1;
-            start_corner_diagonal = true;
-        }
-        else {
-            assert(EXISTS_NE_CORNER(quad) && forward == _nx+1 && left == _nx-1);
-            left_point = quad-1;
-            start_corner_diagonal = true;
-        }
-    }
-    else {  // forward < 0
-        if (forward == -_nx) {
-            assert(left == 1);
-            left_point = quad;
-        }
-        else if (left == -_nx) {
-            assert(forward == -1);
-            left_point = quad-_nx;
-        }
-        else if (EXISTS_SW_CORNER(quad)) {
-            assert(forward == -_nx-1 && left == -_nx+1);
-            left_point = quad-_nx;
-            start_corner_diagonal = true;
-        }
-        else {
-            assert(EXISTS_SE_CORNER(quad) && forward == -_nx+1 && left == _nx+1);
-            left_point = quad;
-            start_corner_diagonal = true;
-        }
-    }
-
+    auto left_point = get_interior_start_left_point(location, start_corner_diagonal);
     auto right_point = left_point - left;
     bool want_look_N = _identify_holes && pass > 0;
 
@@ -921,6 +843,53 @@ bool BaseContourGenerator<Derived>::follow_interior(
 }
 
 template <typename Derived>
+index_t BaseContourGenerator<Derived>::get_boundary_start_point(const Location& location) const
+{
+    auto quad = location.quad;
+    auto forward = location.forward;
+    auto left = location.left;
+    index_t start_point;
+
+    if (forward > 0) {
+        if (forward == _nx) {
+            assert(left == -1);
+            start_point = quad-_nx;
+        }
+        else if (left == _nx) {
+            assert(forward == 1);
+            start_point = quad-_nx-1;
+        }
+        else if (EXISTS_SW_CORNER(quad)) {
+            assert(forward == _nx-1 && left == -_nx-1);
+            start_point = quad-_nx;
+        }
+        else {
+            assert(EXISTS_NW_CORNER(quad) && forward == _nx+1 && left == _nx-1);
+            start_point = quad-_nx-1;
+        }
+    }
+    else if (forward < 0) {
+        if (forward == -_nx) {
+            assert(left == 1);
+            start_point = quad-1;
+        }
+        else if (left == -_nx) {
+            assert(forward == -1);
+            start_point = quad;
+        }
+        else if (EXISTS_NE_CORNER(quad)) {
+            assert(forward == -_nx+1 && left == _nx+1);
+            start_point = quad-1;
+        }
+        else {
+            assert(EXISTS_SE_CORNER(quad) && forward == -_nx-1 && left == -_nx+1);
+            start_point = quad;
+        }
+    }
+    return start_point;
+}
+
+template <typename Derived>
 py::tuple BaseContourGenerator<Derived>::get_chunk_count() const
 {
     return py::make_tuple(_ny_chunks, _nx_chunks);
@@ -959,6 +928,58 @@ template <typename Derived>
 FillType BaseContourGenerator<Derived>::get_fill_type() const
 {
     return _fill_type;
+}
+
+template <typename Derived>
+index_t BaseContourGenerator<Derived>::get_interior_start_left_point(
+    const Location& location, bool& start_corner_diagonal) const
+{
+    auto quad = location.quad;
+    auto forward = location.forward;
+    auto left = location.left;
+    index_t left_point;
+
+    if (forward > 0) {
+        if (forward == _nx) {
+            assert(left == -1);
+            left_point = quad-_nx-1;
+        }
+        else if (left == _nx) {
+            assert(forward == 1);
+            left_point = quad-1;
+        }
+        else if (EXISTS_NW_CORNER(quad)) {
+            assert(forward == _nx-1 && left == -_nx-1);
+            left_point = quad-_nx-1;
+            start_corner_diagonal = true;
+        }
+        else {
+            assert(EXISTS_NE_CORNER(quad) && forward == _nx+1 && left == _nx-1);
+            left_point = quad-1;
+            start_corner_diagonal = true;
+        }
+    }
+    else {  // forward < 0
+        if (forward == -_nx) {
+            assert(left == 1);
+            left_point = quad;
+        }
+        else if (left == -_nx) {
+            assert(forward == -1);
+            left_point = quad-_nx;
+        }
+        else if (EXISTS_SW_CORNER(quad)) {
+            assert(forward == -_nx-1 && left == -_nx+1);
+            left_point = quad-_nx;
+            start_corner_diagonal = true;
+        }
+        else {
+            assert(EXISTS_SE_CORNER(quad) && forward == -_nx+1 && left == _nx+1);
+            left_point = quad;
+            start_corner_diagonal = true;
+        }
+    }
+    return left_point;
 }
 
 template <typename Derived>
