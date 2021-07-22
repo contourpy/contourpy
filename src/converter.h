@@ -8,23 +8,23 @@ class Converter
 {
 public:
     static CodeArray convert_codes(
-        size_t point_count, size_t cut_count, const size_t* cut_start, size_t subtract = 0);
+        count_t point_count, count_t cut_count, const offset_t* cut_start, offset_t subtract = 0);
 
     static CodeArray convert_codes_check_closed(
-        size_t point_count, size_t cut_count, const size_t* cut_start, const double* points);
+        count_t point_count, count_t cut_count, const offset_t* cut_start, const double* points);
 
-    static CodeArray convert_codes_check_closed_single(size_t point_count, const double* points);
+    static CodeArray convert_codes_check_closed_single(count_t point_count, const double* points);
 
     static OffsetArray convert_offsets(
-        size_t offset_count, const size_t* start, size_t subtract = 0);
+        count_t offset_count, const offset_t* start, offset_t subtract = 0);
 
     static OffsetArray convert_offsets_nested(
-        size_t offset_count, const size_t* start, const size_t* nested_start);
+        count_t offset_count, const offset_t* start, const offset_t* nested_start);
 
-    static PointArray convert_points(size_t point_count, const double* start);
+    static PointArray convert_points(count_t point_count, const double* start);
 
 private:
-    static void check_max_offset(size_t max_offset);
+    static void check_max_offset(count_t max_offset);
 };
 
 #endif // CONTOURPY_CONVERTER_H

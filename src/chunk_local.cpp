@@ -3,8 +3,6 @@
 
 ChunkLocal::ChunkLocal()
 {
-    line_offsets.reserve(100);
-    outer_offsets.reserve(100);
     look_up_quads.reserve(100);
     clear();
 }
@@ -21,6 +19,8 @@ void ChunkLocal::clear()
     hole_count = 0;
     line_offsets.clear();
     outer_offsets.clear();
+
+    look_up_quads.clear();
 }
 
 std::ostream &operator<<(std::ostream &os, const ChunkLocal& local)

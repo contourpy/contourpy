@@ -6,19 +6,23 @@
 
 namespace py = pybind11;
 
-// quad/point index type, the same as for numpy array shape/indices (== npy_intp).
+// quad/point index type, the same as for numpy array shape/indices (== npy_intp).  Also used for
+// chunks.
 typedef py::ssize_t index_t;
 
-// Typedef for lengths and indices of STL collections (== npy_uintp).
-typedef py::size_t size_t;
+// Count of points, lines and holes.
+typedef py::size_t count_t;
+
+// Offsets into point arrays.
+typedef uint32_t offset_t;
 
 // Input numpy array classes.
 typedef py::array_t<double, py::array::c_style | py::array::forcecast> CoordinateArray;
 typedef py::array_t<bool,   py::array::c_style | py::array::forcecast> MaskArray;
 
 // Output numpy array classes.
-typedef py::array_t<double>  PointArray;
-typedef py::array_t<uint8_t> CodeArray;
-typedef py::array_t<index_t> OffsetArray;
+typedef py::array_t<double>   PointArray;
+typedef py::array_t<uint8_t>  CodeArray;
+typedef py::array_t<offset_t> OffsetArray;
 
 #endif // CONTOURPY_COMMON_H

@@ -96,11 +96,13 @@ protected:
 
     // Return true if finished (i.e. back to start quad, direction and upper).
     bool follow_boundary(
-        Location& location, const Location& start_location, ChunkLocal& local, size_t& point_count);
+        Location& location, const Location& start_location, ChunkLocal& local,
+        count_t& point_count);
 
     // Return true if finished (i.e. back to start quad, direction and upper).
     bool follow_interior(
-        Location& location, const Location& start_location, ChunkLocal& local, size_t& point_count);
+        Location& location, const Location& start_location, ChunkLocal& local,
+        count_t& point_count);
 
     index_t get_boundary_start_point(const Location& location) const;
 

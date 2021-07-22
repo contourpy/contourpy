@@ -123,7 +123,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
         assert isinstance(points, list) and len(points) == 2
         for p in points:
             assert isinstance(p, np.ndarray)
-            assert p.dtype == np.float64
+            assert p.dtype == util_test.point_dtype
         assert points[0].shape == (13, 2)
         assert points[1].shape == (4, 2)
         assert_array_equal(points[0][0], points[0][7])
@@ -134,7 +134,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert isinstance(codes, list) and len(codes) == 2
             for c in codes:
                 assert isinstance(c, np.ndarray)
-                assert c.dtype == np.uint8
+                assert c.dtype == util_test.code_dtype
             assert_array_equal(codes[0], [1, 2, 2, 2, 2, 2, 2, 79, 1, 2, 2, 2, 79])
             assert_array_equal(codes[1], [1, 2, 2, 79])
         else:  # FillType.OuterOffsets.
@@ -142,7 +142,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert isinstance(offsets, list) and len(offsets) == 2
             for o in offsets:
                 assert isinstance(o, np.ndarray)
-                assert o.dtype == np.intp
+                assert o.dtype == util_test.offset_dtype
             assert_array_equal(offsets[0], [0, 8, 13])
             assert_array_equal(offsets[1], [0, 4])
     elif fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets,
@@ -155,7 +155,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
         assert isinstance(points, list) and len(points) == 1
         points = points[0]
         assert isinstance(points, np.ndarray)
-        assert points.dtype == np.float64
+        assert points.dtype == util_test.point_dtype
         assert points.shape == (17, 2)
         assert_array_equal(points[0], points[7])
         assert_array_equal(points[8], points[12])
@@ -165,14 +165,14 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert isinstance(codes, list) and len(codes) == 1
             codes = codes[0]
             assert isinstance(codes, np.ndarray)
-            assert codes.dtype == np.uint8
+            assert codes.dtype == util_test.code_dtype
             assert_array_equal(codes, [1, 2, 2, 2, 2, 2, 2, 79, 1, 2, 2, 2, 79, 1, 2, 2, 79])
         else:
             offsets = filled[1]
             assert isinstance(offsets, list) and len(offsets) == 1
             offsets = offsets[0]
             assert isinstance(offsets, np.ndarray)
-            assert offsets.dtype == np.intp
+            assert offsets.dtype == util_test.offset_dtype
             assert_array_equal(offsets, [0, 8, 13, 17])
 
         if fill_type in (FillType.ChunkCombinedCodesOffsets, FillType.ChunkCombinedOffsets2):
@@ -180,7 +180,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert isinstance(outer_offsets, list) and len(outer_offsets) == 1
             outer_offsets = outer_offsets[0]
             assert isinstance(outer_offsets, np.ndarray)
-            assert outer_offsets.dtype == np.intp
+            assert outer_offsets.dtype == util_test.offset_dtype
             if fill_type == FillType.ChunkCombinedCodesOffsets:
                 assert_array_equal(outer_offsets, [0, 13, 17])
             else:
