@@ -85,12 +85,9 @@ protected:
         const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);
 
     // Write points and offsets/codes to output numpy arrays.
-    void export_filled(
-        ChunkLocal& local, const std::vector<double>& all_points,
-        std::vector<py::list>& return_lists);
+    void export_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
 
-    void export_lines(
-        ChunkLocal& local, const double* all_points_ptr, std::vector<py::list>& return_lists);
+    void export_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
 
     index_t find_look_S(index_t look_N_quad) const;
 

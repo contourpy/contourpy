@@ -12,11 +12,12 @@ void ChunkLocal::clear()
     chunk = -1;
     istart = iend = jstart = jend = -1;
     pass = -1;
-    points = nullptr;
 
     total_point_count = 0;
     line_count = 0;
     hole_count = 0;
+
+    points.clear();
     line_offsets.clear();
     outer_offsets.clear();
 
