@@ -1,9 +1,8 @@
 #ifndef CONTOURPY_CHUNK_LOCAL_H
 #define CONTOURPY_CHUNK_LOCAL_H
 
-#include "common.h"
+#include "output_array.h"
 #include <iosfwd>
-#include <vector>
 
 struct ChunkLocal
 {
@@ -18,12 +17,14 @@ struct ChunkLocal
     index_t chunk;                       // Index in range 0 to _n_chunks-1.
     index_t istart, iend, jstart, jend;  // Chunk limits, inclusive.
     int pass;
-    double* points;                      // Where to store next point.
 
     // Data for whole pass.
     count_t total_point_count;
     count_t line_count;                  // Count of all lines
     count_t hole_count;                  // Count of holes only.
+
+    // Output arrays that are initialised at the end of pass 0 and written to during pass 1.
+    OutputArray<double> points;
     std::vector<offset_t> line_offsets;  // Into array of all points.
     std::vector<offset_t> outer_offsets; // Into array of line offsets.
 

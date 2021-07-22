@@ -112,6 +112,7 @@ BaseContourGenerator<Derived>::BaseContourGenerator(
       _lower_level(0.0),
       _upper_level(0.0),
       _identify_holes(false),
+      _combined_points(false),
       _return_list_count(0)
 {
     if (_x.ndim() != 2 || _y.ndim() != 2 || _z.ndim() != 2)
@@ -266,10 +267,8 @@ LineType BaseContourGenerator<Derived>::default_line_type()
 
 template <typename Derived>
 void BaseContourGenerator<Derived>::export_filled(
-    ChunkLocal& local, const std::vector<double>& all_points, std::vector<py::list>& return_lists)
+    ChunkLocal& local, std::vector<py::list>& return_lists)
 {
-    // all_points is only used for fill_types OuterCodes and OuterOffsets.
-
     typename Derived::Lock lock(static_cast<Derived&>(*this));
 
     switch (_fill_type)
@@ -287,7 +286,7 @@ void BaseContourGenerator<Derived>::export_filled(
                     assert(point_count > 2);
 
                     return_lists[0].append(Converter::convert_points(
-                        point_count, all_points.data() + 2*point_start));
+                        point_count, local.points.start + 2*point_start));
 
                     if (_fill_type == FillType::OuterCodes)
                         return_lists[1].append(Converter::convert_codes(
@@ -341,7 +340,7 @@ void BaseContourGenerator<Derived>::export_filled(
 
 template <typename Derived>
 void BaseContourGenerator<Derived>::export_lines(
-    ChunkLocal& local, const double* all_points_ptr, std::vector<py::list>& return_lists)
+    ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     typename Derived::Lock lock(static_cast<Derived&>(*this));
 
@@ -350,7 +349,6 @@ void BaseContourGenerator<Derived>::export_lines(
         case LineType::Separate:
         case LineType::SeparateCodes:
             if (local.total_point_count > 0) {
-                assert(all_points_ptr != nullptr);
                 for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
                     auto point_start = local.line_offsets[i];
                     auto point_end = local.line_offsets[i+1];
@@ -358,12 +356,12 @@ void BaseContourGenerator<Derived>::export_lines(
                     assert(point_count > 1);
 
                     return_lists[0].append(Converter::convert_points(
-                        point_count, all_points_ptr + 2*point_start));
+                        point_count, local.points.start + 2*point_start));
 
                     if (_line_type == LineType::SeparateCodes) {
                         return_lists[1].append(
                             Converter::convert_codes_check_closed_single(
-                                point_count, all_points_ptr + 2*point_start));
+                                point_count, local.points.start + 2*point_start));
                     }
                 }
             }
@@ -371,12 +369,11 @@ void BaseContourGenerator<Derived>::export_lines(
         case LineType::ChunkCombinedCodes: {
             if (local.total_point_count > 0) {
                 // return_lists[0] already set.
-                assert(all_points_ptr != nullptr);
                 assert(!local.line_offsets.empty());
                 return_lists[1][local.chunk] =
                     Converter::convert_codes_check_closed(
                         local.total_point_count, local.line_offsets.size(),
-                        local.line_offsets.data(), all_points_ptr);
+                        local.line_offsets.data(), local.points.start);
             }
             else {
                 for (auto& list : return_lists)
@@ -470,6 +467,7 @@ bool BaseContourGenerator<Derived>::follow_boundary(
     auto start_forward = start_location.forward;
     auto start_left = start_location.left;
     auto pass = local.pass;
+    double*& points = local.points.current;
 
     auto start_point = get_boundary_start_point(location);
     auto end_point = start_point + forward;
@@ -485,9 +483,9 @@ bool BaseContourGenerator<Derived>::follow_boundary(
     point_count++;
     if (pass > 0) {
         if (start_z == 1)
-            get_point_xy(start_point, local.points);
+            get_point_xy(start_point, points);
         else  // start_z != 1
-            interp(start_point, end_point, location.is_upper, local);
+            interp(start_point, end_point, location.is_upper, points);
     }
 
     bool finished = false;
@@ -566,7 +564,7 @@ bool BaseContourGenerator<Derived>::follow_boundary(
         // Add end point.
         point_count++;
         if (pass > 0) {
-            get_point_xy(end_point, local.points);
+            get_point_xy(end_point, points);
 
             if (LOOK_N(quad) && _identify_holes &&
                 (left == _nx || left == _nx+1 || forward == _nx+1)) {
@@ -608,6 +606,7 @@ bool BaseContourGenerator<Derived>::follow_interior(
     auto start_forward = start_location.forward;
     auto start_left = start_location.left;
     auto pass = local.pass;
+    double*& points = local.points.current;
 
     // left direction, and indices of points on entry edge.
     bool start_corner_diagonal = false;
@@ -622,7 +621,7 @@ bool BaseContourGenerator<Derived>::follow_interior(
         assert(is_point_in_chunk(right_point, local));
 
         if (pass > 0)
-            interp(left_point, right_point, is_upper, local);
+            interp(left_point, right_point, is_upper, points);
         point_count++;
 
         if (quad == start_quad && forward == start_forward &&
@@ -825,7 +824,7 @@ bool BaseContourGenerator<Derived>::follow_interior(
             if (!_filled) {
                 point_count++;
                 if (pass > 0)
-                    interp(left_point, right_point, false, local);
+                    interp(left_point, right_point, false, points);
             }
             break;
         }
@@ -1329,11 +1328,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
 
 template <typename Derived>
 void BaseContourGenerator<Derived>::interp(
-    index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const
+    index_t point0, index_t point1, bool is_upper, double*& points) const
 {
-    assert(is_point_in_chunk(point0, local));
-    assert(is_point_in_chunk(point1, local));
-
     const double& z1 = get_point_z(point1);
     const double& level = is_upper ? _upper_level : _lower_level;
 
@@ -1352,8 +1348,8 @@ void BaseContourGenerator<Derived>::interp(
 
     assert(frac >= 0.0 && frac <= 1.0 && "Interp fraction out of bounds");
 
-    *local.points++ = get_point_x(point0)*frac + get_point_x(point1)*(1.0 - frac);
-    *local.points++ = get_point_y(point0)*frac + get_point_y(point1)*(1.0 - frac);
+    *points++ = get_point_x(point0)*frac + get_point_x(point1)*(1.0 - frac);
+    *points++ = get_point_y(point0)*frac + get_point_y(point1)*(1.0 - frac);
 }
 
 template <typename Derived>
@@ -1427,10 +1423,6 @@ template <typename Derived>
 void BaseContourGenerator<Derived>::march_chunk(
     ChunkLocal& local, std::vector<py::list>& return_lists)
 {
-    // May be allocated at end of pass 0, depending on _filled and _fill_type or _line_type.
-    std::vector<double> all_points;
-    const double* all_points_ptr = nullptr;  // Only used for lines.
-
     for (local.pass = 0; local.pass < 2; ++local.pass) {
         bool ignore_holes = (_identify_holes && local.pass == 1);
 
@@ -1551,33 +1543,18 @@ void BaseContourGenerator<Derived>::march_chunk(
             _cache[local.istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
 
         if (local.pass == 0) {
-            if (!_combined_points) {
-                all_points.resize(2*local.total_point_count);
-
-                // Where to store contour points.
-                local.points = all_points.data();
-
-                if (!_filled) {
-                    // Needed to check if lines are closed loops or not.
-                    all_points_ptr = all_points.data();
-                }
+            if (local.total_point_count == 0) {
+                local.points.clear();
             }
-            else if (local.total_point_count > 0) {  // Combined points.
-                index_t points_shape[2] = {static_cast<index_t>(local.total_point_count), 2};
-
+            else if (!_combined_points) {
+                local.points.create_cpp(2*local.total_point_count);
+            }
+            else {  // Combined points.
                 typename Derived::Lock lock(static_cast<Derived&>(*this));
-                PointArray py_all_points(points_shape);
+                auto py_points = local.points.create_python(local.total_point_count, 2);
                 lock.unlock();
 
-                return_lists[0][local.chunk] = py_all_points;
-
-                // Where to store contour points.
-                local.points = py_all_points.mutable_data();
-
-                if (!_filled) {
-                    // Needed to check if lines are closed loops or not.
-                    all_points_ptr = py_all_points.data();
-                }
+                return_lists[0][local.chunk] = py_points;
             }
 
             // Allocate space for line_offsets, and set final offsets.
@@ -1601,6 +1578,13 @@ void BaseContourGenerator<Derived>::march_chunk(
     } // pass
 
     // Check both passes returned same number of points, lines, etc.
+    if (local.total_point_count == 0) {
+        assert(local.points.start == nullptr && local.points.current == nullptr);
+    }
+    else {
+        assert(local.points.current = local.points.start + 2*local.total_point_count);
+    }
+
     assert(local.line_offsets.size() == local.line_count + 1);
     assert(local.line_offsets.back() == local.total_point_count);
 
@@ -1613,9 +1597,9 @@ void BaseContourGenerator<Derived>::march_chunk(
     }
 
     if (_filled)
-        export_filled(local, all_points, return_lists);
+        export_filled(local, return_lists);
     else
-        export_lines(local, all_points_ptr, return_lists);
+        export_lines(local, return_lists);
 }
 
 template <typename Derived>

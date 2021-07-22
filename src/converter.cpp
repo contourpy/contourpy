@@ -5,14 +5,13 @@
 void Converter::check_max_offset(count_t max_offset)
 {
     if (max_offset > std::numeric_limits<OffsetArray::value_type>::max())
-        throw std::range_error(
-            "Max offset too large to fit in NumPy array of dtype npy_intp. Use smaller chunks.");
+        throw std::range_error("Max offset too large to fit in np.uint32. Use smaller chunks.");
 }
 
 CodeArray Converter::convert_codes(
     count_t point_count, count_t cut_count, const offset_t* cut_start, offset_t subtract)
 {
-    index_t codes_shape[1] = {static_cast<index_t>(point_count)};
+    index_t codes_shape = static_cast<index_t>(point_count);
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
 
@@ -28,7 +27,7 @@ CodeArray Converter::convert_codes(
 CodeArray Converter::convert_codes_check_closed(
     count_t point_count, count_t cut_count, const offset_t* cut_start, const double* check_closed)
 {
-    index_t codes_shape[1] = {static_cast<index_t>(point_count)};
+    index_t codes_shape = static_cast<index_t>(point_count);
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
 
@@ -48,7 +47,7 @@ CodeArray Converter::convert_codes_check_closed(
 
 CodeArray Converter::convert_codes_check_closed_single(count_t point_count, const double* points)
 {
-    index_t codes_shape[1] = {static_cast<index_t>(point_count)};
+    index_t codes_shape = static_cast<index_t>(point_count);
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
 
@@ -72,7 +71,7 @@ OffsetArray Converter::convert_offsets(
 {
     check_max_offset(*(start + offset_count - 1) - subtract);
 
-    index_t offsets_shape[1] = {static_cast<index_t>(offset_count)};
+    index_t offsets_shape = static_cast<index_t>(offset_count);
     OffsetArray py_offsets(offsets_shape);
     if (subtract == 0)
         std::copy(start, start + offset_count, py_offsets.mutable_data());
@@ -90,7 +89,7 @@ OffsetArray Converter::convert_offsets_nested(
 {
     check_max_offset(*(nested_start + *(start + offset_count - 1)));
 
-    index_t offsets_shape[1] = {static_cast<index_t>(offset_count)};
+    index_t offsets_shape = static_cast<index_t>(offset_count);
     OffsetArray py_offsets(offsets_shape);
     auto py_ptr = py_offsets.mutable_data();
     for (decltype(offset_count) i = 0; i < offset_count; ++i)
