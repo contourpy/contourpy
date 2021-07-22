@@ -183,7 +183,7 @@ void BaseContourGenerator<Derived>::closed_line(
 
     Location location = start_location;
     bool finished = false;
-    size_t point_count = 0;
+    count_t point_count = 0;
 
     if (outer_or_hole == Hole && local.pass == 0 && _identify_holes)
         set_look_flags(start_location.quad);
@@ -199,7 +199,7 @@ void BaseContourGenerator<Derived>::closed_line(
     if (local.pass > 0) {
         local.line_offsets[local.line_count] = local.total_point_count;
         if (outer_or_hole == Outer && _identify_holes) {
-            size_t outer_count = local.line_count - local.hole_count;
+            auto outer_count = local.line_count - local.hole_count;
             local.outer_offsets[outer_count] = local.line_count;
         }
     }
@@ -225,15 +225,15 @@ void BaseContourGenerator<Derived>::closed_line_wrapper(
 
         closed_line(start_location, outer_or_hole, local);
 
-        for (size_t i = 0; i < local.look_up_quads.size(); ++i) {
+        for (py::size_t i = 0; i < local.look_up_quads.size(); ++i) {
             // Note that the collection can increase in size during this loop.
             index_t quad = local.look_up_quads[i];
 
             // Walk N to corresponding look S flag is reached.
             quad = find_look_S(quad);
 
-            // Only 3 possible types of hole start: START_E, START_HOLE_N or
-            // START_CORNER for SW corner.
+            // Only 3 possible types of hole start: START_E, START_HOLE_N or START_CORNER for SW
+            // corner.
             if (START_E(quad)) {
                 closed_line(Location(quad, -1, -_nx, Z_NE > 0, false), Hole, local);
             }
@@ -351,7 +351,7 @@ void BaseContourGenerator<Derived>::export_lines(
         case LineType::SeparateCodes:
             if (local.total_point_count > 0) {
                 assert(all_points_ptr != nullptr);
-                for (size_t i = 0; i < local.line_count; ++i) {
+                for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
                     auto point_start = local.line_offsets[i];
                     auto point_end = local.line_offsets[i+1];
                     auto point_count = point_end - point_start;
@@ -447,7 +447,7 @@ index_t BaseContourGenerator<Derived>::find_look_S(index_t look_N_quad) const
 
 template <typename Derived>
 bool BaseContourGenerator<Derived>::follow_boundary(
-    Location& location, const Location& start_location, ChunkLocal& local, size_t& point_count)
+    Location& location, const Location& start_location, ChunkLocal& local, count_t& point_count)
 {
     // forward values for boundaries:
     //     -1 = N boundary, E to W.
@@ -592,7 +592,7 @@ bool BaseContourGenerator<Derived>::follow_boundary(
 
 template <typename Derived>
 bool BaseContourGenerator<Derived>::follow_interior(
-    Location& location, const Location& start_location, ChunkLocal& local, size_t& point_count)
+    Location& location, const Location& start_location, ChunkLocal& local, count_t& point_count)
 {
     // Adds the start point in each quad visited, but not the end point unless closing the polygon.
     // Only need to consider a single level of course.
@@ -848,7 +848,7 @@ index_t BaseContourGenerator<Derived>::get_boundary_start_point(const Location& 
     auto quad = location.quad;
     auto forward = location.forward;
     auto left = location.left;
-    index_t start_point;
+    index_t start_point = -1;
 
     if (forward > 0) {
         if (forward == _nx) {
@@ -937,7 +937,7 @@ index_t BaseContourGenerator<Derived>::get_interior_start_left_point(
     auto quad = location.quad;
     auto forward = location.forward;
     auto left = location.left;
-    index_t left_point;
+    index_t left_point = -1;
 
     if (forward > 0) {
         if (forward == _nx) {
@@ -1391,7 +1391,7 @@ void BaseContourGenerator<Derived>::line(const Location& start_location, ChunkLo
     assert(is_quad_in_chunk(start_location.quad, local));
 
     Location location = start_location;
-    size_t point_count = 0;
+    count_t point_count = 0;
 
     // finished == true indicates closed line loop.
     bool finished = follow_interior(location, start_location, local, point_count);
@@ -1445,7 +1445,7 @@ void BaseContourGenerator<Derived>::march_chunk(
                 continue;
 
             // Want to count number of starts in this row, so store how many starts at start of row.
-            size_t prev_start_count =
+            auto prev_start_count =
                 (_identify_holes ? local.line_count - local.hole_count : local.line_count);
 
             for (index_t i = local.istart; i <= local.iend; ++i, ++quad) {
@@ -1539,7 +1539,7 @@ void BaseContourGenerator<Derived>::march_chunk(
             } // i
 
             // Number of starts at end of row.
-            size_t start_count =
+            auto start_count =
                 (_identify_holes ? local.line_count - local.hole_count : local.line_count);
             if (start_count - prev_start_count)
                 j_final_start = j;
@@ -1563,7 +1563,7 @@ void BaseContourGenerator<Derived>::march_chunk(
                 }
             }
             else if (local.total_point_count > 0) {  // Combined points.
-                py::size_t points_shape[2] = {local.total_point_count, 2};
+                index_t points_shape[2] = {static_cast<index_t>(local.total_point_count), 2};
 
                 typename Derived::Lock lock(static_cast<Derived&>(*this));
                 PointArray py_all_points(points_shape);

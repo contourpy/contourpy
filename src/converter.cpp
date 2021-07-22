@@ -2,7 +2,7 @@
 #include "mpl_kind_code.h"
 #include <limits>
 
-void Converter::check_max_offset(size_t max_offset)
+void Converter::check_max_offset(count_t max_offset)
 {
     if (max_offset > std::numeric_limits<OffsetArray::value_type>::max())
         throw std::range_error(
@@ -10,12 +10,9 @@ void Converter::check_max_offset(size_t max_offset)
 }
 
 CodeArray Converter::convert_codes(
-    size_t point_count, size_t cut_count, const size_t* cut_start, size_t subtract)
+    count_t point_count, count_t cut_count, const offset_t* cut_start, offset_t subtract)
 {
-    assert(point_count > 0);
-    assert(cut_count > 0);
-
-    py::ssize_t codes_shape[1] = {static_cast<py::ssize_t>(point_count)};
+    index_t codes_shape[1] = {static_cast<index_t>(point_count)};
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
 
@@ -29,12 +26,9 @@ CodeArray Converter::convert_codes(
 }
 
 CodeArray Converter::convert_codes_check_closed(
-    size_t point_count, size_t cut_count, const size_t* cut_start, const double* check_closed)
+    count_t point_count, count_t cut_count, const offset_t* cut_start, const double* check_closed)
 {
-    assert(point_count > 0);
-    assert(cut_count > 0);
-
-    py::ssize_t codes_shape[1] = {static_cast<py::ssize_t>(point_count)};
+    index_t codes_shape[1] = {static_cast<index_t>(point_count)};
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
 
@@ -52,11 +46,9 @@ CodeArray Converter::convert_codes_check_closed(
     return py_codes;
 }
 
-CodeArray Converter::convert_codes_check_closed_single(size_t point_count, const double* points)
+CodeArray Converter::convert_codes_check_closed_single(count_t point_count, const double* points)
 {
-    assert(point_count > 0);
-
-    py::ssize_t codes_shape[1] = {static_cast<py::ssize_t>(point_count)};
+    index_t codes_shape[1] = {static_cast<index_t>(point_count)};
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
 
@@ -75,46 +67,41 @@ CodeArray Converter::convert_codes_check_closed_single(size_t point_count, const
     return py_codes;
 }
 
-OffsetArray Converter::convert_offsets(size_t offset_count, const size_t* start, size_t subtract)
+OffsetArray Converter::convert_offsets(
+    count_t offset_count, const offset_t* start, offset_t subtract)
 {
-    assert(offset_count > 0);
-
     check_max_offset(*(start + offset_count - 1) - subtract);
 
-    py::ssize_t offsets_shape[1] = {static_cast<py::ssize_t>(offset_count)};
+    index_t offsets_shape[1] = {static_cast<index_t>(offset_count)};
     OffsetArray py_offsets(offsets_shape);
     if (subtract == 0)
         std::copy(start, start + offset_count, py_offsets.mutable_data());
     else {
         auto py_ptr = py_offsets.mutable_data();
         for (decltype(offset_count) i = 0; i < offset_count; ++i)
-            *py_ptr++ = static_cast<OffsetArray::value_type>(*(start + i) - subtract);
+            *py_ptr++ = *(start + i) - subtract;
     }
 
     return py_offsets;
 }
 
 OffsetArray Converter::convert_offsets_nested(
-    size_t offset_count, const size_t* start, const size_t* nested_start)
+    count_t offset_count, const offset_t* start, const offset_t* nested_start)
 {
-    assert(offset_count > 0);
-
     check_max_offset(*(nested_start + *(start + offset_count - 1)));
 
-    py::ssize_t offsets_shape[1] = {static_cast<py::ssize_t>(offset_count)};
+    index_t offsets_shape[1] = {static_cast<index_t>(offset_count)};
     OffsetArray py_offsets(offsets_shape);
     auto py_ptr = py_offsets.mutable_data();
     for (decltype(offset_count) i = 0; i < offset_count; ++i)
-        *py_ptr++ = static_cast<OffsetArray::value_type>(*(nested_start + *(start + i)));
+        *py_ptr++ = *(nested_start + *(start + i));
 
     return py_offsets;
 }
 
-PointArray Converter::convert_points(size_t point_count, const double* start)
+PointArray Converter::convert_points(count_t point_count, const double* start)
 {
-    assert(point_count > 0);
-
-    py::ssize_t points_shape[2] = {static_cast<py::ssize_t>(point_count), 2};
+    index_t points_shape[2] = {static_cast<index_t>(point_count), 2};
     PointArray py_points(points_shape);
     std::copy(start, start + 2*point_count, py_points.mutable_data());
 

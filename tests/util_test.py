@@ -1,4 +1,10 @@
 from contourpy import FillType, LineType
+import numpy as np
+
+
+point_dtype = np.float64
+code_dtype = np.uint8
+offset_dtype = np.uint32
 
 
 def all_class_names():

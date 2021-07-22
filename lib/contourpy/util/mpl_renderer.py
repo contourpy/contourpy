@@ -206,14 +206,16 @@ class MplDebugRenderer(MplRenderer):
         elif line_type == LineType.ChunkCombinedCodes:
             all_lines = []
             for points, codes in zip(*lines):
-                offsets = mpl_codes_to_offsets(codes)
-                for i in range(len(offsets)-1):
-                    all_lines.append(points[offsets[i]:offsets[i+1]])
+                if points is not None:
+                    offsets = mpl_codes_to_offsets(codes)
+                    for i in range(len(offsets)-1):
+                        all_lines.append(points[offsets[i]:offsets[i+1]])
         elif line_type == LineType.ChunkCombinedOffsets:
             all_lines = []
             for points, offsets in zip(*lines):
-                for i in range(len(offsets)-1):
-                    all_lines.append(points[offsets[i]:offsets[i+1]])
+                if points is not None:
+                    for i in range(len(offsets)-1):
+                        all_lines.append(points[offsets[i]:offsets[i+1]])
         else:
             raise RuntimeError(f"Rendering LineType {line_type} not implemented")
 

@@ -184,7 +184,7 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
         assert isinstance(points, list) and len(points) == 2
         for p in points:
             assert isinstance(p, np.ndarray)
-            assert p.dtype == np.float64
+            assert p.dtype == util_test.point_dtype
         assert points[0].shape == (5, 2)
         assert points[1].shape == (2, 2)
         assert_array_equal(points[0][0], points[0][4])
@@ -193,29 +193,28 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
             assert isinstance(codes, list) and len(codes) == 2
             for c in codes:
                 assert isinstance(c, np.ndarray)
-                assert c.dtype == np.uint8
+                assert c.dtype == util_test.code_dtype
             assert_array_equal(codes[0], [1, 2, 2, 2, 79])
             assert_array_equal(codes[1], [1, 2])
-    elif line_type in (LineType.ChunkCombinedCodes,
-                       LineType.ChunkCombinedOffsets):
+    elif line_type in (LineType.ChunkCombinedCodes, LineType.ChunkCombinedOffsets):
         assert isinstance(lines, tuple) and len(lines) == 2
         points = lines[0]
         assert isinstance(points, list) and len(points) == 1
         assert isinstance(points[0], np.ndarray)
-        assert points[0].dtype == np.float64
+        assert points[0].dtype == util_test.point_dtype
         assert points[0].shape == (7, 2)
         assert_array_equal(points[0][0], points[0][4])
         if line_type == LineType.ChunkCombinedCodes:
             codes = lines[1]
             assert isinstance(codes, list) and len(codes) == 1
             assert isinstance(codes[0], np.ndarray)
-            assert codes[0].dtype == np.uint8
+            assert codes[0].dtype == util_test.code_dtype
             assert_array_equal(codes[0], [1, 2, 2, 2, 79, 1, 2])
         else:
             offsets = lines[1]
             assert isinstance(offsets, list) and len(offsets) == 1
             assert isinstance(offsets[0], np.ndarray)
-            assert offsets[0].dtype == np.intp
+            assert offsets[0].dtype == util_test.offset_dtype
             assert_array_equal(offsets[0], [0, 5, 7])
     else:
         raise RuntimeError(f"Unexpected line_type {line_type}")
