@@ -467,6 +467,7 @@ bool BaseContourGenerator<Derived>::follow_boundary(
     auto start_forward = start_location.forward;
     auto start_left = start_location.left;
     auto pass = local.pass;
+    double*& points = local.points.current;
 
     auto start_point = get_boundary_start_point(location);
     auto end_point = start_point + forward;
@@ -482,9 +483,9 @@ bool BaseContourGenerator<Derived>::follow_boundary(
     point_count++;
     if (pass > 0) {
         if (start_z == 1)
-            get_point_xy(start_point, local.points.current);
+            get_point_xy(start_point, points);
         else  // start_z != 1
-            interp(start_point, end_point, location.is_upper, local);
+            interp(start_point, end_point, location.is_upper, points);
     }
 
     bool finished = false;
@@ -563,7 +564,7 @@ bool BaseContourGenerator<Derived>::follow_boundary(
         // Add end point.
         point_count++;
         if (pass > 0) {
-            get_point_xy(end_point, local.points.current);
+            get_point_xy(end_point, points);
 
             if (LOOK_N(quad) && _identify_holes &&
                 (left == _nx || left == _nx+1 || forward == _nx+1)) {
@@ -605,6 +606,7 @@ bool BaseContourGenerator<Derived>::follow_interior(
     auto start_forward = start_location.forward;
     auto start_left = start_location.left;
     auto pass = local.pass;
+    double*& points = local.points.current;
 
     // left direction, and indices of points on entry edge.
     bool start_corner_diagonal = false;
@@ -619,7 +621,7 @@ bool BaseContourGenerator<Derived>::follow_interior(
         assert(is_point_in_chunk(right_point, local));
 
         if (pass > 0)
-            interp(left_point, right_point, is_upper, local);
+            interp(left_point, right_point, is_upper, points);
         point_count++;
 
         if (quad == start_quad && forward == start_forward &&
@@ -822,7 +824,7 @@ bool BaseContourGenerator<Derived>::follow_interior(
             if (!_filled) {
                 point_count++;
                 if (pass > 0)
-                    interp(left_point, right_point, false, local);
+                    interp(left_point, right_point, false, points);
             }
             break;
         }
@@ -1326,11 +1328,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
 
 template <typename Derived>
 void BaseContourGenerator<Derived>::interp(
-    index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const
+    index_t point0, index_t point1, bool is_upper, double*& points) const
 {
-    assert(is_point_in_chunk(point0, local));
-    assert(is_point_in_chunk(point1, local));
-
     const double& z1 = get_point_z(point1);
     const double& level = is_upper ? _upper_level : _lower_level;
 
@@ -1349,8 +1348,8 @@ void BaseContourGenerator<Derived>::interp(
 
     assert(frac >= 0.0 && frac <= 1.0 && "Interp fraction out of bounds");
 
-    *local.points.current++ = get_point_x(point0)*frac + get_point_x(point1)*(1.0 - frac);
-    *local.points.current++ = get_point_y(point0)*frac + get_point_y(point1)*(1.0 - frac);
+    *points++ = get_point_x(point0)*frac + get_point_x(point1)*(1.0 - frac);
+    *points++ = get_point_y(point0)*frac + get_point_y(point1)*(1.0 - frac);
 }
 
 template <typename Derived>

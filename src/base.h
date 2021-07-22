@@ -124,7 +124,7 @@ protected:
     void init_cache_levels_and_starts(const ChunkLocal* local = nullptr);
 
     // Increments local.points twice.
-    void interp(index_t point0, index_t point1, bool is_upper, ChunkLocal& local) const;
+    void interp(index_t point0, index_t point1, bool is_upper, double*& points) const;
 
     bool is_filled() const;
 
