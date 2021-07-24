@@ -17,8 +17,8 @@ CodeArray Converter::convert_codes(
 
     std::fill(py_ptr + 1, py_ptr + point_count - 1, LINETO);
     for (decltype(cut_count) i = 0; i < cut_count-1; ++i) {
-        py_ptr[*(cut_start + i) - subtract] = MOVETO;
-        py_ptr[*(cut_start + i+1) - 1 - subtract] = CLOSEPOLY;
+        py_ptr[cut_start[i] - subtract] = MOVETO;
+        py_ptr[cut_start[i+1] - 1 - subtract] = CLOSEPOLY;
     }
 
     return py_codes;
@@ -33,8 +33,8 @@ CodeArray Converter::convert_codes_check_closed(
 
     std::fill(py_ptr + 1, py_ptr + point_count, LINETO);
     for (decltype(cut_count) i = 0; i < cut_count-1; ++i) {
-        auto start = *(cut_start + i);
-        auto end = *(cut_start + i+1);
+        auto start = cut_start[i];
+        auto end = cut_start[i+1];
         py_ptr[start] = MOVETO;
         bool closed = check_closed[2*start] == check_closed[2*end-2] &&
                       check_closed[2*start+1] == check_closed[2*end-1];
@@ -78,7 +78,7 @@ OffsetArray Converter::convert_offsets(
     else {
         auto py_ptr = py_offsets.mutable_data();
         for (decltype(offset_count) i = 0; i < offset_count; ++i)
-            *py_ptr++ = *(start + i) - subtract;
+            *py_ptr++ = start[i] - subtract;
     }
 
     return py_offsets;
@@ -93,7 +93,7 @@ OffsetArray Converter::convert_offsets_nested(
     OffsetArray py_offsets(offsets_shape);
     auto py_ptr = py_offsets.mutable_data();
     for (decltype(offset_count) i = 0; i < offset_count; ++i)
-        *py_ptr++ = *(nested_start + *(start + i));
+        *py_ptr++ = nested_start[start[i]];
 
     return py_offsets;
 }

@@ -170,7 +170,10 @@ private:
 
     // Current contouring operation, based on return type and filled or lines.
     bool _identify_holes;
-    bool _combined_points;
+    bool _output_chunked;             // Implies empty chunks will have py::none().
+    bool _direct_points;              // Whether points array is written direct to Python.
+    bool _direct_line_offsets;        // Whether line offsets array is written direct to Python.
+    bool _direct_outer_offsets;       // Whether outer offsets array is written direct to Python.
     unsigned int _return_list_count;
 };
 
