@@ -25,8 +25,8 @@ struct ChunkLocal
 
     // Output arrays that are initialised at the end of pass 0 and written to during pass 1.
     OutputArray<double> points;
-    std::vector<offset_t> line_offsets;  // Into array of all points.
-    std::vector<offset_t> outer_offsets; // Into array of line offsets.
+    OutputArray<offset_t> line_offsets;  // Into array of all points.
+    OutputArray<offset_t> outer_offsets; // Into array of line offsets.
 
     // Data for current outer.
     std::vector<index_t> look_up_quads;  // To find holes of current outer.

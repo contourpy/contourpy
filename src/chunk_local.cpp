@@ -1,5 +1,6 @@
 #include "chunk_local.h"
 #include <iostream>
+#include <limits>
 
 ChunkLocal::ChunkLocal()
 {
@@ -36,18 +37,18 @@ std::ostream &operator<<(std::ostream &os, const ChunkLocal& local)
         << " line_count=" << local.line_count
         << " hole_count=" << local.hole_count;
 
-    os << " line_offsets(" << local.line_offsets.size() << ")";
-    if (!local.line_offsets.empty()) {
-        os << "=";
-        for (auto count : local.line_offsets)
-            os << count << " ";
+    if (local.line_offsets.start != nullptr) {
+        os << " line_offsets=";
+        for (count_t i = 0; i < local.line_count + 1; ++i) {
+            os << local.line_offsets.start[i] << " ";
+        }
     }
 
-    os << " outer_offsets(" << local.outer_offsets.size() << ")";
-    if (!local.outer_offsets.empty()) {
-        os << "=";
-        for (auto count : local.outer_offsets)
-            os << count << " ";
+    if (local.outer_offsets.start != nullptr) {
+        os << " outer_offsets=";
+        for (count_t i = 0; i < local.line_count - local.hole_count + 1; ++i) {
+            os << local.outer_offsets.start[i] << " ";
+        }
     }
 
     return os;

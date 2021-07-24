@@ -30,8 +30,17 @@ public:
         start = current = vector.data();
     }
 
+    py::array_t<T> create_python(count_t size)
+    {
+        assert(size > 0);
+        py::array_t<T> py_array(size);
+        start = current = py_array.mutable_data();
+        return py_array;
+    }
+
     py::array_t<T> create_python(count_t shape0, count_t shape1)
     {
+        assert(shape0 > 0 && shape1 > 0);
         py::array_t<T> py_array({shape0, shape1});
         start = current = py_array.mutable_data();
         return py_array;

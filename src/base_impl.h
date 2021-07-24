@@ -112,7 +112,10 @@ BaseContourGenerator<Derived>::BaseContourGenerator(
       _lower_level(0.0),
       _upper_level(0.0),
       _identify_holes(false),
-      _combined_points(false),
+      _output_chunked(false),
+      _direct_points(false),
+      _direct_line_offsets(false),
+      _direct_outer_offsets(false),
       _return_list_count(0)
 {
     if (_x.ndim() != 2 || _y.ndim() != 2 || _z.ndim() != 2)
@@ -198,10 +201,12 @@ void BaseContourGenerator<Derived>::closed_line(
     }
 
     if (local.pass > 0) {
-        local.line_offsets[local.line_count] = local.total_point_count;
+        assert(local.line_offsets.current = local.line_offsets.start + local.line_count);
+        *local.line_offsets.current++ = local.total_point_count;
         if (outer_or_hole == Outer && _identify_holes) {
-            auto outer_count = local.line_count - local.hole_count;
-            local.outer_offsets[outer_count] = local.line_count;
+            assert(local.outer_offsets.current ==
+                local.outer_offsets.start + local.line_count - local.hole_count);
+            *local.outer_offsets.current++ = local.line_count;
         }
     }
 
@@ -269,71 +274,61 @@ template <typename Derived>
 void BaseContourGenerator<Derived>::export_filled(
     ChunkLocal& local, std::vector<py::list>& return_lists)
 {
+    assert(local.total_point_count > 0);
+
     typename Derived::Lock lock(static_cast<Derived&>(*this));
 
     switch (_fill_type)
     {
         case FillType::OuterCodes:
-        case FillType::OuterOffsets:
-            if (local.total_point_count > 0) {
-                auto outer_count = local.line_count - local.hole_count;
-                for (decltype(outer_count) i = 0; i < outer_count; ++i) {
-                    auto outer_start = local.outer_offsets[i];
-                    auto outer_end = local.outer_offsets[i+1];
-                    auto point_start = local.line_offsets[outer_start];
-                    auto point_end = local.line_offsets[outer_end];
-                    auto point_count = point_end - point_start;
-                    assert(point_count > 2);
+        case FillType::OuterOffsets: {
+            assert(!_direct_points && !_direct_line_offsets);
+            auto outer_count = local.line_count - local.hole_count;
+            for (decltype(outer_count) i = 0; i < outer_count; ++i) {
+                auto outer_start = local.outer_offsets.start[i];
+                auto outer_end = local.outer_offsets.start[i+1];
+                auto point_start = local.line_offsets.start[outer_start];
+                auto point_end = local.line_offsets.start[outer_end];
+                auto point_count = point_end - point_start;
+                assert(point_count > 2);
 
-                    return_lists[0].append(Converter::convert_points(
-                        point_count, local.points.start + 2*point_start));
+                return_lists[0].append(Converter::convert_points(
+                    point_count, local.points.start + 2*point_start));
 
-                    if (_fill_type == FillType::OuterCodes)
-                        return_lists[1].append(Converter::convert_codes(
-                            point_count, outer_end - outer_start + 1,
-                            local.line_offsets.data() + outer_start, point_start));
-                    else
-                        return_lists[1].append(Converter::convert_offsets(
-                            outer_end - outer_start + 1, local.line_offsets.data() + outer_start,
-                            point_start));
-                }
+                if (_fill_type == FillType::OuterCodes)
+                    return_lists[1].append(Converter::convert_codes(
+                        point_count, outer_end - outer_start + 1,
+                        local.line_offsets.start + outer_start, point_start));
+                else
+                    return_lists[1].append(Converter::convert_offsets(
+                        outer_end - outer_start + 1, local.line_offsets.start + outer_start,
+                        point_start));
             }
             break;
+        }
         case FillType::ChunkCombinedCodes:
         case FillType::ChunkCombinedCodesOffsets:
-            if (local.total_point_count > 0) {
-                // return_lists[0] already set.
-                assert(!local.line_offsets.empty());
-                return_lists[1][local.chunk] = Converter::convert_codes(
-                    local.total_point_count, local.line_offsets.size(), local.line_offsets.data());
+            assert(_direct_points && !_direct_line_offsets);
+            // return_lists[0][local_chunk] already contains combined points.
+            return_lists[1][local.chunk] = Converter::convert_codes(
+                local.total_point_count, local.line_count + 1, local.line_offsets.start);
 
-                if (_fill_type == FillType::ChunkCombinedCodesOffsets)
-                    return_lists[2][local.chunk] =
-                        Converter::convert_offsets_nested(
-                            local.outer_offsets.size(), local.outer_offsets.data(),
-                            local.line_offsets.data());
-            }
-            else {
-                for (auto& list : return_lists)
-                    list[local.chunk] = py::none();
-            }
+            if (_fill_type == FillType::ChunkCombinedCodesOffsets)
+                return_lists[2][local.chunk] =
+                    Converter::convert_offsets_nested(
+                        local.line_count - local.hole_count + 1, local.outer_offsets.start,
+                        local.line_offsets.start);
             break;
         case FillType::ChunkCombinedOffsets:
         case FillType::ChunkCombinedOffsets2:
-            if (local.total_point_count > 0) {
-                // return_lists[0] already set.
-                assert(!local.line_offsets.empty());
-                return_lists[1][local.chunk] = Converter::convert_offsets(
-                    local.line_offsets.size(), local.line_offsets.data());
-
-                if (_fill_type == FillType::ChunkCombinedOffsets2)
-                    return_lists[2][local.chunk] = Converter::convert_offsets(
-                        local.outer_offsets.size(), local.outer_offsets.data());
+            assert(_direct_points && _direct_line_offsets);
+            if (_fill_type == FillType::ChunkCombinedOffsets2) {
+                assert(_direct_outer_offsets);
             }
-            else {
-                for (auto& list : return_lists)
-                    list[local.chunk] = py::none();
-            }
+            // return_lists[0][local_chunk] already contains combined points.
+            // return_lists[1][local.chunk] already contains line offsets.
+            // If ChunkCombinedOffsets2, return_lists[2][local.chunk] already contains
+            //      outer offsets.
             break;
     }
 }
@@ -342,56 +337,43 @@ template <typename Derived>
 void BaseContourGenerator<Derived>::export_lines(
     ChunkLocal& local, std::vector<py::list>& return_lists)
 {
+    assert(local.total_point_count > 0);
+
     typename Derived::Lock lock(static_cast<Derived&>(*this));
 
     switch (_line_type)
     {
         case LineType::Separate:
         case LineType::SeparateCodes:
-            if (local.total_point_count > 0) {
-                for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
-                    auto point_start = local.line_offsets[i];
-                    auto point_end = local.line_offsets[i+1];
-                    auto point_count = point_end - point_start;
-                    assert(point_count > 1);
+            assert(!_direct_points && !_direct_line_offsets);
+            for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
+                auto point_start = local.line_offsets.start[i];
+                auto point_end = local.line_offsets.start[i+1];
+                auto point_count = point_end - point_start;
+                assert(point_count > 1);
 
-                    return_lists[0].append(Converter::convert_points(
-                        point_count, local.points.start + 2*point_start));
+                return_lists[0].append(Converter::convert_points(
+                    point_count, local.points.start + 2*point_start));
 
-                    if (_line_type == LineType::SeparateCodes) {
-                        return_lists[1].append(
-                            Converter::convert_codes_check_closed_single(
-                                point_count, local.points.start + 2*point_start));
-                    }
+                if (_line_type == LineType::SeparateCodes) {
+                    return_lists[1].append(
+                        Converter::convert_codes_check_closed_single(
+                            point_count, local.points.start + 2*point_start));
                 }
             }
             break;
         case LineType::ChunkCombinedCodes: {
-            if (local.total_point_count > 0) {
-                // return_lists[0] already set.
-                assert(!local.line_offsets.empty());
-                return_lists[1][local.chunk] =
-                    Converter::convert_codes_check_closed(
-                        local.total_point_count, local.line_offsets.size(),
-                        local.line_offsets.data(), local.points.start);
-            }
-            else {
-                for (auto& list : return_lists)
-                    list[local.chunk] = py::none();
-            }
+            assert(_direct_points && !_direct_line_offsets);
+            // return_lists[0][local.chunk] already contains points.
+            return_lists[1][local.chunk] = Converter::convert_codes_check_closed(
+                local.total_point_count, local.line_count + 1, local.line_offsets.start,
+                local.points.start);
             break;
         }
         case LineType::ChunkCombinedOffsets:
-            if (local.total_point_count > 0) {
-                // return_lists[0] already set.
-                assert(!local.line_offsets.empty());
-                return_lists[1][local.chunk] = Converter::convert_offsets(
-                    local.line_offsets.size(), local.line_offsets.data());
-            }
-            else {
-                for (auto& list : return_lists)
-                    list[local.chunk] = py::none();
-            }
+            assert(_direct_points && _direct_line_offsets);
+            // return_lists[0][local.chunk] already contains points.
+            // return_lists[1][local.chunk] already contains line offsets.
             break;
     }
 }
@@ -406,10 +388,15 @@ py::sequence BaseContourGenerator<Derived>::filled(
     _filled = true;
     _lower_level = lower_level;
     _upper_level = upper_level;
-    _identify_holes = (_fill_type != FillType::ChunkCombinedCodes &&
-                       _fill_type != FillType::ChunkCombinedOffsets);
-    _combined_points = (_fill_type != FillType::OuterCodes &&
-                        _fill_type != FillType::OuterOffsets);
+
+    _identify_holes = !(_fill_type == FillType::ChunkCombinedCodes ||
+                        _fill_type == FillType::ChunkCombinedOffsets);
+    _output_chunked = !(_fill_type == FillType::OuterCodes ||
+                        _fill_type == FillType::OuterOffsets);
+    _direct_points = _output_chunked;
+    _direct_line_offsets = (_fill_type == FillType::ChunkCombinedOffsets ||
+                            _fill_type == FillType::ChunkCombinedOffsets2);
+    _direct_outer_offsets = (_fill_type == FillType::ChunkCombinedOffsets2);
     _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
                           _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
 
@@ -1392,8 +1379,10 @@ void BaseContourGenerator<Derived>::line(const Location& start_location, ChunkLo
     // finished == true indicates closed line loop.
     bool finished = follow_interior(location, start_location, local, point_count);
 
-    if (local.pass > 0)
-        local.line_offsets[local.line_count] = local.total_point_count;
+    if (local.pass > 0) {
+        assert(local.line_offsets.current == local.line_offsets.start + local.line_count);
+        *local.line_offsets.current++ = local.total_point_count;
+    }
 
     if (local.pass == 0 && !start_location.on_boundary && !finished)
         // An internal start that isn't a line loop is part of a line strip that starts on a
@@ -1411,9 +1400,13 @@ py::sequence BaseContourGenerator<Derived>::lines(const double& level)
 {
     _filled = false;
     _lower_level = _upper_level = level;
+
     _identify_holes = false;
-    _combined_points = (_line_type != LineType::Separate &&
-                        _line_type != LineType::SeparateCodes);
+    _output_chunked = !(_line_type == LineType::Separate ||
+                        _line_type == LineType::SeparateCodes);
+    _direct_points = _output_chunked;
+    _direct_line_offsets = (_line_type == LineType::ChunkCombinedOffsets);
+    _direct_outer_offsets = false;
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
 
     return static_cast<Derived*>(this)->march_wrapper();
@@ -1545,32 +1538,47 @@ void BaseContourGenerator<Derived>::march_chunk(
         if (local.pass == 0) {
             if (local.total_point_count == 0) {
                 local.points.clear();
+                local.line_offsets.clear();
+                local.outer_offsets.clear();
+                break;  // Do not need pass 1.
             }
-            else if (!_combined_points) {
-                local.points.create_cpp(2*local.total_point_count);
-            }
-            else {  // Combined points.
+
+            // Create arrays for points, line_offsets and optionally outer_offsets.  Arrays may be
+            // either C++ vectors or Python NumPy arrays.  Want to group creation of the latter as
+            // threaded code needs to lock creation of these to limit access to a single thread.
+            if (_direct_points || _direct_line_offsets || _direct_outer_offsets) {
                 typename Derived::Lock lock(static_cast<Derived&>(*this));
-                auto py_points = local.points.create_python(local.total_point_count, 2);
-                lock.unlock();
 
-                return_lists[0][local.chunk] = py_points;
+                // Strictly speaking adding the NumPy arrays to return_lists does not need to be
+                // within the lock.
+                if (_direct_points) {
+                    return_lists[0][local.chunk] =
+                        local.points.create_python(local.total_point_count, 2);
+                }
+                if (_direct_line_offsets) {
+                    return_lists[1][local.chunk] =
+                        local.line_offsets.create_python(local.line_count + 1);
+                }
+                if (_direct_outer_offsets) {
+                    return_lists[2][local.chunk] =
+                        local.outer_offsets.create_python(local.line_count - local.hole_count + 1);
+                }
             }
 
-            // Allocate space for line_offsets, and set final offsets.
-            local.line_offsets.resize(local.line_count + 1);
-            local.line_offsets.back() = local.total_point_count;
+            if (!_direct_points)
+                local.points.create_cpp(2*local.total_point_count);
 
-            // Allocate space for outer_offsets, and set final offsets.
-            if (_identify_holes) {
-                auto outer_count = local.line_count - local.hole_count;
-                local.outer_offsets.resize(outer_count + 1);
-                local.outer_offsets.back() = local.line_count;
-            }
-            else {
-                local.outer_offsets.resize(0);
+            if (!_direct_line_offsets)
+                local.line_offsets.create_cpp(local.line_count + 1);
+
+            if (!_direct_outer_offsets) {
+                if (_identify_holes)
+                    local.outer_offsets.create_cpp( local.line_count - local.hole_count + 1);
+                else
+                    local.outer_offsets.clear();
             }
 
+            // Reset counts for pass 1.
             local.total_point_count = 0;
             local.line_count = 0;
             local.hole_count = 0;
@@ -1585,18 +1593,37 @@ void BaseContourGenerator<Derived>::march_chunk(
         assert(local.points.current = local.points.start + 2*local.total_point_count);
     }
 
-    assert(local.line_offsets.size() == local.line_count + 1);
-    assert(local.line_offsets.back() == local.total_point_count);
+    if (local.line_count > 0) {
+        assert(local.line_offsets.current != nullptr);
+        assert(local.line_offsets.current == local.line_offsets.start + local.line_count);
 
-    if (_identify_holes) {
-        assert(local.outer_offsets.size() == local.line_count - local.hole_count + 1);
-        assert(local.outer_offsets.back() == local.line_count);
+        // Append final total_point_count to line_offsets.
+        *local.line_offsets.current++ = local.total_point_count;
     }
     else {
-        assert(local.outer_offsets.empty());
+        assert(local.line_offsets.start == nullptr && local.line_offsets.current == nullptr);
     }
 
-    if (_filled)
+    if (_identify_holes && local.line_count > 0) {
+        assert(local.outer_offsets.current != nullptr);
+        assert(local.outer_offsets.current ==
+            local.outer_offsets.start + local.line_count - local.hole_count);
+
+        // Append final line_count to outer_offsets.
+        *local.outer_offsets.current++ = local.line_count;
+    }
+    else {
+        assert(local.outer_offsets.start == nullptr && local.outer_offsets.current == nullptr);
+    }
+
+    if (local.total_point_count == 0) {
+        if (_output_chunked) {
+            typename Derived::Lock lock(static_cast<Derived&>(*this));
+            for (auto& list : return_lists)
+                list[local.chunk] = py::none();
+        }
+    }
+    else if (_filled)
         export_filled(local, return_lists);
     else
         export_lines(local, return_lists);
