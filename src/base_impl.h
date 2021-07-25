@@ -276,14 +276,15 @@ void BaseContourGenerator<Derived>::export_filled(
 {
     assert(local.total_point_count > 0);
 
-    typename Derived::Lock lock(static_cast<Derived&>(*this));
-
     switch (_fill_type)
     {
         case FillType::OuterCodes:
         case FillType::OuterOffsets: {
             assert(!_direct_points && !_direct_line_offsets);
             auto outer_count = local.line_count - local.hole_count;
+
+            typename Derived::Lock lock(static_cast<Derived&>(*this));
+
             for (decltype(outer_count) i = 0; i < outer_count; ++i) {
                 auto outer_start = local.outer_offsets.start[i];
                 auto outer_end = local.outer_offsets.start[i+1];
@@ -307,8 +308,11 @@ void BaseContourGenerator<Derived>::export_filled(
             break;
         }
         case FillType::ChunkCombinedCodes:
-        case FillType::ChunkCombinedCodesOffsets:
+        case FillType::ChunkCombinedCodesOffsets: {
             assert(_direct_points && !_direct_line_offsets);
+
+            typename Derived::Lock lock(static_cast<Derived&>(*this));
+
             // return_lists[0][local_chunk] already contains combined points.
             return_lists[1][local.chunk] = Converter::convert_codes(
                 local.total_point_count, local.line_count + 1, local.line_offsets.start);
@@ -319,6 +323,7 @@ void BaseContourGenerator<Derived>::export_filled(
                         local.line_count - local.hole_count + 1, local.outer_offsets.start,
                         local.line_offsets.start);
             break;
+        }
         case FillType::ChunkCombinedOffsets:
         case FillType::ChunkCombinedOffsets2:
             assert(_direct_points && _direct_line_offsets);
@@ -339,13 +344,14 @@ void BaseContourGenerator<Derived>::export_lines(
 {
     assert(local.total_point_count > 0);
 
-    typename Derived::Lock lock(static_cast<Derived&>(*this));
-
     switch (_line_type)
     {
         case LineType::Separate:
-        case LineType::SeparateCodes:
+        case LineType::SeparateCodes: {
             assert(!_direct_points && !_direct_line_offsets);
+
+            typename Derived::Lock lock(static_cast<Derived&>(*this));
+
             for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
                 auto point_start = local.line_offsets.start[i];
                 auto point_end = local.line_offsets.start[i+1];
@@ -362,8 +368,12 @@ void BaseContourGenerator<Derived>::export_lines(
                 }
             }
             break;
+        }
         case LineType::ChunkCombinedCodes: {
             assert(_direct_points && !_direct_line_offsets);
+
+            typename Derived::Lock lock(static_cast<Derived&>(*this));
+
             // return_lists[0][local.chunk] already contains points.
             return_lists[1][local.chunk] = Converter::convert_codes_check_closed(
                 local.total_point_count, local.line_count + 1, local.line_offsets.start,
