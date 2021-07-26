@@ -11,6 +11,8 @@ void Converter::check_max_offset(count_t max_offset)
 CodeArray Converter::convert_codes(
     count_t point_count, count_t cut_count, const offset_t* cut_start, offset_t subtract)
 {
+    assert(point_count > 0 && cut_count > 0);
+
     index_t codes_shape = static_cast<index_t>(point_count);
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
@@ -27,6 +29,8 @@ CodeArray Converter::convert_codes(
 CodeArray Converter::convert_codes_check_closed(
     count_t point_count, count_t cut_count, const offset_t* cut_start, const double* check_closed)
 {
+    assert(point_count > 0 && cut_count > 0);
+
     index_t codes_shape = static_cast<index_t>(point_count);
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
@@ -47,6 +51,8 @@ CodeArray Converter::convert_codes_check_closed(
 
 CodeArray Converter::convert_codes_check_closed_single(count_t point_count, const double* points)
 {
+    assert(point_count > 0);
+
     index_t codes_shape = static_cast<index_t>(point_count);
     CodeArray py_codes(codes_shape);
     auto py_ptr = py_codes.mutable_data();
@@ -69,6 +75,8 @@ CodeArray Converter::convert_codes_check_closed_single(count_t point_count, cons
 OffsetArray Converter::convert_offsets(
     count_t offset_count, const offset_t* start, offset_t subtract)
 {
+    assert(offset_count > 0);
+
     check_max_offset(*(start + offset_count - 1) - subtract);
 
     index_t offsets_shape = static_cast<index_t>(offset_count);
@@ -84,22 +92,10 @@ OffsetArray Converter::convert_offsets(
     return py_offsets;
 }
 
-OffsetArray Converter::convert_offsets_nested(
-    count_t offset_count, const offset_t* start, const offset_t* nested_start)
-{
-    check_max_offset(*(nested_start + *(start + offset_count - 1)));
-
-    index_t offsets_shape = static_cast<index_t>(offset_count);
-    OffsetArray py_offsets(offsets_shape);
-    auto py_ptr = py_offsets.mutable_data();
-    for (decltype(offset_count) i = 0; i < offset_count; ++i)
-        *py_ptr++ = nested_start[start[i]];
-
-    return py_offsets;
-}
-
 PointArray Converter::convert_points(count_t point_count, const double* start)
 {
+    assert(point_count > 0);
+
     index_t points_shape[2] = {static_cast<index_t>(point_count), 2};
     PointArray py_points(points_shape);
     std::copy(start, start + 2*point_count, py_points.mutable_data());
