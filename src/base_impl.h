@@ -116,6 +116,7 @@ BaseContourGenerator<Derived>::BaseContourGenerator(
       _direct_points(false),
       _direct_line_offsets(false),
       _direct_outer_offsets(false),
+      _outer_offsets_into_points(false),
       _return_list_count(0)
 {
     if (_x.ndim() != 2 || _y.ndim() != 2 || _z.ndim() != 2)
@@ -206,7 +207,10 @@ void BaseContourGenerator<Derived>::closed_line(
         if (outer_or_hole == Outer && _identify_holes) {
             assert(local.outer_offsets.current ==
                 local.outer_offsets.start + local.line_count - local.hole_count);
-            *local.outer_offsets.current++ = local.line_count;
+            if (_outer_offsets_into_points)
+                *local.outer_offsets.current++ = local.total_point_count;
+            else
+                *local.outer_offsets.current++ = local.line_count;
         }
     }
 
@@ -314,14 +318,10 @@ void BaseContourGenerator<Derived>::export_filled(
             typename Derived::Lock lock(static_cast<Derived&>(*this));
 
             // return_lists[0][local_chunk] already contains combined points.
+            // If ChunkCombinedCodesOffsets. return_lists[2][local.chunk] already contains outer
+            //    offsets.
             return_lists[1][local.chunk] = Converter::convert_codes(
                 local.total_point_count, local.line_count + 1, local.line_offsets.start);
-
-            if (_fill_type == FillType::ChunkCombinedCodesOffsets)
-                return_lists[2][local.chunk] =
-                    Converter::convert_offsets_nested(
-                        local.line_count - local.hole_count + 1, local.outer_offsets.start,
-                        local.line_offsets.start);
             break;
         }
         case FillType::ChunkCombinedOffsets:
@@ -406,7 +406,9 @@ py::sequence BaseContourGenerator<Derived>::filled(
     _direct_points = _output_chunked;
     _direct_line_offsets = (_fill_type == FillType::ChunkCombinedOffsets ||
                             _fill_type == FillType::ChunkCombinedOffsets2);
-    _direct_outer_offsets = (_fill_type == FillType::ChunkCombinedOffsets2);
+    _direct_outer_offsets = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
+                             _fill_type == FillType::ChunkCombinedOffsets2);
+    _outer_offsets_into_points = (_fill_type == FillType::ChunkCombinedCodesOffsets);
     _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
                           _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
 
@@ -1417,6 +1419,7 @@ py::sequence BaseContourGenerator<Derived>::lines(const double& level)
     _direct_points = _output_chunked;
     _direct_line_offsets = (_line_type == LineType::ChunkCombinedOffsets);
     _direct_outer_offsets = false;
+    _outer_offsets_into_points = false;
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
 
     return static_cast<Derived*>(this)->march_wrapper();
@@ -1619,8 +1622,11 @@ void BaseContourGenerator<Derived>::march_chunk(
         assert(local.outer_offsets.current ==
             local.outer_offsets.start + local.line_count - local.hole_count);
 
-        // Append final line_count to outer_offsets.
-        *local.outer_offsets.current++ = local.line_count;
+        // Append final total_point_count or line_count to outer_offsets.
+        if (_outer_offsets_into_points)
+            *local.outer_offsets.current++ = local.total_point_count;
+        else
+            *local.outer_offsets.current++ = local.line_count;
     }
     else {
         assert(local.outer_offsets.start == nullptr && local.outer_offsets.current == nullptr);

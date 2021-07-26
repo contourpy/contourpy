@@ -16,10 +16,7 @@ public:
     static CodeArray convert_codes_check_closed_single(count_t point_count, const double* points);
 
     static OffsetArray convert_offsets(
-        count_t offset_count, const offset_t* start, offset_t subtract = 0);
-
-    static OffsetArray convert_offsets_nested(
-        count_t offset_count, const offset_t* start, const offset_t* nested_start);
+        count_t offset_count, const offset_t* start, offset_t subtract);
 
     static PointArray convert_points(count_t point_count, const double* start);
 

@@ -174,6 +174,7 @@ private:
     bool _direct_points;              // Whether points array is written direct to Python.
     bool _direct_line_offsets;        // Whether line offsets array is written direct to Python.
     bool _direct_outer_offsets;       // Whether outer offsets array is written direct to Python.
+    bool _outer_offsets_into_points;  // Otherwise into line offsets.  Only used if _identify_holes.
     unsigned int _return_list_count;
 };
 
