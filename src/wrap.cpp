@@ -10,6 +10,9 @@
 PYBIND11_MODULE(_contourpy, m) {
     m.doc() = "doc notes";
 
+    m.attr("BUILD_DEBUG") = BUILD_DEBUG;
+    m.attr("BUILD_CXX11") = BUILD_CXX11;
+
     py::enum_<FillType>(m, "FillType")
         .value("OuterCodes", FillType::OuterCodes)
         .value("OuterOffsets", FillType::OuterOffsets)
