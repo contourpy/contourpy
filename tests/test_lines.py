@@ -1,5 +1,5 @@
 from contourpy import contour_generator, LineType
-from contourpy.util.data import random_uniform
+from contourpy.util.data import gaussians, random
 from contourpy.util.mpl_renderer import MplTestRenderer
 from image_comparison import compare_images
 import numpy as np
@@ -89,8 +89,149 @@ def test_loop(xy_3x3, name):
 
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
-def test_lines_random_uniform_no_corner_mask(name, line_type):
-    x, y, z = random_uniform((30, 40), mask_fraction=0.05)
+def test_lines_gaussians(name, line_type):
+    x, y, z = gaussians((30, 40))
+    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.line_type == line_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "lines_gaussians.png", f"{name}_{line_type}")
+
+
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
+def test_lines_gaussians_chunk(name, line_type):
+    x, y, z = gaussians((30, 40))
+    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, chunk_size=2)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.line_type == line_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "lines_gaussians_chunk.png", f"{name}_{line_type}")
+
+
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
+def test_lines_gaussians_no_corner_mask(name, line_type):
+    x, y, z = gaussians((30, 40), want_mask=True)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=False)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.line_type == line_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "lines_gaussians_no_corner_mask.png", f"{name}_{line_type}")
+
+
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
+def test_lines_gaussians_no_corner_mask_chunk(name, line_type):
+    x, y, z = gaussians((30, 40), want_mask=True)
+    cont_gen = contour_generator(
+        x, y, z, name=name, line_type=line_type, corner_mask=False, chunk_size=2)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.line_type == line_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "lines_gaussians_no_corner_mask_chunk.png", f"{name}_{line_type}")
+
+
+@pytest.mark.parametrize("name", util_test.corner_mask_names())
+def test_lines_gaussians_corner_mask(name):
+    x, y, z = gaussians((30, 40), want_mask=True)
+    line_type = LineType.SeparateCodes
+    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=True)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.line_type == line_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "lines_gaussians_corner_mask.png", f"{name}_{line_type}")
+
+
+@pytest.mark.parametrize("name", util_test.corner_mask_names())
+def test_lines_gaussians_corner_mask_chunk(name):
+    x, y, z = gaussians((30, 40), want_mask=True)
+    line_type = LineType.SeparateCodes
+    cont_gen = contour_generator(
+        x, y, z, name=name, line_type=line_type, corner_mask=True, chunk_size=2)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.line_type == line_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "lines_gaussians_corner_mask_chunk.png", f"{name}_{line_type}")
+
+
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
+def test_lines_random(name, line_type):
+    x, y, z = random((30, 40), mask_fraction=0.0)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type)
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    assert cont_gen.line_type == line_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "lines_random.png", f"{name}_{line_type}", max_threshold=103)
+
+
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
+def test_lines_random_chunk(name, line_type):
+    x, y, z = random((30, 40), mask_fraction=0.0)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, chunk_size=2)
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    assert cont_gen.line_type == line_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    max_threshold = None
+    mean_threshold = None
+    if name == 'mpl2005':
+        max_threshold = 126
+        mean_threshold = 0.11
+
+    compare_images(
+        image_buffer, "lines_random_chunk.png", f"{name}_{line_type}",
+        max_threshold=max_threshold, mean_threshold=mean_threshold,
+    )
+
+
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
+def test_lines_random_no_corner_mask(name, line_type):
+    x, y, z = random((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=False)
     levels = np.arange(0.0, 1.01, 0.2)
 
@@ -101,19 +242,15 @@ def test_lines_random_uniform_no_corner_mask(name, line_type):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(
-        image_buffer,
-        "lines_random_uniform_no_corner_mask.png",
-        f"{name}_{line_type}",
-    )
+    compare_images(image_buffer, "lines_random_no_corner_mask.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
-def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
+def test_lines_random_no_corner_mask_chunk(name, line_type):
     if name in ("mpl2005"):
         pytest.skip()  # mpl2005 does not support chunks for lines.
 
-    x, y, z = random_uniform((30, 40), mask_fraction=0.05)
+    x, y, z = random((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=line_type, corner_mask=False, chunk_size=2)
     levels = np.arange(0.0, 1.01, 0.2)
@@ -123,16 +260,12 @@ def test_lines_random_uniform_no_corner_mask_chunk(name, line_type):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(
-        image_buffer,
-        "lines_random_uniform_no_corner_mask_chunk.png",
-        f"{name}_{line_type}",
-    )
+    compare_images(image_buffer, "lines_random_no_corner_mask_chunk.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
-def test_lines_random_uniform_corner_mask(name):
-    x, y, z = random_uniform((30, 40), mask_fraction=0.05)
+def test_lines_random_corner_mask(name):
+    x, y, z = random((30, 40), mask_fraction=0.05)
     line_type = LineType.SeparateCodes
     cont_gen = contour_generator(x, y, z, name=name, corner_mask=True, line_type=line_type)
     levels = np.arange(0.0, 1.01, 0.2)
@@ -142,16 +275,12 @@ def test_lines_random_uniform_corner_mask(name):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(
-        image_buffer,
-        "lines_random_uniform_corner_mask.png",
-        f"{name}_{line_type}",
-    )
+    compare_images(image_buffer, "lines_random_corner_mask.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
-def test_lines_random_uniform_corner_mask_chunk(name):
-    x, y, z = random_uniform((30, 40), mask_fraction=0.05)
+def test_lines_random_corner_mask_chunk(name):
+    x, y, z = random((30, 40), mask_fraction=0.05)
     line_type = LineType.SeparateCodes
     cont_gen = contour_generator(x, y, z, name=name, corner_mask=True, line_type=line_type)
     levels = np.arange(0.0, 1.01, 0.2)
@@ -161,11 +290,7 @@ def test_lines_random_uniform_corner_mask_chunk(name):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(
-        image_buffer,
-        "lines_random_uniform_corner_mask_chunk.png",
-        f"{name}_{line_type}",
-    )
+    compare_images(image_buffer, "lines_random_corner_mask_chunk.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("line_type", LineType.__members__.values())

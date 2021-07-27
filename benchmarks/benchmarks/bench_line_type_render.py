@@ -1,5 +1,5 @@
 from contourpy import contour_generator
-from contourpy.util.data import random_uniform
+from contourpy.util.data import random
 from contourpy.util.mpl_renderer import MplTestRenderer
 import numpy as np
 from .util_bench import corner_masks, line_types, problem_sizes
@@ -10,7 +10,7 @@ class BenchLineTypeRender:
     param_names = ["corner_mask", "line_type", "n"]
 
     def setup(self, corner_mask, line_type, n):
-        self.x, self.y, self.z = random_uniform((n, n), mask_fraction=0.05)
+        self.x, self.y, self.z = random((n, n), mask_fraction=0.05)
         if corner_mask == "no mask":
             self.z = np.ma.getdata(self.z)
         self.levels = np.arange(0.0, 1.01, 0.1)
