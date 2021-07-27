@@ -1,5 +1,5 @@
 from contourpy import contour_generator, FillType
-from contourpy.util.data import random_uniform
+from contourpy.util.data import random
 import numpy as np
 from .util_bench import corner_masks
 
@@ -9,7 +9,7 @@ class BenchFilledChunk:
     param_names = ["corner_mask", "n", "chunk_count"]
 
     def setup(self, corner_mask, n, chunk_count):
-        self.x, self.y, self.z = random_uniform((n, n), mask_fraction=0.05)
+        self.x, self.y, self.z = random((n, n), mask_fraction=0.05)
         if corner_mask == "no mask":
             self.z = np.ma.getdata(self.z)
         self.levels = np.arange(0.0, 1.01, 0.1)
