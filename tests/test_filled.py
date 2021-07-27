@@ -1,5 +1,5 @@
 from contourpy import contour_generator, FillType
-from contourpy.util.data import random
+from contourpy.util.data import gaussians, random
 from contourpy.util.mpl_renderer import MplTestRenderer
 from image_comparison import compare_images
 import numpy as np
@@ -15,6 +15,113 @@ def two_outers_one_hole():
                   [1.5, 2.8, 0.4, 0.8],
                   [0.0, 0.0, 0.8, 1.9]])
     return x, y, z
+
+
+@pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
+def test_filled_gaussians(name, fill_type):
+    x, y, z = gaussians((30, 40))
+    cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.fill_type == fill_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "filled_gaussians.png", f"{name}_{fill_type}")
+
+
+@pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
+def test_filled_gaussians_chunk(name, fill_type):
+    x, y, z = gaussians((30, 40))
+    cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, chunk_size=2)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.fill_type == fill_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(
+        image_buffer, "filled_gaussians_chunk.png", f"{name}_{fill_type}", mean_threshold=0.12)
+
+
+@pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
+def test_filled_gaussians_no_corner_mask(name, fill_type):
+    x, y, z = gaussians((30, 40), want_mask=True)
+    cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, corner_mask=False)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.fill_type == fill_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "filled_gaussians_no_corner_mask.png", f"{name}_{fill_type}")
+
+
+@pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
+def test_filled_gaussians_no_corner_mask_chunk(name, fill_type):
+    x, y, z = gaussians((30, 40), want_mask=True)
+    cont_gen = contour_generator(
+        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.fill_type == fill_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(
+        image_buffer, "filled_gaussians_no_corner_mask_chunk.png", f"{name}_{fill_type}",
+        mean_threshold=0.11,
+    )
+
+
+@pytest.mark.parametrize("name", util_test.corner_mask_names())
+def test_filled_gaussians_corner_mask(name):
+    x, y, z = gaussians((30, 40), want_mask=True)
+    fill_type = FillType.OuterCodes
+    cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, corner_mask=True)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.fill_type == fill_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "filled_gaussians_corner_mask.png", f"{name}_{fill_type}")
+
+
+@pytest.mark.parametrize("name", util_test.corner_mask_names())
+def test_filled_gaussians_corner_mask_chunk(name):
+    x, y, z = gaussians((30, 40), want_mask=True)
+    fill_type = FillType.OuterCodes
+    cont_gen = contour_generator(
+        x, y, z, name=name, fill_type=fill_type, corner_mask=True, chunk_size=2)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.fill_type == fill_type
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(
+        image_buffer, "filled_gaussians_corner_mask_chunk.png", f"{name}_{fill_type}",
+        mean_threshold=0.10,
+    )
 
 
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
@@ -56,7 +163,7 @@ def test_filled_random_chunk(name, fill_type):
             max_threshold = 99
             mean_threshold = 0.14
         else:
-            max_threshold = 134
+            max_threshold = 135
             mean_threshold = 0.19
 
     compare_images(
