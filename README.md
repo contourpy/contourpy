@@ -18,6 +18,10 @@ To build and install in developer's mode
 
     pip install -ve .
 
+To build in debug mode, which enables `assert`s in C++ code
+
+    BUILD_DEBUG=1 pip install -ve .
+
 To run tests
 
     pip install -r requirements/test.txt
