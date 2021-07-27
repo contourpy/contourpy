@@ -4,14 +4,20 @@ on: [push, pull_request]
 
 jobs:
   test:
-    name: Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    name: Test ${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.debug == 1 && 'debug' || '' }}
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        python-version: ["3.7", "3.8", "3.9"]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: [3.7, 3.8, 3.9]
+        debug: [0]
+        include:
+          # Add debug build and test to matrix.
+          - os: ubuntu-latest
+            python-version: 3.9
+            debug: 1
 
     steps:
       - name: Checkout source
@@ -31,11 +37,17 @@ jobs:
           python -m pip list
 
       - name: Install
+        if: matrix.debug == 0
         run: |
           python -m pip install --no-deps -ve .
 
+      - name: Install debug
+        if: matrix.debug == 1
+        run: |
+          BUILD_DEBUG=1 BUILD_CXX11=1 python -m pip install --no-deps -ve .
+
       - name: Install cppcheck
-        if: startsWith(runner.os, 'Linux')
+        if: runner.os == 'Linux'
         run: |
           sudo apt install -y cppcheck
 
