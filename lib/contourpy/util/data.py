@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def gaussians(shape, want_mask=False):
+def simple(shape, want_mask=False):
     ny, nx = shape
     x = np.arange(nx, dtype=np.float64)
     y = np.arange(ny, dtype=np.float64)

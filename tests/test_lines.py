@@ -1,5 +1,5 @@
 from contourpy import contour_generator, LineType
-from contourpy.util.data import gaussians, random
+from contourpy.util.data import random, simple
 from contourpy.util.mpl_renderer import MplTestRenderer
 from image_comparison import compare_images
 import numpy as np
@@ -89,8 +89,8 @@ def test_loop(xy_3x3, name):
 
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
-def test_lines_gaussians(name, line_type):
-    x, y, z = gaussians((30, 40))
+def test_lines_simple(name, line_type):
+    x, y, z = simple((30, 40))
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type)
     levels = np.arange(-1.0, 1.01, 0.1)
 
@@ -101,12 +101,12 @@ def test_lines_gaussians(name, line_type):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "lines_gaussians.png", f"{name}_{line_type}")
+    compare_images(image_buffer, "lines_simple.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
-def test_lines_gaussians_chunk(name, line_type):
-    x, y, z = gaussians((30, 40))
+def test_lines_simple_chunk(name, line_type):
+    x, y, z = simple((30, 40))
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, chunk_size=2)
     levels = np.arange(-1.0, 1.01, 0.1)
 
@@ -117,12 +117,12 @@ def test_lines_gaussians_chunk(name, line_type):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "lines_gaussians_chunk.png", f"{name}_{line_type}")
+    compare_images(image_buffer, "lines_simple_chunk.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
-def test_lines_gaussians_no_corner_mask(name, line_type):
-    x, y, z = gaussians((30, 40), want_mask=True)
+def test_lines_simple_no_corner_mask(name, line_type):
+    x, y, z = simple((30, 40), want_mask=True)
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=False)
     levels = np.arange(-1.0, 1.01, 0.1)
 
@@ -133,12 +133,12 @@ def test_lines_gaussians_no_corner_mask(name, line_type):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "lines_gaussians_no_corner_mask.png", f"{name}_{line_type}")
+    compare_images(image_buffer, "lines_simple_no_corner_mask.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
-def test_lines_gaussians_no_corner_mask_chunk(name, line_type):
-    x, y, z = gaussians((30, 40), want_mask=True)
+def test_lines_simple_no_corner_mask_chunk(name, line_type):
+    x, y, z = simple((30, 40), want_mask=True)
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=line_type, corner_mask=False, chunk_size=2)
     levels = np.arange(-1.0, 1.01, 0.1)
@@ -150,12 +150,12 @@ def test_lines_gaussians_no_corner_mask_chunk(name, line_type):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "lines_gaussians_no_corner_mask_chunk.png", f"{name}_{line_type}")
+    compare_images(image_buffer, "lines_simple_no_corner_mask_chunk.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
-def test_lines_gaussians_corner_mask(name):
-    x, y, z = gaussians((30, 40), want_mask=True)
+def test_lines_simple_corner_mask(name):
+    x, y, z = simple((30, 40), want_mask=True)
     line_type = LineType.SeparateCodes
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=True)
     levels = np.arange(-1.0, 1.01, 0.1)
@@ -167,12 +167,12 @@ def test_lines_gaussians_corner_mask(name):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "lines_gaussians_corner_mask.png", f"{name}_{line_type}")
+    compare_images(image_buffer, "lines_simple_corner_mask.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
-def test_lines_gaussians_corner_mask_chunk(name):
-    x, y, z = gaussians((30, 40), want_mask=True)
+def test_lines_simple_corner_mask_chunk(name):
+    x, y, z = simple((30, 40), want_mask=True)
     line_type = LineType.SeparateCodes
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=line_type, corner_mask=True, chunk_size=2)
@@ -185,7 +185,7 @@ def test_lines_gaussians_corner_mask_chunk(name):
         renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "lines_gaussians_corner_mask_chunk.png", f"{name}_{line_type}")
+    compare_images(image_buffer, "lines_simple_corner_mask_chunk.png", f"{name}_{line_type}")
 
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())

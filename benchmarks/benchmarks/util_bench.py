@@ -1,8 +1,16 @@
 from contourpy import FillType, LineType, max_threads
 
 
+def chunk_counts():
+    return [4, 10, 40, 100]
+
+
 def corner_masks():
     return ["no mask", False, True]
+
+
+def datasets():
+    return ["simple", "random"]
 
 
 def fill_types():
