@@ -1,24 +1,24 @@
 from contourpy import contour_generator, FillType
-from contourpy.util.data import random
-import numpy as np
-from .util_bench import corner_masks, problem_sizes, thread_counts
+from .bench_base import BenchBase
+from .util_bench import corner_masks, datasets, problem_sizes, thread_counts
 
 
-class BenchFilledThreaded:
-    params = (thread_counts(), corner_masks(), problem_sizes())
-    param_names = ["thread_count", "corner_mask", "n"]
+class BenchFilledThreaded(BenchBase):
+    params = (
+        ["threaded"], datasets(), [FillType.ChunkCombinedOffsets2], corner_masks(), problem_sizes(),
+        [40], thread_counts())
+    param_names = (
+        "name", "dataset", "fill_type", "corner_mask", "n", "chunk_count", "thread_count")
 
-    def setup(self, thread_count, corner_mask, n):
-        self.x, self.y, self.z = random((n, n), mask_fraction=0.05)
-        if corner_mask == "no mask":
-            self.z = np.ma.getdata(self.z)
-        self.levels = np.arange(0.0, 1.01, 0.1)
+    def setup(self, name, dataset, fill_type, corner_mask, n, chunk_count, thread_count):
+        self.set_xyz_and_levels(dataset, n, corner_mask != "no mask")
 
-    def time_filled_threaded(self, thread_count, corner_mask, n):
+    def time_filled_threaded(
+        self, name, dataset, fill_type, corner_mask, n, chunk_count, thread_count):
         if corner_mask == "no mask":
             corner_mask = False
         cont_gen = contour_generator(
-            self.x, self.y, self.z, name="threaded", thread_count=thread_count,
-            chunk_count=24, fill_type=FillType.ChunkCombinedOffsets2, corner_mask=corner_mask)
-        for lower, upper in zip(self.levels[:-1], self.levels[1:]):
-            cont_gen.filled(lower, upper)
+            self.x, self.y, self.z, name=name, fill_type=fill_type, corner_mask=corner_mask,
+            chunk_count=chunk_count, thread_count=thread_count)
+        for i in range(len(self.levels)-1):
+            cont_gen.filled(self.levels[i], self.levels[i+1])
