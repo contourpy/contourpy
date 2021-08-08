@@ -1,12 +1,24 @@
 import numpy as np
 import os
+import re
 from setuptools import Extension, find_packages, setup
-from pybind11.setup_helpers import (
-    build_ext, naive_recompile, ParallelCompile, Pybind11Extension)
+from pybind11.setup_helpers import build_ext, naive_recompile, ParallelCompile, Pybind11Extension
 
 
-__version__ = "0.0.1"
+def get_version():
+    version_filename = "lib/contourpy/_version.py"
+    pattern = re.compile(r'__version__\s*=\s*"(\d+\.\d+\.\d+(\.[\w\d]+)?)"')
 
+    with open(version_filename) as f:
+        for line in f:
+            match = pattern.match(line)
+            if match:
+                return match.group(1)
+
+    raise RuntimeError(f"Unable to read version from {version_filename}")
+
+
+__version__ = get_version()
 
 # Set environment variable BUILD_DEBUG=1 if you want to enable asserts in C++ code.
 build_debug = int(os.environ.get("BUILD_DEBUG", 0))
@@ -16,7 +28,9 @@ build_debug = int(os.environ.get("BUILD_DEBUG", 0))
 build_cxx11 = int(os.environ.get("BUILD_CXX11", 0))
 
 
-define_macros = []
+define_macros = [
+    ("CONTOURPY_VERSION", __version__),
+]
 undef_macros = []
 
 if build_debug:

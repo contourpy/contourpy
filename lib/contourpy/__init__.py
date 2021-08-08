@@ -4,10 +4,12 @@ from ._contourpy import (
     ThreadedContourGenerator,
 )
 from .mpl2005 import Mpl2005ContourGenerator
+from ._version import __version__
 import numpy as np
 
 
 __all__ = [
+    "__version__",
     "contour_generator",
     "max_threads",
     "FillType",
