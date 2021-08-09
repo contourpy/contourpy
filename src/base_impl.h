@@ -162,8 +162,21 @@ typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::ca
 {
     assert(quad >= 0 && quad < _n);
 
-    double zmid = 0.25*(get_point_z(quad-_nx-1) + get_point_z(quad-_nx) +
-                        get_point_z(quad-1) + get_point_z(quad));
+    double zmid;
+    switch (_interp) {
+        case Interp::Log:
+            zmid = exp(0.25*(log(get_point_z(POINT_SW)) +
+                             log(get_point_z(POINT_SE)) +
+                             log(get_point_z(POINT_NW)) +
+                             log(get_point_z(POINT_NE))));
+            break;
+        default:  // Interp::Linear
+            zmid = 0.25*(get_point_z(POINT_SW) +
+                         get_point_z(POINT_SE) +
+                         get_point_z(POINT_NW) +
+                         get_point_z(POINT_NE));
+            break;
+    }
 
     _cache[quad] &= ~MASK_SADDLE;  // Clear saddle bits.
 

@@ -82,6 +82,14 @@ class MplRenderer:
     def title(self, title, ax=0):
         self._get_ax(ax).set_title(title)
 
+    def z_values(self, x, y, z, ax=0, color="green", fmt=".1f"):
+        ax = self._get_ax(ax)
+        ny, nx = z.shape
+        for j in range(ny):
+            for i in range(nx):
+                ax.text(x[j, i], y[j, i], f"{z[j,i]:{fmt}}", ha="center", va="center",
+                        color=color, clip_on=True)
+
 
 # Test renderer without whitespace around plots and no spines/ticks displayed.
 # Uses Agg backend, so can only save to file/buffer, cannot call show().
