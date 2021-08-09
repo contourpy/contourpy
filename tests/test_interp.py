@@ -28,3 +28,22 @@ def test_interp_log(xyz_log, name):
         assert len(lines) == 1
         line_y = lines[0][:, 1]
         assert_allclose(line_y, expected_y, atol=1e-15)
+
+
+@pytest.mark.parametrize("name", ["serial", "threaded"])
+def test_interp_log_saddle(name):
+    x = y = np.asarray([-1.0, 1.0])
+    z = np.asarray([[1.0, 100.0], [100.0, 1.0]])
+    # z at middle of saddle quad is 10.0 for log interpolation.  Contour lines above z=10 should
+    # rotate clockwise around the middle, contour lines below z=10 rotate anticlockwise.
+    cont_gen = contour_generator(x, y, z, name, interp=Interp.Log, line_type=LineType.Separate)
+    for level in [1.1, 9.9, 10.1, 99.9]:
+        lines = cont_gen.lines(level)
+        assert len(lines) == 2
+        for line in lines:
+            assert line.shape == (2, 2)
+            cross_product = np.cross(line[0], line[1])
+            if level > 10.0:
+                assert cross_product < 0.0
+            else:
+                assert cross_product > 0.0
