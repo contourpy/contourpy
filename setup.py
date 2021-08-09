@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np  # Needed to compile mpl2005.c which doesn't use pybind11.
 import os
 import re
 from setuptools import Extension, find_packages, setup

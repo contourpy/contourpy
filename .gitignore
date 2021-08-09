@@ -3,6 +3,7 @@ build/
 dist/
 contourpy.egg-info/
 result_images/
+wheelhouse/
 .pytest_cache/
 *.so
 .vscode/
