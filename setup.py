@@ -72,16 +72,14 @@ _contourpy = Pybind11Extension(
 _mpl2005 = Extension(
     "contourpy._mpl2005",
     sources=["src/mpl2005.c"],
-    undef_macros=undef_macros,
     include_dirs=[np.get_include()],
     define_macros=define_macros + [
         ("PY_ARRAY_UNIQUE_SYMBOL", "CNTR_ARRAY_API"),
         ("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION"),
         ("__STDC_FORMAT_MACROS", 1),
     ],
+    undef_macros=undef_macros,
 )
-
-ext_modules = [_contourpy, _mpl2005]
 
 
 def read_requirements(filename):
@@ -90,7 +88,7 @@ def read_requirements(filename):
 
 setup(
     version=__version__,
-    ext_modules=ext_modules,
+    ext_modules=[_contourpy, _mpl2005],
     cmdclass=cmdclass,
     install_requires=read_requirements("requirements/install.txt"),
 )
