@@ -6,8 +6,9 @@ from pybind11.setup_helpers import build_ext, naive_recompile, ParallelCompile, 
 
 
 def get_version():
+    # Full compliance with PEP440 is tested in test_codebase.py
     version_filename = "lib/contourpy/_version.py"
-    pattern = re.compile(r'__version__\s*=\s*"(\d+\.\d+\.\d+(\.[\w\d]+)?)"')
+    pattern = re.compile(r'__version__\s*=\s*"([\d\w\.]+)"')
 
     with open(version_filename) as f:
         for line in f:

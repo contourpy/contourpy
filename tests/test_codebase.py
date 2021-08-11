@@ -1,6 +1,14 @@
 import contourpy
 import pytest
+import re
 from subprocess import run
+
+
+# From PEP440 appendix.
+def version_is_canonical(version):
+    return re.match(
+        r"^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?"
+        r"(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$", version) is not None
 
 
 def test_cppcheck():
@@ -26,5 +34,6 @@ def test_flake8():
 
 def test_version():
     version_python = contourpy.__version__
+    assert version_is_canonical(version_python)
     version_cxx = contourpy._contourpy.__version__
     assert version_python == version_cxx
