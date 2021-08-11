@@ -1,5 +1,4 @@
 flake8
 matplotlib
-numpy
 Pillow
 pytest

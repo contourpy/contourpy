@@ -82,14 +82,8 @@ _mpl2005 = Extension(
     undef_macros=undef_macros,
 )
 
-
-def read_requirements(filename):
-    return open(filename).read().strip().split("\n")
-
-
 setup(
     version=__version__,
     ext_modules=[_contourpy, _mpl2005],
     cmdclass=cmdclass,
-    install_requires=read_requirements("requirements/install.txt"),
 )
