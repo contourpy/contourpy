@@ -7,11 +7,15 @@
 #include "threaded.h"
 #include "util.h"
 
+#define STRINGIFY(x) #x
+#define MACRO_STRINGIFY(x) STRINGIFY(x)
+
 PYBIND11_MODULE(_contourpy, m) {
     m.doc() = "doc notes";
 
     m.attr("BUILD_DEBUG") = BUILD_DEBUG;
     m.attr("BUILD_CXX11") = BUILD_CXX11;
+    m.attr("__version__") = MACRO_STRINGIFY(CONTOURPY_VERSION);
 
     py::enum_<FillType>(m, "FillType")
         .value("OuterCodes", FillType::OuterCodes)
