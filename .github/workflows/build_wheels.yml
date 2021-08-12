@@ -2,11 +2,10 @@ name: Build binary wheels
 
 on:
   push:
-
-#    branches:
-#      - main
-#    tags:
-#      - v*
+    branches:
+      - main
+    tags:
+      - v*
 
 jobs:
   build_wheels:

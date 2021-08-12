@@ -24,11 +24,11 @@ To build in debug mode, which enables `assert`s in C++ code
 
 To run tests
 
-    pip install -r requirements/test.txt
+    pip install -ve .[test]
     pytest
 
 To build docs
 
-    pip install -r requirements/docs.txt
+    pip install -ve .[docs]
     cd docs
     make html

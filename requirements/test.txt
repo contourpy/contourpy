@@ -1,4 +1,0 @@
-flake8
-matplotlib
-Pillow
-pytest
