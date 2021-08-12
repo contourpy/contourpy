@@ -36,9 +36,16 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install contourpy (debug=${{ matrix.debug }})
+      - name: Install contourpy
+        if: matrix.debug == 0
         run: |
-          BUILD_DEBUG=${{ matrix.debug }} BUILD_CXX11=${{ matrix.debug }} python -m pip install -ve .[test]
+          python -m pip install -ve .[test]
+          python -m pip list
+
+      - name: Install contourpy (debug)
+        if: matrix.debug == 1
+        run: |
+          BUILD_DEBUG=1 BUILD_CXX11=1 python -m pip install -ve .[test]
           python -m pip list
 
       - name: Install cppcheck
