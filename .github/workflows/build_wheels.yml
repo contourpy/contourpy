@@ -2,10 +2,9 @@ name: Build binary wheels
 
 on:
   push:
-    branches:
-      - main
     tags:
       - v*
+  workflow_dispatch:
 
 jobs:
   build_wheels:
