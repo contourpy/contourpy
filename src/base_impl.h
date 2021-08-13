@@ -95,6 +95,9 @@ BaseContourGenerator<Derived>::BaseContourGenerator(
     : _x(x),
       _y(y),
       _z(z),
+      _xptr(_x.data()),
+      _yptr(_y.data()),
+      _zptr(_z.data()),
       _nx(_z.ndim() > 1 ? _z.shape(1) : 0),
       _ny(_z.ndim() > 0 ? _z.shape(0) : 0),
       _n(_nx*_ny),
@@ -1009,29 +1012,29 @@ template <typename Derived>
 void BaseContourGenerator<Derived>::get_point_xy(index_t point, double*& points) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
-    *points++ = _x.data()[point];
-    *points++ = _y.data()[point];
+    *points++ = _xptr[point];
+    *points++ = _yptr[point];
 }
 
 template <typename Derived>
 const double& BaseContourGenerator<Derived>::get_point_x(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
-    return _x.data()[point];
+    return _xptr[point];
 }
 
 template <typename Derived>
 const double& BaseContourGenerator<Derived>::get_point_y(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
-    return _y.data()[point];
+    return _yptr[point];
 }
 
 template <typename Derived>
 const double& BaseContourGenerator<Derived>::get_point_z(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
-    return _z.data()[point];
+    return _zptr[point];
 }
 
 template <typename Derived>
@@ -1170,7 +1173,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
 
     for (index_t j = jstart; j <= jend; ++j) {
         index_t quad = istart + j*_nx;
-        const double* z_ptr = _z.data() + quad;
+        const double* z_ptr = _zptr + quad;
         bool start_in_row = false;
         bool calc_S_z_level = (!ordered_chunks && j == jstart);
 
