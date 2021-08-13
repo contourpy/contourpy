@@ -152,6 +152,9 @@ protected:
 
 private:
     const CoordinateArray _x, _y, _z;
+    const double* _xptr;                   // For quick access to _x.data().
+    const double* _yptr;
+    const double* _zptr;
     const index_t _nx, _ny;                // Number of points in each direction.
     const index_t _n;                      // Total number of points (and quads).
     const index_t _x_chunk_size, _y_chunk_size;
