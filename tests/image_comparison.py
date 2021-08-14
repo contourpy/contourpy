@@ -21,18 +21,22 @@ def compare_images(test_buffer, baseline_filename, test_filename_suffix=None, ma
     mean_diff = None
 
     try:
-        test_image = np.asarray(Image.open(test_buffer).convert("RGBA"))
+        test_image = np.asarray(Image.open(test_buffer).convert("RGB"))
         test_image = test_image.astype(np.int16)
 
         full_baseline_filename = os.path.join("tests", "baseline_images", baseline_filename)
         assert os.path.isfile(full_baseline_filename)
 
-        baseline_image = np.asarray(Image.open(full_baseline_filename).convert("RGBA"))
+        baseline_image = np.asarray(Image.open(full_baseline_filename).convert("RGB"))
         baseline_image = baseline_image.astype(np.int16)
 
         diff = np.abs(test_image - baseline_image)
-        max_diff = diff[:, :, :3].max()
-        mean_diff = diff[:, :, :3].mean()
+        if np.dtype(np.intp).itemsize == 4:
+            # 32-bit Matplotlib agg backend RGB components can be 1 out compared to 64-bit due to
+            # slightly different rounding.  So ignore differences of 1 on 32-bit.
+            diff[diff == 1] = 0
+        max_diff = diff.max()
+        mean_diff = diff.mean()
 
         assert max_diff < max_threshold and mean_diff < mean_threshold
     except AssertionError:
@@ -60,9 +64,8 @@ def compare_images(test_buffer, baseline_filename, test_filename_suffix=None, ma
             difference_filename = f"{basename}-diff{extension}"
             difference_filename = os.path.join(result_directory, difference_filename)
 
-            diff *= 10
+            diff = diff.astype(np.float64)*10
             diff = np.clip(diff, 0, 255).astype(np.uint8)
-            diff[:, :, 3] = 255
             Image.fromarray(diff).save(difference_filename, format="png")
 
         raise

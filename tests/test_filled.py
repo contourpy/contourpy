@@ -161,7 +161,7 @@ def test_filled_random_chunk(name, fill_type):
     elif name in ("serial", "threaded"):
         if fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets):
             max_threshold = 99
-            mean_threshold = 0.14
+            mean_threshold = 0.142
         else:
             max_threshold = 135
             mean_threshold = 0.19
