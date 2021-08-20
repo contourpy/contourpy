@@ -57,6 +57,14 @@ protected:
     typedef uint32_t CacheItem;
     typedef CacheItem ZLevel;
 
+    // C++11 scoped enum for direction of movement from one quad to the next.
+    enum class Direction
+    {
+        Left = 1,
+        Straight = 0,
+        Right = -1
+    };
+
     struct Location
     {
         Location(index_t quad_, index_t forward_, index_t left_, bool is_upper_, bool on_boundary_)
