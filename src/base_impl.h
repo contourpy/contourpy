@@ -684,19 +684,19 @@ bool BaseContourGenerator<Derived>::follow_interior(
         ZLevel z_opposite_left = Z_LEVEL(opposite_left_point);
         ZLevel z_opposite_right = Z_LEVEL(opposite_right_point);
 
-        int turn_left = -1;  // 1 is turn left, 0 move forward, -1 turn right.
+        Direction direction = Direction::Right;
         ZLevel z_test = is_upper ? 2 : 0;
 
         if (EXISTS_QUAD(quad)) {
             if (z_opposite_left == z_test) {
                 if (z_opposite_right == z_test || SADDLE_Z_LEVEL(quad) == z_test)
-                    turn_left = 1;
+                    direction = Direction::Left;
             }
             else if (z_opposite_right == z_test)
-                turn_left = 0;
+                direction = Direction::Straight;
         }
         else if (start_corner_diagonal) {
-            turn_left = z_opposite_left == z_test ? 0 : -1;
+            direction = (z_opposite_left == z_test) ? Direction::Straight : Direction::Right;
         }
         else {
             switch (EXISTS_ANY_CORNER(quad)) {
@@ -716,14 +716,14 @@ bool BaseContourGenerator<Derived>::follow_interior(
             }
 
             if (corner_opposite_is_right)
-                turn_left = z_opposite_right == z_test ? 0 : -1;
+                direction = (z_opposite_right == z_test) ? Direction::Straight : Direction::Right;
             else
-                turn_left = z_opposite_left == z_test ? 1 : 0;
+                direction = (z_opposite_left == z_test) ? Direction::Left : Direction::Straight;
         }
 
         // Clear unwanted start locations.
         if (pass == 0 && !(quad == start_quad && forward == start_forward && left == start_left)) {
-            if (START_E(quad) && forward == -1 && left == -_nx && turn_left == -1 &&
+            if (START_E(quad) && forward == -1 && left == -_nx && direction == Direction::Right &&
                 (is_upper ? Z_NE > 0 : Z_NE < 2)) {
                 _cache[quad] &= ~MASK_START_E;  // E high if is_upper else low.
 
@@ -731,8 +731,8 @@ bool BaseContourGenerator<Derived>::follow_interior(
                     // Already counted points from here onwards.
                     break;
             }
-            else if (START_N(quad) && forward == -_nx && left == 1 && turn_left == 1 &&
-                     (is_upper ? Z_NW > 0 : Z_NW < 2)) {
+            else if (START_N(quad) && forward == -_nx && left == 1 &&
+                     direction == Direction::Left && (is_upper ? Z_NW > 0 : Z_NW < 2)) {
                 _cache[quad] &= ~MASK_START_N;  // E high if is_upper else low.
 
                 if (!_filled && quad < start_location.quad)
@@ -745,61 +745,68 @@ bool BaseContourGenerator<Derived>::follow_interior(
 
         // Determine entry edge and left and right points of next quad.
         // Do not update quad index yet.
-        if (turn_left > 0) {
-            auto temp = forward;
-            forward = left;
-            left = -temp;
-            // left_point unchanged.
-            right_point = opposite_left_point;
-        }
-        else if (turn_left < 0) {  // turn right
-            auto temp = forward;
-            forward = -left;
-            left = temp;
-            left_point = opposite_right_point;
-            // right_point unchanged.
-        }
-        else if (EXISTS_QUAD(quad)) {  // Straight on in quad.
-            // forward and left stay the same.
-            left_point = opposite_left_point;
-            right_point = opposite_right_point;
-        }
-        else if (start_corner_diagonal) {  // Straight on diagonal start corner.
-            // left point unchanged.
-            right_point = opposite_right_point;
-        }
-        else {  // Straight on in a corner reaches boundary.
-            assert(EXISTS_ANY_CORNER(quad));
-            reached_boundary = true;
-
-            if (corner_opposite_is_right) {
+        switch (direction) {
+            case Direction::Left: {
+                auto temp = forward;
+                forward = left;
+                left = -temp;
                 // left_point unchanged.
-                right_point = opposite_right_point;
+                right_point = opposite_left_point;
+                break;
             }
-            else {
-                left_point = opposite_left_point;
+            case Direction::Right: {
+                auto temp = forward;
+                forward = -left;
+                left = temp;
+                left_point = opposite_right_point;
                 // right_point unchanged.
+                break;
             }
+            case Direction::Straight: {
+                if (EXISTS_QUAD(quad)) {  // Straight on in quad.
+                    // forward and left stay the same.
+                    left_point = opposite_left_point;
+                    right_point = opposite_right_point;
+                }
+                else if (start_corner_diagonal) {  // Straight on diagonal start corner.
+                    // left point unchanged.
+                    right_point = opposite_right_point;
+                }
+                else {  // Straight on in a corner reaches boundary.
+                    assert(EXISTS_ANY_CORNER(quad));
+                    reached_boundary = true;
 
-            // Set forward and left for correct exit along boundary.
-            switch (EXISTS_ANY_CORNER(quad)) {
-                case MASK_EXISTS_NW_CORNER:
-                    forward = _nx+1;
-                    left = _nx-1;
-                    break;
-                case MASK_EXISTS_NE_CORNER:
-                    forward = -_nx+1;
-                    left = _nx+1;
-                    break;
-                case MASK_EXISTS_SW_CORNER:
-                    forward = _nx-1;
-                    left = -_nx-1;
-                    break;
-                default:
-                    assert(EXISTS_SE_CORNER(quad));
-                    forward = -_nx-1;
-                    left = -_nx+1;
-                    break;
+                    if (corner_opposite_is_right) {
+                        // left_point unchanged.
+                        right_point = opposite_right_point;
+                    }
+                    else {
+                        left_point = opposite_left_point;
+                        // right_point unchanged.
+                    }
+
+                    // Set forward and left for correct exit along boundary.
+                    switch (EXISTS_ANY_CORNER(quad)) {
+                        case MASK_EXISTS_NW_CORNER:
+                            forward = _nx+1;
+                            left = _nx-1;
+                            break;
+                        case MASK_EXISTS_NE_CORNER:
+                            forward = -_nx+1;
+                            left = _nx+1;
+                            break;
+                        case MASK_EXISTS_SW_CORNER:
+                            forward = _nx-1;
+                            left = -_nx-1;
+                            break;
+                        default:
+                            assert(EXISTS_SE_CORNER(quad));
+                            forward = -_nx-1;
+                            left = -_nx+1;
+                            break;
+                    }
+                }
+                break;
             }
         }
 
