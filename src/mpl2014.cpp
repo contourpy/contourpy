@@ -327,8 +327,7 @@ void ParentCache::set_parent(index_t quad, ContourLine& contour_line)
 
 Mpl2014ContourGenerator::Mpl2014ContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
-    const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
-    index_t x_chunk_size, index_t y_chunk_size)
+    const MaskArray& mask, bool corner_mask, index_t x_chunk_size, index_t y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
@@ -364,12 +363,6 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(
             throw std::invalid_argument(
                 "If mask is set it must be a 2D array with the same shape as z");
     }
-
-    if (!supports_line_type(line_type))
-        throw std::invalid_argument("Unsupported LineType");
-
-    if (!supports_fill_type(fill_type))
-        throw std::invalid_argument("Unsupported FillType");
 
     if (x_chunk_size < 0 || y_chunk_size < 0)
         throw std::invalid_argument("chunk_size cannot be negative");
@@ -523,16 +516,6 @@ index_t Mpl2014ContourGenerator::calc_chunk_count(
     }
     else
         return 1;
-}
-
-FillType Mpl2014ContourGenerator::default_fill_type()
-{
-    return FillType::OuterCodes;
-}
-
-LineType Mpl2014ContourGenerator::default_line_type()
-{
-    return LineType::SeparateCodes;
 }
 
 void Mpl2014ContourGenerator::edge_interp(
@@ -1037,16 +1020,6 @@ Edge Mpl2014ContourGenerator::get_exit_edge(const QuadEdge& quad_edge, Dir dir) 
             default: assert(0 && "Invalid edge"); return Edge_None;
         }
     }
-}
-
-FillType Mpl2014ContourGenerator::get_fill_type() const
-{
-    return FillType::OuterCodes;
-}
-
-LineType Mpl2014ContourGenerator::get_line_type() const
-{
-    return LineType::SeparateCodes;
 }
 
 const double& Mpl2014ContourGenerator::get_point_x(index_t point) const
@@ -1750,16 +1723,6 @@ bool Mpl2014ContourGenerator::start_line(
     append_contour_line_to_vertices_and_codes(contour_line, vertices_list, codes_list);
 
     return VISITED(quad,1);
-}
-
-bool Mpl2014ContourGenerator::supports_fill_type(FillType fill_type)
-{
-    return fill_type == FillType::OuterCodes;
-}
-
-bool Mpl2014ContourGenerator::supports_line_type(LineType line_type)
-{
-    return line_type == LineType::SeparateCodes;
 }
 
 void Mpl2014ContourGenerator::write_cache(bool grid_only) const
