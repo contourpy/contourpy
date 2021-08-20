@@ -119,12 +119,13 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, lin
     # Prepare args and kwargs for contour generator constructor.
     args = [x, y, z, mask]
     kwargs = {
-        "line_type": line_type,
-        "fill_type": fill_type,
         "x_chunk_size": x_chunk_size,
         "y_chunk_size": y_chunk_size,
     }
 
+    if name != "mpl2014":
+        kwargs["line_type"] = line_type
+        kwargs["fill_type"] = fill_type
     if cls.supports_corner_mask():
         kwargs["corner_mask"] = corner_mask
     if cls.supports_interp():

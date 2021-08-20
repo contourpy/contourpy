@@ -143,8 +143,6 @@
 #define CONTOURPY_MPL_2014_H
 
 #include "common.h"
-#include "fill_type.h"
-#include "line_type.h"
 #include <list>
 #include <iostream>
 #include <vector>
@@ -277,18 +275,16 @@ public:
     //     the y-direction is subdivided into.
     Mpl2014ContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
-        const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
-        index_t x_chunk_size, index_t y_chunk_size);
+        const MaskArray& mask, bool corner_mask, index_t x_chunk_size, index_t y_chunk_size);
 
-    // Non-copyable.
+    // Non-copyable and non-moveable.
     Mpl2014ContourGenerator(const Mpl2014ContourGenerator& other) = delete;
-    const Mpl2014ContourGenerator& operator=(const Mpl2014ContourGenerator& other) = delete;
+    Mpl2014ContourGenerator(const Mpl2014ContourGenerator&& other) = delete;
+    Mpl2014ContourGenerator& operator=(const Mpl2014ContourGenerator& other) = delete;
+    Mpl2014ContourGenerator& operator=(const Mpl2014ContourGenerator&& other) = delete;
 
     // Destructor.
     ~Mpl2014ContourGenerator();
-
-    static FillType default_fill_type();
-    static LineType default_line_type();
 
     // Create and return polygons for a filled contour between the two
     // specified levels.
@@ -299,15 +295,9 @@ public:
 
     bool get_corner_mask() const;
 
-    FillType get_fill_type() const;
-    LineType get_line_type() const;
-
     // Create and return polygons for a line (i.e. non-filled) contour at the
     // specified level.
     py::tuple lines(const double& level);
-
-    static bool supports_fill_type(FillType fill_type);
-    static bool supports_line_type(LineType line_type);
 
 private:
     // Typedef for following either a boundary of the domain or the interior;

@@ -10,6 +10,9 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
+static LineType mpl20xx_line_type = LineType::SeparateCodes;
+static FillType mpl20xx_fill_type = FillType::OuterCodes;
+
 PYBIND11_MODULE(_contourpy, m) {
     m.doc() = "doc notes";
 
@@ -46,8 +49,6 @@ PYBIND11_MODULE(_contourpy, m) {
                       const CoordinateArray&,
                       const MaskArray&,
                       bool,
-                      LineType,
-                      FillType,
                       index_t,
                       index_t>(),
              py::arg("x"),
@@ -56,8 +57,6 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("mask"),
              py::kw_only(),
              py::arg("corner_mask"),
-             py::arg("line_type"),
-             py::arg("fill_type"),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
         .def("filled", &mpl2014::Mpl2014ContourGenerator::filled)
@@ -66,21 +65,19 @@ PYBIND11_MODULE(_contourpy, m) {
         .def_property_readonly("chunk_size", &mpl2014::Mpl2014ContourGenerator::get_chunk_size)
         .def_property_readonly("corner_mask", &mpl2014::Mpl2014ContourGenerator::get_corner_mask)
         .def_property_readonly_static(
-            "default_fill_type",
-            [](py::object /* self */) {
-                return mpl2014::Mpl2014ContourGenerator::default_fill_type();
-            })
+            "default_fill_type", [](py::object /* self */) {return mpl20xx_fill_type;})
         .def_property_readonly_static(
-            "default_line_type",
-            [](py::object /* self */) {
-                return mpl2014::Mpl2014ContourGenerator::default_line_type();
-            })
-        .def_property_readonly("fill_type", &mpl2014::Mpl2014ContourGenerator::get_fill_type)
-        .def_property_readonly("line_type", &mpl2014::Mpl2014ContourGenerator::get_line_type)
+            "default_line_type", [](py::object /* self */) {return mpl20xx_line_type;})
+        .def_property_readonly(
+            "fill_type", [](py::object /* self */) {return mpl20xx_fill_type;})
+        .def_property_readonly(
+            "line_type", [](py::object /* self */) {return mpl20xx_line_type;})
         .def_static("supports_corner_mask", []() {return true;})
-        .def_static("supports_fill_type", &mpl2014::Mpl2014ContourGenerator::supports_fill_type)
+        .def_static(
+            "supports_fill_type", [](FillType fill_type) {return fill_type == mpl20xx_fill_type;})
         .def_static("supports_interp", []() {return false;})
-        .def_static("supports_line_type", &mpl2014::Mpl2014ContourGenerator::supports_line_type)
+        .def_static(
+            "supports_line_type", [](LineType line_type) {return line_type == mpl20xx_line_type;})
         .def_static("supports_threads", []() {return false;});
 
     py::class_<SerialContourGenerator>(m, "SerialContourGenerator")
