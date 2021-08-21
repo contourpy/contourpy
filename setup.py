@@ -1,7 +1,6 @@
-import numpy as np  # Needed to compile mpl2005.c which doesn't use pybind11.
 import os
 import re
-from setuptools import Extension, setup
+from setuptools import setup
 from pybind11.setup_helpers import build_ext, naive_recompile, ParallelCompile, Pybind11Extension
 
 
@@ -54,6 +53,8 @@ _contourpy = Pybind11Extension(
         "src/converter.cpp",
         "src/fill_type.cpp",
         "src/line_type.cpp",
+        "src/mpl2005_original.cpp",
+        "src/mpl2005.cpp",
         "src/mpl2014.cpp",
         "src/outer_or_hole.cpp",
         "src/serial.cpp",
@@ -70,20 +71,8 @@ _contourpy = Pybind11Extension(
     undef_macros=undef_macros,
 )
 
-_mpl2005 = Extension(
-    "contourpy._mpl2005",
-    sources=["src/mpl2005.c"],
-    include_dirs=[np.get_include()],
-    define_macros=define_macros + [
-        ("PY_ARRAY_UNIQUE_SYMBOL", "CNTR_ARRAY_API"),
-        ("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION"),
-        ("__STDC_FORMAT_MACROS", 1),
-    ],
-    undef_macros=undef_macros,
-)
-
 setup(
     version=__version__,
-    ext_modules=[_contourpy, _mpl2005],
+    ext_modules=[_contourpy],
     cmdclass=cmdclass,
 )

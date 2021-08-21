@@ -20,8 +20,9 @@ def test_cppcheck():
         pytest.skip()
 
     # Note excluding mpl2005 code.
-    cmd = ["cppcheck", "--quiet", "--enable=all", "--error-exitcode=1", "src", "-isrc/mpl2005.c",
-           "--suppress=missingIncludeSystem", "--inline-suppr"]
+    cmd = [
+        "cppcheck", "--quiet", "--enable=all", "--error-exitcode=1", "src",
+        "-isrc/mpl2005_original.cpp", "--suppress=missingIncludeSystem", "--inline-suppr"]
     proc = run(cmd, capture_output=True)
     assert proc.returncode == 0, f"cppcheck issues:\n{proc.stderr.decode('utf-8')}"
 
