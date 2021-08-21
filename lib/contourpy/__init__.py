@@ -1,9 +1,8 @@
 from .chunk import calc_chunk_sizes
 from ._contourpy import (
-    max_threads, FillType, LineType, Mpl2014ContourGenerator, SerialContourGenerator,
-    ThreadedContourGenerator, ZInterp
+    max_threads, FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
+    SerialContourGenerator, ThreadedContourGenerator, ZInterp
 )
-from .mpl2005 import Mpl2005ContourGenerator
 from ._version import __version__
 import numpy as np
 
@@ -123,7 +122,7 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, lin
         "y_chunk_size": y_chunk_size,
     }
 
-    if name != "mpl2014":
+    if name not in ("mpl2005", "mpl2014"):
         kwargs["line_type"] = line_type
         kwargs["fill_type"] = fill_type
     if cls.supports_corner_mask():

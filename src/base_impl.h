@@ -147,7 +147,7 @@ BaseContourGenerator<Derived>::BaseContourGenerator(
     if (!supports_fill_type(fill_type))
         throw std::invalid_argument("Unsupported FillType");
 
-    if (x_chunk_size < 0 || y_chunk_size < 0)  // Check inputs, not calculated.
+    if (x_chunk_size < 0 || y_chunk_size < 0)
         throw std::invalid_argument("chunk_sizes cannot be negative");
 
     init_cache_grid(mask);
