@@ -46,13 +46,13 @@ class Mpl2005ContourGenerator(Cntr):
         return fill_type == Mpl2005ContourGenerator.default_fill_type
 
     @staticmethod
-    def supports_interp():
-        return False
-
-    @staticmethod
     def supports_line_type(line_type):
         return line_type == Mpl2005ContourGenerator.default_line_type
 
     @staticmethod
     def supports_threads():
+        return False
+
+    @staticmethod
+    def supports_z_interp():
         return False

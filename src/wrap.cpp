@@ -1,11 +1,11 @@
 #include "base_impl.h"
 #include "fill_type.h"
-#include "interp.h"
 #include "line_type.h"
 #include "mpl2014.h"
 #include "serial.h"
 #include "threaded.h"
 #include "util.h"
+#include "z_interp.h"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
@@ -29,16 +29,16 @@ PYBIND11_MODULE(_contourpy, m) {
         .value("ChunkCombinedOffsets2", FillType::ChunkCombinedOffsets2)
         .export_values();
 
-    py::enum_<Interp>(m, "Interp")
-        .value("Linear", Interp::Linear)
-        .value("Log", Interp::Log)
-        .export_values();
-
     py::enum_<LineType>(m, "LineType")
         .value("Separate", LineType::Separate)
         .value("SeparateCodes", LineType::SeparateCodes)
         .value("ChunkCombinedCodes", LineType::ChunkCombinedCodes)
         .value("ChunkCombinedOffsets", LineType::ChunkCombinedOffsets)
+        .export_values();
+
+    py::enum_<ZInterp>(m, "ZInterp")
+        .value("Linear", ZInterp::Linear)
+        .value("Log", ZInterp::Log)
         .export_values();
 
     m.def("max_threads", &Util::get_max_threads, "docs");
@@ -75,10 +75,10 @@ PYBIND11_MODULE(_contourpy, m) {
         .def_static("supports_corner_mask", []() {return true;})
         .def_static(
             "supports_fill_type", [](FillType fill_type) {return fill_type == mpl20xx_fill_type;})
-        .def_static("supports_interp", []() {return false;})
         .def_static(
             "supports_line_type", [](LineType line_type) {return line_type == mpl20xx_line_type;})
-        .def_static("supports_threads", []() {return false;});
+        .def_static("supports_threads", []() {return false;})
+        .def_static("supports_z_interp", []() {return false;});
 
     py::class_<SerialContourGenerator>(m, "SerialContourGenerator")
         .def(py::init<const CoordinateArray&,
@@ -88,7 +88,7 @@ PYBIND11_MODULE(_contourpy, m) {
                       bool,
                       LineType,
                       FillType,
-                      Interp,
+                      ZInterp,
                       index_t,
                       index_t>(),
              py::arg("x"),
@@ -99,7 +99,7 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("corner_mask"),
              py::arg("line_type"),
              py::arg("fill_type"),
-             py::arg("interp"),
+             py::arg("z_interp"),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
         .def("filled", &SerialContourGenerator::filled)
@@ -122,9 +122,9 @@ PYBIND11_MODULE(_contourpy, m) {
         .def_property_readonly("line_type", &SerialContourGenerator::get_line_type)
         .def_static("supports_corner_mask", []() {return true;})
         .def_static("supports_fill_type", &SerialContourGenerator::supports_fill_type)
-        .def_static("supports_interp", []() {return true;})
         .def_static("supports_line_type", &SerialContourGenerator::supports_line_type)
-        .def_static("supports_threads", []() {return false;});
+        .def_static("supports_threads", []() {return false;})
+        .def_static("supports_z_interp", []() {return true;});
 
     py::class_<ThreadedContourGenerator>(m, "ThreadedContourGenerator")
         .def(py::init<const CoordinateArray&,
@@ -134,7 +134,7 @@ PYBIND11_MODULE(_contourpy, m) {
                       bool,
                       LineType,
                       FillType,
-                      Interp,
+                      ZInterp,
                       index_t,
                       index_t,
                       index_t>(),
@@ -146,7 +146,7 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("corner_mask"),
              py::arg("line_type"),
              py::arg("fill_type"),
-             py::arg("interp"),
+             py::arg("z_interp"),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0,
              py::arg("thread_count") = 0)
@@ -171,7 +171,7 @@ PYBIND11_MODULE(_contourpy, m) {
         .def_property_readonly("thread_count", &ThreadedContourGenerator::get_thread_count)
         .def_static("supports_corner_mask", []() {return true;})
         .def_static("supports_fill_type", &ThreadedContourGenerator::supports_fill_type)
-        .def_static("supports_interp", []() {return true;})
         .def_static("supports_line_type", &ThreadedContourGenerator::supports_line_type)
-        .def_static("supports_threads", []() {return true;});
+        .def_static("supports_threads", []() {return true;})
+        .def_static("supports_z_interp", []() {return true;});
 }

@@ -1,5 +1,5 @@
-#ifndef CONTOURPY_INTERP_H
-#define CONTOURPY_INTERP_H
+#ifndef CONTOURPY_Z_INTERP_H
+#define CONTOURPY_Z_INTERP_H
 
 #include <iosfwd>
 
@@ -7,12 +7,12 @@
 // with grid cell edges.
 
 // C++11 scoped enum, must be fully qualified to use.
-enum class Interp
+enum class ZInterp
 {
     Linear = 1,
     Log = 2
 };
 
-std::ostream &operator<<(std::ostream &os, const Interp& interp);
+std::ostream &operator<<(std::ostream &os, const ZInterp& z_interp);
 
-#endif // CONTOURPY_INTERP_H
+#endif // CONTOURPY_ZINTERP_H

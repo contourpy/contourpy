@@ -11,7 +11,7 @@ public:
     ThreadedContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
-        Interp interp, index_t x_chunk_size, index_t y_chunk_size, index_t n_threads);
+        ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size, index_t n_threads);
 
     index_t get_thread_count() const;
 

@@ -81,7 +81,7 @@ def all_line_types_str_value():
     ]
 
 
-def all_interps_str_value():
+def all_z_interps_str_value():
     return [
         ("Linear", 1),
         ("Log", 2),
