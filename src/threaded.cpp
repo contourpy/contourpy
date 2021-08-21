@@ -5,9 +5,9 @@
 
 ThreadedContourGenerator::ThreadedContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
-    const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type, Interp interp,
-    index_t x_chunk_size, index_t y_chunk_size, index_t n_threads)
-    : BaseContourGenerator(x, y, z, mask, corner_mask, line_type, fill_type, interp, x_chunk_size,
+    const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
+    ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size, index_t n_threads)
+    : BaseContourGenerator(x, y, z, mask, corner_mask, line_type, fill_type, z_interp, x_chunk_size,
                            y_chunk_size),
       _n_threads(limit_n_threads(n_threads, get_n_chunks())),
       _next_chunk(0)

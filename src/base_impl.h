@@ -90,8 +90,8 @@
 template <typename Derived>
 BaseContourGenerator<Derived>::BaseContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
-    const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type, Interp interp,
-    index_t x_chunk_size, index_t y_chunk_size)
+    const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
+    ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
@@ -109,7 +109,7 @@ BaseContourGenerator<Derived>::BaseContourGenerator(
       _corner_mask(corner_mask),
       _line_type(line_type),
       _fill_type(fill_type),
-      _interp(interp),
+      _z_interp(z_interp),
       _cache(new CacheItem[_n]),
       _filled(false),
       _lower_level(0.0),
@@ -166,14 +166,14 @@ typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::ca
     assert(quad >= 0 && quad < _n);
 
     double zmid;
-    switch (_interp) {
-        case Interp::Log:
+    switch (_z_interp) {
+        case ZInterp::Log:
             zmid = exp(0.25*(log(get_point_z(POINT_SW)) +
                              log(get_point_z(POINT_SE)) +
                              log(get_point_z(POINT_NW)) +
                              log(get_point_z(POINT_NE))));
             break;
-        default:  // Interp::Linear
+        default:  // ZInterp::Linear
             zmid = 0.25*(get_point_z(POINT_SW) +
                          get_point_z(POINT_SE) +
                          get_point_z(POINT_NW) +
@@ -1356,14 +1356,14 @@ void BaseContourGenerator<Derived>::interp(
     const double& level = is_upper ? _upper_level : _lower_level;
 
     double frac;
-    switch (_interp) {
-        case Interp::Log:
+    switch (_z_interp) {
+        case ZInterp::Log:
             // Equivalent to
             //   (log(z1) - log(level)) / (log(z1) - log(z0))
             // Same result obtained regardless of logarithm base.
             frac = log(z1/level) / log(z1/get_point_z(point0));
             break;
-        default:  // Interp::Linear
+        default:  // ZInterp::Linear
             frac = (z1 - level) / (z1 - get_point_z(point0));
             break;
     }

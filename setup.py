@@ -53,7 +53,6 @@ _contourpy = Pybind11Extension(
         "src/chunk_local.cpp",
         "src/converter.cpp",
         "src/fill_type.cpp",
-        "src/interp.cpp",
         "src/line_type.cpp",
         "src/mpl2014.cpp",
         "src/outer_or_hole.cpp",
@@ -61,6 +60,7 @@ _contourpy = Pybind11Extension(
         "src/threaded.cpp",
         "src/util.cpp",
         "src/wrap.cpp",
+        "src/z_interp.cpp",
     ],
     cxx_std=cxx_std,
     define_macros=define_macros + [

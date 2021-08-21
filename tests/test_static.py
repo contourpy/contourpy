@@ -51,9 +51,9 @@ def test_supports_fill_type(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_supports_interp(class_name):
+def test_supports_z_interp(class_name):
     cls = get_class_from_name(class_name)
-    supports = cls.supports_interp()
+    supports = cls.supports_z_interp()
     assert isinstance(supports, bool)
     expect = class_name not in ("Mpl2005ContourGenerator", "Mpl2014ContourGenerator")
     assert supports == expect

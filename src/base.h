@@ -12,9 +12,9 @@
 
 #include "chunk_local.h"
 #include "fill_type.h"
-#include "interp.h"
 #include "line_type.h"
 #include "outer_or_hole.h"
+#include "z_interp.h"
 #include <vector>
 
 template <typename Derived>
@@ -52,7 +52,7 @@ protected:
     BaseContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
-        Interp interp, index_t x_chunk_size, index_t y_chunk_size);
+        ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size);
 
     typedef uint32_t CacheItem;
     typedef CacheItem ZLevel;
@@ -171,7 +171,7 @@ private:
     const bool _corner_mask;
     const LineType _line_type;
     const FillType _fill_type;
-    const Interp _interp;
+    const ZInterp _z_interp;
 
     CacheItem* _cache;
 

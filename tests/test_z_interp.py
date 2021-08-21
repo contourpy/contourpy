@@ -1,4 +1,4 @@
-from contourpy import contour_generator, Interp, LineType
+from contourpy import contour_generator, LineType, ZInterp
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
@@ -19,9 +19,9 @@ def xyz_log():
 
 
 @pytest.mark.parametrize("name", ["serial", "threaded"])
-def test_interp_log(xyz_log, name):
+def test_z_interp_log(xyz_log, name):
     x, y, z = xyz_log
-    cont_gen = contour_generator(x, y, z, name, interp=Interp.Log, line_type=LineType.Separate)
+    cont_gen = contour_generator(x, y, z, name, z_interp=ZInterp.Log, line_type=LineType.Separate)
     for level in [0.3, 1, 3, 10, 30, 100]:
         expected_y = np.log10(level) / 2.5
         lines = cont_gen.lines(level)
@@ -31,12 +31,12 @@ def test_interp_log(xyz_log, name):
 
 
 @pytest.mark.parametrize("name", ["serial", "threaded"])
-def test_interp_log_saddle(name):
+def test_z_interp_log_saddle(name):
     x = y = np.asarray([-1.0, 1.0])
     z = np.asarray([[1.0, 100.0], [100.0, 1.0]])
     # z at middle of saddle quad is 10.0 for log interpolation.  Contour lines above z=10 should
     # rotate clockwise around the middle, contour lines below z=10 rotate anticlockwise.
-    cont_gen = contour_generator(x, y, z, name, interp=Interp.Log, line_type=LineType.Separate)
+    cont_gen = contour_generator(x, y, z, name, z_interp=ZInterp.Log, line_type=LineType.Separate)
     for level in [1.1, 9.9, 10.1, 99.9]:
         lines = cont_gen.lines(level)
         assert len(lines) == 2

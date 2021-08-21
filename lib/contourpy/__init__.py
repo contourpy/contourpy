@@ -1,7 +1,7 @@
 from .chunk import calc_chunk_sizes
 from ._contourpy import (
-    max_threads, FillType, Interp, LineType, Mpl2014ContourGenerator, SerialContourGenerator,
-    ThreadedContourGenerator,
+    max_threads, FillType, LineType, Mpl2014ContourGenerator, SerialContourGenerator,
+    ThreadedContourGenerator, ZInterp
 )
 from .mpl2005 import Mpl2005ContourGenerator
 from ._version import __version__
@@ -13,12 +13,12 @@ __all__ = [
     "contour_generator",
     "max_threads",
     "FillType",
-    "Interp",
     "LineType",
     "Mpl2005ContourGenerator",
     "Mpl2014ContourGenerator",
     "SerialContourGenerator",
     "ThreadedContourGenerator",
+    "ZInterp",
 ]
 
 
@@ -29,7 +29,7 @@ def _name_to_class(name):
 
 
 def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, line_type=None,
-                      fill_type=None, interp=Interp.Linear, thread_count=0, chunk_count=None,
+                      fill_type=None, z_interp=ZInterp.Linear, thread_count=0, chunk_count=None,
                       total_chunk_count=None):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
@@ -108,9 +108,9 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, lin
     if not cls.supports_fill_type(fill_type):
         raise ValueError(f"{name} contour generator does not support fill_type {fill_type}")
 
-    # Check arguments: interp.
-    if interp != Interp.Linear and not cls.supports_interp():
-        raise ValueError(f"{name} contour generator does not support interp {interp}")
+    # Check arguments: z_interp.
+    if z_interp != ZInterp.Linear and not cls.supports_z_interp():
+        raise ValueError(f"{name} contour generator does not support z_interp {z_interp}")
 
     # Check arguments: thread_count.
     if thread_count not in (0, 1) and not cls.supports_threads():
@@ -128,8 +128,8 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, lin
         kwargs["fill_type"] = fill_type
     if cls.supports_corner_mask():
         kwargs["corner_mask"] = corner_mask
-    if cls.supports_interp():
-        kwargs["interp"] = interp
+    if cls.supports_z_interp():
+        kwargs["z_interp"] = z_interp
     if cls.supports_threads():
         kwargs["thread_count"] = thread_count
 
