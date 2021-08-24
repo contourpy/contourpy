@@ -155,7 +155,7 @@ protected:
 
     void write_cache_quad(index_t quad) const;
 
-    ZLevel z_to_zlevel(const double& z_value);
+    ZLevel z_to_zlevel(const double& z_value) const;
 
 
 private:

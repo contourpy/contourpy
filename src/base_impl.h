@@ -52,8 +52,7 @@
 #define Z_NW                       Z_LEVEL(POINT_NW)
 #define Z_SE                       Z_LEVEL(POINT_SE)
 #define Z_SW                       Z_LEVEL(POINT_SW)
-#define SADDLE_SET(quad)           ((_cache[quad] & MASK_SADDLE) != MASK_SADDLE)
-#define SADDLE_Z_LEVEL(quad)       (SADDLE_SET(quad) ? ((_cache[quad] & MASK_SADDLE) >> 2) : calc_z_level_mid(quad))
+#define SADDLE_Z_LEVEL(quad)       ((_cache[quad] & MASK_SADDLE) >> 2)
 #define BOUNDARY_N(quad)           (_cache[quad] & MASK_BOUNDARY_N)
 #define BOUNDARY_E(quad)           (_cache[quad] & MASK_BOUNDARY_E)
 #define BOUNDARY_S(quad)           (_cache[quad-_nx] & MASK_BOUNDARY_N)
@@ -179,8 +178,6 @@ typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::ca
                          get_point_z(POINT_NE));
             break;
     }
-
-    _cache[quad] &= ~MASK_SADDLE;  // Clear saddle bits.
 
     ZLevel ret = 0;
     if (_filled && zmid > _upper_level) {
@@ -1195,7 +1192,6 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
             ZLevel z_se = (j == 0) ? 0 : (calc_S_z_level ? z_to_zlevel(*(z_ptr-_nx)) : Z_SE);
 
             _cache[quad] &= keep_mask;
-            _cache[quad] |= MASK_SADDLE;  // Saddle existance not yet determined.
 
             // Calculate and cache z-level of NE point.
             ZLevel z_ne = 0;
@@ -1210,7 +1206,31 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
 
             if (_filled) {
                 switch (EXISTS_ANY(quad)) {
-                    case MASK_EXISTS_QUAD:
+                    case MASK_EXISTS_QUAD: {
+                        auto config = (z_nw << 6) | (z_ne << 4) | (z_sw << 2) | z_se;
+                        switch (config) {
+                            case  20:  // 0110
+                            case  24:  // 0120
+                            case  36:  // 0210
+                            case  40:  // 0220
+                            case  41:  // 0221
+                            case  65:  // 1001
+                            case  66:  // 1002
+                            case 104:  // 1220
+                            case 105:  // 1221
+                            case 129:  // 2001
+                            case 130:  // 2002
+                            case 134:  // 2012
+                            case 146:  // 2102
+                            case 150:  // 2112
+                                calc_z_level_mid(quad);
+                                break;
+                        }
+
+
+
+
+
                         if (z_nw == 0 && z_se == 0 && z_ne > 0 && (z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
                             _cache[quad] |= MASK_START_N;  // N to E low.
                             start_in_row = true;
@@ -1247,6 +1267,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             start_in_row = true;
                         }
                         break;
+                    }
                     case MASK_EXISTS_NW_CORNER:
                         if (BOUNDARY_W(quad) &&
                             ((z_nw == 2 && z_sw < 2) || (z_nw == 0 && z_sw > 0) || z_nw == 1)) {
@@ -1329,7 +1350,15 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
             }
             else {  // !_filled
                 switch (EXISTS_ANY(quad)) {
-                    case MASK_EXISTS_QUAD:
+                    case MASK_EXISTS_QUAD: {
+                        auto config = (z_nw << 3) | (z_ne << 2) | (z_sw << 1) | z_se;
+                        switch (config) {
+                            case 6:  // 0110
+                            case 9:  // 1001
+                                calc_z_level_mid(quad);
+                                break;
+                        }
+
                         if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0) {
                             _cache[quad] |= MASK_START_BOUNDARY_S;
                             start_in_row = true;
@@ -1357,6 +1386,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             }
                         }
                         break;
+                    }
                     case MASK_EXISTS_NW_CORNER:
                         if (BOUNDARY_W(quad) && z_nw == 1 && z_sw == 0) {
                             _cache[quad] |= MASK_START_BOUNDARY_W;
@@ -2054,7 +2084,7 @@ void BaseContourGenerator<Derived>::write_cache_quad(index_t quad) const
 
 template <typename Derived>
 typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::z_to_zlevel(
-    const double& z_value)
+    const double& z_value) const
 {
     return (_filled && z_value > _upper_level) ? 2 : (z_value > _lower_level ? 1 : 0);
 }
