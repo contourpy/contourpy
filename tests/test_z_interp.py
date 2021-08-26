@@ -22,12 +22,27 @@ def xyz_log():
 def test_z_interp_log(xyz_log, name):
     x, y, z = xyz_log
     cont_gen = contour_generator(x, y, z, name, z_interp=ZInterp.Log, line_type=LineType.Separate)
-    for level in [0.3, 1, 3, 10, 30, 100]:
+    levels = [0.3, 1, 3, 10, 30, 100]
+    all_lines = []
+    for level in levels:
         expected_y = np.log10(level) / 2.5
         lines = cont_gen.lines(level)
         assert len(lines) == 1
         line_y = lines[0][:, 1]
         assert_allclose(line_y, expected_y, atol=1e-15)
+        all_lines.append(lines)
+    # The following should all produce the same lines:
+    #   contour_generator(...,       z , z_interp=ZInterp.Log   ).lines(      level )
+    #   contour_generator(...,   log(z), z_interp=ZInterp.Linear).lines(  log(level))
+    #   contour_generator(...,  log2(z), z_interp=ZInterp.Linear).lines( log2(level))
+    #   contour_generator(..., log10(z), z_interp=ZInterp.Linear).lines(log10(level))
+    for func in (np.log, np.log2, np.log10):
+        cont_gen = contour_generator(
+            x, y, func(z), name, z_interp=ZInterp.Linear, line_type=LineType.Separate)
+        for i, level in enumerate(levels):
+            lines = cont_gen.lines(func(level))
+            assert len(lines) == 1
+            assert_allclose(lines[0], all_lines[i][0], atol=1e-15)
 
 
 @pytest.mark.parametrize("name", ["serial", "threaded"])
