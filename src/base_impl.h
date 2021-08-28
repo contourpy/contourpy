@@ -52,8 +52,7 @@
 #define Z_NW                       Z_LEVEL(POINT_NW)
 #define Z_SE                       Z_LEVEL(POINT_SE)
 #define Z_SW                       Z_LEVEL(POINT_SW)
-#define SADDLE_SET(quad)           ((_cache[quad] & MASK_SADDLE) != MASK_SADDLE)
-#define SADDLE_Z_LEVEL(quad)       (SADDLE_SET(quad) ? ((_cache[quad] & MASK_SADDLE) >> 2) : calc_z_level_mid(quad))
+#define SADDLE_Z_LEVEL(quad)       ((_cache[quad] & MASK_SADDLE) >> 2)
 #define BOUNDARY_N(quad)           (_cache[quad] & MASK_BOUNDARY_N)
 #define BOUNDARY_E(quad)           (_cache[quad] & MASK_BOUNDARY_E)
 #define BOUNDARY_S(quad)           (_cache[quad-_nx] & MASK_BOUNDARY_N)
@@ -64,13 +63,11 @@
 #define EXISTS_SE_CORNER(quad)     (_cache[quad] & MASK_EXISTS_SE_CORNER)
 #define EXISTS_SW_CORNER(quad)     (_cache[quad] & MASK_EXISTS_SW_CORNER)
 #define EXISTS_ANY(quad)           (_cache[quad] & MASK_EXISTS_ANY)
-#define EXISTS_NONE(quad)          (EXISTS_ANY(quad) == 0)
 #define EXISTS_ANY_CORNER(quad)    (_cache[quad] & MASK_EXISTS_ANY_CORNER)
 #define EXISTS_N_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NW_CORNER | MASK_EXISTS_NE_CORNER))
 #define EXISTS_E_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NE_CORNER | MASK_EXISTS_SE_CORNER))
 #define EXISTS_S_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_SW_CORNER | MASK_EXISTS_SE_CORNER))
 #define EXISTS_W_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NW_CORNER | MASK_EXISTS_SW_CORNER))
-#define EXISTS_N_AND_E_EDGES(quad) (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NE_CORNER))
 // Note that EXISTS_NE_CORNER(quad) is equivalent to BOUNDARY_SW(quad), etc.
 #define START_N(quad)              (_cache[quad] & MASK_START_N)
 #define START_E(quad)              (_cache[quad] & MASK_START_E)
@@ -180,8 +177,6 @@ typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::ca
                          get_point_z(POINT_NE));
             break;
     }
-
-    _cache[quad] &= ~MASK_SADDLE;  // Clear saddle bits.
 
     ZLevel ret = 0;
     if (_filled && zmid > _upper_level) {
@@ -1196,7 +1191,6 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
             ZLevel z_se = (j == 0) ? 0 : (calc_S_z_level ? z_to_zlevel(*(z_ptr-_nx)) : Z_SE);
 
             _cache[quad] &= keep_mask;
-            _cache[quad] |= MASK_SADDLE;  // Saddle existance not yet determined.
 
             // Calculate and cache z-level of NE point.
             ZLevel z_ne = 0;
@@ -1209,129 +1203,557 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                 z_ne = 1;
             }
 
-            if (EXISTS_ANY(quad)) {
-                if (_filled) {
-                    if (EXISTS_N_AND_E_EDGES(quad)) {
-                        if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
-                            (EXISTS_NE_CORNER(quad) || z_sw == 0 || SADDLE_Z_LEVEL(quad) == 0)) {
-                            _cache[quad] |= MASK_START_N;  // N to E low.
-                            start_in_row = true;
-                        }
-                        else if (z_nw == 2 && z_se == 2 && z_ne < 2 &&
-                                 (EXISTS_NE_CORNER(quad) || z_sw == 2 ||
-                                  SADDLE_Z_LEVEL(quad) == 2)) {
-                            _cache[quad] |= MASK_START_N;  // N to E high.
-                            start_in_row = true;
-                        }
-
-                        if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
-                            (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
-                            _cache[quad] |= MASK_START_E;  // E to N low.
-                            start_in_row = true;
-                        }
-                        else if (z_ne == 2 && z_nw < 2 && z_se < 2 &&
-                                 (EXISTS_NE_CORNER(quad) || z_sw < 2 || SADDLE_Z_LEVEL(quad) < 2)) {
-                            _cache[quad] |= MASK_START_E;  // E to N high.
-                            start_in_row = true;
+            switch (EXISTS_ANY(quad)) {
+                case MASK_EXISTS_QUAD:
+                    if (_filled) {
+                        switch ((z_nw << 6) | (z_ne << 4) | (z_sw << 2) | z_se) {  // config
+                            case   1:  // 0001
+                            case   2:  // 0002
+                            case  17:  // 0101
+                            case  18:  // 0102
+                            case  34:  // 0202
+                            case  68:  // 1010
+                            case 102:  // 1212
+                            case 136:  // 2020
+                            case 152:  // 2120
+                            case 153:  // 2121
+                            case 168:  // 2220
+                            case 169:  // 2221
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case   4:  // 0010
+                            case   5:  // 0011
+                            case   6:  // 0012
+                            case   8:  // 0020
+                            case   9:  // 0021
+                            case  21:  // 0111
+                            case  22:  // 0112
+                            case  25:  // 0121
+                            case  38:  // 0212
+                            case  72:  // 1020
+                            case  98:  // 1202
+                            case 132:  // 2010
+                            case 145:  // 2101
+                            case 148:  // 2110
+                            case 149:  // 2111
+                            case 161:  // 2201
+                            case 162:  // 2202
+                            case 164:  // 2210
+                            case 165:  // 2211
+                            case 166:  // 2212
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  10:  // 0022
+                            case  26:  // 0122
+                            case  42:  // 0222
+                            case  64:  // 1000
+                            case 106:  // 1222
+                            case 128:  // 2000
+                            case 144:  // 2100
+                            case 160:  // 2200
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  16:  // 0100
+                            case 154:  // 2122
+                                _cache[quad] |= MASK_START_N;
+                                start_in_row = true;
+                                break;
+                            case  20:  // 0110
+                            case  24:  // 0120
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  32:  // 0200
+                            case 138:  // 2022
+                                _cache[quad] |= MASK_START_E;
+                                _cache[quad] |= MASK_START_N;
+                                start_in_row = true;
+                                break;
+                            case  33:  // 0201
+                            case  69:  // 1011
+                            case  70:  // 1012
+                            case 100:  // 1210
+                            case 101:  // 1211
+                            case 137:  // 2021
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
+                                break;
+                            case  36:  // 0210
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
+                                break;
+                            case  37:  // 0211
+                            case  73:  // 1021
+                            case  97:  // 1201
+                            case 133:  // 2011
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
+                                break;
+                            case  40:  // 0220
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) < 2) _cache[quad] |= MASK_START_E;
+                                if (SADDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  41:  // 0221
+                            case 104:  // 1220
+                            case 105:  // 1221
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) < 2) _cache[quad] |= MASK_START_E;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  65:  // 1001
+                            case  66:  // 1002
+                            case 129:  // 2001
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) > 0) _cache[quad] |= MASK_START_E;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  74:  // 1022
+                            case  96:  // 1200
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
+                                break;
+                            case  80:  // 1100
+                            case  90:  // 1122
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  81:  // 1101
+                            case  82:  // 1102
+                            case  88:  // 1120
+                            case  89:  // 1121
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  84:  // 1110
+                            case  85:  // 1111
+                            case  86:  // 1112
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case 130:  // 2002
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) > 0) _cache[quad] |= MASK_START_E;
+                                if (SADDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case 134:  // 2012
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
+                                break;
+                            case 146:  // 2102
+                            case 150:  // 2112
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
                         }
                     }
-
-                    if (BOUNDARY_S(quad) &&
-                        ((z_sw == 2 && z_se < 2) || (z_sw == 0 && z_se > 0) || z_sw == 1)) {
-                        _cache[quad] |= MASK_START_BOUNDARY_S;
-                        start_in_row = true;
-                    }
-
-                    if (BOUNDARY_W(quad) &&
-                        ((z_nw == 2 && z_sw < 2) || (z_nw == 0 && z_sw > 0) ||
-                         (z_nw == 1 && (z_sw != 1 || EXISTS_NW_CORNER(quad))))) {
-                        _cache[quad] |= MASK_START_BOUNDARY_W;
-                        start_in_row = true;
-                    }
-
-                    if (EXISTS_ANY_CORNER(quad)) {
-                        if (EXISTS_NE_CORNER(quad) &&
-                            ((z_nw == 2 && z_se < 2) || (z_nw == 0 && z_se > 0) || z_nw == 1)) {
-                            _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
-                        }
-                        else if (EXISTS_NW_CORNER(quad) &&
-                                 ((z_sw == 2 && z_ne < 2) || (z_sw == 0 && z_ne > 0))) {
-                            _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
-                        }
-                        else if (EXISTS_SE_CORNER(quad) && ((z_sw == 0 && z_se == 0 && z_ne > 0) ||
-                                                            (z_sw == 2 && z_se == 2 && z_ne < 2))) {
-                            _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
-                        }
-                        else if (EXISTS_SW_CORNER(quad) && z_nw == 1 && z_se == 1) {
-                            _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
-                        }
-                    }
-
-                    // Start following N boundary from E to W which is a hole.
-                    // Required for an internal masked region which is a hole in a filled polygon.
-                    if (BOUNDARY_N(quad) && EXISTS_N_EDGE(quad) && z_nw == 1 && z_ne == 1 &&
-                        !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1) {
-                        _cache[quad] |= MASK_START_HOLE_N;
-                        start_in_row = true;
-                    }
-                }
-                else {  // !_filled
-                    if (BOUNDARY_S(quad) && z_sw == 1 && z_se == 0) {
-                        _cache[quad] |= MASK_START_BOUNDARY_S;
-                        start_in_row = true;
-                    }
-
-                    if (BOUNDARY_W(quad) && z_nw == 1 && z_sw == 0) {
-                        _cache[quad] |= MASK_START_BOUNDARY_W;
-                        start_in_row = true;
-                    }
-
-                    if (BOUNDARY_E(quad) && z_se == 1 && z_ne == 0) {
-                        _cache[quad] |= MASK_START_BOUNDARY_E;
-                        start_in_row = true;
-                    }
-
-                    if (BOUNDARY_N(quad) && z_ne == 1 && z_nw == 0) {
-                        _cache[quad] |= MASK_START_BOUNDARY_N;
-                        start_in_row = true;
-                    }
-
-                    if (EXISTS_N_AND_E_EDGES(quad) && !BOUNDARY_N(quad) && !BOUNDARY_E(quad)) {
-                        if (z_ne == 0 && z_nw > 0 && z_se > 0 &&
-                            (EXISTS_NE_CORNER(quad) || z_sw > 0 || SADDLE_Z_LEVEL(quad) > 0)) {
-                            _cache[quad] |= MASK_START_E;  // E to N low.
-                            start_in_row = true;
-                        }
-                        else if (z_nw == 0 && z_se == 0 && z_ne > 0 &&
-                                 (EXISTS_NE_CORNER(quad) || z_sw == 0 ||
-                                  SADDLE_Z_LEVEL(quad) == 0)) {
-                            _cache[quad] |= MASK_START_N;  // N to E low.
-                            start_in_row = true;
+                    else {  // !_filled quad
+                        switch ((z_nw << 3) | (z_ne << 2) | (z_sw << 1) | z_se) {  // config
+                            case  1:  // 0001
+                            case  3:  // 0011
+                                if (BOUNDARY_E(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  2:  // 0010
+                            case 10:  // 1010
+                            case 14:  // 1110
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  4:  // 0100
+                                if (BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                else if (!BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  5:  // 0101
+                            case  7:  // 0111
+                                if (BOUNDARY_N(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  6:  // 0110
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                else if (!BOUNDARY_E(quad) && SADDLE_Z_LEVEL(quad) == 0)
+                                    _cache[quad] |= MASK_START_N;
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  8:  // 1000
+                            case 12:  // 1100
+                            case 13:  // 1101
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  9:  // 1001
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                else if (!BOUNDARY_N(quad) && SADDLE_Z_LEVEL(quad) == 1)
+                                    _cache[quad] |= MASK_START_E;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case 11:  // 1011
+                                if (BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                else if (!BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_E;
+                                start_in_row |= ANY_START(quad);
+                                break;
                         }
                     }
-
-                    if (EXISTS_ANY_CORNER(quad)) {
-                        bool corner_start = false;
-                        if (EXISTS_NW_CORNER(quad))
-                            corner_start = (z_sw == 1 && z_ne == 0);
-                        else if (EXISTS_NE_CORNER(quad))
-                            corner_start = (z_nw == 1 && z_se == 0);
-                        else if (EXISTS_SW_CORNER(quad))
-                            corner_start = (z_se == 1 && z_nw == 0);
-                        else  // EXISTS_SE_CORNER
-                            corner_start = (z_ne == 1 && z_sw == 0);
-
-                        if (corner_start) {
-                            _cache[quad] |= MASK_START_CORNER;
-                            start_in_row = true;
+                    break;
+                case MASK_EXISTS_NW_CORNER:
+                    if (_filled) {
+                        switch ((z_nw << 4) | (z_ne << 2) | z_sw) {  // config
+                            case  1:  // 001
+                            case  5:  // 011
+                            case  9:  // 021
+                            case 10:  // 022
+                            case 16:  // 100
+                            case 17:  // 101
+                            case 25:  // 121
+                            case 26:  // 122
+                            case 32:  // 200
+                            case 33:  // 201
+                            case 37:  // 211
+                            case 41:  // 221
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  2:  // 002
+                            case  6:  // 012
+                            case 18:  // 102
+                            case 24:  // 120
+                            case 36:  // 210
+                            case 40:  // 220
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case  4:  // 010
+                            case  8:  // 020
+                            case 34:  // 202
+                            case 38:  // 212
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case 20:  // 110
+                            case 22:  // 112
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case 21:  // 111
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
                         }
                     }
-                }
-            } // EXISTS_ANY(quad)
+                    else {  // !_filled NW corner.
+                        switch ((z_nw << 2) | (z_ne << 1) | z_sw) {  // config
+                            case 1:  // 001
+                            case 5:  // 101
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case 2:  // 010
+                            case 3:  // 011
+                                if (BOUNDARY_N(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 4:  // 100
+                            case 6:  // 110
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
+                                break;
+                        }
+                    }
+                    break;
+                case MASK_EXISTS_NE_CORNER:
+                    if (_filled) {
+                        switch ((z_nw << 4) | (z_ne << 2) | z_se) {  // config
+                            case  1:  // 001
+                            case  2:  // 002
+                            case  5:  // 011
+                            case  6:  // 012
+                            case 10:  // 022
+                            case 16:  // 100
+                            case 26:  // 122
+                            case 32:  // 200
+                            case 36:  // 210
+                            case 37:  // 211
+                            case 40:  // 220
+                            case 41:  // 221
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case  4:  // 010
+                            case 38:  // 212
+                                _cache[quad] |= MASK_START_N;
+                                start_in_row = true;
+                                break;
+                            case  8:  // 020
+                            case 34:  // 202
+                                _cache[quad] |= MASK_START_E;
+                                _cache[quad] |= MASK_START_N;
+                                start_in_row = true;
+                                break;
+                            case  9:  // 021
+                            case 17:  // 101
+                            case 18:  // 102
+                            case 24:  // 120
+                            case 25:  // 121
+                            case 33:  // 201
+                                _cache[quad] |= MASK_START_CORNER;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
+                                break;
+                            case 20:  // 110
+                            case 21:  // 111
+                            case 22:  // 112
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                        }
+                    }
+                    else {  // !_filled NE corner.
+                        switch ((z_nw << 2) | (z_ne << 1) | z_se) {  // config
+                            case 1:  // 001
+                                if (BOUNDARY_E(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 2:  // 010
+                                if (BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                else if (!BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case 3:  // 011
+                                if (BOUNDARY_N(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 4:  // 100
+                            case 6:  // 110
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case 5:  // 101
+                                if (BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                else if (!BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_E;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                        }
+                    }
+                    break;
+                case MASK_EXISTS_SW_CORNER:
+                    if (_filled) {
+                        switch ((z_nw << 4) | (z_sw << 2) | z_se) {  // config
+                            case  1:  // 001
+                            case  2:  // 002
+                            case 40:  // 220
+                            case 41:  // 221
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  4:  // 010
+                            case  5:  // 011
+                            case  6:  // 012
+                            case  8:  // 020
+                            case  9:  // 021
+                            case 17:  // 101
+                            case 18:  // 102
+                            case 24:  // 120
+                            case 25:  // 121
+                            case 33:  // 201
+                            case 34:  // 202
+                            case 36:  // 210
+                            case 37:  // 211
+                            case 38:  // 212
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case 10:  // 022
+                            case 16:  // 100
+                            case 26:  // 122
+                            case 32:  // 200
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 20:  // 110
+                            case 21:  // 111
+                            case 22:  // 112
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                        }
+                    }
+                    else {  // !_filled SW corner.
+                        switch ((z_nw << 2) | (z_sw << 1) | z_se) {  // config
+                            case 1:  // 001
+                            case 3:  // 011
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case 2:  // 010
+                            case 6:  // 110
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 4:  // 100
+                            case 5:  // 101
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
+                                break;
+                        }
+                    }
+                    break;
+                case MASK_EXISTS_SE_CORNER:
+                    if (_filled) {
+                        switch ((z_ne << 4) | (z_sw << 2) | z_se) {  // config
+                            case  1:  // 001
+                            case  2:  // 002
+                            case  4:  // 010
+                            case  5:  // 011
+                            case  6:  // 012
+                            case  8:  // 020
+                            case  9:  // 021
+                            case 17:  // 101
+                            case 18:  // 102
+                            case 20:  // 110
+                            case 21:  // 111
+                            case 22:  // 112
+                            case 24:  // 120
+                            case 25:  // 121
+                            case 33:  // 201
+                            case 34:  // 202
+                            case 36:  // 210
+                            case 37:  // 211
+                            case 38:  // 212
+                            case 40:  // 220
+                            case 41:  // 221
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 10:  // 022
+                            case 16:  // 100
+                            case 26:  // 122
+                            case 32:  // 200
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                        }
+                    }
+                    else {  // !_filled SE corner.
+                        switch ((z_ne << 2) | (z_sw << 1) | z_se) {  // config
+                            case 1:  // 001
+                            case 3:  // 011
+                                if (BOUNDARY_E(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 2:  // 010
+                            case 6:  // 110
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 4:  // 100
+                            case 5:  // 101
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                        }
+                    }
+                    break;
+            }
 
             z_nw = z_ne;
             z_sw = z_se;
@@ -1961,7 +2383,7 @@ void BaseContourGenerator<Derived>::write_cache_quad(index_t quad) const
 
 template <typename Derived>
 typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::z_to_zlevel(
-    const double& z_value)
+    const double& z_value) const
 {
     return (_filled && z_value > _upper_level) ? 2 : (z_value > _lower_level ? 1 : 0);
 }
