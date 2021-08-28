@@ -57,14 +57,12 @@
 #define BOUNDARY_E(quad)           (_cache[quad] & MASK_BOUNDARY_E)
 #define BOUNDARY_S(quad)           (_cache[quad-_nx] & MASK_BOUNDARY_N)
 #define BOUNDARY_W(quad)           (_cache[quad-1] & MASK_BOUNDARY_E)
-#define BOUNDARY_N_OR_E(quad)      (_cache[quad] & (MASK_BOUNDARY_N | MASK_BOUNDARY_E))
 #define EXISTS_QUAD(quad)          (_cache[quad] & MASK_EXISTS_QUAD)
 #define EXISTS_NE_CORNER(quad)     (_cache[quad] & MASK_EXISTS_NE_CORNER)
 #define EXISTS_NW_CORNER(quad)     (_cache[quad] & MASK_EXISTS_NW_CORNER)
 #define EXISTS_SE_CORNER(quad)     (_cache[quad] & MASK_EXISTS_SE_CORNER)
 #define EXISTS_SW_CORNER(quad)     (_cache[quad] & MASK_EXISTS_SW_CORNER)
 #define EXISTS_ANY(quad)           (_cache[quad] & MASK_EXISTS_ANY)
-#define EXISTS_NONE(quad)          (EXISTS_ANY(quad) == 0)
 #define EXISTS_ANY_CORNER(quad)    (_cache[quad] & MASK_EXISTS_ANY_CORNER)
 #define EXISTS_N_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NW_CORNER | MASK_EXISTS_NE_CORNER))
 #define EXISTS_E_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NE_CORNER | MASK_EXISTS_SE_CORNER))
@@ -84,18 +82,6 @@
 #define LOOK_S(quad)               (_cache[quad] & MASK_LOOK_S)
 #define NO_STARTS_IN_ROW(quad)     (_cache[quad] & MASK_NO_STARTS_IN_ROW)
 #define NO_MORE_STARTS(quad)       (_cache[quad] & MASK_NO_MORE_STARTS)
-
-// Helpers for setting START flags; also set start_in_row to true.
-#define CHECK_SET_START_BOUNDARY_N(quad)  if (BOUNDARY_N(quad)) {_cache[quad] |= MASK_START_BOUNDARY_N; start_in_row = true;}
-#define CHECK_SET_START_BOUNDARY_E(quad)  if (BOUNDARY_E(quad)) {_cache[quad] |= MASK_START_BOUNDARY_E; start_in_row = true;}
-#define CHECK_SET_START_BOUNDARY_S(quad)  if (BOUNDARY_S(quad)) {_cache[quad] |= MASK_START_BOUNDARY_S; start_in_row = true;}
-#define CHECK_SET_START_BOUNDARY_W(quad)  if (BOUNDARY_W(quad)) {_cache[quad] |= MASK_START_BOUNDARY_W; start_in_row = true;}
-#define CHECK_SET_START_E(quad)           if (!BOUNDARY_N_OR_E(quad)) {_cache[quad] |= MASK_START_E; start_in_row = true;}
-#define CHECK_SET_START_N(quad)           if (!BOUNDARY_N_OR_E(quad)) {_cache[quad] |= MASK_START_N; start_in_row = true;}
-#define SET_START_CORNER(quad)            {_cache[quad] |= MASK_START_CORNER; start_in_row = true;}
-#define SET_START_E(quad)                 {_cache[quad] |= MASK_START_E; start_in_row = true;}
-#define SET_START_N(quad)                 {_cache[quad] |= MASK_START_N; start_in_row = true;}
-#define SET_START_HOLE_N(quad)            {_cache[quad] |= MASK_START_HOLE_N; start_in_row = true;}
 
 
 template <typename Derived>
@@ -1217,9 +1203,9 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                 z_ne = 1;
             }
 
-            if (_filled) {
-                switch (EXISTS_ANY(quad)) {
-                    case MASK_EXISTS_QUAD:
+            switch (EXISTS_ANY(quad)) {
+                case MASK_EXISTS_QUAD:
+                    if (_filled) {
                         switch ((z_nw << 6) | (z_ne << 4) | (z_sw << 2) | z_se) {  // config
                             case   1:  // 0001
                             case   2:  // 0002
@@ -1233,7 +1219,10 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 153:  // 2121
                             case 168:  // 2220
                             case 169:  // 2221
-                                CHECK_SET_START_BOUNDARY_S(quad)
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
                                 break;
                             case   4:  // 0010
                             case   5:  // 0011
@@ -1255,8 +1244,9 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 164:  // 2210
                             case 165:  // 2211
                             case 166:  // 2212
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case  10:  // 0022
                             case  26:  // 0122
@@ -1266,24 +1256,29 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 128:  // 2000
                             case 144:  // 2100
                             case 160:  // 2200
-                                CHECK_SET_START_BOUNDARY_W(quad)
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
                                 break;
                             case  16:  // 0100
                             case 154:  // 2122
-                                SET_START_N(quad)  // N to E.
+                                _cache[quad] |= MASK_START_N;
+                                start_in_row = true;
                                 break;
                             case  20:  // 0110
                             case  24:  // 0120
                                 calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                if (SADDLE_Z_LEVEL(quad) == 0)
-                                    SET_START_N(quad)  // N to E.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case  32:  // 0200
                             case 138:  // 2022
-                                SET_START_E(quad)  // E to N.
-                                SET_START_N(quad)  // N to E.
+                                _cache[quad] |= MASK_START_E;
+                                _cache[quad] |= MASK_START_N;
+                                start_in_row = true;
                                 break;
                             case  33:  // 0201
                             case  69:  // 1011
@@ -1291,119 +1286,179 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 100:  // 1210
                             case 101:  // 1211
                             case 137:  // 2021
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                SET_START_E(quad)  // E to N.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
                                 break;
                             case  36:  // 0210
                                 calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                SET_START_E(quad)  // E to N.
-                                if (SADDLE_Z_LEVEL(quad) == 0)
-                                    SET_START_N(quad)  // N to E.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
                                 break;
                             case  37:  // 0211
                             case  73:  // 1021
                             case  97:  // 1201
                             case 133:  // 2011
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                SET_START_E(quad)  // E to N.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
                                 break;
                             case  40:  // 0220
                                 calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                if (SADDLE_Z_LEVEL(quad) < 2)
-                                    SET_START_E(quad)  // E to N.
-                                if (SADDLE_Z_LEVEL(quad) == 0)
-                                    SET_START_N(quad)  // N to E.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) < 2) _cache[quad] |= MASK_START_E;
+                                if (SADDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case  41:  // 0221
                             case 104:  // 1220
                             case 105:  // 1221
                                 calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                if (SADDLE_Z_LEVEL(quad) < 2)
-                                    SET_START_E(quad)  // E to N.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) < 2) _cache[quad] |= MASK_START_E;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case  65:  // 1001
                             case  66:  // 1002
                             case 129:  // 2001
                                 calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                if (SADDLE_Z_LEVEL(quad) > 0)
-                                    SET_START_E(quad)  // E to N.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) > 0) _cache[quad] |= MASK_START_E;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case  74:  // 1022
                             case  96:  // 1200
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                SET_START_E(quad)  // E to N.
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
                                 break;
                             case  80:  // 1100
                             case  90:  // 1122
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                // Start following N boundary from E to W which is a hole.
-                                // Required for an internal masked region which is a hole in a
-                                // filled polygon.
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
-                                    j % _y_chunk_size != 0 && j != _ny-1)
-                                    SET_START_HOLE_N(quad)
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case  81:  // 1101
                             case  82:  // 1102
                             case  88:  // 1120
                             case  89:  // 1121
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                // Start following N boundary from E to W which is a hole.
-                                // Required for an internal masked region which is a hole in a
-                                // filled polygon.
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
-                                    j % _y_chunk_size != 0 && j != _ny-1)
-                                    SET_START_HOLE_N(quad)
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case  84:  // 1110
                             case  85:  // 1111
                             case  86:  // 1112
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                // Start following N boundary from E to W which is a hole.
-                                // Required for an internal masked region which is a hole in a
-                                // filled polygon.
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
-                                    j % _y_chunk_size != 0 && j != _ny-1)
-                                    SET_START_HOLE_N(quad)
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case 130:  // 2002
                                 calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                if (SADDLE_Z_LEVEL(quad) > 0)
-                                    SET_START_E(quad)  // E to N.
-                                if (SADDLE_Z_LEVEL(quad) == 2)
-                                    SET_START_N(quad)  // N to E.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) > 0) _cache[quad] |= MASK_START_E;
+                                if (SADDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case 134:  // 2012
                                 calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                SET_START_E(quad)  // E to N.
-                                if (SADDLE_Z_LEVEL(quad) == 2)
-                                    SET_START_N(quad)  // N to E.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
                                 break;
                             case 146:  // 2102
                             case 150:  // 2112
                                 calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                if (SADDLE_Z_LEVEL(quad) == 2)
-                                    SET_START_N(quad)  // N to E.
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (SADDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
                                 break;
                         }
-                        break;
-                    case MASK_EXISTS_NW_CORNER:
+                    }
+                    else {  // !_filled quad
+                        switch ((z_nw << 3) | (z_ne << 2) | (z_sw << 1) | z_se) {  // config
+                            case  1:  // 0001
+                            case  3:  // 0011
+                                if (BOUNDARY_E(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  2:  // 0010
+                            case 10:  // 1010
+                            case 14:  // 1110
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  4:  // 0100
+                                if (BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                else if (!BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  5:  // 0101
+                            case  7:  // 0111
+                                if (BOUNDARY_N(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  6:  // 0110
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                else if (!BOUNDARY_E(quad) && SADDLE_Z_LEVEL(quad) == 0)
+                                    _cache[quad] |= MASK_START_N;
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case  8:  // 1000
+                            case 12:  // 1100
+                            case 13:  // 1101
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case  9:  // 1001
+                                calc_z_level_mid(quad);
+                                if (BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                else if (!BOUNDARY_N(quad) && SADDLE_Z_LEVEL(quad) == 1)
+                                    _cache[quad] |= MASK_START_E;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case 11:  // 1011
+                                if (BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                else if (!BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_E;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                        }
+                    }
+                    break;
+                case MASK_EXISTS_NW_CORNER:
+                    if (_filled) {
                         switch ((z_nw << 4) | (z_ne << 2) | z_sw) {  // config
                             case  1:  // 001
                             case  5:  // 011
@@ -1417,7 +1472,10 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 33:  // 201
                             case 37:  // 211
                             case 41:  // 221
-                                CHECK_SET_START_BOUNDARY_W(quad)
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
                                 break;
                             case  2:  // 002
                             case  6:  // 012
@@ -1425,38 +1483,59 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 24:  // 120
                             case 36:  // 210
                             case 40:  // 220
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                SET_START_CORNER(quad)
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
                                 break;
                             case  4:  // 010
                             case  8:  // 020
                             case 34:  // 202
                             case 38:  // 212
-                                SET_START_CORNER(quad)
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
                                 break;
                             case 20:  // 110
                             case 22:  // 112
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                SET_START_CORNER(quad)
-                                // Start following N boundary from E to W which is a hole.
-                                // Required for an internal masked region which is a hole in a
-                                // filled polygon.
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
-                                    j % _y_chunk_size != 0 && j != _ny-1)
-                                    SET_START_HOLE_N(quad)
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
                                 break;
                             case 21:  // 111
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                // Start following N boundary from E to W which is a hole.
-                                // Required for an internal masked region which is a hole in a
-                                // filled polygon.
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
-                                    j % _y_chunk_size != 0 && j != _ny-1)
-                                    SET_START_HOLE_N(quad)
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                start_in_row |= ANY_START(quad);
                                 break;
                         }
-                        break;
-                    case MASK_EXISTS_NE_CORNER:
+                    }
+                    else {  // !_filled NW corner.
+                        switch ((z_nw << 2) | (z_ne << 1) | z_sw) {  // config
+                            case 1:  // 001
+                            case 5:  // 101
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case 2:  // 010
+                            case 3:  // 011
+                                if (BOUNDARY_N(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 4:  // 100
+                            case 6:  // 110
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
+                                break;
+                        }
+                    }
+                    break;
+                case MASK_EXISTS_NE_CORNER:
+                    if (_filled) {
                         switch ((z_nw << 4) | (z_ne << 2) | z_se) {  // config
                             case  1:  // 001
                             case  2:  // 002
@@ -1470,16 +1549,19 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 37:  // 211
                             case 40:  // 220
                             case 41:  // 221
-                                SET_START_CORNER(quad)
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
                                 break;
                             case  4:  // 010
                             case 38:  // 212
-                                SET_START_N(quad)  // N to E.
+                                _cache[quad] |= MASK_START_N;
+                                start_in_row = true;
                                 break;
                             case  8:  // 020
                             case 34:  // 202
-                                SET_START_E(quad)  // E to N.
-                                SET_START_N(quad)  // N to E.
+                                _cache[quad] |= MASK_START_E;
+                                _cache[quad] |= MASK_START_N;
+                                start_in_row = true;
                                 break;
                             case  9:  // 021
                             case 17:  // 101
@@ -1487,29 +1569,67 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 24:  // 120
                             case 25:  // 121
                             case 33:  // 201
-                                SET_START_CORNER(quad)
-                                SET_START_E(quad)  // E to N.
+                                _cache[quad] |= MASK_START_CORNER;
+                                _cache[quad] |= MASK_START_E;
+                                start_in_row = true;
                                 break;
                             case 20:  // 110
                             case 21:  // 111
                             case 22:  // 112
-                                SET_START_CORNER(quad)
-                                // Start following N boundary from E to W which is a hole.
-                                // Required for an internal masked region which is a hole in a
-                                // filled polygon.
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
-                                    j % _y_chunk_size != 0 && j != _ny-1)
-                                    SET_START_HOLE_N(quad)
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                    _cache[quad] |= MASK_START_HOLE_N;
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
                                 break;
                         }
-                        break;
-                    case MASK_EXISTS_SW_CORNER:
+                    }
+                    else {  // !_filled NE corner.
+                        switch ((z_nw << 2) | (z_ne << 1) | z_se) {  // config
+                            case 1:  // 001
+                                if (BOUNDARY_E(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 2:  // 010
+                                if (BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                else if (!BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_N;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                            case 3:  // 011
+                                if (BOUNDARY_N(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_N;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 4:  // 100
+                            case 6:  // 110
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case 5:  // 101
+                                if (BOUNDARY_E(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                else if (!BOUNDARY_N(quad))
+                                    _cache[quad] |= MASK_START_E;
+                                start_in_row |= ANY_START(quad);
+                                break;
+                        }
+                    }
+                    break;
+                case MASK_EXISTS_SW_CORNER:
+                    if (_filled) {
                         switch ((z_nw << 4) | (z_sw << 2) | z_se) {  // config
                             case  1:  // 001
                             case  2:  // 002
                             case 40:  // 220
                             case 41:  // 221
-                                CHECK_SET_START_BOUNDARY_S(quad)
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
                                 break;
                             case  4:  // 010
                             case  5:  // 011
@@ -1525,24 +1645,54 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 36:  // 210
                             case 37:  // 211
                             case 38:  // 212
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                start_in_row |= ANY_START(quad);
                                 break;
                             case 10:  // 022
                             case 16:  // 100
                             case 26:  // 122
                             case 32:  // 200
-                                CHECK_SET_START_BOUNDARY_W(quad)
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
                                 break;
                             case 20:  // 110
                             case 21:  // 111
                             case 22:  // 112
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                SET_START_CORNER(quad)
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
                                 break;
                         }
-                        break;
-                    case MASK_EXISTS_SE_CORNER:
+                    }
+                    else {  // !_filled SW corner.
+                        switch ((z_nw << 2) | (z_sw << 1) | z_se) {  // config
+                            case 1:  // 001
+                            case 3:  // 011
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
+                            case 2:  // 010
+                            case 6:  // 110
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
+                                break;
+                            case 4:  // 100
+                            case 5:  // 101
+                                if (BOUNDARY_W(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_W;
+                                    start_in_row = true;
+                                }
+                                break;
+                        }
+                    }
+                    break;
+                case MASK_EXISTS_SE_CORNER:
+                    if (_filled) {
                         switch ((z_ne << 4) | (z_sw << 2) | z_se) {  // config
                             case  1:  // 001
                             case  2:  // 002
@@ -1565,135 +1715,44 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 38:  // 212
                             case 40:  // 220
                             case 41:  // 221
-                                CHECK_SET_START_BOUNDARY_S(quad)
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
                                 break;
                             case 10:  // 022
                             case 16:  // 100
                             case 26:  // 122
                             case 32:  // 200
-                                SET_START_CORNER(quad)
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
                                 break;
                         }
-                        break;
-                }
-            }
-            else {  // !_filled
-                switch (EXISTS_ANY(quad)) {
-                    case MASK_EXISTS_QUAD:
-                        switch ((z_nw << 3) | (z_ne << 2) | (z_sw << 1) | z_se) {  // config
-                            case  1:  // 0001
-                            case  3:  // 0011
-                                CHECK_SET_START_BOUNDARY_E(quad)
-                                break;
-                            case  2:  // 0010
-                            case 10:  // 1010
-                            case 14:  // 1110
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                break;
-                            case  4:  // 0100
-                                CHECK_SET_START_BOUNDARY_N(quad)
-                                CHECK_SET_START_N(quad)  // N to E.
-                                break;
-                            case  5:  // 0101
-                            case  7:  // 0111
-                                CHECK_SET_START_BOUNDARY_N(quad)
-                                break;
-                            case  6:  // 0110
-                                calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_N(quad)
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                if (SADDLE_Z_LEVEL(quad) == 0)
-                                    CHECK_SET_START_N(quad)  // N to E.
-                                break;
-                            case  8:  // 1000
-                            case 12:  // 1100
-                            case 13:  // 1101
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                break;
-                            case  9:  // 1001
-                                calc_z_level_mid(quad);
-                                CHECK_SET_START_BOUNDARY_E(quad)
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                if (SADDLE_Z_LEVEL(quad) == 1)
-                                    CHECK_SET_START_E(quad)  // E to N.
-                                break;
-                            case 11:  // 1011
-                                CHECK_SET_START_BOUNDARY_E(quad)
-                                CHECK_SET_START_E(quad)  // E to N.
-                                break;
-                        }
-                        break;
-                    case MASK_EXISTS_NW_CORNER:
-                        switch ((z_nw << 2) | (z_ne << 1) | z_sw) {  // config
-                            case 1:  // 001
-                            case 5:  // 101
-                                SET_START_CORNER(quad)
-                                break;
-                            case 2:  // 010
-                            case 3:  // 011
-                                CHECK_SET_START_BOUNDARY_N(quad)
-                                break;
-                            case 4:  // 100
-                            case 6:  // 110
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                break;
-                        }
-                        break;
-                    case MASK_EXISTS_NE_CORNER:
-                        switch ((z_nw << 2) | (z_ne << 1) | z_se) {  // config
-                            case 1:  // 001
-                                CHECK_SET_START_BOUNDARY_E(quad)
-                                break;
-                            case 2:  // 010
-                                CHECK_SET_START_BOUNDARY_N(quad)
-                                CHECK_SET_START_N(quad)  // N to E.
-                                break;
-                            case 3:  // 011
-                                CHECK_SET_START_BOUNDARY_N(quad)
-                                break;
-                            case 4:  // 100
-                            case 6:  // 110
-                                SET_START_CORNER(quad)
-                                break;
-                            case 5:  // 101
-                                CHECK_SET_START_BOUNDARY_E(quad)
-                                CHECK_SET_START_E(quad)  // E to N.
-                                break;
-                        }
-                        break;
-                    case MASK_EXISTS_SW_CORNER:
-                        switch ((z_nw << 2) | (z_sw << 1) | z_se) {  // config
-                            case 1:  // 001
-                            case 3:  // 011
-                                SET_START_CORNER(quad)
-                                break;
-                            case 2:  // 010
-                            case 6:  // 110
-                                CHECK_SET_START_BOUNDARY_S(quad)
-                                break;
-                            case 4:  // 100
-                            case 5:  // 101
-                                CHECK_SET_START_BOUNDARY_W(quad)
-                                break;
-                        }
-                        break;
-                    case MASK_EXISTS_SE_CORNER:
+                    }
+                    else {  // !_filled SE corner.
                         switch ((z_ne << 2) | (z_sw << 1) | z_se) {  // config
                             case 1:  // 001
                             case 3:  // 011
-                                CHECK_SET_START_BOUNDARY_E(quad)
+                                if (BOUNDARY_E(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_E;
+                                    start_in_row = true;
+                                }
                                 break;
                             case 2:  // 010
                             case 6:  // 110
-                                CHECK_SET_START_BOUNDARY_S(quad)
+                                if (BOUNDARY_S(quad)) {
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                    start_in_row = true;
+                                }
                                 break;
                             case 4:  // 100
                             case 5:  // 101
-                                SET_START_CORNER(quad)
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
                                 break;
                         }
-                        break;
-                }
+                    }
+                    break;
             }
 
             z_nw = z_ne;
