@@ -18,9 +18,9 @@
 #define MASK_Z_LEVEL_1         (0x1 <<  0)  // z > lower_level.
 #define MASK_Z_LEVEL_2         (0x1 <<  1)  // z > upper_level.
 #define MASK_Z_LEVEL           (MASK_Z_LEVEL_1 | MASK_Z_LEVEL_2)
-#define MASK_SADDLE_Z_LEVEL_1  (0x1 <<  2)  // saddle z > lower_level
-#define MASK_SADDLE_Z_LEVEL_2  (0x1 <<  3)  // saddle z > upper_level
-#define MASK_SADDLE            (MASK_SADDLE_Z_LEVEL_1 | MASK_SADDLE_Z_LEVEL_2)
+#define MASK_MIDDLE_Z_LEVEL_1  (0x1 <<  2)  // middle z > lower_level
+#define MASK_MIDDLE_Z_LEVEL_2  (0x1 <<  3)  // middle z > upper_level
+#define MASK_MIDDLE            (MASK_MIDDLE_Z_LEVEL_1 | MASK_MIDDLE_Z_LEVEL_2)
 #define MASK_BOUNDARY_N        (0x1 <<  4)  // N edge of quad is a boundary.
 #define MASK_BOUNDARY_E        (0x1 <<  5)  // E edge of quad is a boundary.
 // EXISTS_QUAD bit is always used, but the 4 EXISTS_CORNER are only used if _corner_mask is true.
@@ -52,7 +52,7 @@
 #define Z_NW                       Z_LEVEL(POINT_NW)
 #define Z_SE                       Z_LEVEL(POINT_SE)
 #define Z_SW                       Z_LEVEL(POINT_SW)
-#define SADDLE_Z_LEVEL(quad)       ((_cache[quad] & MASK_SADDLE) >> 2)
+#define MIDDLE_Z_LEVEL(quad)       ((_cache[quad] & MASK_MIDDLE) >> 2)
 #define BOUNDARY_N(quad)           (_cache[quad] & MASK_BOUNDARY_N)
 #define BOUNDARY_E(quad)           (_cache[quad] & MASK_BOUNDARY_E)
 #define BOUNDARY_S(quad)           (_cache[quad-_nx] & MASK_BOUNDARY_N)
@@ -82,13 +82,15 @@
 #define LOOK_S(quad)               (_cache[quad] & MASK_LOOK_S)
 #define NO_STARTS_IN_ROW(quad)     (_cache[quad] & MASK_NO_STARTS_IN_ROW)
 #define NO_MORE_STARTS(quad)       (_cache[quad] & MASK_NO_MORE_STARTS)
+// Contour line/fill goes to the left or right of quad middle (quad_as_tri only).
+#define LEFT_OF_MIDDLE(quad, is_upper) (MIDDLE_Z_LEVEL(quad) == (is_upper ? 2 : 0))
 
 
 template <typename Derived>
 BaseContourGenerator<Derived>::BaseContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
     const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
-    ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size)
+    bool quad_as_tri, ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size)
     : _x(x),
       _y(y),
       _z(z),
@@ -106,6 +108,7 @@ BaseContourGenerator<Derived>::BaseContourGenerator(
       _corner_mask(corner_mask),
       _line_type(line_type),
       _fill_type(fill_type),
+      _quad_as_tri(quad_as_tri),
       _z_interp(z_interp),
       _cache(new CacheItem[_n]),
       _filled(false),
@@ -157,34 +160,39 @@ BaseContourGenerator<Derived>::~BaseContourGenerator()
 }
 
 template <typename Derived>
-typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::calc_z_level_mid(
-    index_t quad)
+double BaseContourGenerator<Derived>::calc_middle_z(index_t quad) const
 {
     assert(quad >= 0 && quad < _n);
 
-    double zmid;
     switch (_z_interp) {
         case ZInterp::Log:
-            zmid = exp(0.25*(log(get_point_z(POINT_SW)) +
+            return exp(0.25*(log(get_point_z(POINT_SW)) +
                              log(get_point_z(POINT_SE)) +
                              log(get_point_z(POINT_NW)) +
                              log(get_point_z(POINT_NE))));
-            break;
         default:  // ZInterp::Linear
-            zmid = 0.25*(get_point_z(POINT_SW) +
+            return 0.25*(get_point_z(POINT_SW) +
                          get_point_z(POINT_SE) +
                          get_point_z(POINT_NW) +
                          get_point_z(POINT_NE));
-            break;
     }
+}
+
+template <typename Derived>
+typename BaseContourGenerator<Derived>::ZLevel
+    BaseContourGenerator<Derived>::calc_and_set_middle_z_level(index_t quad)
+{
+    assert(quad >= 0 && quad < _n);
+
+    double middle_z = calc_middle_z(quad);
 
     ZLevel ret = 0;
-    if (_filled && zmid > _upper_level) {
-        _cache[quad] |= MASK_SADDLE_Z_LEVEL_2;
+    if (_filled && middle_z > _upper_level) {
+        _cache[quad] |= MASK_MIDDLE_Z_LEVEL_2;
         ret = 2;
     }
-    else if (zmid > _lower_level) {
-        _cache[quad] |= MASK_SADDLE_Z_LEVEL_1;
+    else if (middle_z > _lower_level) {
+        _cache[quad] |= MASK_MIDDLE_Z_LEVEL_1;
         ret = 1;
     }
 
@@ -684,7 +692,7 @@ bool BaseContourGenerator<Derived>::follow_interior(
 
         if (EXISTS_QUAD(quad)) {
             if (z_opposite_left == z_test) {
-                if (z_opposite_right == z_test || SADDLE_Z_LEVEL(quad) == z_test)
+                if (z_opposite_right == z_test || MIDDLE_Z_LEVEL(quad) == z_test)
                     direction = Direction::Left;
             }
             else if (z_opposite_right == z_test)
@@ -733,6 +741,66 @@ bool BaseContourGenerator<Derived>::follow_interior(
                 if (!_filled && quad < start_location.quad)
                     // Already counted points from here onwards.
                     break;
+            }
+        }
+
+        // Extra quad_as_tri points.
+        if (_quad_as_tri && EXISTS_QUAD(quad)) {
+            if (pass == 0) {
+                switch (direction) {
+                    case Direction::Left:
+                        point_count += (LEFT_OF_MIDDLE(quad, is_upper) ? 1 : 3);
+                        break;
+                    case Direction::Right:
+                        point_count += (LEFT_OF_MIDDLE(quad, is_upper) ? 3 : 1);
+                        break;
+                    case Direction::Straight:
+                        point_count += 2;
+                        break;
+                }
+            }
+            else {  // pass == 1
+                auto mid_x = get_middle_x(quad);
+                auto mid_y = get_middle_y(quad);
+                auto mid_z = calc_middle_z(quad);
+
+                switch (direction) {
+                    case Direction::Left:
+                        if (LEFT_OF_MIDDLE(quad, is_upper)) {
+                            interp(left_point, mid_x, mid_y, mid_z, is_upper, points);
+                            point_count++;
+                        }
+                        else {
+                            interp(right_point, mid_x, mid_y, mid_z, is_upper, points);
+                            interp(opposite_right_point, mid_x, mid_y, mid_z, is_upper, points);
+                            interp(opposite_left_point, mid_x, mid_y, mid_z, is_upper, points);
+                            point_count += 3;
+                        }
+                        break;
+                    case Direction::Right:
+                        if (LEFT_OF_MIDDLE(quad, is_upper)) {
+                            interp(left_point, mid_x, mid_y, mid_z, is_upper, points);
+                            interp(opposite_left_point, mid_x, mid_y, mid_z, is_upper, points);
+                            interp(opposite_right_point, mid_x, mid_y, mid_z, is_upper, points);
+                            point_count += 3;
+                        }
+                        else {
+                            interp(right_point, mid_x, mid_y, mid_z, is_upper, points);
+                            point_count++;
+                        }
+                        break;
+                    case Direction::Straight:
+                        if (LEFT_OF_MIDDLE(quad, is_upper)) {
+                            interp(left_point, mid_x, mid_y, mid_z, is_upper, points);
+                            interp(opposite_left_point, mid_x, mid_y, mid_z, is_upper, points);
+                        }
+                        else {
+                            interp(right_point, mid_x, mid_y, mid_z, is_upper, points);
+                            interp(opposite_right_point, mid_x, mid_y, mid_z, is_upper, points);
+                        }
+                        point_count += 2;
+                        break;
+                }
             }
         }
 
@@ -999,9 +1067,37 @@ index_t BaseContourGenerator<Derived>::get_interior_start_left_point(
 }
 
 template <typename Derived>
+double BaseContourGenerator<Derived>::get_interp_fraction(double z0, double z1, double level) const
+{
+    switch (_z_interp) {
+        case ZInterp::Log:
+            // Equivalent to
+            //   (log(z1) - log(level)) / (log(z1) - log(z0))
+            // Same result obtained regardless of logarithm base.
+            return log(z1/level) / log(z1/z0);
+        default:  // ZInterp::Linear
+            return (z1 - level) / (z1 - z0);
+    }
+}
+
+template <typename Derived>
 LineType BaseContourGenerator<Derived>::get_line_type() const
 {
     return _line_type;
+}
+
+template <typename Derived>
+double BaseContourGenerator<Derived>::get_middle_x(index_t quad) const
+{
+    return 0.25*(get_point_x(POINT_SW) + get_point_x(POINT_SE) +
+                 get_point_x(POINT_NW) + get_point_x(POINT_NE));
+}
+
+template <typename Derived>
+double BaseContourGenerator<Derived>::get_middle_y(index_t quad) const
+{
+    return 0.25*(get_point_y(POINT_SW) + get_point_y(POINT_SE) +
+                 get_point_y(POINT_NW) + get_point_y(POINT_NE));
 }
 
 template <typename Derived>
@@ -1037,6 +1133,12 @@ const double& BaseContourGenerator<Derived>::get_point_z(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _zptr[point];
+}
+
+template <typename Derived>
+bool BaseContourGenerator<Derived>::get_quad_as_tri() const
+{
+    return _quad_as_tri;
 }
 
 template <typename Derived>
@@ -1219,6 +1321,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 153:  // 2121
                             case 168:  // 2220
                             case 169:  // 2221
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) {
                                     _cache[quad] |= MASK_START_BOUNDARY_S;
                                     start_in_row = true;
@@ -1244,6 +1347,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 164:  // 2210
                             case 165:  // 2211
                             case 166:  // 2212
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
                                 start_in_row |= ANY_START(quad);
@@ -1256,6 +1360,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 128:  // 2000
                             case 144:  // 2100
                             case 160:  // 2200
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_W(quad)) {
                                     _cache[quad] |= MASK_START_BOUNDARY_W;
                                     start_in_row = true;
@@ -1263,19 +1368,21 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                                 break;
                             case  16:  // 0100
                             case 154:  // 2122
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 _cache[quad] |= MASK_START_N;
                                 start_in_row = true;
                                 break;
                             case  20:  // 0110
                             case  24:  // 0120
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (SADDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
+                                if (MIDDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
                                 start_in_row |= ANY_START(quad);
                                 break;
                             case  32:  // 0200
                             case 138:  // 2022
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 _cache[quad] |= MASK_START_E;
                                 _cache[quad] |= MASK_START_N;
                                 start_in_row = true;
@@ -1286,15 +1393,16 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 100:  // 1210
                             case 101:  // 1211
                             case 137:  // 2021
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 _cache[quad] |= MASK_START_E;
                                 start_in_row = true;
                                 break;
                             case  36:  // 0210
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (SADDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
+                                if (MIDDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
                                 _cache[quad] |= MASK_START_E;
                                 start_in_row = true;
                                 break;
@@ -1302,45 +1410,48 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case  73:  // 1021
                             case  97:  // 1201
                             case 133:  // 2011
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
                                 _cache[quad] |= MASK_START_E;
                                 start_in_row = true;
                                 break;
                             case  40:  // 0220
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (SADDLE_Z_LEVEL(quad) < 2) _cache[quad] |= MASK_START_E;
-                                if (SADDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
+                                if (MIDDLE_Z_LEVEL(quad) < 2) _cache[quad] |= MASK_START_E;
+                                if (MIDDLE_Z_LEVEL(quad) == 0) _cache[quad] |= MASK_START_N;
                                 start_in_row |= ANY_START(quad);
                                 break;
                             case  41:  // 0221
                             case 104:  // 1220
                             case 105:  // 1221
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (SADDLE_Z_LEVEL(quad) < 2) _cache[quad] |= MASK_START_E;
+                                if (MIDDLE_Z_LEVEL(quad) < 2) _cache[quad] |= MASK_START_E;
                                 start_in_row |= ANY_START(quad);
                                 break;
                             case  65:  // 1001
                             case  66:  // 1002
                             case 129:  // 2001
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (SADDLE_Z_LEVEL(quad) > 0) _cache[quad] |= MASK_START_E;
+                                if (MIDDLE_Z_LEVEL(quad) > 0) _cache[quad] |= MASK_START_E;
                                 start_in_row |= ANY_START(quad);
                                 break;
                             case  74:  // 1022
                             case  96:  // 1200
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
                                 _cache[quad] |= MASK_START_E;
                                 start_in_row = true;
                                 break;
                             case  80:  // 1100
                             case  90:  // 1122
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
                                 if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
                                     _cache[quad] |= MASK_START_HOLE_N;
@@ -1350,6 +1461,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case  82:  // 1102
                             case  88:  // 1120
                             case  89:  // 1121
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
                                 if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
@@ -1359,33 +1471,34 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case  84:  // 1110
                             case  85:  // 1111
                             case  86:  // 1112
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
                                     _cache[quad] |= MASK_START_HOLE_N;
                                 start_in_row |= ANY_START(quad);
                                 break;
                             case 130:  // 2002
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (SADDLE_Z_LEVEL(quad) > 0) _cache[quad] |= MASK_START_E;
-                                if (SADDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
+                                if (MIDDLE_Z_LEVEL(quad) > 0) _cache[quad] |= MASK_START_E;
+                                if (MIDDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
                                 start_in_row |= ANY_START(quad);
                                 break;
                             case 134:  // 2012
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (SADDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
+                                if (MIDDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
                                 _cache[quad] |= MASK_START_E;
                                 start_in_row = true;
                                 break;
                             case 146:  // 2102
                             case 150:  // 2112
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (SADDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
+                                if (MIDDLE_Z_LEVEL(quad) == 2) _cache[quad] |= MASK_START_N;
                                 start_in_row |= ANY_START(quad);
                                 break;
                         }
@@ -1394,6 +1507,7 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                         switch ((z_nw << 3) | (z_ne << 2) | (z_sw << 1) | z_se) {  // config
                             case  1:  // 0001
                             case  3:  // 0011
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_E(quad)) {
                                     _cache[quad] |= MASK_START_BOUNDARY_E;
                                     start_in_row = true;
@@ -1402,12 +1516,14 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case  2:  // 0010
                             case 10:  // 1010
                             case 14:  // 1110
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) {
                                     _cache[quad] |= MASK_START_BOUNDARY_S;
                                     start_in_row = true;
                                 }
                                 break;
                             case  4:  // 0100
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_N(quad))
                                     _cache[quad] |= MASK_START_BOUNDARY_N;
                                 else if (!BOUNDARY_E(quad))
@@ -1416,16 +1532,17 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                                 break;
                             case  5:  // 0101
                             case  7:  // 0111
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_N(quad)) {
                                     _cache[quad] |= MASK_START_BOUNDARY_N;
                                     start_in_row = true;
                                 }
                                 break;
                             case  6:  // 0110
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_N(quad))
                                     _cache[quad] |= MASK_START_BOUNDARY_N;
-                                else if (!BOUNDARY_E(quad) && SADDLE_Z_LEVEL(quad) == 0)
+                                else if (!BOUNDARY_E(quad) && MIDDLE_Z_LEVEL(quad) == 0)
                                     _cache[quad] |= MASK_START_N;
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 start_in_row |= ANY_START(quad);
@@ -1433,21 +1550,23 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case  8:  // 1000
                             case 12:  // 1100
                             case 13:  // 1101
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_W(quad)) {
                                     _cache[quad] |= MASK_START_BOUNDARY_W;
                                     start_in_row = true;
                                 }
                                 break;
                             case  9:  // 1001
-                                calc_z_level_mid(quad);
+                                calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_E(quad))
                                     _cache[quad] |= MASK_START_BOUNDARY_E;
-                                else if (!BOUNDARY_N(quad) && SADDLE_Z_LEVEL(quad) == 1)
+                                else if (!BOUNDARY_N(quad) && MIDDLE_Z_LEVEL(quad) == 1)
                                     _cache[quad] |= MASK_START_E;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
                                 start_in_row |= ANY_START(quad);
                                 break;
                             case 11:  // 1011
+                                if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_E(quad))
                                     _cache[quad] |= MASK_START_BOUNDARY_E;
                                 else if (!BOUNDARY_N(quad))
@@ -1774,26 +1893,27 @@ template <typename Derived>
 void BaseContourGenerator<Derived>::interp(
     index_t point0, index_t point1, bool is_upper, double*& points) const
 {
-    const double& z1 = get_point_z(point1);
-    const double& level = is_upper ? _upper_level : _lower_level;
-
-    double frac;
-    switch (_z_interp) {
-        case ZInterp::Log:
-            // Equivalent to
-            //   (log(z1) - log(level)) / (log(z1) - log(z0))
-            // Same result obtained regardless of logarithm base.
-            frac = log(z1/level) / log(z1/get_point_z(point0));
-            break;
-        default:  // ZInterp::Linear
-            frac = (z1 - level) / (z1 - get_point_z(point0));
-            break;
-    }
+    auto frac = get_interp_fraction(
+        get_point_z(point0), get_point_z(point1), is_upper ? _upper_level : _lower_level);
 
     assert(frac >= 0.0 && frac <= 1.0 && "Interp fraction out of bounds");
 
     *points++ = get_point_x(point0)*frac + get_point_x(point1)*(1.0 - frac);
     *points++ = get_point_y(point0)*frac + get_point_y(point1)*(1.0 - frac);
+}
+
+template <typename Derived>
+void BaseContourGenerator<Derived>::interp(
+    index_t point0, const double& x1, const double& y1, const double& z1, bool is_upper,
+    double*& points) const
+{
+    auto frac = get_interp_fraction(
+        get_point_z(point0), z1, is_upper ? _upper_level : _lower_level);
+
+    assert(frac >= 0.0 && frac <= 1.0 && "Interp fraction out of bounds");
+
+    *points++ = get_point_x(point0)*frac + x1*(1.0 - frac);
+    *points++ = get_point_y(point0)*frac + y1*(1.0 - frac);
 }
 
 template <typename Derived>
@@ -2363,7 +2483,7 @@ void BaseContourGenerator<Derived>::write_cache_quad(index_t quad) const
     std::cout << (BOUNDARY_N(quad) && BOUNDARY_E(quad) ? 'b' : (
                     BOUNDARY_N(quad) ? 'n' : (BOUNDARY_E(quad) ? 'e' : '.')));
     std::cout << Z_LEVEL(quad);
-    std::cout << ((_cache[quad] & MASK_SADDLE) >> 2);
+    std::cout << ((_cache[quad] & MASK_MIDDLE) >> 2);
     std::cout << (START_BOUNDARY_S(quad) ? 's' : '.');
     std::cout << (START_BOUNDARY_W(quad) ? 'w' : '.');
     if (!_filled) {

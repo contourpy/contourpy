@@ -124,6 +124,21 @@ def test_filled_simple_corner_mask_chunk(name):
     )
 
 
+@pytest.mark.parametrize("name", util_test.quad_as_tri_names())
+def test_filled_simple_quad_as_tri(name):
+    x, y, z = simple((30, 40))
+    cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    fill_type = cont_gen.fill_type
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "filled_simple_quad_as_tri.png", f"{name}")
+
+
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random(name, fill_type):
     x, y, z = random((30, 40), mask_fraction=0.0)
@@ -257,6 +272,21 @@ def test_filled_random_corner_mask_chunk(name):
         image_buffer, "filled_random_corner_mask_chunk.png", f"{name}_{fill_type}",
         max_threshold=max_threshold, mean_threshold=mean_threshold,
     )
+
+
+@pytest.mark.parametrize("name", util_test.quad_as_tri_names())
+def test_filled_random_quad_as_tri(name):
+    x, y, z = random((30, 40), mask_fraction=0.0)
+    cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    fill_type = cont_gen.fill_type
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "filled_random_quad_as_tri.png", f"{name}")
 
 
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())

@@ -216,6 +216,14 @@ def test_total_chunk_count(xyz_7x5_as_arrays, name, total_chunk_count, ret_chunk
     assert (ret_x_chunk_count-1)*ret_x_chunk_size < nx-1
 
 
+@pytest.mark.parametrize("name", util_test.quad_as_tri_names())
+def test_quad_as_tri(xyz_3x3_as_lists, name):
+    x, y, z = xyz_3x3_as_lists
+    for quad_as_tri in [False, True]:
+        cont_gen = contourpy.contour_generator(x, y, z, name=name, quad_as_tri=quad_as_tri)
+        assert cont_gen.quad_as_tri == quad_as_tri
+
+
 @pytest.mark.parametrize("chunk_size", [0, 1, 2])
 @pytest.mark.parametrize("thread_count", [0, 1, 2])
 def test_thread_count(xyz_7x5_as_arrays, chunk_size, thread_count):

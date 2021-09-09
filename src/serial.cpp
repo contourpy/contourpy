@@ -4,9 +4,9 @@
 SerialContourGenerator::SerialContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
     const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
-    ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size)
-    : BaseContourGenerator(x, y, z, mask, corner_mask, line_type, fill_type, z_interp, x_chunk_size,
-                           y_chunk_size)
+    bool quad_as_tri, ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size)
+    : BaseContourGenerator(x, y, z, mask, corner_mask, line_type, fill_type, quad_as_tri, z_interp,
+                           x_chunk_size, y_chunk_size)
 {}
 
 void SerialContourGenerator::march(std::vector<py::list>& return_lists)

@@ -34,6 +34,8 @@ public:
     FillType get_fill_type() const;
     LineType get_line_type() const;
 
+    bool get_quad_as_tri() const;
+
     py::sequence filled(const double& lower_level, const double& upper_level);
     py::sequence lines(const double& level);
 
@@ -52,7 +54,7 @@ protected:
     BaseContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
-        ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size);
+        bool quad_as_tri, ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size);
 
     typedef uint32_t CacheItem;
     typedef CacheItem ZLevel;
@@ -84,8 +86,11 @@ protected:
         bool is_upper, on_boundary;
     };
 
-    // Calculate and set z-level of saddle quad.
-    ZLevel calc_z_level_mid(index_t quad);
+    // Calculate and return z at middle of quad.
+    double calc_middle_z(index_t quad) const;
+
+    // Calculate, set and return z-level at middle of quad.
+    ZLevel calc_and_set_middle_z_level(index_t quad);
 
     void closed_line(const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);
 
@@ -118,6 +123,11 @@ protected:
     index_t get_interior_start_left_point(
         const Location& location, bool& start_corner_diagonal) const;
 
+    double get_interp_fraction(double z0, double z1, double level) const;
+
+    double get_middle_x(index_t quad) const;
+    double get_middle_y(index_t quad) const;
+
     index_t get_n_chunks() const;
 
     void get_point_xy(index_t point, double*& points) const;
@@ -133,6 +143,11 @@ protected:
 
     // Increments local.points twice.
     void interp(index_t point0, index_t point1, bool is_upper, double*& points) const;
+
+    // Increments local.points twice.
+    void interp(
+        index_t point0, const double& x1, const double& y1, const double& z1, bool is_upper,
+        double*& points) const;
 
     bool is_filled() const;
 
@@ -171,6 +186,7 @@ private:
     const bool _corner_mask;
     const LineType _line_type;
     const FillType _fill_type;
+    const bool _quad_as_tri;
     const ZInterp _z_interp;
 
     CacheItem* _cache;

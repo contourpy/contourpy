@@ -71,11 +71,13 @@ PYBIND11_MODULE(_contourpy, m) {
             "fill_type", [](py::object /* self */) {return mpl20xx_fill_type;})
         .def_property_readonly(
             "line_type", [](py::object /* self */) {return mpl20xx_line_type;})
+        .def_property_readonly("quad_as_tri", []() {return false;})
         .def_static("supports_corner_mask", []() {return false;})
         .def_static(
             "supports_fill_type", [](FillType fill_type) {return fill_type == mpl20xx_fill_type;})
         .def_static(
             "supports_line_type", [](LineType line_type) {return line_type == mpl20xx_line_type;})
+        .def_static("supports_quad_as_tri", []() {return false;})
         .def_static("supports_threads", []() {return false;})
         .def_static("supports_z_interp", []() {return false;});
 
@@ -108,11 +110,13 @@ PYBIND11_MODULE(_contourpy, m) {
             "fill_type", [](py::object /* self */) {return mpl20xx_fill_type;})
         .def_property_readonly(
             "line_type", [](py::object /* self */) {return mpl20xx_line_type;})
+        .def_property_readonly("quad_as_tri", []() {return false;})
         .def_static("supports_corner_mask", []() {return true;})
         .def_static(
             "supports_fill_type", [](FillType fill_type) {return fill_type == mpl20xx_fill_type;})
         .def_static(
             "supports_line_type", [](LineType line_type) {return line_type == mpl20xx_line_type;})
+        .def_static("supports_quad_as_tri", []() {return false;})
         .def_static("supports_threads", []() {return false;})
         .def_static("supports_z_interp", []() {return false;});
 
@@ -124,6 +128,7 @@ PYBIND11_MODULE(_contourpy, m) {
                       bool,
                       LineType,
                       FillType,
+                      bool,
                       ZInterp,
                       index_t,
                       index_t>(),
@@ -135,6 +140,7 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("corner_mask"),
              py::arg("line_type"),
              py::arg("fill_type"),
+             py::arg("quad_as_tri"),
              py::arg("z_interp"),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
@@ -156,9 +162,11 @@ PYBIND11_MODULE(_contourpy, m) {
             })
         .def_property_readonly("fill_type", &SerialContourGenerator::get_fill_type)
         .def_property_readonly("line_type", &SerialContourGenerator::get_line_type)
+        .def_property_readonly("quad_as_tri", &SerialContourGenerator::get_quad_as_tri)
         .def_static("supports_corner_mask", []() {return true;})
         .def_static("supports_fill_type", &SerialContourGenerator::supports_fill_type)
         .def_static("supports_line_type", &SerialContourGenerator::supports_line_type)
+        .def_static("supports_quad_as_tri", []() {return true;})
         .def_static("supports_threads", []() {return false;})
         .def_static("supports_z_interp", []() {return true;});
 
@@ -170,6 +178,7 @@ PYBIND11_MODULE(_contourpy, m) {
                       bool,
                       LineType,
                       FillType,
+                      bool,
                       ZInterp,
                       index_t,
                       index_t,
@@ -182,6 +191,7 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("corner_mask"),
              py::arg("line_type"),
              py::arg("fill_type"),
+             py::arg("quad_as_tri"),
              py::arg("z_interp"),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0,
@@ -204,10 +214,12 @@ PYBIND11_MODULE(_contourpy, m) {
             })
         .def_property_readonly("fill_type", &ThreadedContourGenerator::get_fill_type)
         .def_property_readonly("line_type", &ThreadedContourGenerator::get_line_type)
+        .def_property_readonly("quad_as_tri", &ThreadedContourGenerator::get_quad_as_tri)
         .def_property_readonly("thread_count", &ThreadedContourGenerator::get_thread_count)
         .def_static("supports_corner_mask", []() {return true;})
         .def_static("supports_fill_type", &ThreadedContourGenerator::supports_fill_type)
         .def_static("supports_line_type", &ThreadedContourGenerator::supports_line_type)
+        .def_static("supports_quad_as_tri", []() {return true;})
         .def_static("supports_threads", []() {return true;})
         .def_static("supports_z_interp", []() {return true;});
 }
