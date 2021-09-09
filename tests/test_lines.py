@@ -188,6 +188,21 @@ def test_lines_simple_corner_mask_chunk(name):
     compare_images(image_buffer, "lines_simple_corner_mask_chunk.png", f"{name}_{line_type}")
 
 
+@pytest.mark.parametrize("name", util_test.quad_as_tri_names())
+def test_lines_simple_quad_as_tri(name):
+    x, y, z = simple((30, 40))
+    cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    line_type = cont_gen.line_type
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "lines_simple_quad_as_tri.png", f"{name}")
+
+
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random(name, line_type):
     x, y, z = random((30, 40), mask_fraction=0.0)
@@ -291,6 +306,21 @@ def test_lines_random_corner_mask_chunk(name):
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, "lines_random_corner_mask_chunk.png", f"{name}_{line_type}")
+
+
+@pytest.mark.parametrize("name", util_test.quad_as_tri_names())
+def test_lines_random_quad_as_tri(name):
+    x, y, z = random((30, 40), mask_fraction=0.0)
+    cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    line_type = cont_gen.line_type
+    renderer = MplTestRenderer()
+    for i in range(len(levels)):
+        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(image_buffer, "lines_random_quad_as_tri.png", f"{name}")
 
 
 @pytest.mark.parametrize("line_type", LineType.__members__.values())

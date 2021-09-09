@@ -8,8 +8,14 @@ import util_test
 def test_config_filled(name):
     config = util_config.ConfigFilled(name)
     image_buffer = config.save_to_buffer()
-    compare_images(image_buffer, "config_filled.png", name,
-                   max_threshold=175 if name in ("serial", "threaded") else 10)
+    compare_images(image_buffer, "config_filled.png", name)
+
+
+@pytest.mark.parametrize("name", util_test.quad_as_tri_names())
+def test_config_filled_quad_as_tri(name):
+    config = util_config.ConfigFilled(name, quad_as_tri=True)
+    image_buffer = config.save_to_buffer()
+    compare_images(image_buffer, "config_filled_quad_as_tri.png", name)
 
 
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
@@ -26,6 +32,13 @@ def test_config_lines(name):
     config = util_config.ConfigLines(name)
     image_buffer = config.save_to_buffer()
     compare_images(image_buffer, "config_lines.png", name)
+
+
+@pytest.mark.parametrize("name", util_test.quad_as_tri_names())
+def test_config_lines_quad_as_tri(name):
+    config = util_config.ConfigLines(name, quad_as_tri=True)
+    image_buffer = config.save_to_buffer()
+    compare_images(image_buffer, "config_lines_quad_as_tri.png", name)
 
 
 @pytest.mark.parametrize("name", util_test.corner_mask_names())

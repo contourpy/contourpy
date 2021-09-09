@@ -9,7 +9,7 @@ public:
     SerialContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
-        ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size);
+        bool quad_as_tri, ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size);
 
 private:
     friend class BaseContourGenerator;

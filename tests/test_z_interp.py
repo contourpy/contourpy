@@ -19,9 +19,11 @@ def xyz_log():
 
 
 @pytest.mark.parametrize("name", ["serial", "threaded"])
-def test_z_interp_log(xyz_log, name):
+@pytest.mark.parametrize("quad_as_tri", [False, True])
+def test_z_interp_log(xyz_log, name, quad_as_tri):
     x, y, z = xyz_log
-    cont_gen = contour_generator(x, y, z, name, z_interp=ZInterp.Log, line_type=LineType.Separate)
+    cont_gen = contour_generator(
+        x, y, z, name, z_interp=ZInterp.Log, line_type=LineType.Separate, quad_as_tri=quad_as_tri)
     levels = [0.3, 1, 3, 10, 30, 100]
     all_lines = []
     for level in levels:
@@ -38,7 +40,8 @@ def test_z_interp_log(xyz_log, name):
     #   contour_generator(..., log10(z), z_interp=ZInterp.Linear).lines(log10(level))
     for func in (np.log, np.log2, np.log10):
         cont_gen = contour_generator(
-            x, y, func(z), name, z_interp=ZInterp.Linear, line_type=LineType.Separate)
+            x, y, func(z), name, z_interp=ZInterp.Linear, line_type=LineType.Separate,
+            quad_as_tri=quad_as_tri)
         for i, level in enumerate(levels):
             lines = cont_gen.lines(func(level))
             assert len(lines) == 1

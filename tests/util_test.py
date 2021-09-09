@@ -61,6 +61,10 @@ def corner_mask_names():
     return ["mpl2014", "serial", "threaded"]
 
 
+def quad_as_tri_names():
+    return ["serial", "threaded"]
+
+
 def all_fill_types_str_value():
     return [
         ("OuterCodes", 201),
