@@ -36,8 +36,8 @@ public:
 
     bool get_quad_as_tri() const;
 
-    py::sequence filled(const double& lower_level, const double& upper_level);
-    py::sequence lines(const double& level);
+    py::sequence filled(double lower_level, double upper_level);
+    py::sequence lines(double level);
 
     static bool supports_fill_type(FillType fill_type);
     static bool supports_line_type(LineType line_type);
@@ -132,9 +132,9 @@ protected:
 
     void get_point_xy(index_t point, double*& points) const;
 
-    const double& get_point_x(index_t point) const;
-    const double& get_point_y(index_t point) const;
-    const double& get_point_z(index_t point) const;
+    double get_point_x(index_t point) const;
+    double get_point_y(index_t point) const;
+    double get_point_z(index_t point) const;
 
     void init_cache_grid(const MaskArray& mask);
 
@@ -146,8 +146,7 @@ protected:
 
     // Increments local.points twice.
     void interp(
-        index_t point0, const double& x1, const double& y1, const double& z1, bool is_upper,
-        double*& points) const;
+        index_t point0, double x1, double y1, double z1, bool is_upper, double*& points) const;
 
     bool is_filled() const;
 
@@ -170,7 +169,7 @@ protected:
 
     void write_cache_quad(index_t quad) const;
 
-    ZLevel z_to_zlevel(const double& z_value) const;
+    ZLevel z_to_zlevel(double z_value) const;
 
 
 private:

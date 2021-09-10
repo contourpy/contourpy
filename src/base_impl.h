@@ -408,8 +408,7 @@ void BaseContourGenerator<Derived>::export_lines(
 }
 
 template <typename Derived>
-py::sequence BaseContourGenerator<Derived>::filled(
-    const double& lower_level, const double& upper_level)
+py::sequence BaseContourGenerator<Derived>::filled(double lower_level, double upper_level)
 {
     if (lower_level > upper_level)
         throw std::invalid_argument("upper and lower levels are the wrong way round");
@@ -1115,21 +1114,21 @@ void BaseContourGenerator<Derived>::get_point_xy(index_t point, double*& points)
 }
 
 template <typename Derived>
-const double& BaseContourGenerator<Derived>::get_point_x(index_t point) const
+double BaseContourGenerator<Derived>::get_point_x(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _xptr[point];
 }
 
 template <typename Derived>
-const double& BaseContourGenerator<Derived>::get_point_y(index_t point) const
+double BaseContourGenerator<Derived>::get_point_y(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _yptr[point];
 }
 
 template <typename Derived>
-const double& BaseContourGenerator<Derived>::get_point_z(index_t point) const
+double BaseContourGenerator<Derived>::get_point_z(index_t point) const
 {
     assert(point >= 0 && point < _n && "point index out of bounds");
     return _zptr[point];
@@ -1904,8 +1903,7 @@ void BaseContourGenerator<Derived>::interp(
 
 template <typename Derived>
 void BaseContourGenerator<Derived>::interp(
-    index_t point0, const double& x1, const double& y1, const double& z1, bool is_upper,
-    double*& points) const
+    index_t point0, double x1, double y1, double z1, bool is_upper, double*& points) const
 {
     auto frac = get_interp_fraction(
         get_point_z(point0), z1, is_upper ? _upper_level : _lower_level);
@@ -1973,7 +1971,7 @@ void BaseContourGenerator<Derived>::line(const Location& start_location, ChunkLo
 }
 
 template <typename Derived>
-py::sequence BaseContourGenerator<Derived>::lines(const double& level)
+py::sequence BaseContourGenerator<Derived>::lines(double level)
 {
     _filled = false;
     _lower_level = _upper_level = level;
@@ -2503,7 +2501,7 @@ void BaseContourGenerator<Derived>::write_cache_quad(index_t quad) const
 
 template <typename Derived>
 typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::z_to_zlevel(
-    const double& z_value) const
+    double z_value) const
 {
     return (_filled && z_value > _upper_level) ? 2 : (z_value > _lower_level ? 1 : 0);
 }
