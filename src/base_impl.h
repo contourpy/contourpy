@@ -380,11 +380,10 @@ void BaseContourGenerator<Derived>::export_lines(
                 return_lists[0].append(Converter::convert_points(
                     point_count, local.points.start + 2*point_start));
 
-                if (_line_type == LineType::SeparateCodes) {
+                if (_line_type == LineType::SeparateCodes)
                     return_lists[1].append(
                         Converter::convert_codes_check_closed_single(
                             point_count, local.points.start + 2*point_start));
-                }
             }
             break;
         }
@@ -556,14 +555,12 @@ bool BaseContourGenerator<Derived>::follow_boundary(
                             _cache[quad] &= ~MASK_START_CORNER;
                         }
                         break;
-                    case MASK_EXISTS_SW_CORNER:
+                    default:
+                        assert(EXISTS_SW_CORNER(quad));
                         if (left == -_nx-1) {
                             assert(forward == _nx-1);
                             _cache[quad] &= ~MASK_START_CORNER;
                         }
-                        break;
-                    default:
-                        assert(!EXISTS_ANY_CORNER(quad));
                         break;
                 }
             }
@@ -703,17 +700,17 @@ bool BaseContourGenerator<Derived>::follow_interior(
         else {
             switch (EXISTS_ANY_CORNER(quad)) {
                 case MASK_EXISTS_NW_CORNER:
-                    corner_opposite_is_right = forward == -_nx;
+                    corner_opposite_is_right = (forward == -_nx);
                     break;
                 case MASK_EXISTS_NE_CORNER:
-                    corner_opposite_is_right = forward == -1;
+                    corner_opposite_is_right = (forward == -1);
                     break;
                 case MASK_EXISTS_SW_CORNER:
-                    corner_opposite_is_right = forward == 1;
+                    corner_opposite_is_right = (forward == 1);
                     break;
                 default:
                     assert(EXISTS_SE_CORNER(quad));
-                    corner_opposite_is_right = forward == _nx;
+                    corner_opposite_is_right = (forward == _nx);
                     break;
             }
 
@@ -866,7 +863,7 @@ bool BaseContourGenerator<Derived>::follow_interior(
                             forward = -_nx-1;
                             left = -_nx+1;
                             break;
-                    }
+                   }
                 }
                 break;
             }
@@ -883,18 +880,10 @@ bool BaseContourGenerator<Derived>::follow_interior(
 
         // Check if reached NSEW boundary; already checked and noted if reached corner boundary.
         if (!reached_boundary) {
-            if (forward > 0) {
-                if (forward == 1)
-                    reached_boundary = BOUNDARY_E(quad);
-                else
-                    reached_boundary = BOUNDARY_N(quad);
-            }
-            else {  // forward < 0
-                if (forward == -1)
-                    reached_boundary = BOUNDARY_W(quad);
-                else
-                    reached_boundary = BOUNDARY_S(quad);
-            }
+            if (forward > 0)
+                reached_boundary = (forward == 1 ? BOUNDARY_E(quad) : BOUNDARY_N(quad));
+            else  // forward < 0
+                reached_boundary = (forward == -1 ? BOUNDARY_W(quad) : BOUNDARY_S(quad));
 
             if (reached_boundary) {
                 auto temp = forward;
@@ -1883,9 +1872,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
             _cache[chunk_istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
     } // j-loop.
 
-    if (j_final_start < jend) {
+    if (j_final_start < jend)
         _cache[chunk_istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
-    }
 }
 
 template <typename Derived>
@@ -1923,8 +1911,7 @@ bool BaseContourGenerator<Derived>::is_filled() const
 template <typename Derived>
 bool BaseContourGenerator<Derived>::is_point_in_chunk(index_t point, const ChunkLocal& local) const
 {
-    return is_quad_in_bounds(
-        point, local.istart-1, local.iend, local.jstart-1, local.jend);
+    return is_quad_in_bounds(point, local.istart-1, local.iend, local.jstart-1, local.jend);
 }
 
 template <typename Derived>
@@ -2078,21 +2065,24 @@ void BaseContourGenerator<Derived>::march_chunk(
 
                     if (START_CORNER(quad)) {
                         index_t forward, left;
-                        if (EXISTS_NW_CORNER(quad)) {
-                            forward = _nx-1;
-                            left = -_nx-1;
-                        }
-                        else if (EXISTS_NE_CORNER(quad)) {
-                            forward = _nx+1;
-                            left = _nx-1;
-                        }
-                        else if (EXISTS_SW_CORNER(quad)) {
-                            forward = -_nx-1;
-                            left = -_nx+1;
-                        }
-                        else {  // EXISTS_SE_CORNER
-                            forward = -_nx+1;
-                            left = _nx+1;
+                        switch (EXISTS_ANY_CORNER(quad)) {
+                            case MASK_EXISTS_NE_CORNER:
+                                forward = _nx+1;
+                                left = _nx-1;
+                                break;
+                            case MASK_EXISTS_NW_CORNER:
+                                forward = _nx-1;
+                                left = -_nx-1;
+                                break;
+                            case MASK_EXISTS_SE_CORNER:
+                                forward = -_nx+1;
+                                left = _nx+1;
+                                break;
+                            default:
+                                assert(EXISTS_SW_CORNER(quad));
+                                forward = -_nx-1;
+                                left = -_nx+1;
+                                break;
                         }
                         line(Location(quad, forward, left, false, true), local);
                     }
