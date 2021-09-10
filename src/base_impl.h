@@ -182,21 +182,9 @@ template <typename Derived>
 typename BaseContourGenerator<Derived>::ZLevel
     BaseContourGenerator<Derived>::calc_and_set_middle_z_level(index_t quad)
 {
-    assert(quad >= 0 && quad < _n);
-
-    double middle_z = calc_middle_z(quad);
-
-    ZLevel ret = 0;
-    if (_filled && middle_z > _upper_level) {
-        _cache[quad] |= MASK_MIDDLE_Z_LEVEL_2;
-        ret = 2;
-    }
-    else if (middle_z > _lower_level) {
-        _cache[quad] |= MASK_MIDDLE_Z_LEVEL_1;
-        ret = 1;
-    }
-
-    return ret;
+    ZLevel zlevel = z_to_zlevel(calc_middle_z(quad));
+    _cache[quad] |= (zlevel << 2);
+    return zlevel;
 }
 
 template <typename Derived>
@@ -555,12 +543,14 @@ bool BaseContourGenerator<Derived>::follow_boundary(
                             _cache[quad] &= ~MASK_START_CORNER;
                         }
                         break;
-                    default:
-                        assert(EXISTS_SW_CORNER(quad));
+                    case MASK_EXISTS_SW_CORNER:
                         if (left == -_nx-1) {
                             assert(forward == _nx-1);
                             _cache[quad] &= ~MASK_START_CORNER;
                         }
+                        break;
+                    default:
+                        // Not a corner.
                         break;
                 }
             }
@@ -1283,15 +1273,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
             _cache[quad] &= keep_mask;
 
             // Calculate and cache z-level of NE point.
-            ZLevel z_ne = 0;
-            if (_filled && *z_ptr > _upper_level) {
-                _cache[quad] |= MASK_Z_LEVEL_2;
-                z_ne = 2;
-            }
-            else if (*z_ptr > _lower_level) {
-                _cache[quad] |= MASK_Z_LEVEL_1;
-                z_ne = 1;
-            }
+            ZLevel z_ne = z_to_zlevel(*z_ptr);
+            _cache[quad] |= z_ne;
 
             switch (EXISTS_ANY(quad)) {
                 case MASK_EXISTS_QUAD:
