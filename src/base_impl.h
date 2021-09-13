@@ -7,10 +7,10 @@
 
 
 // Point indices from current quad index.
-#define POINT_SW (quad-_nx-1)
-#define POINT_SE (quad-_nx)
-#define POINT_NW (quad-1)
 #define POINT_NE (quad)
+#define POINT_NW (quad-1)
+#define POINT_SE (quad-_nx)
+#define POINT_SW (quad-_nx-1)
 
 
 // CacheItem masks, only accessed directly to set.  To read, use accessors detailed below.
@@ -21,8 +21,8 @@
 #define MASK_MIDDLE_Z_LEVEL_1  (0x1 <<  2)  // middle z > lower_level
 #define MASK_MIDDLE_Z_LEVEL_2  (0x1 <<  3)  // middle z > upper_level
 #define MASK_MIDDLE            (MASK_MIDDLE_Z_LEVEL_1 | MASK_MIDDLE_Z_LEVEL_2)
-#define MASK_BOUNDARY_N        (0x1 <<  4)  // N edge of quad is a boundary.
-#define MASK_BOUNDARY_E        (0x1 <<  5)  // E edge of quad is a boundary.
+#define MASK_BOUNDARY_E        (0x1 <<  4)  // E edge of quad is a boundary.
+#define MASK_BOUNDARY_N        (0x1 <<  5)  // N edge of quad is a boundary.
 // EXISTS_QUAD bit is always used, but the 4 EXISTS_CORNER are only used if _corner_mask is true.
 // Only one of EXISTS_QUAD or EXISTS_??_CORNER is ever set per quad.
 #define MASK_EXISTS_QUAD       (0x1 <<  6)  // All of quad exists (is not masked).
@@ -30,16 +30,16 @@
 #define MASK_EXISTS_NW_CORNER  (0x1 <<  8)
 #define MASK_EXISTS_SE_CORNER  (0x1 <<  9)
 #define MASK_EXISTS_SW_CORNER  (0x1 << 10)
-#define MASK_EXISTS_ANY_CORNER (MASK_EXISTS_NW_CORNER | MASK_EXISTS_NE_CORNER | MASK_EXISTS_SW_CORNER | MASK_EXISTS_SE_CORNER)
+#define MASK_EXISTS_ANY_CORNER (MASK_EXISTS_NE_CORNER | MASK_EXISTS_NW_CORNER | MASK_EXISTS_SE_CORNER | MASK_EXISTS_SW_CORNER)
 #define MASK_EXISTS_ANY        (MASK_EXISTS_QUAD | MASK_EXISTS_ANY_CORNER)
-#define MASK_START_N           (0x1 << 11)  // N to E, filled and lines.
-#define MASK_START_E           (0x1 << 12)  // E to N, filled and lines.
-#define MASK_START_BOUNDARY_N  (0x1 << 13)  // Lines only.
-#define MASK_START_BOUNDARY_E  (0x1 << 14)  // Lines only.
+#define MASK_START_E           (0x1 << 11)  // E to N, filled and lines.
+#define MASK_START_N           (0x1 << 12)  // N to E, filled and lines.
+#define MASK_START_BOUNDARY_E  (0x1 << 13)  // Lines only.
+#define MASK_START_BOUNDARY_N  (0x1 << 14)  // Lines only.
 #define MASK_START_BOUNDARY_S  (0x1 << 15)  // Filled and lines.
 #define MASK_START_BOUNDARY_W  (0x1 << 16)  // Filled and lines.
-#define MASK_START_HOLE_N      (0x1 << 17)  // N boundary of EXISTS, E to W, filled only.
 #define MASK_START_CORNER      (0x1 << 18)  // Filled and lines.
+#define MASK_START_HOLE_N      (0x1 << 17)  // N boundary of EXISTS, E to W, filled only.
 #define MASK_ANY_START         (MASK_START_N | MASK_START_E | MASK_START_BOUNDARY_N | MASK_START_BOUNDARY_E | MASK_START_BOUNDARY_S | MASK_START_BOUNDARY_W | MASK_START_HOLE_N | MASK_START_CORNER)
 #define MASK_LOOK_N            (0x1 << 19)
 #define MASK_LOOK_S            (0x1 << 20)
@@ -53,8 +53,8 @@
 #define Z_SE                       Z_LEVEL(POINT_SE)
 #define Z_SW                       Z_LEVEL(POINT_SW)
 #define MIDDLE_Z_LEVEL(quad)       ((_cache[quad] & MASK_MIDDLE) >> 2)
-#define BOUNDARY_N(quad)           (_cache[quad] & MASK_BOUNDARY_N)
 #define BOUNDARY_E(quad)           (_cache[quad] & MASK_BOUNDARY_E)
+#define BOUNDARY_N(quad)           (_cache[quad] & MASK_BOUNDARY_N)
 #define BOUNDARY_S(quad)           (_cache[quad-_nx] & MASK_BOUNDARY_N)
 #define BOUNDARY_W(quad)           (_cache[quad-1] & MASK_BOUNDARY_E)
 #define EXISTS_QUAD(quad)          (_cache[quad] & MASK_EXISTS_QUAD)
@@ -64,19 +64,19 @@
 #define EXISTS_SW_CORNER(quad)     (_cache[quad] & MASK_EXISTS_SW_CORNER)
 #define EXISTS_ANY(quad)           (_cache[quad] & MASK_EXISTS_ANY)
 #define EXISTS_ANY_CORNER(quad)    (_cache[quad] & MASK_EXISTS_ANY_CORNER)
-#define EXISTS_N_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NW_CORNER | MASK_EXISTS_NE_CORNER))
 #define EXISTS_E_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NE_CORNER | MASK_EXISTS_SE_CORNER))
+#define EXISTS_N_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NW_CORNER | MASK_EXISTS_NE_CORNER))
 #define EXISTS_S_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_SW_CORNER | MASK_EXISTS_SE_CORNER))
 #define EXISTS_W_EDGE(quad)        (_cache[quad] & (MASK_EXISTS_QUAD | MASK_EXISTS_NW_CORNER | MASK_EXISTS_SW_CORNER))
 // Note that EXISTS_NE_CORNER(quad) is equivalent to BOUNDARY_SW(quad), etc.
-#define START_N(quad)              (_cache[quad] & MASK_START_N)
 #define START_E(quad)              (_cache[quad] & MASK_START_E)
-#define START_BOUNDARY_N(quad)     (_cache[quad] & MASK_START_BOUNDARY_N)
+#define START_N(quad)              (_cache[quad] & MASK_START_N)
 #define START_BOUNDARY_E(quad)     (_cache[quad] & MASK_START_BOUNDARY_E)
+#define START_BOUNDARY_N(quad)     (_cache[quad] & MASK_START_BOUNDARY_N)
 #define START_BOUNDARY_S(quad)     (_cache[quad] & MASK_START_BOUNDARY_S)
 #define START_BOUNDARY_W(quad)     (_cache[quad] & MASK_START_BOUNDARY_W)
-#define START_HOLE_N(quad)         (_cache[quad] & MASK_START_HOLE_N)
 #define START_CORNER(quad)         (_cache[quad] & MASK_START_CORNER)
+#define START_HOLE_N(quad)         (_cache[quad] & MASK_START_HOLE_N)
 #define ANY_START(quad)            (_cache[quad] & MASK_ANY_START)
 #define LOOK_N(quad)               (_cache[quad] & MASK_LOOK_N)
 #define LOOK_S(quad)               (_cache[quad] & MASK_LOOK_S)
@@ -182,21 +182,9 @@ template <typename Derived>
 typename BaseContourGenerator<Derived>::ZLevel
     BaseContourGenerator<Derived>::calc_and_set_middle_z_level(index_t quad)
 {
-    assert(quad >= 0 && quad < _n);
-
-    double middle_z = calc_middle_z(quad);
-
-    ZLevel ret = 0;
-    if (_filled && middle_z > _upper_level) {
-        _cache[quad] |= MASK_MIDDLE_Z_LEVEL_2;
-        ret = 2;
-    }
-    else if (middle_z > _lower_level) {
-        _cache[quad] |= MASK_MIDDLE_Z_LEVEL_1;
-        ret = 1;
-    }
-
-    return ret;
+    ZLevel zlevel = z_to_zlevel(calc_middle_z(quad));
+    _cache[quad] |= (zlevel << 2);
+    return zlevel;
 }
 
 template <typename Derived>
@@ -380,11 +368,10 @@ void BaseContourGenerator<Derived>::export_lines(
                 return_lists[0].append(Converter::convert_points(
                     point_count, local.points.start + 2*point_start));
 
-                if (_line_type == LineType::SeparateCodes) {
+                if (_line_type == LineType::SeparateCodes)
                     return_lists[1].append(
                         Converter::convert_codes_check_closed_single(
                             point_count, local.points.start + 2*point_start));
-                }
             }
             break;
         }
@@ -563,7 +550,7 @@ bool BaseContourGenerator<Derived>::follow_boundary(
                         }
                         break;
                     default:
-                        assert(!EXISTS_ANY_CORNER(quad));
+                        // Not a corner.
                         break;
                 }
             }
@@ -703,17 +690,17 @@ bool BaseContourGenerator<Derived>::follow_interior(
         else {
             switch (EXISTS_ANY_CORNER(quad)) {
                 case MASK_EXISTS_NW_CORNER:
-                    corner_opposite_is_right = forward == -_nx;
+                    corner_opposite_is_right = (forward == -_nx);
                     break;
                 case MASK_EXISTS_NE_CORNER:
-                    corner_opposite_is_right = forward == -1;
+                    corner_opposite_is_right = (forward == -1);
                     break;
                 case MASK_EXISTS_SW_CORNER:
-                    corner_opposite_is_right = forward == 1;
+                    corner_opposite_is_right = (forward == 1);
                     break;
                 default:
                     assert(EXISTS_SE_CORNER(quad));
-                    corner_opposite_is_right = forward == _nx;
+                    corner_opposite_is_right = (forward == _nx);
                     break;
             }
 
@@ -866,7 +853,7 @@ bool BaseContourGenerator<Derived>::follow_interior(
                             forward = -_nx-1;
                             left = -_nx+1;
                             break;
-                    }
+                   }
                 }
                 break;
             }
@@ -883,18 +870,10 @@ bool BaseContourGenerator<Derived>::follow_interior(
 
         // Check if reached NSEW boundary; already checked and noted if reached corner boundary.
         if (!reached_boundary) {
-            if (forward > 0) {
-                if (forward == 1)
-                    reached_boundary = BOUNDARY_E(quad);
-                else
-                    reached_boundary = BOUNDARY_N(quad);
-            }
-            else {  // forward < 0
-                if (forward == -1)
-                    reached_boundary = BOUNDARY_W(quad);
-                else
-                    reached_boundary = BOUNDARY_S(quad);
-            }
+            if (forward > 0)
+                reached_boundary = (forward == 1 ? BOUNDARY_E(quad) : BOUNDARY_N(quad));
+            else  // forward < 0
+                reached_boundary = (forward == -1 ? BOUNDARY_W(quad) : BOUNDARY_S(quad));
 
             if (reached_boundary) {
                 auto temp = forward;
@@ -1294,15 +1273,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
             _cache[quad] &= keep_mask;
 
             // Calculate and cache z-level of NE point.
-            ZLevel z_ne = 0;
-            if (_filled && *z_ptr > _upper_level) {
-                _cache[quad] |= MASK_Z_LEVEL_2;
-                z_ne = 2;
-            }
-            else if (*z_ptr > _lower_level) {
-                _cache[quad] |= MASK_Z_LEVEL_1;
-                z_ne = 1;
-            }
+            ZLevel z_ne = z_to_zlevel(*z_ptr);
+            _cache[quad] |= z_ne;
 
             switch (EXISTS_ANY(quad)) {
                 case MASK_EXISTS_QUAD:
@@ -1883,9 +1855,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
             _cache[chunk_istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
     } // j-loop.
 
-    if (j_final_start < jend) {
+    if (j_final_start < jend)
         _cache[chunk_istart + (j_final_start+1)*_nx] |= MASK_NO_MORE_STARTS;
-    }
 }
 
 template <typename Derived>
@@ -1923,8 +1894,7 @@ bool BaseContourGenerator<Derived>::is_filled() const
 template <typename Derived>
 bool BaseContourGenerator<Derived>::is_point_in_chunk(index_t point, const ChunkLocal& local) const
 {
-    return is_quad_in_bounds(
-        point, local.istart-1, local.iend, local.jstart-1, local.jend);
+    return is_quad_in_bounds(point, local.istart-1, local.iend, local.jstart-1, local.jend);
 }
 
 template <typename Derived>
@@ -2078,21 +2048,24 @@ void BaseContourGenerator<Derived>::march_chunk(
 
                     if (START_CORNER(quad)) {
                         index_t forward, left;
-                        if (EXISTS_NW_CORNER(quad)) {
-                            forward = _nx-1;
-                            left = -_nx-1;
-                        }
-                        else if (EXISTS_NE_CORNER(quad)) {
-                            forward = _nx+1;
-                            left = _nx-1;
-                        }
-                        else if (EXISTS_SW_CORNER(quad)) {
-                            forward = -_nx-1;
-                            left = -_nx+1;
-                        }
-                        else {  // EXISTS_SE_CORNER
-                            forward = -_nx+1;
-                            left = _nx+1;
+                        switch (EXISTS_ANY_CORNER(quad)) {
+                            case MASK_EXISTS_NE_CORNER:
+                                forward = _nx+1;
+                                left = _nx-1;
+                                break;
+                            case MASK_EXISTS_NW_CORNER:
+                                forward = _nx-1;
+                                left = -_nx-1;
+                                break;
+                            case MASK_EXISTS_SE_CORNER:
+                                forward = -_nx+1;
+                                left = _nx+1;
+                                break;
+                            default:
+                                assert(EXISTS_SW_CORNER(quad));
+                                forward = -_nx-1;
+                                left = -_nx+1;
+                                break;
                         }
                         line(Location(quad, forward, left, false, true), local);
                     }
