@@ -1424,7 +1424,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case  90:  // 1122
                                 if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
+                                    j % _y_chunk_size > 0 && j != _ny-1 && i % _x_chunk_size > 1)
                                     _cache[quad] |= MASK_START_HOLE_N;
                                 start_in_row |= ANY_START(quad);
                                 break;
@@ -1435,7 +1436,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                                 if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
+                                    j % _y_chunk_size > 0 && j != _ny-1 && i % _x_chunk_size > 1)
                                     _cache[quad] |= MASK_START_HOLE_N;
                                 start_in_row |= ANY_START(quad);
                                 break;
@@ -1444,7 +1446,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case  86:  // 1112
                                 if (_quad_as_tri) calc_and_set_middle_z_level(quad);
                                 if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
+                                    j % _y_chunk_size > 0 && j != _ny-1 && i % _x_chunk_size > 1)
                                     _cache[quad] |= MASK_START_HOLE_N;
                                 start_in_row |= ANY_START(quad);
                                 break;
@@ -1587,14 +1590,16 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 20:  // 110
                             case 22:  // 112
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
+                                    j % _y_chunk_size > 0 && j != _ny-1 && i % _x_chunk_size > 1)
                                     _cache[quad] |= MASK_START_HOLE_N;
                                 _cache[quad] |= MASK_START_CORNER;
                                 start_in_row = true;
                                 break;
                             case 21:  // 111
                                 if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
+                                    j % _y_chunk_size > 0 && j != _ny-1 && i % _x_chunk_size > 1)
                                     _cache[quad] |= MASK_START_HOLE_N;
                                 start_in_row |= ANY_START(quad);
                                 break;
@@ -1666,7 +1671,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case 20:  // 110
                             case 21:  // 111
                             case 22:  // 112
-                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) && j % _y_chunk_size != 0 && j != _ny-1)
+                                if (BOUNDARY_N(quad) && !START_HOLE_N(quad-1) &&
+                                    j % _y_chunk_size > 0 && j != _ny-1 && i % _x_chunk_size > 1)
                                     _cache[quad] |= MASK_START_HOLE_N;
                                 _cache[quad] |= MASK_START_CORNER;
                                 start_in_row = true;
