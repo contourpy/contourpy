@@ -20,12 +20,12 @@ def get_version():
 
 __version__ = get_version()
 
-# Set environment variable BUILD_DEBUG=1 if you want to enable asserts in C++ code.
-build_debug = int(os.environ.get("BUILD_DEBUG", 0))
+# Set environment variable CONTOURPY_DEBUG=1 if you want to enable asserts in C++ code.
+CONTOURPY_DEBUG = int(os.environ.get("CONTOURPY_DEBUG", 0))
 
-# Set environment variable BUILD_CXX11=1 if you want to use C++11 standard rather than the highest
-# supported standard.
-build_cxx11 = int(os.environ.get("BUILD_CXX11", 0))
+# Set environment variable CONTOURPY_CXX11=1 if you want to use C++11 standard rather than the
+# highest supported standard.
+CONTOURPY_CXX11 = int(os.environ.get("CONTOURPY_CXX11", 0))
 
 
 define_macros = [
@@ -33,11 +33,11 @@ define_macros = [
 ]
 undef_macros = []
 
-if build_debug:
+if CONTOURPY_DEBUG:
     define_macros.append(("DEBUG", 1))
     undef_macros.append("NDEBUG")
 
-if build_cxx11:
+if CONTOURPY_CXX11:
     cxx_std = 11
     cmdclass = {}
 else:
@@ -65,8 +65,8 @@ _contourpy = Pybind11Extension(
     ],
     cxx_std=cxx_std,
     define_macros=define_macros + [
-        ("BUILD_DEBUG", build_debug),
-        ("BUILD_CXX11", build_cxx11),
+        ("CONTOURPY_DEBUG", CONTOURPY_DEBUG),
+        ("CONTOURPY_CXX11", CONTOURPY_CXX11),
     ],
     undef_macros=undef_macros,
 )

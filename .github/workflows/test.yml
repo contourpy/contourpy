@@ -45,7 +45,7 @@ jobs:
       - name: Install contourpy (debug)
         if: matrix.debug == 1
         run: |
-          BUILD_DEBUG=1 BUILD_CXX11=1 python -m pip install -ve .[test]
+          CONTOURPY_DEBUG=1 CONTOURPY_CXX11=1 python -m pip install -ve .[test]
           python -m pip list
 
       - name: Install cppcheck

@@ -17,8 +17,8 @@ static FillType mpl20xx_fill_type = FillType::OuterCodes;
 PYBIND11_MODULE(_contourpy, m) {
     m.doc() = "doc notes";
 
-    m.attr("BUILD_DEBUG") = BUILD_DEBUG;
-    m.attr("BUILD_CXX11") = BUILD_CXX11;
+    m.attr("CONTOURPY_DEBUG") = CONTOURPY_DEBUG;
+    m.attr("CONTOURPY_CXX11") = CONTOURPY_CXX11;
     m.attr("__version__") = MACRO_STRINGIFY(CONTOURPY_VERSION);
 
     py::enum_<FillType>(m, "FillType")
