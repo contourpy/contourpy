@@ -20,7 +20,7 @@ To build and install in developer's mode
 
 To build in debug mode, which enables `assert`s in C++ code
 
-    BUILD_DEBUG=1 pip install -ve .
+    CONTOURPY_DEBUG=1 pip install -ve .
 
 To run tests
 
