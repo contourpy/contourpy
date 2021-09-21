@@ -41,7 +41,7 @@ void ThreadedContourGenerator::march(std::vector<py::list>& return_lists)
     // Create (_n_threads-1) new worker threads.
     std::vector<std::thread> threads;
     threads.reserve(_n_threads);
-    for (unsigned int i = 0; i < _n_threads-1; ++i)
+    for (index_t i = 0; i < _n_threads-1; ++i)
         threads.emplace_back(
             &ThreadedContourGenerator::thread_function, this, std::ref(return_lists));
 
