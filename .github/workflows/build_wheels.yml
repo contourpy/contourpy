@@ -1,4 +1,4 @@
-name: Build binary wheels
+name: Build binary wheels and sdist
 
 on:
   push:
