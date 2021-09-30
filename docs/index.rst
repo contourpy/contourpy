@@ -5,6 +5,8 @@ Welcome to ContourPy's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   changelog
+
 
 
 Indices and tables
