@@ -17,7 +17,7 @@ public:
     index_t get_thread_count() const;
 
 private:
-    friend class BaseContourGenerator;
+    friend class BaseContourGenerator<ThreadedContourGenerator>;
 
     // Lock class is used to lock access to a single thread when creating/modifying Python objects.
     // Automatically unlocks in destructor or when unlock() member function is called.

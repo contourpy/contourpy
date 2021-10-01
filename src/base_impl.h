@@ -77,7 +77,7 @@
 #define START_BOUNDARY_W(quad)     (_cache[quad] & MASK_START_BOUNDARY_W)
 #define START_CORNER(quad)         (_cache[quad] & MASK_START_CORNER)
 #define START_HOLE_N(quad)         (_cache[quad] & MASK_START_HOLE_N)
-#define ANY_START(quad)            (_cache[quad] & MASK_ANY_START)
+#define ANY_START(quad)            ((_cache[quad] & MASK_ANY_START) != 0)
 #define LOOK_N(quad)               (_cache[quad] & MASK_LOOK_N)
 #define LOOK_S(quad)               (_cache[quad] & MASK_LOOK_S)
 #define NO_STARTS_IN_ROW(quad)     (_cache[quad] & MASK_NO_STARTS_IN_ROW)
