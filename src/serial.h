@@ -12,7 +12,7 @@ public:
         bool quad_as_tri, ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size);
 
 private:
-    friend class BaseContourGenerator;
+    friend class BaseContourGenerator<SerialContourGenerator>;
 
     // Dummy Lock class which is the single-threaded version of ThreadedContourGenerator::Lock and
     // does not do anything, allowing base class code to use Lock objects for both serial and
