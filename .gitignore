@@ -6,6 +6,7 @@ result_images/
 wheelhouse/
 .pytest_cache/
 *.so
+*.pyd
 .vscode/
 .asv/
 _build/
