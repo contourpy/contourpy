@@ -184,7 +184,7 @@ class Config:
 
                     # Arrows on boundary and contour levels (the latter only if not quad_as_tri).
                     if point_types[i] == point_types[i+1] and (
-                            point_types == PointType.CORNER or not self.quad_as_tri):
+                            point_types[i] == PointType.CORNER or not self.quad_as_tri):
                         self._arrow(ax, s, e, c)
 
                 # Arrows on contour levels (lower and upper) for quad_as_tri.  Only want a single
