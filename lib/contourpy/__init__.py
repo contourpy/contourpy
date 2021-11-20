@@ -2,8 +2,8 @@ import numpy as np
 
 from .chunk import calc_chunk_sizes
 from ._contourpy import (
-    max_threads, FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
-    SerialContourGenerator, ThreadedContourGenerator, ZInterp
+    FillType, LineType, ContourGenerator, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
+    SerialContourGenerator, ThreadedContourGenerator, ZInterp, max_threads
 )
 from .enum_util import as_fill_type, as_line_type, as_z_interp
 from ._version import __version__
@@ -15,6 +15,7 @@ __all__ = [
     "max_threads",
     "FillType",
     "LineType",
+    "ContourGenerator",
     "Mpl2005ContourGenerator",
     "Mpl2014ContourGenerator",
     "SerialContourGenerator",
@@ -71,11 +72,11 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
             out, other triangular corners comprising three unmasked points are contoured as usual.
             If not specified, uses the default provided by the algorithm ``name``.
         line_type (LineType, optional): The format of contour line data returned from calls to
-            :meth:`~contourpy.SerialContourGenerator.lines`. If not specified, uses the default
-            provided by the algorithm ``name``.
+            :meth:`~contourpy.ContourGenerator.lines`. If not specified, uses the default provided
+            by the algorithm ``name``.
         fill_type (FillType, optional): The format of filled contour data returned from calls to
-            :meth:`~contourpy.SerialContourGenerator.filled`. If not specified, uses the default
-            provided by the algorithm ``name``.
+            :meth:`~contourpy.ContourGenerator.filled`. If not specified, uses the default provided
+            by the algorithm ``name``.
         chunk_size (int or tuple(int, int), optional): Chunk size in (y, x) directions, or the same
             size in both directions if only one value is specified.
         chunk_count (int or tuple(int, int), optional): Chunk count in (y, x) directions, or the
@@ -97,8 +98,7 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
             as determined by the C++11 call ``std::thread::hardware_concurrency()``.
 
     Return:
-        ContourGenerator: A contour generator object that implements the same interface as
-        :class:`~contourpy._contourpy.SerialContourGenerator`.
+        :class:`~contourpy._contourpy.ContourGenerator`.
 
     Note:
         A maximum of one of ``chunk_size``, ``chunk_count`` and ``total_chunk_count`` may be

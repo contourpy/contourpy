@@ -280,3 +280,10 @@ def test_enums_as_strings(xyz_3x3_as_lists):
     assert cg.line_type == contourpy.LineType.SeparateCode
     assert cg.fill_type == contourpy.FillType.ChunkCombinedCodeOffset
     assert cg.z_interp == contourpy.ZInterp.Log
+
+
+@pytest.mark.parametrize("name", util_test.all_names())
+def test_is_contour_generator(name, xyz_3x3_as_lists):
+    x, y, z = xyz_3x3_as_lists
+    cg = contourpy.contour_generator(x, y, z, name=name)
+    assert isinstance(cg, contourpy.ContourGenerator)

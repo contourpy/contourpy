@@ -8,9 +8,9 @@ Benchmarks for the ``threaded`` algorithm are shown here, for unmasked ``z``, a
 .. image:: ../_static/threaded_simple_1000.svg
 
 For the ``simple`` dataset contour calculations are faster with more threads but only slightly.  The
-speedup with 6 threads is only about 1.8 for both :func:`~contourpy.SerialContourGenerator.lines`
-and :func:`~contourpy.SerialContourGenerator.filled`.  This problem dataset is not computationally
-expensive enough to justify the use of multiple threads.
+speedup with 6 threads is only about 1.8 for both :func:`~contourpy.ContourGenerator.lines` and
+:func:`~contourpy.ContourGenerator.filled`.  This problem dataset is not computationally expensive
+enough to justify the use of multiple threads.
 
 .. image:: ../_static/threaded_random_1000.svg
 

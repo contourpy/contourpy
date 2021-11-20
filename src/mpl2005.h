@@ -1,21 +1,15 @@
 #ifndef CONTOURPY_MPL_2005_H
 #define CONTOURPY_MPL_2005_H
 
-#include "common.h"
+#include "contour_generator.h"
 #include "mpl2005_original.h"
 
-class Mpl2005ContourGenerator
+class Mpl2005ContourGenerator : public ContourGenerator
 {
 public:
     Mpl2005ContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
         const MaskArray& mask, index_t x_chunk_size, index_t y_chunk_size);
-
-    // Non-copyable and non-moveable.
-    Mpl2005ContourGenerator(const Mpl2005ContourGenerator& other) = delete;
-    Mpl2005ContourGenerator(const Mpl2005ContourGenerator&& other) = delete;
-    Mpl2005ContourGenerator& operator=(const Mpl2005ContourGenerator& other) = delete;
-    Mpl2005ContourGenerator& operator=(const Mpl2005ContourGenerator&& other) = delete;
 
     ~Mpl2005ContourGenerator();
 

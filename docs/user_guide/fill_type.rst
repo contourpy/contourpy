@@ -5,7 +5,7 @@ Fill type
 
 :class:`~contourpy.FillType` is an enum that is passed as the ``fill_type`` keyword argument to
 :func:`~contourpy.contour_generator()` and is used to specify the format of data returned from calls
-to :func:`~contourpy.SerialContourGenerator.filled`. If not explicitly specified then the default is
+to :func:`~contourpy.ContourGenerator.filled`. If not explicitly specified then the default is
 used for the requested algorithm ``name``.
 
 Supported enum members and the default vary by algorithm:
@@ -23,7 +23,7 @@ A string name can be used instead of the enum member so the following are equiva
    other whereas filled contours consist of polygons that always have an outer (exterior) boundary
    but may also contain any number of holes (interior boundaries). The relationship between outer
    boundaries and their holes is calculated and returned by
-   :func:`~contourpy.SerialContourGenerator.filled` for all :class:`~contourpy.FillType` members
+   :func:`~contourpy.ContourGenerator.filled` for all :class:`~contourpy.FillType` members
    except for ``ChunkCombinedCode`` and ``ChunkCombinedOffset``.
 
 Enum members are a combination of the following words:
@@ -40,7 +40,7 @@ Where **Offset** occurs twice the first refers to the offsets of individual boun
 holes) within a larger collection and the second to which of those boundaries are grouped together
 into polygons.
 
-The format of data returned by :func:`~contourpy.SerialContourGenerator.filled` for each of the
+The format of data returned by :func:`~contourpy.ContourGenerator.filled` for each of the
 possible :class:`~contourpy.FillType` members is best illustrated through an example.  This is the
 same example data used for :ref:`line_type` but calling ``filled(1, 2)`` instead of ``lines(2)``.
 
@@ -236,7 +236,7 @@ subsequent analysis.
 
 .. note::
 
-   The order of boundaries returned by a particular :func:`~contourpy.SerialContourGenerator.filled`
+   The order of boundaries returned by a particular :func:`~contourpy.ContourGenerator.filled`
    call is deterministic except for the combination of ``name="threaded"`` and either
    ``fill_type=FillType.OuterCode`` or ``fill_type=FillType.OuterOffset``. This is because the
    order that the chunks are processed in is not deterministic and boundaries are appended to the

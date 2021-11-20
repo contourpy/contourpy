@@ -142,7 +142,7 @@
 #ifndef CONTOURPY_MPL_2014_H
 #define CONTOURPY_MPL_2014_H
 
-#include "common.h"
+#include "contour_generator.h"
 #include <list>
 #include <iostream>
 #include <vector>
@@ -262,7 +262,7 @@ private:
 
 
 // See overview of algorithm at top of file.
-class Mpl2014ContourGenerator
+class Mpl2014ContourGenerator : public ContourGenerator
 {
 public:
     // Constructor with optional mask.
@@ -276,12 +276,6 @@ public:
     Mpl2014ContourGenerator(
         const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
         const MaskArray& mask, bool corner_mask, index_t x_chunk_size, index_t y_chunk_size);
-
-    // Non-copyable and non-moveable.
-    Mpl2014ContourGenerator(const Mpl2014ContourGenerator& other) = delete;
-    Mpl2014ContourGenerator(const Mpl2014ContourGenerator&& other) = delete;
-    Mpl2014ContourGenerator& operator=(const Mpl2014ContourGenerator& other) = delete;
-    Mpl2014ContourGenerator& operator=(const Mpl2014ContourGenerator&& other) = delete;
 
     // Destructor.
     ~Mpl2014ContourGenerator();

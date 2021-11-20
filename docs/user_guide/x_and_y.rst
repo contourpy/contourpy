@@ -88,4 +88,4 @@ examples of curved and polar grids:
 
    If ``x`` or ``y`` are 2D contiguous C-ordered ``np.float64`` arrays then they are not copied by
    :func:`~contourpy.contour_generator` and they can be altered in your client code after the
-   ``ContourGenerator`` has been created.  See :ref:`z_array` for more details.
+   :class:`~contourpy.ContourGenerator` has been created.  See :ref:`z_array` for more details.

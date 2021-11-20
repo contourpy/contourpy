@@ -17,10 +17,10 @@ You can avoid this copy by passing it in the desired format.
 
 .. warning::
 
-   If the ``z`` array does not need to be copied then both the ``ContourGenerator`` and your client
-   code have access to the same shared array. This means that you can purposefully or accidentally
-   alter the data that the ``ContourGenerator`` is using, which is almost certainly not a good idea!
-   Here is an example of this:
+   If the ``z`` array does not need to be copied then both the :class:`~contourpy.ContourGenerator`
+   and your client code have access to the same shared array. This means that you can purposefully
+   or accidentally alter the data that the :class:`~contourpy.ContourGenerator` is using, which is
+   almost certainly not a good idea! Here is an example of this:
 
    >>> from contourpy import contour_generator
    >>> import numpy as np
@@ -33,14 +33,14 @@ You can avoid this copy by passing it in the desired format.
    3
 
    ``z`` is a contiguous C-ordered ``np.float64`` array and the change in reference counts shows
-   that the ``ContourGenerator`` is using this ``z`` array.
+   that the :class:`~contourpy.ContourGenerator` is using this ``z`` array.
 
     >>> cont_gen.lines(0.5)
     [array([[0. , 0.5],
             [1. , 0.5]])]
 
-   Now change an element of the ``z`` array that is used by the ``ContourGenerator`` and repeat the
-   same :func:`~contourpy.SerialContourGenerator.lines` call:
+   Now change an element of the ``z`` array that is used by the :class:`~contourpy.ContourGenerator`
+   and repeat the same :func:`~contourpy.ContourGenerator.lines` call:
 
    >>> z[0, 0] = -1.
    >>> cont_gen.lines(0.5)
@@ -61,9 +61,9 @@ grid points from contour calculations.  In addition, any ``z`` values which are 
 
 .. note::
 
-   The mask of a ``z`` array is used only when constructing a ``ContourGenerator`` object, so there
-   is no danger that a mask shared with client code can subsequently be altered to change the
-   behaviour of the ``ContourGenerator``.
+   The mask of a ``z`` array is used only when constructing a :class:`~contourpy.ContourGenerator`
+   object, so there is no danger that a mask shared with client code can subsequently be altered to
+   change the behaviour of the :class:`~contourpy.ContourGenerator`.
 
 Corner mask
 ^^^^^^^^^^^
