@@ -36,6 +36,8 @@ public:
 
     bool get_quad_as_tri() const;
 
+    ZInterp get_z_interp() const;
+
     py::sequence filled(double lower_level, double upper_level);
     py::sequence lines(double level);
 

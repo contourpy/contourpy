@@ -1120,6 +1120,12 @@ bool BaseContourGenerator<Derived>::get_quad_as_tri() const
 }
 
 template <typename Derived>
+ZInterp BaseContourGenerator<Derived>::get_z_interp() const
+{
+    return _z_interp;
+}
+
+template <typename Derived>
 void BaseContourGenerator<Derived>::init_cache_grid(const MaskArray& mask)
 {
     index_t i, j, quad;
