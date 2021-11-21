@@ -216,6 +216,21 @@ def test_total_chunk_count(xyz_7x5_as_arrays, name, total_chunk_count, ret_chunk
     assert (ret_x_chunk_count-1)*ret_x_chunk_size < nx-1
 
 
+@pytest.mark.parametrize("name", util_test.all_names())
+def test_properties(xyz_3x3_as_lists, name):
+    # Test that each ContourGenerator class implements all the required properties.
+    x, y, z = xyz_3x3_as_lists
+    cont_gen = contourpy.contour_generator(x, y, z, name=name)
+    _, _ = cont_gen.chunk_count
+    _, _ = cont_gen.chunk_size
+    _ = cont_gen.corner_mask
+    _ = cont_gen.fill_type
+    _ = cont_gen.line_type
+    _ = cont_gen.quad_as_tri
+    _ = cont_gen.thread_count
+    _ = cont_gen.z_interp
+
+
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_quad_as_tri(xyz_3x3_as_lists, name):
     x, y, z = xyz_3x3_as_lists
