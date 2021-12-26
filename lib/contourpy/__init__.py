@@ -37,6 +37,7 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, lin
     # Check arguments: z.
     if z.ndim != 2:
         raise TypeError(f"Input z must be 2D, not {z.ndim}D")
+
     if z.shape[0] < 2 or z.shape[1] < 2:
         raise TypeError(f"Input z must be at least a (2, 2) shaped array, but has shape {z.shape}")
 
@@ -45,6 +46,7 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, lin
     # Check arguments: x and y.
     if x.ndim != y.ndim:
         raise TypeError(f"Number of dimensions of x ({x.ndim}) and y ({y.ndim}) do not match")
+
     if x.ndim == 0:
         x = np.arange(nx)
         y = np.arange(ny)
@@ -98,12 +100,18 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, lin
     # Check arguments: line_type.
     if line_type is None:
         line_type = cls.default_line_type
+    elif isinstance(line_type, str):
+        line_type = LineType._from_string(line_type)
+
     if not cls.supports_line_type(line_type):
         raise ValueError(f"{name} contour generator does not support line_type {line_type}")
 
     # Check arguments: fill_type.
     if fill_type is None:
         fill_type = cls.default_fill_type
+    elif isinstance(fill_type, str):
+        fill_type = FillType._from_string(fill_type)
+
     if not cls.supports_fill_type(fill_type):
         raise ValueError(f"{name} contour generator does not support fill_type {fill_type}")
 
@@ -114,6 +122,11 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, lin
         raise ValueError(f"{name} contour generator does not support quad_as_tri=True")
 
     # Check arguments: z_interp.
+    if z_interp is None:
+        z_interp = ZInterp.Linear
+    elif isinstance(z_interp, str):
+        z_interp = ZInterp._from_string(z_interp)
+
     if z_interp != ZInterp.Linear and not cls.supports_z_interp():
         raise ValueError(f"{name} contour generator does not support z_interp {z_interp}")
 
@@ -131,12 +144,16 @@ def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, lin
     if name not in ("mpl2005", "mpl2014"):
         kwargs["line_type"] = line_type
         kwargs["fill_type"] = fill_type
+
     if cls.supports_corner_mask():
         kwargs["corner_mask"] = corner_mask
+
     if cls.supports_quad_as_tri():
         kwargs["quad_as_tri"] = quad_as_tri
+
     if cls.supports_z_interp():
         kwargs["z_interp"] = z_interp
+
     if cls.supports_threads():
         kwargs["thread_count"] = thread_count
 

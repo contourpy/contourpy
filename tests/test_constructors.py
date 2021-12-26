@@ -256,3 +256,12 @@ def test_thread_count(xyz_7x5_as_arrays, chunk_size, thread_count):
         assert ret_thread_count == min(max_threads, ret_chunk_count)
     else:
         assert ret_thread_count == min(max_threads, ret_chunk_count, ret_thread_count)
+
+
+def test_enums_as_strings(xyz_3x3_as_lists):
+    x, y, z = xyz_3x3_as_lists
+    cg = contourpy.contour_generator(
+        x, y, z, line_type="SeparateCodes", fill_type="ChunkCombinedCodesOffsets", z_interp="Log")
+    assert cg.line_type == contourpy.LineType.SeparateCodes
+    assert cg.fill_type == contourpy.FillType.ChunkCombinedCodesOffsets
+    assert cg.z_interp == contourpy.ZInterp.Log
