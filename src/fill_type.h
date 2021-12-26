@@ -2,6 +2,7 @@
 #define CONTOURPY_FILL_TYPE_H
 
 #include <iosfwd>
+#include <string>
 
 // C++11 scoped enum, must be fully qualified to use.
 enum class FillType
@@ -13,6 +14,8 @@ enum class FillType
     ChunkCombinedCodesOffsets = 205,
     ChunkCombinedOffsets2 = 206,
 };
+
+FillType FillType_from_string(const std::string& string);
 
 std::ostream &operator<<(std::ostream &os, const FillType& fill_type);
 

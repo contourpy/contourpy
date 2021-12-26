@@ -28,19 +28,22 @@ PYBIND11_MODULE(_contourpy, m) {
         .value("ChunkCombinedOffsets", FillType::ChunkCombinedOffsets)
         .value("ChunkCombinedCodesOffsets", FillType::ChunkCombinedCodesOffsets)
         .value("ChunkCombinedOffsets2", FillType::ChunkCombinedOffsets2)
-        .export_values();
+        .export_values()
+        .def_static("_from_string", &FillType_from_string);
 
     py::enum_<LineType>(m, "LineType")
         .value("Separate", LineType::Separate)
         .value("SeparateCodes", LineType::SeparateCodes)
         .value("ChunkCombinedCodes", LineType::ChunkCombinedCodes)
         .value("ChunkCombinedOffsets", LineType::ChunkCombinedOffsets)
-        .export_values();
+        .export_values()
+        .def_static("_from_string", &LineType_from_string);
 
     py::enum_<ZInterp>(m, "ZInterp")
         .value("Linear", ZInterp::Linear)
         .value("Log", ZInterp::Log)
-        .export_values();
+        .export_values()
+        .def_static("_from_string", &ZInterp_from_string);
 
     m.def("max_threads", &Util::get_max_threads, "docs");
 

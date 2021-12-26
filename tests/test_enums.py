@@ -39,3 +39,14 @@ def test_all_z_interps():
     for name, enum in dict(ZInterp.__members__).items():
         assert name in z_interps
         assert z_interps[name] == enum.value
+
+
+@pytest.mark.parametrize("enum_type", [FillType, LineType, ZInterp])
+def test_string_to_enum(enum_type):
+    for name, enum in enum_type.__members__.items():
+        line_type = enum_type._from_string(name)
+        assert line_type == enum
+
+    msg = f"'unknown' is not a valid {enum_type.__name__}"
+    with pytest.raises(ValueError, match=msg):
+        enum_type._from_string("unknown")
