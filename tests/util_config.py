@@ -300,11 +300,11 @@ class ConfigFilled(ConfigFilledCommon):
         if self.quad_as_tri:
             self.fig, axes = plt.subplots(18, 12, figsize=(10.4, 17.1), subplot_kw=subplot_kw)
         else:
-            self.fig, axes = plt.subplots(8, 12, figsize=(10.4, 7.6), subplot_kw=subplot_kw)
+            self.fig, axes = plt.subplots(9, 11, figsize=(9.4, 8.4), subplot_kw=subplot_kw)
         self.axes = axes.flatten()
 
         self.axes_index = 0
-        for config in range(170):
+        for config in range(171):
             try:
                 (nw, ne, sw, se) = all = self._decode_config(config)
             except ValueError:
