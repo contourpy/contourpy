@@ -20,7 +20,7 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'ContourPy'
-copyright = '2021, ContourPy Contributors'
+copyright = '2021-2022, ContourPy Contributors'
 author = 'ContourPy Contributors'
 
 
