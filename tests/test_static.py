@@ -15,7 +15,10 @@ def test_default_fill_type(class_name):
     cls = get_class_from_name(class_name)
     default = cls.default_fill_type
     assert isinstance(default, FillType)
-    expect = FillType.OuterCodes
+    if class_name in ("Mpl2005ContourGenerator", "Mpl2014ContourGenerator"):
+        expect = FillType.OuterCodes
+    else:
+        expect = FillType.OuterOffsets
     assert default == expect
 
 
@@ -24,7 +27,10 @@ def test_default_line_type(class_name):
     cls = get_class_from_name(class_name)
     default = cls.default_line_type
     assert isinstance(default, LineType)
-    expect = LineType.SeparateCodes
+    if class_name in ("Mpl2005ContourGenerator", "Mpl2014ContourGenerator"):
+        expect = LineType.SeparateCodes
+    else:
+        expect = LineType.Separate
     assert default == expect
 
 

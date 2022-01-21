@@ -268,7 +268,7 @@ void BaseContourGenerator<Derived>::closed_line_wrapper(
 template <typename Derived>
 FillType BaseContourGenerator<Derived>::default_fill_type()
 {
-    FillType fill_type = FillType::OuterCodes;
+    FillType fill_type = FillType::OuterOffsets;
     assert(supports_fill_type(fill_type));
     return fill_type;
 }
@@ -276,7 +276,7 @@ FillType BaseContourGenerator<Derived>::default_fill_type()
 template <typename Derived>
 LineType BaseContourGenerator<Derived>::default_line_type()
 {
-    LineType line_type = LineType::SeparateCodes;
+    LineType line_type = LineType::Separate;
     assert(supports_line_type(line_type));
     return line_type;
 }
