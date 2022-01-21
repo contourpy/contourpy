@@ -150,6 +150,14 @@ BaseContourGenerator<Derived>::BaseContourGenerator(
     if (x_chunk_size < 0 || y_chunk_size < 0)
         throw std::invalid_argument("chunk_sizes cannot be negative");
 
+    if (_z_interp == ZInterp::Log) {
+        const bool* mask_ptr = (mask.ndim() == 0 ? nullptr : mask.data());
+        for (index_t point = 0; point < _n; ++point) {
+            if ( (mask_ptr == nullptr || !mask_ptr[point]) && _zptr[point] <= 0.0)
+                throw std::invalid_argument("z values must be positive if using ZInterp.Log");
+        }
+    }
+
     init_cache_grid(mask);
 }
 

@@ -65,3 +65,18 @@ def test_z_interp_log_saddle(name):
                 assert cross_product < 0.0
             else:
                 assert cross_product > 0.0
+
+
+@pytest.mark.parametrize("name", ["serial", "threaded"])
+def test_z_interp_negative(name):
+    msg = "z values must be positive if using ZInterp.Log"
+
+    z = np.asarray([[1.0, 2.0], [3.0, 4.0]])
+    for value in (0.0, -1.2):
+        z[1, 1] = value
+        with pytest.raises(ValueError, match=msg):
+            _ = contour_generator(None, None, z, name, z_interp=ZInterp.Log)
+
+    # Mask out negative value so no exception.
+    z = np.ma.masked_less_equal(z, 0.0)
+    _ = contour_generator(None, None, z, name, z_interp=ZInterp.Log)
