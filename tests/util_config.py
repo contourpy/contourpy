@@ -1,4 +1,4 @@
-from contourpy import contour_generator
+from contourpy import contour_generator, LineType
 from enum import Enum
 import io
 import matplotlib
@@ -143,7 +143,9 @@ class Config:
             filled = cont_gen.filled(zlower, zupper)
             lines = filled[0]
         else:
-            lines = cont_gen.lines(zlower)[0]
+            lines = cont_gen.lines(zlower)
+            if cont_gen.line_type == LineType.SeparateCodes:
+                lines = lines[0]
 
         # May be 0..2 polygons, and there cannot be any holes.
         for points in lines:
