@@ -5,20 +5,11 @@ from image_comparison import compare_images
 import numpy as np
 import pytest
 
-try:
-    from contourpy.util.bokeh_renderer import BokehRenderer
-except:
-    BokehRenderer = None
-
 
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
-@pytest.mark.parametrize(
-    "renderer_class, renderer_name", [(MplRenderer, "mpl"), (BokehRenderer, "bokeh")])
-def test_renderer_filled(fill_type, renderer_class, renderer_name):
-    if renderer_class is None:
-        pytest.skip()
+def test_renderer_filled(fill_type):
     x, y, z = random((3, 4))
-    renderer = renderer_class(ncols=2, figsize=(8, 3), show_frame=False)
+    renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=False)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, fill_type=fill_type)
 
@@ -38,17 +29,13 @@ def test_renderer_filled(fill_type, renderer_class, renderer_name):
             renderer.title("Colored title", ax=ax, color="red")
 
     image_buffer = renderer.save_to_buffer()
-    compare_images(image_buffer, f"renderer_filled_{renderer_name}.png", f"{fill_type}")
+    compare_images(image_buffer, "renderer_filled_mpl.png", f"{fill_type}")
 
 
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
-@pytest.mark.parametrize(
-    "renderer_class, renderer_name", [(MplRenderer, "mpl"), (BokehRenderer, "bokeh")])
-def test_renderer_lines(line_type, renderer_class, renderer_name):
-    if renderer_class is None:
-        pytest.skip()
+def test_renderer_lines(line_type):
     x, y, z = random((3, 4))
-    renderer = renderer_class(ncols=2, figsize=(8, 3))
+    renderer = MplRenderer(ncols=2, figsize=(8, 3))
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, line_type=line_type)
 
@@ -70,4 +57,4 @@ def test_renderer_lines(line_type, renderer_class, renderer_name):
             renderer.title("Colored title", ax=ax, color="red")
 
     image_buffer = renderer.save_to_buffer()
-    compare_images(image_buffer, f"renderer_lines_{renderer_name}.png", f"{line_type}")
+    compare_images(image_buffer, "renderer_lines_mpl.png", f"{line_type}")
