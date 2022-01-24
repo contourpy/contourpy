@@ -16,12 +16,15 @@ import numpy as np
 
 
 class MplRenderer:
-    def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
+    def __init__(self, nrows=1, ncols=1, figsize=(9, 9), show_frame=True):
         plt.switch_backend(_default_backend)
         self._fig, axes = plt.subplots(
             nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False, sharex=True, sharey=True,
             subplot_kw={"aspect": "equal"})
         self._axes = axes.flatten()
+        if not show_frame:
+            for ax in self._axes:
+                ax.axis("off")
 
     def __del__(self):
         if hasattr(self, "_fig"):
@@ -35,11 +38,20 @@ class MplRenderer:
             if getattr(ax, "_need_autoscale", False):
                 ax.autoscale_view(tight=True)
                 ax._need_autoscale = False
+        if len(self._axes) > 1:
+            self._fig.tight_layout()
 
     def _get_ax(self, ax):
         if isinstance(ax, int):
             ax = self._axes[ax]
         return ax
+
+    def _grid_as_2d(self, x, y):
+        x = np.asarray(x)
+        y = np.asarray(y)
+        if x.ndim == 1:
+            x, y = np.meshgrid(x, y)
+        return x, y
 
     def filled(self, filled, fill_type, ax=0, color="C0", alpha=0.7):
         ax = self._get_ax(ax)
@@ -49,11 +61,24 @@ class MplRenderer:
         ax.add_collection(collection)
         ax._need_autoscale = True
 
-    def grid(self, x, y, ax=0, color="black", alpha=0.1):
+    def grid(self, x, y, ax=0, color="black", alpha=0.1, point_color=None, quad_as_tri_alpha=0):
         ax = self._get_ax(ax)
-        if x.ndim == 1:
-            x, y = np.meshgrid(x, y)
-        ax.plot(x, y, x.T, y.T, color=color, alpha=alpha)
+        x, y = self._grid_as_2d(x, y)
+        kwargs = dict(color=color, alpha=alpha)
+        ax.plot(x, y, x.T, y.T, **kwargs)
+        if quad_as_tri_alpha > 0:
+            # Assumes no quad mask.
+            xmid = 0.25*(x[:-1, :-1] + x[1:, :-1] + x[:-1, 1:] + x[1:, 1:])
+            ymid = 0.25*(y[:-1, :-1] + y[1:, :-1] + y[:-1, 1:] + y[1:, 1:])
+            kwargs["alpha"] = quad_as_tri_alpha
+            ax.plot(
+                np.stack((x[:-1, :-1], xmid, x[1:, 1:])).reshape((3, -1)),
+                np.stack((y[:-1, :-1], ymid, y[1:, 1:])).reshape((3, -1)),
+                np.stack((x[1:, :-1], xmid, x[:-1, 1:])).reshape((3, -1)),
+                np.stack((y[1:, :-1], ymid, y[:-1, 1:])).reshape((3, -1)),
+                **kwargs)
+        if point_color is not None:
+            ax.scatter(x, y, color=point_color, alpha=alpha, marker='o')
 
     def lines(self, lines, line_type, ax=0, color="C0", alpha=1.0, linewidth=1):
         ax = self._get_ax(ax)
@@ -79,16 +104,29 @@ class MplRenderer:
         self._autoscale()
         plt.show()
 
-    def title(self, title, ax=0):
-        self._get_ax(ax).set_title(title)
+    def title(self, title, ax=0, color=None):
+        if color:
+            self._get_ax(ax).set_title(title, color=color)
+        else:
+            self._get_ax(ax).set_title(title)
 
-    def z_values(self, x, y, z, ax=0, color="green", fmt=".1f"):
+    def z_values(self, x, y, z, ax=0, color="green", fmt=".1f", quad_as_tri=False):
         ax = self._get_ax(ax)
+        x, y = self._grid_as_2d(x, y)
+        z = np.asarray(z)
         ny, nx = z.shape
         for j in range(ny):
             for i in range(nx):
-                ax.text(x[j, i], y[j, i], f"{z[j,i]:{fmt}}", ha="center", va="center",
+                ax.text(x[j, i], y[j, i], f"{z[j, i]:{fmt}}", ha="center", va="center",
                         color=color, clip_on=True)
+        if quad_as_tri:
+            for j in range(ny-1):
+                for i in range(nx-1):
+                    xx = np.mean(x[j:j+2, i:i+2])
+                    yy = np.mean(y[j:j+2, i:i+2])
+                    zz = np.mean(z[j:j+2, i:i+2])
+                    ax.text(xx, yy, f"{zz:{fmt}}", ha="center", va="center", color=color,
+                            clip_on=True)
 
 
 # Test renderer without whitespace around plots and no spines/ticks displayed.
@@ -114,8 +152,8 @@ class MplTestRenderer(MplRenderer):
 
 
 class MplDebugRenderer(MplRenderer):
-    def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
-        super().__init__(nrows, ncols, figsize)
+    def __init__(self, nrows=1, ncols=1, figsize=(9, 9), show_frame=True):
+        super().__init__(nrows, ncols, figsize, show_frame)
 
     def _arrow(self, ax, line_start, line_end, color, alpha, arrow_size):
         mid = 0.5*(line_start + line_end)
@@ -130,7 +168,7 @@ class MplDebugRenderer(MplRenderer):
         ax.plot(arrow[:, 0], arrow[:, 1], "-", c=color, alpha=alpha)
 
     def filled(self, filled, fill_type, ax=0, color="C1", alpha=0.7, line_color="C0",
-               point_color="C0", start_point_color="red", arrow_size=0.1):
+               line_alpha=0.7, point_color="C0", start_point_color="red", arrow_size=0.1):
         super().filled(filled, fill_type, ax, color, alpha)
 
         if line_color is None and point_color is None:
@@ -177,12 +215,12 @@ class MplDebugRenderer(MplRenderer):
             for points, offsets in zip(all_points, all_offsets):
                 for start, end in zip(offsets[:-1], offsets[1:]):
                     xys = points[start:end]
-                    ax.plot(xys[:, 0], xys[:, 1], c=line_color, alpha=alpha)
+                    ax.plot(xys[:, 0], xys[:, 1], c=line_color, alpha=line_alpha)
 
                     if arrow_size > 0.0:
                         n = len(xys)
                         for i in range(n-1):
-                            self._arrow(ax, xys[i], xys[i+1], line_color, alpha, arrow_size)
+                            self._arrow(ax, xys[i], xys[i+1], line_color, line_alpha, arrow_size)
 
         # Points.
         if point_color is not None:
@@ -192,11 +230,12 @@ class MplDebugRenderer(MplRenderer):
                 if start_point_color is not None:
                     start_indices = offsets[:-1]
                     mask[start_indices] = False  # Exclude start points.
-                ax.plot(points[:, 0][mask], points[:, 1][mask], "o", c=point_color, alpha=alpha)
+                ax.plot(
+                    points[:, 0][mask], points[:, 1][mask], "o", c=point_color, alpha=line_alpha)
 
                 if start_point_color is not None:
                     ax.plot(points[:, 0][start_indices], points[:, 1][start_indices], "o",
-                            c=start_point_color, alpha=alpha)
+                            c=start_point_color, alpha=line_alpha)
 
     def lines(self, lines, line_type, ax=0, color="C0", alpha=1.0, linewidth=1, point_color="C0",
               start_point_color="red", arrow_size=0.1):
@@ -246,6 +285,8 @@ class MplDebugRenderer(MplRenderer):
 
     def point_numbers(self, x, y, z, ax=0, color="red"):
         ax = self._get_ax(ax)
+        x, y = self._grid_as_2d(x, y)
+        z = np.asarray(z)
         ny, nx = z.shape
         for j in range(ny):
             for i in range(nx):
@@ -255,6 +296,8 @@ class MplDebugRenderer(MplRenderer):
 
     def quad_numbers(self, x, y, z, ax=0, color="blue"):
         ax = self._get_ax(ax)
+        x, y = self._grid_as_2d(x, y)
+        z = np.asarray(z)
         ny, nx = z.shape
         for j in range(1, ny):
             for i in range(1, nx):
@@ -265,6 +308,8 @@ class MplDebugRenderer(MplRenderer):
 
     def z_levels(self, x, y, z, lower_level, upper_level=None, ax=0, color="green"):
         ax = self._get_ax(ax)
+        x, y = self._grid_as_2d(x, y)
+        z = np.asarray(z)
         ny, nx = z.shape
         for j in range(ny):
             for i in range(nx):

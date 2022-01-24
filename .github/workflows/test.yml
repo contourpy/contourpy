@@ -55,7 +55,7 @@ jobs:
 
       - name: Run tests
         run: |
-          python -m pytest -v
+          python -m pytest -v tests/
 
       - name: Collect test image failures
         if: always()
@@ -63,7 +63,7 @@ jobs:
         run: |
           if [[ -e result_images ]];
           then
-            DIR="test-artifacts/${{ matrix.os }}_${{ matrix.python-version }}"
+            DIR="test-artifacts/${{ matrix.os }}_${{ matrix.python-version }}_${{ matrix.debug == 1 && 'debug' || '' }}"
             mkdir -p ${DIR}
             mv result_images/* ${DIR}/
           fi
