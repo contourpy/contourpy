@@ -27,9 +27,9 @@ def _name_to_class(name):
     return cls
 
 
-def contour_generator(x, y, z, name=None, corner_mask=None, chunk_size=None, line_type=None,
-                      fill_type=None, quad_as_tri=None, z_interp=ZInterp.Linear, chunk_count=None,
-                      total_chunk_count=None, thread_count=0):
+def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, line_type=None,
+                      fill_type=None, chunk_size=None, chunk_count=None, total_chunk_count=None,
+                      quad_as_tri=None, z_interp=ZInterp.Linear, thread_count=0):
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.

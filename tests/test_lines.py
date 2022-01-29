@@ -327,7 +327,7 @@ def test_lines_random_quad_as_tri(name):
 @pytest.mark.parametrize("name", ["serial"])
 def test_return_by_line_type(one_loop_one_strip, name, line_type):
     x, y, z = one_loop_one_strip
-    cont_gen = contour_generator(x, y, z, name, line_type=line_type)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type)
     assert cont_gen.line_type == line_type
     lines = cont_gen.lines(2.0)
     if line_type in (LineType.Separate, LineType.SeparateCodes):

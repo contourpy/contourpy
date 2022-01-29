@@ -59,6 +59,12 @@ def test_xy_None(xyz_3x3_as_lists, name):
 
 
 @pytest.mark.parametrize("name", util_test.all_names())
+def test_xy_not_specified(xyz_3x3_as_lists, name):
+    _, _, z = xyz_3x3_as_lists
+    contourpy.contour_generator(z=z, name=name)
+
+
+@pytest.mark.parametrize("name", util_test.all_names())
 def test_xy_1d(name):
     z = [[0, 1, 2], [3, 4, 5]]
     contourpy.contour_generator([0, 1, 2], [0, 1], z, name=name)
