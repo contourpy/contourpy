@@ -293,7 +293,7 @@ def test_filled_random_quad_as_tri(name):
 @pytest.mark.parametrize("name", ["serial"])
 def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
     x, y, z = two_outers_one_hole
-    cont_gen = contour_generator(x, y, z, name, fill_type=fill_type)
+    cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type)
     assert cont_gen.fill_type == fill_type
     filled = cont_gen.filled(1.0, 2.0)
     if fill_type in (FillType.OuterCodes, FillType.OuterOffsets):
