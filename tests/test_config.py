@@ -1,5 +1,6 @@
-from image_comparison import compare_images
 import pytest
+
+from image_comparison import compare_images
 import util_config
 import util_test
 

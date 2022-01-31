@@ -1,9 +1,10 @@
+import numpy as np
+import pytest
+
 from contourpy import contour_generator, FillType, LineType
 from contourpy.util.data import random
 from contourpy.util.mpl_renderer import MplRenderer
 from image_comparison import compare_images
-import numpy as np
-import pytest
 
 
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())

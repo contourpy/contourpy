@@ -15,8 +15,6 @@ enum class FillType
     ChunkCombinedOffsets2 = 206,
 };
 
-FillType FillType_from_string(const std::string& string);
-
 std::ostream &operator<<(std::ostream &os, const FillType& fill_type);
 
 #endif // CONTOURPY_FILL_TYPE_H

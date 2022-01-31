@@ -1,5 +1,7 @@
-from contourpy import FillType, LineType, ZInterp
 import pytest
+
+from contourpy import FillType, LineType, ZInterp
+from contourpy.enum_util import as_fill_type, as_line_type, as_z_interp
 import util_test
 
 
@@ -41,12 +43,14 @@ def test_all_z_interps():
         assert z_interps[name] == enum.value
 
 
-@pytest.mark.parametrize("enum_type", [FillType, LineType, ZInterp])
-def test_string_to_enum(enum_type):
+@pytest.mark.parametrize(
+    ["enum_type", "from_string_function"],
+    [(FillType, as_fill_type), (LineType, as_line_type), (ZInterp, as_z_interp)])
+def test_string_to_enum(enum_type, from_string_function):
     for name, enum in enum_type.__members__.items():
-        line_type = enum_type._from_string(name)
+        line_type = from_string_function(name)
         assert line_type == enum
 
-    msg = f"'unknown' is not a valid {enum_type.__name__}"
-    with pytest.raises(ValueError, match=msg):
-        enum_type._from_string("unknown")
+    msg = "'unknown'"
+    with pytest.raises(KeyError, match=msg):
+        _ = from_string_function("unknown")

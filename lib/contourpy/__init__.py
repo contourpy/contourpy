@@ -1,10 +1,12 @@
+import numpy as np
+
 from .chunk import calc_chunk_sizes
 from ._contourpy import (
     max_threads, FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
     SerialContourGenerator, ThreadedContourGenerator, ZInterp
 )
+from .enum_util import as_fill_type, as_line_type, as_z_interp
 from ._version import __version__
-import numpy as np
 
 
 __all__ = [
@@ -25,6 +27,9 @@ def _name_to_class(name):
     class_name = f"{name.capitalize()}ContourGenerator"
     cls = globals()[class_name]
     return cls
+
+
+_valid_names = ["mpl2005", "mpl2014", "serial", "threaded"]
 
 
 def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, line_type=None,
@@ -81,7 +86,7 @@ def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, li
     if name is None:
         name = "serial"  # Default algorithm.
 
-    if name not in ("mpl2005", "mpl2014", "serial", "threaded"):
+    if name not in _valid_names:
         raise ValueError(f"Unrecognised contour generator name: {name}")
 
     # Check arguments: chunk_size, chunk_count and total_chunk_count.
@@ -100,8 +105,8 @@ def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, li
     # Check arguments: line_type.
     if line_type is None:
         line_type = cls.default_line_type
-    elif isinstance(line_type, str):
-        line_type = LineType._from_string(line_type)
+    else:
+        line_type = as_line_type(line_type)
 
     if not cls.supports_line_type(line_type):
         raise ValueError(f"{name} contour generator does not support line_type {line_type}")
@@ -109,8 +114,8 @@ def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, li
     # Check arguments: fill_type.
     if fill_type is None:
         fill_type = cls.default_fill_type
-    elif isinstance(fill_type, str):
-        fill_type = FillType._from_string(fill_type)
+    else:
+        fill_type = as_fill_type(fill_type)
 
     if not cls.supports_fill_type(fill_type):
         raise ValueError(f"{name} contour generator does not support fill_type {fill_type}")
@@ -124,8 +129,8 @@ def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, li
     # Check arguments: z_interp.
     if z_interp is None:
         z_interp = ZInterp.Linear
-    elif isinstance(z_interp, str):
-        z_interp = ZInterp._from_string(z_interp)
+    else:
+        z_interp = as_z_interp(z_interp)
 
     if z_interp != ZInterp.Linear and not cls.supports_z_interp():
         raise ValueError(f"{name} contour generator does not support z_interp {z_interp}")

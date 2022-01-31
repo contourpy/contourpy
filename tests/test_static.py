@@ -1,9 +1,10 @@
+import pytest
+import util_test
+
 from contourpy import (
     FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator, SerialContourGenerator,
     ThreadedContourGenerator,
 )
-import pytest
-import util_test
 
 
 def get_class_from_name(name):

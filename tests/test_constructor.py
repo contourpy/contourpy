@@ -1,6 +1,7 @@
-import contourpy
 import numpy as np
 import pytest
+
+import contourpy
 import util_test
 
 
