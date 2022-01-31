@@ -1,6 +1,7 @@
-from contourpy import FillType, LineType
 import matplotlib.path as mpath
 import numpy as np
+
+from contourpy import FillType, LineType
 
 
 def filled_to_mpl_paths(filled, fill_type):

@@ -1,10 +1,11 @@
+import numpy as np
+from numpy.testing import assert_array_equal
+import pytest
+
 from contourpy import contour_generator, FillType
 from contourpy.util.data import random, simple
 from contourpy.util.mpl_renderer import MplTestRenderer
 from image_comparison import compare_images
-import numpy as np
-from numpy.testing import assert_array_equal
-import pytest
 import util_test
 
 

@@ -1,5 +1,6 @@
-from contourpy import FillType, LineType
 import numpy as np
+
+from contourpy import FillType, LineType
 
 
 point_dtype = np.float64

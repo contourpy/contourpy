@@ -28,22 +28,19 @@ PYBIND11_MODULE(_contourpy, m) {
         .value("ChunkCombinedOffsets", FillType::ChunkCombinedOffsets)
         .value("ChunkCombinedCodesOffsets", FillType::ChunkCombinedCodesOffsets)
         .value("ChunkCombinedOffsets2", FillType::ChunkCombinedOffsets2)
-        .export_values()
-        .def_static("_from_string", &FillType_from_string);
+        .export_values();
 
     py::enum_<LineType>(m, "LineType")
         .value("Separate", LineType::Separate)
         .value("SeparateCodes", LineType::SeparateCodes)
         .value("ChunkCombinedCodes", LineType::ChunkCombinedCodes)
         .value("ChunkCombinedOffsets", LineType::ChunkCombinedOffsets)
-        .export_values()
-        .def_static("_from_string", &LineType_from_string);
+        .export_values();
 
     py::enum_<ZInterp>(m, "ZInterp")
         .value("Linear", ZInterp::Linear)
         .value("Log", ZInterp::Log)
-        .export_values()
-        .def_static("_from_string", &ZInterp_from_string);
+        .export_values();
 
     m.def("max_threads", &Util::get_max_threads, "docs");
 
@@ -152,7 +149,7 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("y_chunk_size") = 0)
         .def("filled", &SerialContourGenerator::filled)
         .def("lines", &SerialContourGenerator::lines)
-        .def("write_cache", &SerialContourGenerator::write_cache)
+        .def("_write_cache", &SerialContourGenerator::write_cache)
         .def_property_readonly("chunk_count", &SerialContourGenerator::get_chunk_count)
         .def_property_readonly("chunk_size", &SerialContourGenerator::get_chunk_size)
         .def_property_readonly("corner_mask", &SerialContourGenerator::get_corner_mask)

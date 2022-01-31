@@ -1,7 +1,8 @@
-from contourpy import contour_generator, LineType, ZInterp
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
+
+from contourpy import contour_generator, LineType, ZInterp
 
 
 @pytest.fixture

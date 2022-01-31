@@ -14,8 +14,6 @@ enum class ZInterp
     Log = 2
 };
 
-ZInterp ZInterp_from_string(const std::string& string);
-
 std::ostream &operator<<(std::ostream &os, const ZInterp& z_interp);
 
 #endif // CONTOURPY_ZINTERP_H

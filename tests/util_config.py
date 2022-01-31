@@ -1,10 +1,12 @@
-from contourpy import contour_generator, LineType
-from enum import Enum
-import io
 import matplotlib
 matplotlib.use("Agg")
+
+from enum import Enum
+import io
 import matplotlib.pyplot as plt
 import numpy as np
+
+from contourpy import contour_generator, LineType
 
 
 class PointType(Enum):

@@ -1,7 +1,8 @@
-import contourpy
 import pytest
 import re
 from subprocess import run
+
+import contourpy
 
 
 # From PEP440 appendix.
