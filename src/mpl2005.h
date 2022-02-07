@@ -28,7 +28,6 @@ public:
 
 private:
     CoordinateArray _x, _y, _z;
-    MaskArray _mask;
     Csite *_site;
 };
 
