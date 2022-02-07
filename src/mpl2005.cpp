@@ -6,7 +6,6 @@ Mpl2005ContourGenerator::Mpl2005ContourGenerator(
     : _x(x),
       _y(y),
       _z(z),
-      _mask(mask),
       _site(cntr_new())
 {
     if (_x.ndim() != 2 || _y.ndim() != 2 || _z.ndim() != 2)
@@ -34,7 +33,7 @@ Mpl2005ContourGenerator::Mpl2005ContourGenerator(
     if (x_chunk_size < 0 || y_chunk_size < 0)
         throw std::invalid_argument("chunk_sizes cannot be negative");
 
-    const bool* mask_data = (_mask.ndim() > 0 ? _mask.data() : nullptr);
+    const bool* mask_data = (mask.ndim() > 0 ? mask.data() : nullptr);
 
     cntr_init(
         _site, nx, ny, _x.data(), _y.data(), _z.data(), mask_data, x_chunk_size, y_chunk_size);
