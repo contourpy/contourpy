@@ -10,9 +10,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../lib'))
+sys.path.append(os.path.abspath("./sphinxext"))
 
 import sphinx_rtd_theme
 
@@ -30,7 +31,14 @@ author = 'ContourPy Contributors'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
     "sphinx_rtd_theme",
+    "name_supports",
+    "name_supports_type",
+    "plot_directive",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -49,13 +57,28 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = 'sphinx_rtd_theme'
 
+html_theme_path = ["_themes", ]
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_logo = '_static/contourpy_logo_horiz.svg'
+html_favicon = '_static/contourpy_favicon.ico'
+
+html_logo = '_static/contourpy_logo_horiz_white.svg'
 
 html_theme_options = {
     'logo_only': True,
+    'prev_next_buttons_location': 'bottom',
 }
+
+rst_epilog= """
+.. _Bokeh: https://www.github.com/bokeh/bokeh/
+.. _Matplotlib: https://www.github.com/matplotlib/matplotlib/
+.. _NumPy: https://www.github.com/numpy/numpy/
+.. _PyPI: https://pypi.org/project/contourpy/
+.. _conda-forge: https://anaconda.org/conda-forge/contourpy/
+.. _github: https://www.github.com/contourpy/contourpy/
+.. _pybind11: https://www.github.com/pybind/pybind11/
+"""

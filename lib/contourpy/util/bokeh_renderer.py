@@ -11,6 +11,22 @@ from .bokeh_util import filled_to_bokeh, lines_to_bokeh
 
 
 class BokehRenderer:
+    """Utility renderer using Bokeh to render a grid of plots over the same (x, y) range.
+
+    Args:
+        nrows (int, optional): Number of rows of plots, default ``1``.
+        ncols (int, optional): Number of columns of plots, default ``1``.
+        figsize (tuple(float, float), optional): Figure size in inches (assuming 100 dpi), default
+            ``(9, 9)``.
+        show_frame (bool, optional): Whether to show frame and axes ticks, default ``True``.
+        want_svg (bool, optional): Whether output is required in SVG format or not, default
+            ``False``.
+
+    Warning:
+        :class:`~contourpy.util.bokeh_renderer.BokehRenderer`, unlike
+        :class:`~contourpy.util.mpl_renderer.MplRenderer`, needs to be told in advance if output to
+        SVG format will be required later, otherwise it will assume PNG output.
+    """
     def __init__(self, nrows=1, ncols=1, figsize=(9, 9), show_frame=True, want_svg=False):
         self._want_svg = want_svg
         self._palette = Category10[10]
@@ -52,6 +68,19 @@ class BokehRenderer:
         return x, y
 
     def filled(self, filled, fill_type, ax=0, color="C0", alpha=0.7):
+        """Plot filled contours on a single plot.
+
+        Args:
+            filled (sequence of arrays): Filled contour data as returned by
+                :func:`~contourpy.SerialContourGenerator.filled`.
+            fill_type (FillType): Type of ``filled`` data, as returned by
+                :attr:`~contourpy.SerialContourGenerator.fill_type`.
+            ax (int or Bokeh Figure, optional): Which plot to plot on.
+            color (str, optional): Color to plot with. May be a string color or the letter ``"C"``
+                followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
+                ``Category10`` palette. Default ``"C0"``.
+            alpha (float, optional): Opacity to plot with, default ``0.7``.
+        """
         fig = self._get_figure(ax)
         color = self._convert_color(color)
         xs, ys = filled_to_bokeh(filled, fill_type)
@@ -59,6 +88,24 @@ class BokehRenderer:
             fig.multi_polygons(xs=[xs], ys=[ys], color=color, fill_alpha=alpha, line_width=0)
 
     def grid(self, x, y, ax=0, color="black", alpha=0.1, point_color=None, quad_as_tri_alpha=0):
+        """Plot quad grid lines on a single plot.
+
+        Args:
+            x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
+            y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
+            ax (int or Bokeh Figure, optional): Which plot to plot on.
+            color (str, optional): Color to plot grid lines, default ``"black"``.
+            alpha (float, optional): Opacity to plot lines with, default ``0.1``.
+            point_color (str, optional): Color to plot grid points or ``None`` if grid points
+                should not be plotted, default ``None``.
+            quad_as_tri_alpha (float, optional): Opacity to plot ``quad_as_tri`` grid, default 0.
+
+        Colors may be a string color or the letter ``"C"`` followed by an integer in the range
+        ``"C0"`` to ``"C9"`` to use a color from the ``Category10`` palette.
+
+        Warning:
+            ``quad_as_tri_alpha > 0`` plots all quads as though they are unmasked.
+        """
         fig = self._get_figure(ax)
         x, y = self._grid_as_2d(x, y)
         xs = [row for row in x] + [row for row in x.T]
@@ -82,7 +129,23 @@ class BokehRenderer:
                 x=x.ravel(), y=y.ravel(), fill_color=color, line_color=None, alpha=alpha, size=8)
 
     def lines(self, lines, line_type, ax=0, color="C0", alpha=1.0, linewidth=1):
-        # Assumes all lines are open line loops.
+        """Plot contour lines on a single plot.
+
+        Args:
+            lines (sequence of arrays): Contour line data as returned by
+                :func:`~contourpy.SerialContourGenerator.lines`.
+            line_type (LineType): Type of ``lines`` data, as returned by
+                :attr:`~contourpy.SerialContourGenerator.line_type`.
+            ax (int or Bokeh Figure, optional): Which plot to plot on.
+            color (str, optional): Color to plot lines. May be a string color or the letter ``"C"``
+                followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
+                ``Category10`` palette. Default ``"C0"``.
+            alpha (float, optional): Opacity to plot lines with, default ``1.0``.
+            linewidth (float, optional): Width of lines, default ``1``.
+
+        Note:
+            Assumes all lines are open line strips not closed line loops.
+        """
         fig = self._get_figure(ax)
         color = self._convert_color(color)
         xs, ys = lines_to_bokeh(lines, line_type)
@@ -90,21 +153,45 @@ class BokehRenderer:
             fig.multi_line(xs, ys, line_color=color, line_alpha=alpha, line_width=linewidth)
 
     def save(self, filename):
+        """Save plots to SVG or PNG file.
+
+        Args:
+            filename (str): Filename to save to.
+
+        Warning:
+            To output to SVG file, ``want_svg=True`` must have been passed to the constructor.
+        """
         if self._want_svg:
             export_svg(self._layout, filename=filename)
         else:
             export_png(self._layout, filename=filename)
 
     def save_to_buffer(self):
+        """Save plots to an ``io.BytesIO`` buffer.
+
+        Return:
+            BytesIO: PNG image buffer.
+        """
         image = get_screenshot_as_png(self._layout)
         buffer = io.BytesIO()
         image.save(buffer, "png")
         return buffer
 
     def show(self):
+        """Show plots in web browser, in usual Bokeh manner.
+        """
         show(self._layout)
 
     def title(self, title, ax=0, color=None):
+        """Set the title of a single plot.
+
+        Args:
+            title (str): Title text.
+            ax (int or Bokeh Figure, optional): Which plot to set the titie of.
+            color (str, optional): Color to set title. May be a string color or the letter ``"C"``
+                followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
+                ``Category10`` palette. Default ``None`` which is ``black``.
+        """
         fig = self._get_figure(ax)
         fig.title = title
         fig.title.align = "center"
@@ -112,6 +199,23 @@ class BokehRenderer:
             fig.title.text_color = self._convert_color(color)
 
     def z_values(self, x, y, z, ax=0, color="green", fmt=".1f", quad_as_tri=False):
+        """Show ``z`` values on a single plot.
+
+        Args:
+            x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
+            y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
+            z (array-like of shape (ny, nx): z-values.
+            ax (int or Bokeh Figure, optional): Which plot to plot on.
+            color (str, optional): Color of added text. May be a string color or the letter ``"C"``
+                followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
+                ``Category10`` palette. Default ``"green"``.
+            fmt (str, optional): Format to display z-values, default ``".1f"``.
+            quad_as_tri (bool, optional): Whether to show z-values at the ``quad_as_tri`` centres
+                of quads.
+
+        Warning:
+            ``quad_as_tri=True`` shows z-values for all quads, even if masked.
+        """
         fig = self._get_figure(ax)
         color = self._convert_color(color)
         x, y = self._grid_as_2d(x, y)
