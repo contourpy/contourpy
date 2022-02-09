@@ -10,3 +10,4 @@ wheelhouse/
 .vscode/
 .asv/
 _build/
+generated/

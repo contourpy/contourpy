@@ -32,9 +32,65 @@ def _name_to_class(name):
 _valid_names = ["mpl2005", "mpl2014", "serial", "threaded"]
 
 
-def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, line_type=None,
+def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None, line_type=None,
                       fill_type=None, chunk_size=None, chunk_count=None, total_chunk_count=None,
-                      quad_as_tri=None, z_interp=ZInterp.Linear, thread_count=0):
+                      quad_as_tri=False, z_interp=ZInterp.Linear, thread_count=0):
+    """Create and return a contour generator object.
+
+    The class and properties of the contour generator are determined by the function arguments,
+    with sensible defaults.
+
+    Args:
+        x (array-like of shape (ny, nx) or (nx,), optional): The x-coordinates of the ``z`` values.
+            May be 2D with the same shape as ``z.shape``, or 1D with length ``nx = z.shape[1]``.
+            If not specified are assumed to be ``np.arange(nx)``. Must be ordered monotonically.
+        y (array-like of shape (ny, nx) or (ny,), optional): The y-coordinates of the ``z`` values,
+            May be 2D with the same shape as ``z.shape``, or 1D with length ``ny = z.shape[0]``.
+            If not specified are assumed to be ``np.arange(ny)``. Must be ordered monotonically.
+        z (array-like of shape (ny, nx), may be a masked array): The 2D gridded values to calculate
+            the contours of.
+        name (str): Algorithm name, one of ``"serial"``, ``"threaded"``, ``"mpl2005"`` or
+            ``"mpl2014"``, default ``"serial"``.
+        corner_mask (bool, optional): Enable/disable corner masking, which only has an effect if
+            ``z`` is a masked array. If ``False``, any quad touching a masked point is masked out.
+            If ``True``, only the triangular corners of quads nearest these points are always masked
+            out, other triangular corners comprising three unmasked points are contoured as usual.
+            If not specified, uses the default provided by the algorithm ``name``.
+        line_type (LineType, optional): The format of contour line data returned from calls to
+            :meth:`~contourpy.SerialContourGenerator.lines`. If not specified, uses the default
+            provided by the algorithm ``name``.
+        fill_type (FillType, optional): The format of filled contour data returned from calls to
+            :meth:`~contourpy.SerialContourGenerator.filled`. If not specified, uses the default
+            provided by the algorithm ``name``.
+        chunk_size (int or tuple(int, int), optional): Chunk size in (y, x) directions, or the same
+            size in both directions if only one is specified.
+        chunk_count (int or tuple(int, int), optional): Chunk count in (y, x) directions, or the
+            same count in both directions if only one is specified.
+        total_chunk_count (int, optional): Total number of chunks.
+        quad_as_tri (bool): Enable/disable treating quads as 4 triangles, default ``False``.
+            If ``False``, a contour line within a quad is a straight line between points on two of
+            its edges. If ``True``, each full quad is divided into 4 triangles using a virtual point
+            at the centre (mean x, y of the corner points) and a contour line is piecewise linear
+            within those triangles. Corner-masked triangles are not affected by this setting.
+        z_interp (ZInterp): How to interpolate ``z`` values when determining where contour lines
+            intersect the edges of quads, default ``ZInterp.Linear``.
+        thread_count (int): Number of threads to use for contour calculation, default 0. Threads can
+            only be used with an algorithm ``name`` that supports threads (currently only
+            ``name="threaded"``) and there must be at least the same number of chunks as threads.
+            If ``thread_count=0`` and ``name="threaded"`` then it uses the maximum number of threads
+            as determined by the C++11 call ``std::thread::hardware_concurrency()``.
+
+    Return:
+        ContourGenerator: A contour generator object that implements the same interface as
+        :class:`~contourpy._contourpy.SerialContourGenerator`.
+
+    Note:
+        A maximum of one of ``chunk_size``, ``chunk_count`` and ``total_chunk_count`` may be
+        specified.
+
+    Warning:
+        The ``name="mpl2005"`` algorithm does not implement chunking for contour lines.
+    """
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
     z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.
@@ -53,8 +109,8 @@ def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, li
         raise TypeError(f"Number of dimensions of x ({x.ndim}) and y ({y.ndim}) do not match")
 
     if x.ndim == 0:
-        x = np.arange(nx)
-        y = np.arange(ny)
+        x = np.arange(nx, dtype=np.float64)
+        y = np.arange(ny, dtype=np.float64)
         x, y = np.meshgrid(x, y)
     elif x.ndim == 1:
         if len(x) != nx:
@@ -83,9 +139,6 @@ def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, li
         raise ValueError("If mask is set it must be a 2D array with the same shape as z")
 
     # Check arguments: name.
-    if name is None:
-        name = "serial"  # Default algorithm.
-
     if name not in _valid_names:
         raise ValueError(f"Unrecognised contour generator name: {name}")
 
@@ -121,9 +174,7 @@ def contour_generator(x=None, y=None, z=None, *, name=None, corner_mask=None, li
         raise ValueError(f"{name} contour generator does not support fill_type {fill_type}")
 
     # Check arguments: quad_as_tri.
-    if quad_as_tri is None:
-        quad_as_tri = False  # Default.
-    elif quad_as_tri and not cls.supports_quad_as_tri():
+    if quad_as_tri and not cls.supports_quad_as_tri():
         raise ValueError(f"{name} contour generator does not support quad_as_tri=True")
 
     # Check arguments: z_interp.

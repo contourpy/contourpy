@@ -2,6 +2,24 @@ import math
 
 
 def calc_chunk_sizes(chunk_size, chunk_count, total_chunk_count, ny, nx):
+    """Calculate chunk sizes.
+
+    Args:
+        chunk_size (int or tuple(int, int), optional): Chunk size in (y, x) directions, or the same
+            size in both directions if only one is specified.
+        chunk_count (int or tuple(int, int), optional): Chunk count in (y, x) directions, or the
+            same count in both irections if only one is specified.
+        total_chunk_count (int, optional): Total number of chunks.
+        ny (int): Number of grid points in y-direction.
+        nx (int): Number of grid points in x-direction.
+
+    Return:
+        tuple(int, int): Chunk sizes (y_chunk_size, x_chunk_size).
+
+    Note:
+        A maximum of one of ``chunk_size``, ``chunk_count`` and ``total_chunk_count`` may be
+        specified.
+    """
     if sum([chunk_size is not None, chunk_count is not None, total_chunk_count is not None]) > 1:
         raise ValueError("Only one of chunk_size, chunk_count and total_chunk_count should be set")
 
@@ -41,9 +59,18 @@ def calc_chunk_sizes(chunk_size, chunk_count, total_chunk_count, ny, nx):
     return y_chunk_size, x_chunk_size
 
 
-# Splits integer n into two integer factors that are as close as possible to the sqrt of n, and
-# returns them in decreasing order.  Worst case returns (n, 1).
 def two_factors(n):
+    """Split an integer into two integer factors.
+
+    The two factors will be as close as possible to the sqrt of n, and are returned in decreasing
+    order.  Worst case returns (n, 1).
+
+    Args:
+        n (int): The integer to factorize.
+
+    Return:
+        tuple(int, int): The two factors of n, in decreasing order.
+    """
     i = math.ceil(math.sqrt(n))
     while n % i != 0:
         i -= 1

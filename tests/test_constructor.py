@@ -223,6 +223,14 @@ def test_total_chunk_count(xyz_7x5_as_arrays, name, total_chunk_count, ret_chunk
     assert (ret_x_chunk_count-1)*ret_x_chunk_size < nx-1
 
 
+def test_name_invalid(xyz_3x3_as_lists):
+    x, y, z = xyz_3x3_as_lists
+    name = "some invalid name"
+    msg = f"Unrecognised contour generator name: {name}"
+    with pytest.raises(ValueError, match=msg):
+        _ = contourpy.contour_generator(x, y, z, name=name)
+
+
 @pytest.mark.parametrize("name", util_test.all_names())
 def test_properties(xyz_3x3_as_lists, name):
     # Test that each ContourGenerator class implements all the required properties.

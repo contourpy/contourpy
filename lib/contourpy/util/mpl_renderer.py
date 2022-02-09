@@ -16,6 +16,14 @@ from .mpl_util import filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offs
 
 
 class MplRenderer:
+    """Utility renderer using Matplotlib to render a grid of plots over the same (x, y) range.
+
+    Args:
+        nrows (int, optional): Number of rows of plots, default ``1``.
+        ncols (int, optional): Number of columns of plots, default ``1``.
+        figsize (tuple(float, float), optional): Figure size in inches, default ``(9, 9)``.
+        show_frame (bool, optional): Whether to show frame and axes ticks, default ``True``.
+    """
     def __init__(self, nrows=1, ncols=1, figsize=(9, 9), show_frame=True):
         plt.switch_backend(_default_backend)
         self._fig, axes = plt.subplots(
@@ -54,6 +62,19 @@ class MplRenderer:
         return x, y
 
     def filled(self, filled, fill_type, ax=0, color="C0", alpha=0.7):
+        """Plot filled contours on a single Axes.
+
+        Args:
+            filled (sequence of arrays): Filled contour data as returned by
+                :func:`~contourpy.SerialContourGenerator.filled`.
+            fill_type (FillType): Type of ``filled`` data, as returned by
+                :attr:`~contourpy.SerialContourGenerator.fill_type`.
+            ax (int or Maplotlib Axes, optional): Which axes to plot on.
+            color (str, optional): Color to plot with. May be a string color or the letter ``"C"``
+                followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
+                ``tab10`` colormap. Default ``"C0"``.
+            alpha (float, optional): Opacity to plot with, default ``0.7``.
+        """
         ax = self._get_ax(ax)
         paths = filled_to_mpl_paths(filled, fill_type)
         collection = mcollections.PathCollection(
@@ -62,6 +83,24 @@ class MplRenderer:
         ax._need_autoscale = True
 
     def grid(self, x, y, ax=0, color="black", alpha=0.1, point_color=None, quad_as_tri_alpha=0):
+        """Plot quad grid lines on a single Axes.
+
+        Args:
+            x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
+            y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
+            ax (int or Matplotlib Axes, optional): Which Axes to plot on.
+            color (str, optional): Color to plot grid lines, default ``"black"``.
+            alpha (float, optional): Opacity to plot lines with, default ``0.1``.
+            point_color (str, optional): Color to plot grid points or ``None`` if grid points
+                should not be plotted, default ``None``.
+            quad_as_tri_alpha (float, optional): Opacity to plot ``quad_as_tri`` grid, default 0.
+
+        Colors may be a string color or the letter ``"C"`` followed by an integer in the range
+        ``"C0"`` to ``"C9"`` to use a color from the ``tab10`` colormap.
+
+        Warning:
+            ``quad_as_tri_alpha > 0`` plots all quads as though they are unmasked.
+        """
         ax = self._get_ax(ax)
         x, y = self._grid_as_2d(x, y)
         kwargs = dict(color=color, alpha=alpha)
@@ -79,8 +118,23 @@ class MplRenderer:
                 **kwargs)
         if point_color is not None:
             ax.scatter(x, y, color=point_color, alpha=alpha, marker='o')
+        ax._need_autoscale = True
 
     def lines(self, lines, line_type, ax=0, color="C0", alpha=1.0, linewidth=1):
+        """Plot contour lines on a single Axes.
+
+        Args:
+            lines (sequence of arrays): Contour line data as returned by
+                :func:`~contourpy.SerialContourGenerator.lines`.
+            line_type (LineType): Type of ``lines`` data, as returned by
+                :attr:`~contourpy.SerialContourGenerator.line_type`.
+            ax (int or Matplotlib Axes, optional): Which Axes to plot on.
+            color (str, optional): Color to plot lines. May be a string color or the letter ``"C"``
+                followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
+                ``tab10`` colormap. Default ``"C0"``.
+            alpha (float, optional): Opacity to plot lines with, default ``1.0``.
+            linewidth (float, optional): Width of lines, default ``1``.
+        """
         ax = self._get_ax(ax)
         paths = lines_to_mpl_paths(lines, line_type)
         collection = mcollections.PathCollection(
@@ -88,29 +142,66 @@ class MplRenderer:
         ax.add_collection(collection)
         ax._need_autoscale = True
 
+    def save(self, filename):
+        """Save plots to SVG or PNG file.
+
+        Args:
+            filename (str): Filename to save to.
+        """
+        self._autoscale()
+        self._fig.savefig(filename)
+
     def save_to_buffer(self):
+        """Save plots to an ``io.BytesIO`` buffer.
+
+        Return:
+            BytesIO: PNG image buffer.
+        """
         self._autoscale()
         buf = io.BytesIO()
         self._fig.savefig(buf, format="png")
         buf.seek(0)
         return buf
 
-    # Save as PNG or SVG.
-    def save(self, filename):
-        self._autoscale()
-        self._fig.savefig(filename)
-
     def show(self):
+        """Show plots in an interactive window, in the usual Matplotlib manner.
+        """
         self._autoscale()
         plt.show()
 
     def title(self, title, ax=0, color=None):
+        """Set the title of a single Axes.
+
+        Args:
+            title (str): Title text.
+            ax (int or Matplotlib Axes, optional): Which Axes to set the titie of.
+            color (str, optional): Color to set title. May be a string color or the letter ``"C"``
+                followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
+                ``tab10`` colormap. Default ``None`` which is ``black``.
+        """
         if color:
             self._get_ax(ax).set_title(title, color=color)
         else:
             self._get_ax(ax).set_title(title)
 
     def z_values(self, x, y, z, ax=0, color="green", fmt=".1f", quad_as_tri=False):
+        """Show ``z`` values on a single Axes.
+
+        Args:
+            x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
+            y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
+            z (array-like of shape (ny, nx): z-values.
+            ax (int or Matplotlib Axes, optional): Which Axes to plot on.
+            color (str, optional): Color of added text. May be a string color or the letter ``"C"``
+                followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
+                ``tab10`` colormap. Default ``"green"``.
+            fmt (str, optional): Format to display z-values, default ``".1f"``.
+            quad_as_tri (bool, optional): Whether to show z-values at the ``quad_as_tri`` centers
+                of quads.
+
+        Warning:
+            ``quad_as_tri=True`` shows z-values for all quads, even if masked.
+        """
         ax = self._get_ax(ax)
         x, y = self._grid_as_2d(x, y)
         z = np.asarray(z)
@@ -129,9 +220,12 @@ class MplRenderer:
                             clip_on=True)
 
 
-# Test renderer without whitespace around plots and no spines/ticks displayed.
-# Uses Agg backend, so can only save to file/buffer, cannot call show().
 class MplTestRenderer(MplRenderer):
+    """Test renderer implemented using Matplotlib.
+
+    No whitespace around plots and no spines/ticks displayed.
+    Uses Agg backend, so can only save to file/buffer, cannot call ``show()``.
+    """
     def __init__(self, nrows=1, ncols=1, figsize=(9, 9)):
         gridspec = {
             "left": 0.01,
@@ -152,6 +246,11 @@ class MplTestRenderer(MplRenderer):
 
 
 class MplDebugRenderer(MplRenderer):
+    """Debug renderer implemented using Matplotlib.
+
+    Extends ``MplRenderer`` to add extra information to help in debugging such as markers, arrows,
+    text, etc.
+    """
     def __init__(self, nrows=1, ncols=1, figsize=(9, 9), show_frame=True):
         super().__init__(nrows, ncols, figsize, show_frame)
 

@@ -2,6 +2,16 @@ import numpy as np
 
 
 def simple(shape, want_mask=False):
+    """Return simple test data consisting of the sum of two gaussians.
+
+    Args:
+        shape (tuple(int, int)): 2D shape of data to return.
+        want_mask (bool, optional): Whether test data should be masked or not, default ``False``.
+
+    Return:
+        tuple of 3 arrays: ``x``, ``y``, ``z`` test data, ``z`` will be masked if
+        ``want_mask=True``.
+    """
     ny, nx = shape
     x = np.arange(nx, dtype=np.float64)
     y = np.arange(ny, dtype=np.float64)
@@ -30,6 +40,17 @@ def simple(shape, want_mask=False):
 
 
 def random(shape, seed=2187, mask_fraction=0.0):
+    """Return random test data..
+
+    Args:
+        shape (tuple(int, int)): 2D shape of data to return.
+        seed (int, optional): Seed for random number generator, default 2187.
+        mask_fraction (float, optional): Fraction of elements to mask, default 0.
+
+    Return:
+        tuple of 3 arrays: ``x``, ``y``, ``z`` test data, ``z`` will be masked if
+        ``mask_fraction`` is greater than zero.
+    """
     ny, nx = shape
     x = np.arange(nx, dtype=np.float64)
     y = np.arange(ny, dtype=np.float64)
