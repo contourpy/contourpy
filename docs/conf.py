@@ -11,11 +11,9 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sys
-sys.path.insert(0, os.path.abspath('../lib'))
-sys.path.append(os.path.abspath("./sphinxext"))
-
 import sphinx_rtd_theme
+import sys
+sys.path.append(os.path.abspath("./sphinxext"))
 
 
 # -- Project information -----------------------------------------------------
@@ -73,7 +71,7 @@ html_theme_options = {
     'prev_next_buttons_location': 'bottom',
 }
 
-rst_epilog= """
+rst_epilog = """
 .. _Bokeh: https://www.github.com/bokeh/bokeh/
 .. _Matplotlib: https://www.github.com/matplotlib/matplotlib/
 .. _NumPy: https://www.github.com/numpy/numpy/
