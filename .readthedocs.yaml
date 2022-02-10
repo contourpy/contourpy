@@ -10,6 +10,7 @@ python:
     - method: pip
       path: .
       extra_requirements:
+        - bokeh
         - docs
         - test
 
