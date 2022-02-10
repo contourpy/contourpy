@@ -5,3 +5,13 @@ requires = [
     "pybind11>=2.6",
     "setuptools>=42",
 ]
+
+[tool.cibuildwheel]
+build-verbosity = "2"
+build = "cp37-* cp38-* cp39-* cp310-* pp37-* pp38-*"
+
+[tool.cibuildwheel.linux]
+archs = "auto aarch64"
+
+[tool.cibuildwheel.macos]
+archs = "x86_64 arm64 universal2"
