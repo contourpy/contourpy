@@ -142,6 +142,15 @@ class MplRenderer:
         ax.add_collection(collection)
         ax._need_autoscale = True
 
+    def mask(self, x, y, z, ax=0, color="black"):
+        mask = np.ma.getmask(z)
+        if mask is np.ma.nomask:
+            return
+
+        ax = self._get_ax(ax)
+        x, y = self._grid_as_2d(x, y)
+        ax.plot(x[mask], y[mask], 'o', c=color)
+
     def save(self, filename):
         """Save plots to SVG or PNG file.
 
