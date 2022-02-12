@@ -331,46 +331,45 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type)
     assert cont_gen.line_type == line_type
     lines = cont_gen.lines(2.0)
-    if line_type in (LineType.Separate, LineType.SeparateCodes):
-        if line_type == LineType.SeparateCodes:
-            assert isinstance(lines, tuple) and len(lines) == 2
-            points = lines[0]
-        else:
-            points = lines
-        assert isinstance(points, list) and len(points) == 2
-        for p in points:
-            assert isinstance(p, np.ndarray)
-            assert p.dtype == util_test.point_dtype
+
+    util_test.assert_lines(lines, line_type)
+
+    if line_type == LineType.Separate:
+        points = lines
+        assert len(points) == 2
         assert points[0].shape == (5, 2)
         assert points[1].shape == (2, 2)
-        assert_array_equal(points[0][0], points[0][4])
-        if line_type == LineType.SeparateCodes:
-            codes = lines[1]
-            assert isinstance(codes, list) and len(codes) == 2
-            for c in codes:
-                assert isinstance(c, np.ndarray)
-                assert c.dtype == util_test.code_dtype
-            assert_array_equal(codes[0], [1, 2, 2, 2, 79])
-            assert_array_equal(codes[1], [1, 2])
-    elif line_type in (LineType.ChunkCombinedCodes, LineType.ChunkCombinedOffsets):
-        assert isinstance(lines, tuple) and len(lines) == 2
-        points = lines[0]
-        assert isinstance(points, list) and len(points) == 1
-        assert isinstance(points[0], np.ndarray)
-        assert points[0].dtype == util_test.point_dtype
-        assert points[0].shape == (7, 2)
-        assert_array_equal(points[0][0], points[0][4])
-        if line_type == LineType.ChunkCombinedCodes:
-            codes = lines[1]
-            assert isinstance(codes, list) and len(codes) == 1
-            assert isinstance(codes[0], np.ndarray)
-            assert codes[0].dtype == util_test.code_dtype
-            assert_array_equal(codes[0], [1, 2, 2, 2, 79, 1, 2])
-        else:
-            offsets = lines[1]
-            assert isinstance(offsets, list) and len(offsets) == 1
-            assert isinstance(offsets[0], np.ndarray)
-            assert offsets[0].dtype == util_test.offset_dtype
-            assert_array_equal(offsets[0], [0, 5, 7])
-    else:
-        raise RuntimeError(f"Unexpected line_type {line_type}")
+    elif line_type == LineType.SeparateCodes:
+        points, codes = lines
+        assert len(points) == 2
+        assert points[0].shape == (5, 2)
+        assert points[1].shape == (2, 2)
+        assert_array_equal(codes[0], [1, 2, 2, 2, 79])
+        assert_array_equal(codes[1], [1, 2])
+    elif line_type == LineType.ChunkCombinedCodes:
+        assert len(lines[0]) == 1  # Single chunk.
+        points, codes = lines[0][0], lines[1][0]
+        assert points.shape == (7, 2)
+        assert_array_equal(codes, [1, 2, 2, 2, 79, 1, 2])
+    elif line_type == LineType.ChunkCombinedOffsets:
+        assert len(lines[0]) == 1  # Single chunk.
+        points, offsets = lines[0][0], lines[1][0]
+        assert points.shape == (7, 2)
+        assert_array_equal(offsets, [0, 5, 7])
+
+
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
+@pytest.mark.parametrize("corner_mask", [None, False, True])
+def test_lines_random_big(name, line_type, corner_mask):
+    if corner_mask and name in ["mpl2005", "mpl2014"]:
+        pytest.skip()
+
+    x, y, z = random((1000, 1000), mask_fraction=0.0 if corner_mask is None else 0.05)
+    cont_gen = contour_generator(x, y, z, name=name, corner_mask=corner_mask, line_type=line_type)
+    levels = np.arange(0.0, 1.01, 0.1)
+
+    assert cont_gen.line_type == line_type
+
+    for level in levels:
+        lines = cont_gen.lines(level)
+        util_test.assert_lines(lines, line_type)

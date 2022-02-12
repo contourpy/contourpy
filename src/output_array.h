@@ -14,25 +14,28 @@ class OutputArray
 {
 public:
     OutputArray()
-        : start(nullptr), current(nullptr)
+        : size(0), start(nullptr), current(nullptr)
     {}
 
     void clear()
     {
         vector.clear();
+        size = 0;
         start = current = nullptr;
     }
 
-    void create_cpp(count_t size)
+    void create_cpp(count_t new_size)
     {
-        assert(size > 0);
+        assert(new_size > 0);
+        size = new_size;
         vector.resize(size);
         start = current = vector.data();
     }
 
-    py::array_t<T> create_python(count_t size)
+    py::array_t<T> create_python(count_t new_size)
     {
-        assert(size > 0);
+        assert(new_size > 0);
+        size = new_size;
         py::array_t<T> py_array(size);
         start = current = py_array.mutable_data();
         return py_array;
@@ -41,6 +44,7 @@ public:
     py::array_t<T> create_python(count_t shape0, count_t shape1)
     {
         assert(shape0 > 0 && shape1 > 0);
+        size = shape0*shape1;
         py::array_t<T> py_array({shape0, shape1});
         start = current = py_array.mutable_data();
         return py_array;
@@ -54,6 +58,7 @@ public:
 
 
     std::vector<T> vector;
+    count_t size;
     T* start;               // Start of array, whether C++ or Python.
     T* current;             // Where to write next value to before incrementing.
 };

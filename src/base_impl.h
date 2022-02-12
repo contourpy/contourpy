@@ -1746,10 +1746,8 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                             case  6:  // 012
                             case  8:  // 020
                             case  9:  // 021
-                            case 17:  // 101
                             case 18:  // 102
                             case 24:  // 120
-                            case 25:  // 121
                             case 33:  // 201
                             case 34:  // 202
                             case 36:  // 210
@@ -1768,11 +1766,20 @@ void BaseContourGenerator<Derived>::init_cache_levels_and_starts(const ChunkLoca
                                     start_in_row = true;
                                 }
                                 break;
+                            case 17:  // 101
+                            case 25:  // 121
+                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
+                                if (BOUNDARY_W(quad)) _cache[quad] |= MASK_START_BOUNDARY_W;
+                                _cache[quad] |= MASK_START_CORNER;
+                                start_in_row = true;
+                                break;
                             case 20:  // 110
                             case 21:  // 111
                             case 22:  // 112
-                                if (BOUNDARY_S(quad)) _cache[quad] |= MASK_START_BOUNDARY_S;
-                                _cache[quad] |= MASK_START_CORNER;
+                                if (BOUNDARY_S(quad))
+                                    _cache[quad] |= MASK_START_BOUNDARY_S;
+                                else
+                                    _cache[quad] |= MASK_START_CORNER;
                                 start_in_row = true;
                                 break;
                         }
@@ -2156,13 +2163,16 @@ void BaseContourGenerator<Derived>::march_chunk(
 
     // Check both passes returned same number of points, lines, etc.
     if (local.total_point_count == 0) {
+        assert(local.points.size == 0);
         assert(local.points.start == nullptr && local.points.current == nullptr);
     }
     else {
+        assert(local.points.size == 2*local.total_point_count);
         assert(local.points.current = local.points.start + 2*local.total_point_count);
     }
 
     if (local.line_count > 0) {
+        assert(local.line_offsets.size == local.line_count+1);
         assert(local.line_offsets.current != nullptr);
         assert(local.line_offsets.current == local.line_offsets.start + local.line_count);
 
@@ -2170,10 +2180,12 @@ void BaseContourGenerator<Derived>::march_chunk(
         *local.line_offsets.current++ = local.total_point_count;
     }
     else {
+        assert(local.line_offsets.size == 0);
         assert(local.line_offsets.start == nullptr && local.line_offsets.current == nullptr);
     }
 
     if (_identify_holes && local.line_count > 0) {
+        assert(local.outer_offsets.size == local.line_count - local.hole_count + 1);
         assert(local.outer_offsets.current != nullptr);
         assert(local.outer_offsets.current ==
             local.outer_offsets.start + local.line_count - local.hole_count);
@@ -2185,6 +2197,7 @@ void BaseContourGenerator<Derived>::march_chunk(
             *local.outer_offsets.current++ = local.line_count;
     }
     else {
+        assert(local.outer_offsets.size == 0);
         assert(local.outer_offsets.start == nullptr && local.outer_offsets.current == nullptr);
     }
 
