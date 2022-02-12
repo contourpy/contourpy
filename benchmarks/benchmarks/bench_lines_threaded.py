@@ -5,7 +5,7 @@ from .util_bench import corner_masks, datasets, problem_sizes, thread_counts
 
 class BenchLinesThreaded(BenchBase):
     params = (
-        ["threaded"], datasets(), [LineType.ChunkCombinedOffsets], corner_masks(), problem_sizes(),
+        ["threaded"], datasets(), [LineType.ChunkCombinedOffset], corner_masks(), problem_sizes(),
         [40], thread_counts())
     param_names = (
         "name", "dataset", "line_type", "corner_mask", "n", "chunk_count", "thread_count")

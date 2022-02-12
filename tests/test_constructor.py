@@ -276,7 +276,7 @@ def test_thread_count(xyz_7x5_as_arrays, chunk_size, thread_count):
 def test_enums_as_strings(xyz_3x3_as_lists):
     x, y, z = xyz_3x3_as_lists
     cg = contourpy.contour_generator(
-        x, y, z, line_type="SeparateCodes", fill_type="ChunkCombinedCodesOffsets", z_interp="Log")
-    assert cg.line_type == contourpy.LineType.SeparateCodes
-    assert cg.fill_type == contourpy.FillType.ChunkCombinedCodesOffsets
+        x, y, z, line_type="SeparateCode", fill_type="ChunkCombinedCodeOffset", z_interp="Log")
+    assert cg.line_type == contourpy.LineType.SeparateCode
+    assert cg.fill_type == contourpy.FillType.ChunkCombinedCodeOffset
     assert cg.z_interp == contourpy.ZInterp.Log

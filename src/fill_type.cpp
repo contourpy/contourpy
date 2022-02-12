@@ -4,23 +4,23 @@
 std::ostream &operator<<(std::ostream &os, const FillType& fill_type)
 {
     switch (fill_type) {
-        case FillType::OuterCodes:
-            os << "OuterCodes";
+        case FillType::OuterCode:
+            os << "OuterCode";
             break;
-        case FillType::OuterOffsets:
-            os << "OuterOffsets";
+        case FillType::OuterOffset:
+            os << "OuterOffset";
             break;
-        case FillType::ChunkCombinedCodes:
-            os << "ChunkCombinedCodes";
+        case FillType::ChunkCombinedCode:
+            os << "ChunkCombinedCode";
             break;
-        case FillType::ChunkCombinedOffsets:
-            os << "ChunkCombinedOffsets";
+        case FillType::ChunkCombinedOffset:
+            os << "ChunkCombinedOffset";
             break;
-        case FillType::ChunkCombinedCodesOffsets:
-            os << "ChunkCombinedCodesOffsets";
+        case FillType::ChunkCombinedCodeOffset:
+            os << "ChunkCombinedCodeOffset";
             break;
-        case FillType::ChunkCombinedOffsets2:
-            os << "ChunkCombinedOffsets2";
+        case FillType::ChunkCombinedOffsetOffset:
+            os << "ChunkCombinedOffsetOffset";
             break;
     }
     return os;

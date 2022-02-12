@@ -52,4 +52,4 @@ If you request more threads than the number of chunks, the thread count will be 
    The order of processing chunks is not deterministic. If you use a :class:`~contourpy.LineType` or
    :class:`~contourpy.FillType` that do not arrange the results by chunk, the order of
    returned lines/polygons is also not deterministic. This includes ``LineType.Separate``,
-   ``LineType.SeparateCodes``, ``FillType.OuterCodes`` and ``FillType.OuterOffsets``.
+   ``LineType.SeparateCode``, ``FillType.OuterCode`` and ``FillType.OuterOffset``.

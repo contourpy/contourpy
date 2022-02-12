@@ -6,7 +6,7 @@ from .util_bench import corner_masks, datasets, problem_sizes
 
 class BenchFilledMpl20xxRender(BenchBase):
     params = (
-        ["mpl2005", "mpl2014"], datasets(), [FillType.OuterCodes], corner_masks(), problem_sizes())
+        ["mpl2005", "mpl2014"], datasets(), [FillType.OuterCode], corner_masks(), problem_sizes())
     param_names = ("name", "dataset", "fill_type", "corner_mask", "n")
 
     def setup(self, name, dataset, fill_type, corner_mask, n):

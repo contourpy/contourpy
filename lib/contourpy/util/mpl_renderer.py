@@ -284,19 +284,19 @@ class MplDebugRenderer(MplRenderer):
 
         ax = self._get_ax(ax)
 
-        if fill_type == FillType.OuterCodes:
+        if fill_type == FillType.OuterCode:
             all_points = filled[0]
             all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1]]
-        elif fill_type == FillType.ChunkCombinedCodes:
+        elif fill_type == FillType.ChunkCombinedCode:
             all_points = [points for points in filled[0] if points is not None]
             all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1] if codes is not None]
-        elif fill_type == FillType.OuterOffsets:
+        elif fill_type == FillType.OuterOffset:
             all_points = filled[0]
             all_offsets = filled[1]
-        elif fill_type == FillType.ChunkCombinedOffsets:
+        elif fill_type == FillType.ChunkCombinedOffset:
             all_points = [points for points in filled[0] if points is not None]
             all_offsets = [offsets for offsets in filled[1] if offsets is not None]
-        elif fill_type == FillType.ChunkCombinedCodesOffsets:
+        elif fill_type == FillType.ChunkCombinedCodeOffset:
             all_points = []
             all_offsets = []
             for points, codes, outer_offsets in zip(*filled):
@@ -305,7 +305,7 @@ class MplDebugRenderer(MplRenderer):
                 all_points += np.split(points, outer_offsets[1:-1])
                 codes = np.split(codes, outer_offsets[1:-1])
                 all_offsets += [mpl_codes_to_offsets(codes) for codes in codes]
-        elif fill_type == FillType.ChunkCombinedOffsets2:
+        elif fill_type == FillType.ChunkCombinedOffsetOffset:
             all_points = []
             all_offsets = []
             for points, offsets, outer_offsets in zip(*filled):
@@ -356,16 +356,16 @@ class MplDebugRenderer(MplRenderer):
 
         if line_type == LineType.Separate:
             all_lines = lines
-        elif line_type == LineType.SeparateCodes:
+        elif line_type == LineType.SeparateCode:
             all_lines = lines[0]
-        elif line_type == LineType.ChunkCombinedCodes:
+        elif line_type == LineType.ChunkCombinedCode:
             all_lines = []
             for points, codes in zip(*lines):
                 if points is not None:
                     offsets = mpl_codes_to_offsets(codes)
                     for i in range(len(offsets)-1):
                         all_lines.append(points[offsets[i]:offsets[i+1]])
-        elif line_type == LineType.ChunkCombinedOffsets:
+        elif line_type == LineType.ChunkCombinedOffset:
             all_lines = []
             for points, offsets in zip(*lines):
                 if points is not None:

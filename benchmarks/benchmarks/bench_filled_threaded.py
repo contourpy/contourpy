@@ -5,7 +5,7 @@ from .util_bench import corner_masks, datasets, problem_sizes, thread_counts
 
 class BenchFilledThreaded(BenchBase):
     params = (
-        ["threaded"], datasets(), [FillType.ChunkCombinedOffsets2], corner_masks(), problem_sizes(),
+        ["threaded"], datasets(), [FillType.ChunkCombinedOffsetOffset], corner_masks(), problem_sizes(),
         [40], thread_counts())
     param_names = (
         "name", "dataset", "fill_type", "corner_mask", "n", "chunk_count", "thread_count")

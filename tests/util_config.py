@@ -146,7 +146,7 @@ class Config:
             lines = filled[0]
         else:
             lines = cont_gen.lines(zlower)
-            if cont_gen.line_type == LineType.SeparateCodes:
+            if cont_gen.line_type == LineType.SeparateCode:
                 lines = lines[0]
 
         # May be 0..2 polygons, and there cannot be any holes.

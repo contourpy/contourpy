@@ -11,8 +11,8 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-static LineType mpl20xx_line_type = LineType::SeparateCodes;
-static FillType mpl20xx_fill_type = FillType::OuterCodes;
+static LineType mpl20xx_line_type = LineType::SeparateCode;
+static FillType mpl20xx_fill_type = FillType::OuterCode;
 
 PYBIND11_MODULE(_contourpy, m) {
     m.doc() =
@@ -33,12 +33,12 @@ PYBIND11_MODULE(_contourpy, m) {
         "Enum used for ``fill_type`` keyword argument in :func:`~contourpy.contour_generator`.\n\n"
         "This controls the format of filled contour data returned from "
         ":meth:`~contourpy.SerialContourGenerator.filled`.")
-        .value("OuterCodes", FillType::OuterCodes, "docstring for individual enum value")
-        .value("OuterOffsets", FillType::OuterOffsets)
-        .value("ChunkCombinedCodes", FillType::ChunkCombinedCodes)
-        .value("ChunkCombinedOffsets", FillType::ChunkCombinedOffsets)
-        .value("ChunkCombinedCodesOffsets", FillType::ChunkCombinedCodesOffsets)
-        .value("ChunkCombinedOffsets2", FillType::ChunkCombinedOffsets2)
+        .value("OuterCode", FillType::OuterCode, "docstring for individual enum value")
+        .value("OuterOffset", FillType::OuterOffset)
+        .value("ChunkCombinedCode", FillType::ChunkCombinedCode)
+        .value("ChunkCombinedOffset", FillType::ChunkCombinedOffset)
+        .value("ChunkCombinedCodeOffset", FillType::ChunkCombinedCodeOffset)
+        .value("ChunkCombinedOffsetOffset", FillType::ChunkCombinedOffsetOffset)
         .export_values();
 
     py::enum_<LineType>(m, "LineType",
@@ -46,9 +46,9 @@ PYBIND11_MODULE(_contourpy, m) {
         "This controls the format of contour line data returned from "
         ":meth:`~contourpy.SerialContourGenerator.lines`.")
         .value("Separate", LineType::Separate)
-        .value("SeparateCodes", LineType::SeparateCodes)
-        .value("ChunkCombinedCodes", LineType::ChunkCombinedCodes)
-        .value("ChunkCombinedOffsets", LineType::ChunkCombinedOffsets)
+        .value("SeparateCode", LineType::SeparateCode)
+        .value("ChunkCombinedCode", LineType::ChunkCombinedCode)
+        .value("ChunkCombinedOffset", LineType::ChunkCombinedOffset)
         .export_values();
 
     py::enum_<ZInterp>(m, "ZInterp",
@@ -69,7 +69,7 @@ PYBIND11_MODULE(_contourpy, m) {
         "ContourGenerator corresponding to ``name=\"mpl2005\"``.\n\n"
         "This is the original 2005 Matplotlib algorithm. "
         "Does not support any of ``corner_mask``, ``quad_as_tri``, ``threads`` or ``z_interp``. "
-        "Only supports ``line_type=LineType.SeparateCodes`` and ``fill_type=FillType.OuterCodes``. "
+        "Only supports ``line_type=LineType.SeparateCode`` and ``fill_type=FillType.OuterCode``. "
         "Only supports chunking for filled contours, not contour lines.\n\n"
         "This class implements the same interface as "
         ":class:`~contourpy._contourpy.SerialContourGenerator`.\n\n"
@@ -121,8 +121,8 @@ PYBIND11_MODULE(_contourpy, m) {
         "added ``corner_mask`` and made the code more maintainable. "
         "Only supports ``corner_mask``, does not support ``quad_as_tri``, ``threads`` or "
         "``z_interp``. \n"
-        "Only supports ``line_type=LineType.SeparateCodes`` and "
-        "``fill_type=FillType.OuterCodes``.\n\n"
+        "Only supports ``line_type=LineType.SeparateCode`` and "
+        "``fill_type=FillType.OuterCode``.\n\n"
         "This class implements the same interface as "
         ":class:`~contourpy._contourpy.SerialContourGenerator`.\n\n"
         ".. warning::\n"

@@ -5,7 +5,7 @@ from .util_bench import corner_masks, datasets, problem_sizes
 
 class BenchLinesMpl20xx(BenchBase):
     params = (
-        ["mpl2005", "mpl2014"], datasets(), [LineType.SeparateCodes], corner_masks(),
+        ["mpl2005", "mpl2014"], datasets(), [LineType.SeparateCode], corner_masks(),
         problem_sizes())
     param_names = ("name", "dataset", "line_type", "corner_mask", "n")
 

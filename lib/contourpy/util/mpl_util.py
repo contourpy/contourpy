@@ -5,12 +5,12 @@ from contourpy import FillType, LineType
 
 
 def filled_to_mpl_paths(filled, fill_type):
-    if fill_type in (FillType.OuterCodes, FillType.ChunkCombinedCodes):
+    if fill_type in (FillType.OuterCode, FillType.ChunkCombinedCode):
         paths = [mpath.Path(points, codes) for points, codes in zip(*filled) if points is not None]
-    elif fill_type in (FillType.OuterOffsets, FillType.ChunkCombinedOffsets):
+    elif fill_type in (FillType.OuterOffset, FillType.ChunkCombinedOffset):
         paths = [mpath.Path(points, offsets_to_mpl_codes(offsets))
                  for points, offsets in zip(*filled) if points is not None]
-    elif fill_type == FillType.ChunkCombinedCodesOffsets:
+    elif fill_type == FillType.ChunkCombinedCodeOffset:
         paths = []
         for points, codes, outer_offsets in zip(*filled):
             if points is None:
@@ -18,7 +18,7 @@ def filled_to_mpl_paths(filled, fill_type):
             points = np.split(points, outer_offsets[1:-1])
             codes = np.split(codes, outer_offsets[1:-1])
             paths += [mpath.Path(p, c) for p, c in zip(points, codes)]
-    elif fill_type == FillType.ChunkCombinedOffsets2:
+    elif fill_type == FillType.ChunkCombinedOffsetOffset:
         paths = []
         for points, offsets, outer_offsets in zip(*filled):
             if points is None:
@@ -39,9 +39,9 @@ def lines_to_mpl_paths(lines, line_type):
             # Drawing as Paths so that they can be closed correctly.
             closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
             paths.append(mpath.Path(line, closed=closed))
-    elif line_type in (LineType.SeparateCodes, LineType.ChunkCombinedCodes):
+    elif line_type in (LineType.SeparateCode, LineType.ChunkCombinedCode):
         paths = [mpath.Path(points, codes) for points, codes in zip(*lines) if points is not None]
-    elif line_type == LineType.ChunkCombinedOffsets:
+    elif line_type == LineType.ChunkCombinedOffset:
         paths = []
         for points, offsets in zip(*lines):
             if points is None:

@@ -5,7 +5,7 @@ from .util_bench import chunk_counts, corner_masks, datasets
 
 class BenchLinesSerialChunk(BenchBase):
     params = (
-        ["serial"], datasets(), [LineType.ChunkCombinedOffsets], corner_masks(), [1000],
+        ["serial"], datasets(), [LineType.ChunkCombinedOffset], corner_masks(), [1000],
         chunk_counts())
     param_names = ("name", "dataset", "line_type", "corner_mask", "n", "chunk_count")
 
