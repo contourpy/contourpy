@@ -99,6 +99,9 @@ protected:
     void closed_line_wrapper(
         const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local);
 
+    // If point/line/hole counts not consistent, throw runtime_exception.
+    void check_consistent_counts(const ChunkLocal& local) const;
+
     // Write points and offsets/codes to output numpy arrays.
     void export_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
 
