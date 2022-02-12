@@ -1,5 +1,7 @@
+from functools import reduce
 import numpy as np
 from numpy.testing import assert_array_equal
+from operator import add
 import pytest
 
 from contourpy import contour_generator, FillType
@@ -354,3 +356,34 @@ def test_filled_random_big(name, fill_type, corner_mask):
     for i in range(len(levels)-1):
         filled = cont_gen.filled(levels[i], levels[i+1])
         util_test.assert_filled(filled, fill_type)
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize('seed', np.arange(1000))
+def test_filled_compare_slow(seed):
+    x, y, z = random((1000, 1000), seed=seed)
+    levels = np.arange(0.0, 1.01, 0.1)
+
+    cont_gen_mpl2014 = contour_generator(x, y, z, name="mpl2014", corner_mask=True)
+    cont_gen_serial = contour_generator(
+        x, y, z, name="serial", corner_mask=True, fill_type=FillType.ChunkCombinedOffsetOffset)
+
+    assert cont_gen_mpl2014.fill_type == FillType.OuterCode
+    assert cont_gen_serial.fill_type == FillType.ChunkCombinedOffsetOffset
+
+    for i in range(len(levels)-1):
+        filled_mpl2014 = cont_gen_mpl2014.filled(levels[i], levels[i+1])
+        util_test.assert_filled(filled_mpl2014, cont_gen_mpl2014.fill_type)
+
+        filled_serial = cont_gen_serial.filled(levels[i], levels[i+1])
+        util_test.assert_filled(filled_serial, cont_gen_serial.fill_type)
+
+        # Check same results obtained for each in terms of number of points, etc.
+        code_list = filled_mpl2014[1]
+        n_points = reduce(add, map(len, code_list))
+        n_outers = len(code_list)
+        n_lines = reduce(add, map(lambda c: np.count_nonzero(c == 1), code_list))
+
+        assert n_points == len(filled_serial[0][0])
+        assert n_lines == len(filled_serial[1][0]) - 1
+        assert n_outers == len(filled_serial[2][0]) - 1
