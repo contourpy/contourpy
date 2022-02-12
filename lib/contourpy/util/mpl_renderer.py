@@ -143,10 +143,18 @@ class MplRenderer:
         ax._need_autoscale = True
 
     def mask(self, x, y, z, ax=0, color="black"):
+        """Plot masked out grid points as circles on a single Axes.
+
+        Args:
+            x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
+            y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
+            z (masked array of shape (ny, nx): z-values.
+            ax (int or Matplotlib Axes, optional): Which Axes to plot on.
+            color (str, optional): Circle color.
+        """
         mask = np.ma.getmask(z)
         if mask is np.ma.nomask:
             return
-
         ax = self._get_ax(ax)
         x, y = self._grid_as_2d(x, y)
         ax.plot(x[mask], y[mask], 'o', c=color)

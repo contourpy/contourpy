@@ -75,7 +75,7 @@ class BokehRenderer:
                 :func:`~contourpy.SerialContourGenerator.filled`.
             fill_type (FillType): Type of ``filled`` data, as returned by
                 :attr:`~contourpy.SerialContourGenerator.fill_type`.
-            ax (int or Bokeh Figure, optional): Which plot to plot on.
+            ax (int or Bokeh Figure, optional): Which plot to use.
             color (str, optional): Color to plot with. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``Category10`` palette. Default ``"C0"``.
@@ -93,7 +93,7 @@ class BokehRenderer:
         Args:
             x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
-            ax (int or Bokeh Figure, optional): Which plot to plot on.
+            ax (int or Bokeh Figure, optional): Which plot to use.
             color (str, optional): Color to plot grid lines, default ``"black"``.
             alpha (float, optional): Opacity to plot lines with, default ``0.1``.
             point_color (str, optional): Color to plot grid points or ``None`` if grid points
@@ -136,7 +136,7 @@ class BokehRenderer:
                 :func:`~contourpy.SerialContourGenerator.lines`.
             line_type (LineType): Type of ``lines`` data, as returned by
                 :attr:`~contourpy.SerialContourGenerator.line_type`.
-            ax (int or Bokeh Figure, optional): Which plot to plot on.
+            ax (int or Bokeh Figure, optional): Which plot to use.
             color (str, optional): Color to plot lines. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``Category10`` palette. Default ``"C0"``.
@@ -151,6 +151,24 @@ class BokehRenderer:
         xs, ys = lines_to_bokeh(lines, line_type)
         if len(xs) > 0:
             fig.multi_line(xs, ys, line_color=color, line_alpha=alpha, line_width=linewidth)
+
+    def mask(self, x, y, z, ax=0, color="black"):
+        """Plot masked out grid points as circles on a single plot.
+
+        Args:
+            x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
+            y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
+            z (masked array of shape (ny, nx): z-values.
+            ax (int or Bokeh Figure, optional): Which plot to use.
+            color (str, optional): Circle color.
+        """
+        mask = np.ma.getmask(z)
+        if mask is np.ma.nomask:
+            return
+        fig = self._get_figure(ax)
+        color = self._convert_color(color)
+        x, y = self._grid_as_2d(x, y)
+        fig.circle(x[mask], y[mask], fill_color=color, size=10)
 
     def save(self, filename):
         """Save plots to SVG or PNG file.
@@ -205,7 +223,7 @@ class BokehRenderer:
             x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
             z (array-like of shape (ny, nx): z-values.
-            ax (int or Bokeh Figure, optional): Which plot to plot on.
+            ax (int or Bokeh Figure, optional): Which plot to use.
             color (str, optional): Color of added text. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``Category10`` palette. Default ``"green"``.
