@@ -236,6 +236,64 @@ void BaseContourGenerator<Derived>::closed_line(
 }
 
 template <typename Derived>
+void BaseContourGenerator<Derived>::check_consistent_counts(const ChunkLocal& local) const
+{
+    if (local.total_point_count > 0) {
+        if (local.points.size != 2*local.total_point_count ||
+            local.points.current != local.points.start + 2*local.total_point_count) {
+            throw std::runtime_error(
+                "Inconsistent total_point_count for chunk " + std::to_string(local.chunk) +
+                ". This may indicate a bug in ContourPy.");
+        }
+    }
+    else {
+        if (local.points.size != 0 ||
+            local.points.start != nullptr || local.points.current != nullptr) {
+            throw std::runtime_error(
+                "Inconsistent zero total_point_count for chunk " + std::to_string(local.chunk) +
+                ". This may indicate a bug in ContourPy.");
+        }
+    }
+
+    if (local.line_count > 0) {
+        if (local.line_offsets.size != local.line_count + 1 ||
+            local.line_offsets.current == nullptr ||
+            local.line_offsets.current != local.line_offsets.start + local.line_count + 1) {
+            throw std::runtime_error(
+                "Inconsistent line_count for chunk " + std::to_string(local.chunk) +
+                ". This may indicate a bug in ContourPy.");
+        }
+    }
+    else {
+        if (local.line_offsets.size != 0 ||
+            local.line_offsets.start != nullptr || local.line_offsets.current != nullptr) {
+            throw std::runtime_error(
+                "Inconsistent zero line_count for chunk " + std::to_string(local.chunk) +
+                ". This may indicate a bug in ContourPy.");
+        }
+    }
+
+    if (_identify_holes && local.line_count > 0) {
+        if (local.outer_offsets.size != local.line_count - local.hole_count + 1 ||
+            local.outer_offsets.current == nullptr ||
+            local.outer_offsets.current != local.outer_offsets.start + local.line_count -
+                                           local.hole_count + 1) {
+            throw std::runtime_error(
+                "Inconsistent hole_count for chunk " + std::to_string(local.chunk) +
+                ". This may indicate a bug in ContourPy.");
+        }
+    }
+    else {
+        if (local.outer_offsets.size != 0 ||
+            local.outer_offsets.start != nullptr || local.outer_offsets.current != nullptr) {
+            throw std::runtime_error(
+                "Inconsistent zero hole_count for chunk " + std::to_string(local.chunk) +
+                ". This may indicate a bug in ContourPy.");
+        }
+    }
+}
+
+template <typename Derived>
 void BaseContourGenerator<Derived>::closed_line_wrapper(
     const Location& start_location, OuterOrHole outer_or_hole, ChunkLocal& local)
 {
@@ -2159,45 +2217,20 @@ void BaseContourGenerator<Derived>::march_chunk(
         }
     } // pass
 
-    // Check both passes returned same number of points, lines, etc.
-    if (local.total_point_count == 0) {
-        assert(local.points.size == 0);
-        assert(local.points.start == nullptr && local.points.current == nullptr);
-    }
-    else {
-        assert(local.points.size == 2*local.total_point_count);
-        assert(local.points.current = local.points.start + 2*local.total_point_count);
-    }
-
+    // Set final line and outer offsets.
     if (local.line_count > 0) {
-        assert(local.line_offsets.size == local.line_count+1);
-        assert(local.line_offsets.current != nullptr);
-        assert(local.line_offsets.current == local.line_offsets.start + local.line_count);
-
-        // Append final total_point_count to line_offsets.
         *local.line_offsets.current++ = local.total_point_count;
-    }
-    else {
-        assert(local.line_offsets.size == 0);
-        assert(local.line_offsets.start == nullptr && local.line_offsets.current == nullptr);
+
+        if (_identify_holes) {
+            if (_outer_offsets_into_points)
+                *local.outer_offsets.current++ = local.total_point_count;
+            else
+                *local.outer_offsets.current++ = local.line_count;
+        }
     }
 
-    if (_identify_holes && local.line_count > 0) {
-        assert(local.outer_offsets.size == local.line_count - local.hole_count + 1);
-        assert(local.outer_offsets.current != nullptr);
-        assert(local.outer_offsets.current ==
-            local.outer_offsets.start + local.line_count - local.hole_count);
-
-        // Append final total_point_count or line_count to outer_offsets.
-        if (_outer_offsets_into_points)
-            *local.outer_offsets.current++ = local.total_point_count;
-        else
-            *local.outer_offsets.current++ = local.line_count;
-    }
-    else {
-        assert(local.outer_offsets.size == 0);
-        assert(local.outer_offsets.start == nullptr && local.outer_offsets.current == nullptr);
-    }
+    // Throw exception if the two passes returned different number of points, lines, etc.
+    check_consistent_counts(local);
 
     if (local.total_point_count == 0) {
         if (_output_chunked) {
