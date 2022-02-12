@@ -276,7 +276,7 @@ void BaseContourGenerator<Derived>::closed_line_wrapper(
 template <typename Derived>
 FillType BaseContourGenerator<Derived>::default_fill_type()
 {
-    FillType fill_type = FillType::OuterOffsets;
+    FillType fill_type = FillType::OuterOffset;
     assert(supports_fill_type(fill_type));
     return fill_type;
 }
@@ -297,8 +297,8 @@ void BaseContourGenerator<Derived>::export_filled(
 
     switch (_fill_type)
     {
-        case FillType::OuterCodes:
-        case FillType::OuterOffsets: {
+        case FillType::OuterCode:
+        case FillType::OuterOffset: {
             assert(!_direct_points && !_direct_line_offsets);
             auto outer_count = local.line_count - local.hole_count;
 
@@ -315,7 +315,7 @@ void BaseContourGenerator<Derived>::export_filled(
                 return_lists[0].append(Converter::convert_points(
                     point_count, local.points.start + 2*point_start));
 
-                if (_fill_type == FillType::OuterCodes)
+                if (_fill_type == FillType::OuterCode)
                     return_lists[1].append(Converter::convert_codes(
                         point_count, outer_end - outer_start + 1,
                         local.line_offsets.start + outer_start, point_start));
@@ -326,28 +326,28 @@ void BaseContourGenerator<Derived>::export_filled(
             }
             break;
         }
-        case FillType::ChunkCombinedCodes:
-        case FillType::ChunkCombinedCodesOffsets: {
+        case FillType::ChunkCombinedCode:
+        case FillType::ChunkCombinedCodeOffset: {
             assert(_direct_points && !_direct_line_offsets);
 
             typename Derived::Lock lock(static_cast<Derived&>(*this));
 
             // return_lists[0][local_chunk] already contains combined points.
-            // If ChunkCombinedCodesOffsets. return_lists[2][local.chunk] already contains outer
+            // If ChunkCombinedCodeOffset. return_lists[2][local.chunk] already contains outer
             //    offsets.
             return_lists[1][local.chunk] = Converter::convert_codes(
                 local.total_point_count, local.line_count + 1, local.line_offsets.start);
             break;
         }
-        case FillType::ChunkCombinedOffsets:
-        case FillType::ChunkCombinedOffsets2:
+        case FillType::ChunkCombinedOffset:
+        case FillType::ChunkCombinedOffsetOffset:
             assert(_direct_points && _direct_line_offsets);
-            if (_fill_type == FillType::ChunkCombinedOffsets2) {
+            if (_fill_type == FillType::ChunkCombinedOffsetOffset) {
                 assert(_direct_outer_offsets);
             }
             // return_lists[0][local_chunk] already contains combined points.
             // return_lists[1][local.chunk] already contains line offsets.
-            // If ChunkCombinedOffsets2, return_lists[2][local.chunk] already contains
+            // If ChunkCombinedOffsetOffset, return_lists[2][local.chunk] already contains
             //      outer offsets.
             break;
     }
@@ -362,7 +362,7 @@ void BaseContourGenerator<Derived>::export_lines(
     switch (_line_type)
     {
         case LineType::Separate:
-        case LineType::SeparateCodes: {
+        case LineType::SeparateCode: {
             assert(!_direct_points && !_direct_line_offsets);
 
             typename Derived::Lock lock(static_cast<Derived&>(*this));
@@ -376,14 +376,14 @@ void BaseContourGenerator<Derived>::export_lines(
                 return_lists[0].append(Converter::convert_points(
                     point_count, local.points.start + 2*point_start));
 
-                if (_line_type == LineType::SeparateCodes)
+                if (_line_type == LineType::SeparateCode)
                     return_lists[1].append(
                         Converter::convert_codes_check_closed_single(
                             point_count, local.points.start + 2*point_start));
             }
             break;
         }
-        case LineType::ChunkCombinedCodes: {
+        case LineType::ChunkCombinedCode: {
             assert(_direct_points && !_direct_line_offsets);
 
             typename Derived::Lock lock(static_cast<Derived&>(*this));
@@ -394,7 +394,7 @@ void BaseContourGenerator<Derived>::export_lines(
                 local.points.start);
             break;
         }
-        case LineType::ChunkCombinedOffsets:
+        case LineType::ChunkCombinedOffset:
             assert(_direct_points && _direct_line_offsets);
             // return_lists[0][local.chunk] already contains points.
             // return_lists[1][local.chunk] already contains line offsets.
@@ -412,18 +412,17 @@ py::sequence BaseContourGenerator<Derived>::filled(double lower_level, double up
     _lower_level = lower_level;
     _upper_level = upper_level;
 
-    _identify_holes = !(_fill_type == FillType::ChunkCombinedCodes ||
-                        _fill_type == FillType::ChunkCombinedOffsets);
-    _output_chunked = !(_fill_type == FillType::OuterCodes ||
-                        _fill_type == FillType::OuterOffsets);
+    _identify_holes = !(_fill_type == FillType::ChunkCombinedCode ||
+                        _fill_type == FillType::ChunkCombinedOffset);
+    _output_chunked = !(_fill_type == FillType::OuterCode || _fill_type == FillType::OuterOffset);
     _direct_points = _output_chunked;
-    _direct_line_offsets = (_fill_type == FillType::ChunkCombinedOffsets ||
-                            _fill_type == FillType::ChunkCombinedOffsets2);
-    _direct_outer_offsets = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
-                             _fill_type == FillType::ChunkCombinedOffsets2);
-    _outer_offsets_into_points = (_fill_type == FillType::ChunkCombinedCodesOffsets);
-    _return_list_count = (_fill_type == FillType::ChunkCombinedCodesOffsets ||
-                          _fill_type == FillType::ChunkCombinedOffsets2) ? 3 : 2;
+    _direct_line_offsets = (_fill_type == FillType::ChunkCombinedOffset||
+                            _fill_type == FillType::ChunkCombinedOffsetOffset);
+    _direct_outer_offsets = (_fill_type == FillType::ChunkCombinedCodeOffset ||
+                             _fill_type == FillType::ChunkCombinedOffsetOffset);
+    _outer_offsets_into_points = (_fill_type == FillType::ChunkCombinedCodeOffset);
+    _return_list_count = (_fill_type == FillType::ChunkCombinedCodeOffset ||
+                          _fill_type == FillType::ChunkCombinedOffsetOffset) ? 3 : 2;
 
     return static_cast<Derived*>(this)->march_wrapper();
 }
@@ -1974,10 +1973,9 @@ py::sequence BaseContourGenerator<Derived>::lines(double level)
     _lower_level = _upper_level = level;
 
     _identify_holes = false;
-    _output_chunked = !(_line_type == LineType::Separate ||
-                        _line_type == LineType::SeparateCodes);
+    _output_chunked = !(_line_type == LineType::Separate || _line_type == LineType::SeparateCode);
     _direct_points = _output_chunked;
-    _direct_line_offsets = (_line_type == LineType::ChunkCombinedOffsets);
+    _direct_line_offsets = (_line_type == LineType::ChunkCombinedOffset);
     _direct_outer_offsets = false;
     _outer_offsets_into_points = false;
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
@@ -2218,8 +2216,8 @@ template <typename Derived>
 py::sequence BaseContourGenerator<Derived>::march_wrapper()
 {
     index_t list_len = _n_chunks;
-    if ((_filled && (_fill_type == FillType::OuterCodes || _fill_type == FillType::OuterOffsets)) ||
-        (!_filled && (_line_type == LineType::Separate || _line_type == LineType::SeparateCodes)))
+    if ((_filled && (_fill_type == FillType::OuterCode|| _fill_type == FillType::OuterOffset)) ||
+        (!_filled && (_line_type == LineType::Separate || _line_type == LineType::SeparateCode)))
         list_len = 0;
 
     // Prepare lists to return to python.
@@ -2427,12 +2425,12 @@ template <typename Derived>
 bool BaseContourGenerator<Derived>::supports_fill_type(FillType fill_type)
 {
     switch (fill_type) {
-        case FillType::OuterCodes:
-        case FillType::OuterOffsets:
-        case FillType::ChunkCombinedCodes:
-        case FillType::ChunkCombinedOffsets:
-        case FillType::ChunkCombinedCodesOffsets:
-        case FillType::ChunkCombinedOffsets2:
+        case FillType::OuterCode:
+        case FillType::OuterOffset:
+        case FillType::ChunkCombinedCode:
+        case FillType::ChunkCombinedOffset:
+        case FillType::ChunkCombinedCodeOffset:
+        case FillType::ChunkCombinedOffsetOffset:
             return true;
         default:
             return false;
@@ -2444,9 +2442,9 @@ bool BaseContourGenerator<Derived>::supports_line_type(LineType line_type)
 {
     switch (line_type) {
         case LineType::Separate:
-        case LineType::SeparateCodes:
-        case LineType::ChunkCombinedCodes:
-        case LineType::ChunkCombinedOffsets:
+        case LineType::SeparateCode:
+        case LineType::ChunkCombinedCode:
+        case LineType::ChunkCombinedOffset:
             return true;
         default:
             return false;

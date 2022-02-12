@@ -5,7 +5,7 @@ from .util_bench import corner_masks, datasets, problem_sizes
 
 
 class BenchFilledSerialQuadAsTriRender(BenchBase):
-    params = (["serial"], datasets(), [FillType.OuterCodes], corner_masks(), problem_sizes())
+    params = (["serial"], datasets(), [FillType.OuterCode], corner_masks(), problem_sizes())
     param_names = ("name", "dataset", "fill_type", "corner_mask", "n")
 
     def setup(self, name, dataset, fill_type, corner_mask, n):

@@ -90,7 +90,7 @@ def test_filled_simple_no_corner_mask_chunk(name, fill_type):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_simple_corner_mask(name):
     x, y, z = simple((30, 40), want_mask=True)
-    fill_type = FillType.OuterCodes
+    fill_type = FillType.OuterCode
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, corner_mask=True)
     levels = np.arange(-1.0, 1.01, 0.1)
 
@@ -107,7 +107,7 @@ def test_filled_simple_corner_mask(name):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_simple_corner_mask_chunk(name):
     x, y, z = simple((30, 40), want_mask=True)
-    fill_type = FillType.OuterCodes
+    fill_type = FillType.OuterCode
     cont_gen = contour_generator(
         x, y, z, name=name, fill_type=fill_type, corner_mask=True, chunk_size=2)
     levels = np.arange(-1.0, 1.01, 0.1)
@@ -175,7 +175,7 @@ def test_filled_random_chunk(name, fill_type):
         max_threshold = 128
         mean_threshold = 0.16
     elif name in ("serial", "threaded"):
-        if fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets):
+        if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
             max_threshold = 99
             mean_threshold = 0.142
         else:
@@ -222,7 +222,7 @@ def test_filled_random_no_corner_mask_chunk(name, fill_type):
         max_threshold = 128
         mean_threshold = 0.19
     elif name in ("serial", "threaded"):
-        if fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedOffsets):
+        if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
             max_threshold = 99
             mean_threshold = 0.18
         else:
@@ -238,7 +238,7 @@ def test_filled_random_no_corner_mask_chunk(name, fill_type):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_random_corner_mask(name):
     x, y, z = random((30, 40), mask_fraction=0.05)
-    fill_type = FillType.OuterCodes
+    fill_type = FillType.OuterCode
     cont_gen = contour_generator(x, y, z, name=name, corner_mask=True, fill_type=fill_type)
     levels = np.arange(0.0, 1.01, 0.2)
 
@@ -253,7 +253,7 @@ def test_filled_random_corner_mask(name):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_random_corner_mask_chunk(name):
     x, y, z = random((30, 40), mask_fraction=0.05)
-    fill_type = FillType.OuterCodes
+    fill_type = FillType.OuterCode
     cont_gen = contour_generator(
         x, y, z, name=name, corner_mask=True, fill_type=fill_type, chunk_size=2)
     levels = np.arange(0.0, 1.01, 0.2)
@@ -300,7 +300,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
 
     util_test.assert_filled(filled, fill_type)
 
-    if fill_type in (FillType.OuterCodes, FillType.OuterOffsets):
+    if fill_type in (FillType.OuterCode, FillType.OuterOffset):
         points = filled[0]
         assert len(points) == 2
         assert points[0].shape == (13, 2)
@@ -308,7 +308,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
         assert_array_equal(points[0][0], points[0][7])
         assert_array_equal(points[0][8], points[0][12])
         assert_array_equal(points[1][0], points[1][3])
-        if fill_type == FillType.OuterCodes:
+        if fill_type == FillType.OuterCode:
             codes = filled[1]
             assert_array_equal(codes[0], [1, 2, 2, 2, 2, 2, 2, 79, 1, 2, 2, 2, 79])
             assert_array_equal(codes[1], [1, 2, 2, 79])
@@ -324,17 +324,17 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
         assert_array_equal(points[0], points[7])
         assert_array_equal(points[8], points[12])
         assert_array_equal(points[13], points[16])
-        if fill_type in (FillType.ChunkCombinedCodes, FillType.ChunkCombinedCodesOffsets):
+        if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedCodeOffset):
             codes = filled[1][0]
             assert_array_equal(codes, [1, 2, 2, 2, 2, 2, 2, 79, 1, 2, 2, 2, 79, 1, 2, 2, 79])
         else:
             offsets = filled[1][0]
             assert_array_equal(offsets, [0, 8, 13, 17])
 
-        if fill_type == FillType.ChunkCombinedCodesOffsets:
+        if fill_type == FillType.ChunkCombinedCodeOffset:
             outer_offsets = filled[2][0]
             assert_array_equal(outer_offsets, [0, 13, 17])
-        elif fill_type == FillType.ChunkCombinedOffsets2:
+        elif fill_type == FillType.ChunkCombinedOffsetOffset:
             outer_offsets = filled[2][0]
             assert_array_equal(outer_offsets, [0, 2, 3])
 

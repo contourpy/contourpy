@@ -14,16 +14,16 @@ Valid enum members and the default vary by algorithm:
 
 A string name can be used instead of the enum member so the following are equivalent:
 
-   >>> contour_generator(line_type="SeparateCodes", ...)
-   >>> contour_generator(line_type=LineType.SeparateCodes, ...)
+   >>> contour_generator(line_type="SeparateCode", ...)
+   >>> contour_generator(line_type=LineType.SeparateCode, ...)
 
 Enum members are a combination of the following words:
 
   * **Separate**: each line is a separate array.
   * **Combined**: multiple lines are concatenated in the same array.
   * **Chunk**: each chunk is separate, and is ``None`` if the chunk has no lines.
-  * **Codes**: includes ``matplotlib`` kind codes.
-  * **Offsets**: individual lines are identified via offsets into larger arrays.
+  * **Code**: includes ``matplotlib`` kind codes for the previous line array.
+  * **Offset**: individual lines are identified via offsets into the previous line array.
 
 The format of data returned by :func:`~contourpy.SerialContourGenerator.lines` for each of the
 possible :class:`~contourpy.LineType` members is best illustrated through an example.
@@ -79,9 +79,9 @@ Separate
 This returns a list of arrays, each array is the 2D points of a single line loop or strip.
 The number of lines is ``len(lines)`` and the points of line ``i`` are ``lines[i]``.
 
-SeparateCodes
-^^^^^^^^^^^^^
-   >>> cont_gen = contour_generator(z=z, line_type=LineType.SeparateCodes)
+SeparateCode
+^^^^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, line_type=LineType.SeparateCode)
    >>> lines = cont_gen.lines(2)
    >>> lines
    ([array([[0.58, 1.], [1., 0.44], [1.38, 1.], [1., 1.36], [0.58, 1.]]),
@@ -95,9 +95,9 @@ arrays containing the ``matplotlib`` kind codes (1 = start new line loop or stri
 point, 79 = close line loop). For line ``i`` the points are ``lines[0][i]`` and the kind codes are
 ``lines[1][i]``.
 
-ChunkCombinedCodes
-^^^^^^^^^^^^^^^^^^
-   >>> cont_gen = contour_generator(z=z, line_type=LineType.ChunkCombinedCodes)
+ChunkCombinedCode
+^^^^^^^^^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, line_type=LineType.ChunkCombinedCode)
    >>> lines = cont_gen.lines(2)
    >>> lines
    ([array([[0.58, 1.], [1., 0.44], [1.38, 1.], [1., 1.36], [0.58, 1.], [2.6, 2.], [3., 1.57]])],
@@ -112,9 +112,9 @@ For chunk ``j`` the combined points are ``lines[0][j]`` and the combined codes a
 An empty chunk has ``None`` for each. The start of each line loop/strip is identified by a kind code
 of 1.
 
-ChunkCombinedOffsets
-^^^^^^^^^^^^^^^^^^^^
-   >>> cont_gen = contour_generator(z=z, line_type=LineType.ChunkCombinedOffsets)
+ChunkCombinedOffset
+^^^^^^^^^^^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, line_type=LineType.ChunkCombinedOffset)
    >>> lines = cont_gen.lines(2)
    >>> lines
    ([array([[0.58, 1.], [1., 0.44], [1.38, 1.], [1., 1.36], [0.58, 1.], [2.6, 2.], [3., 1.57]])],
@@ -149,6 +149,6 @@ analysis.
 
    The order of lines returned by a particular :func:`~contourpy.SerialContourGenerator.lines` call
    is deterministic except for the combination of ``name="threaded"`` and either
-   ``line_type=LineType.Separate`` or ``line_type=LineType.SeparateCodes``. This is because the
+   ``line_type=LineType.Separate`` or ``line_type=LineType.SeparateCode``. This is because the
    order that the chunks are processed in is not deterministic and lines are appended to the
    returned arrays as soon as their chunks are completed.

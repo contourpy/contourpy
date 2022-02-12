@@ -7,14 +7,14 @@ std::ostream &operator<<(std::ostream &os, const LineType& line_type)
         case LineType::Separate:
             os << "Separate";
             break;
-        case LineType::SeparateCodes:
-            os << "SeparateCodes";
+        case LineType::SeparateCode:
+            os << "SeparateCode";
             break;
-        case LineType::ChunkCombinedCodes:
-            os << "ChunkCombinedCodes";
+        case LineType::ChunkCombinedCode:
+            os << "ChunkCombinedCode";
             break;
-        case LineType::ChunkCombinedOffsets:
-            os << "ChunkCombinedOffsets";
+        case LineType::ChunkCombinedOffset:
+            os << "ChunkCombinedOffset";
             break;
     }
     return os;

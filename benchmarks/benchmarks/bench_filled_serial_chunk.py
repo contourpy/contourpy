@@ -5,7 +5,7 @@ from .util_bench import chunk_counts, corner_masks, datasets
 
 class BenchFilledSerialChunk(BenchBase):
     params = (
-        ["serial"], datasets(), [FillType.ChunkCombinedOffsets2], corner_masks(), [1000],
+        ["serial"], datasets(), [FillType.ChunkCombinedOffsetOffset], corner_masks(), [1000],
         chunk_counts())
     param_names = ("name", "dataset", "fill_type", "corner_mask", "n", "chunk_count")
 

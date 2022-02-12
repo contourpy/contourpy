@@ -7,12 +7,12 @@
 // C++11 scoped enum, must be fully qualified to use.
 enum class FillType
 {
-    OuterCodes = 201,
-    OuterOffsets = 202,
-    ChunkCombinedCodes = 203,
-    ChunkCombinedOffsets = 204,
-    ChunkCombinedCodesOffsets = 205,
-    ChunkCombinedOffsets2 = 206,
+    OuterCode= 201,
+    OuterOffset = 202,
+    ChunkCombinedCode = 203,
+    ChunkCombinedOffset= 204,
+    ChunkCombinedCodeOffset = 205,
+    ChunkCombinedOffsetOffset = 206,
 };
 
 std::ostream &operator<<(std::ostream &os, const FillType& fill_type);

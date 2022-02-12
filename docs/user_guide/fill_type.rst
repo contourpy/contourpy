@@ -14,8 +14,8 @@ Valid enum members and the default vary by algorithm:
 
 A string name can be used instead of the enum member so the following are equivalent:
 
-   >>> contour_generator(fill_type="OuterOffsets", ...)
-   >>> contour_generator(fill_type=FillType.OuterOffsets, ...)
+   >>> contour_generator(fill_type="OuterOffset", ...)
+   >>> contour_generator(fill_type=FillType.OuterOffset, ...)
 
 .. note::
 
@@ -24,7 +24,7 @@ A string name can be used instead of the enum member so the following are equiva
    but may also contain any number of holes (interior boundaries). The relationship between outer
    boundaries and their holes is calculated and returned by
    :func:`~contourpy.SerialContourGenerator.filled` for all :class:`~contourpy.FillType` members
-   except for ``ChunkCombinedCodes`` and ``ChunkCombinedCodes``.
+   except for ``ChunkCombinedCode`` and ``ChunkCombinedOffset``.
 
 Enum members are a combination of the following words:
 
@@ -33,10 +33,12 @@ Enum members are a combination of the following words:
   * **Combined**: multiple boundaries are concatenated in the same array regardless of whether they
     are outer boundaries or holes.
   * **Chunk**: each chunk is separate, and is ``None`` if the chunk has no polygons.
-  * **Codes**: includes ``matplotlib`` kind codes.
-  * **Offsets**: individual boundaries are identified via offsets into larger arrays.
-  * **Offsets2**: two levels of offsets, first polygon offsets and then boundary offsets into those
-    polygons.
+  * **Code**: includes ``matplotlib`` kind codes for the previous array.
+  * **Offset**: the previous array is divided up using start and end offsets.
+
+Where **Offset** occurs twice the first refers to the offsets of individual boundaries within a
+larger collection and the second to which of those boundaries (outers and holes) are grouped
+together into polygons.
 
 The format of data returned by :func:`~contourpy.SerialContourGenerator.filled` for each of the
 possible :class:`~contourpy.FillType` members is best illustrated through an example.  This is the
@@ -85,10 +87,9 @@ Set up the imports and data:
    >>> np.set_printoptions(precision=2)
    >>> z = [[1.4, 1.2, 0.9, 0], [0.6, 3, 0.4, 0.7], [0.2, 0.2, 0.5, 3]]
 
-OuterCodes
-^^^^^^^^^^
-
-   >>> cont_gen = contour_generator(z=z, fill_type=FillType.OuterCodes)
+OuterCode
+^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, fill_type=FillType.OuterCode)
    >>> filled = cont_gen.filled(1, 2)
    >>> filled
    ([array([[0., 0.], [1., 0.], [1.67, 0.], [1.77, 1.], [1., 1.71], [0.17, 1.], [0., 0.5],
@@ -105,10 +106,9 @@ the second list their corresponding ``matplotlib`` kind codes. For polygon ``i``
 Here the first polygon has 13 points, 8 for the outer and 5 for the hole. The hole starts at index
 8 which corresponds to a kind code of 1.
 
-OuterOffsets
-^^^^^^^^^^^^
-
-   >>> cont_gen = contour_generator(z=z, fill_type=FillType.OuterCodes)
+OuterOffset
+^^^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, fill_type=FillType.OuterCode)
    >>> filled = cont_gen.filled(1, 2)
    >>> filled
    ([array([[0., 0.], [1., 0.], [1.67, 0.], [1.77, 1.], [1., 1.71], [0.17, 1.], [0., 0.5],
@@ -126,10 +126,9 @@ Here the first polygon has 13 points, the outer is indices ``0::8`` and the hole
 ``8:13``. The second polygon does not have any holes so its indices ``0:5`` cover the whole of the
 points array.
 
-ChunkCombinedCodes
-^^^^^^^^^^^^^^^^^^
-
-   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedCodes)
+ChunkCombinedCode
+^^^^^^^^^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedCode)
    >>> filled = cont_gen.filled(1, 2)
    >>> filled
    ([array([[0., 0.], [1., 0.], [1.67, 0.], [1.77, 1.], [1., 1.71], [0.17, 1.], [0., 0.5],
@@ -147,10 +146,9 @@ For chunk ``j`` the combined points are ``filled[0][j]`` and the combined codes 
 ``filled[1][j]``. An empty chunk has ``None`` for each. The start of each polygon boundary is
 identified by a kind code of 1, so here there are three boundaries.
 
-ChunkCombinedOffsets
-^^^^^^^^^^^^^^^^^^^^
-
-   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedCodes)
+ChunkCombinedOffset
+^^^^^^^^^^^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedCode)
    >>> filled = cont_gen.filled(1, 2)
    >>> filled
    ([array([[0., 0.], [1., 0.], [1.67, 0.], [1.77, 1.], [1., 1.71], [0.17, 1.], [0., 0.5],
@@ -168,10 +166,9 @@ For chunk ``j`` the combined points are ``filled[0][j]`` and the combined offset
 ``filled[1][j]``. An empty chunk has ``None`` for each. Here there are three boundaries
 with point indices ``0:8``, ``8:13`` and ``13:18`` respectively.
 
-ChunkCombinedCodesOffsets
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedCodesOffsets)
+ChunkCombinedCodeOffset
+^^^^^^^^^^^^^^^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedCodeOffset)
    >>> filled = cont_gen.filled(1, 2)
    >>> filled
    ([array([[0., 0.], [1., 0.], [1.67, 0.], [1.77, 1.], [1., 1.71], [0.17, 1.], [0., 0.5],
@@ -181,7 +178,7 @@ ChunkCombinedCodesOffsets
     [array([ 0, 13, 18], dtype=uint32)])
 
 This returns a tuple of three lists, each list has a length equal to the number of chunks used
-which is one here. The first two lists are the same as for ``ChunkCombinedCodes`` except that each
+which is one here. The first two lists are the same as for ``ChunkCombinedCode`` except that each
 outer and its holes are stored contiguously. The third list is an array of offsets into the points
 and codes arrays to identify the start and end indices of each polygon (outer with its holes) within
 those arrays.
@@ -194,10 +191,9 @@ determined from the kind codes of 1. The polygon offsets arrays indicates that t
 polygons, the first is indices ``0:13`` (so outer plus one hole) and the second is indices ``13:18``
 (outer only).
 
-ChunkCombinedOffsets2
-^^^^^^^^^^^^^^^^^^^^^
-
-   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedOffsets2)
+ChunkCombinedOffsetOffset
+^^^^^^^^^^^^^^^^^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedOffsetOffset)
    >>> filled = cont_gen.filled(1, 2)
    >>> filled
    ([array([[0., 0.], [1., 0.], [1.67, 0.], [1.77, 1.], [1., 1.71], [0.17, 1.], [0., 0.5],
@@ -207,7 +203,7 @@ ChunkCombinedOffsets2
     [array([0, 2, 3], dtype=uint32)])
 
 This returns a tuple of three lists, each list has a length equal to the number of chunks used
-which is one here. The first two lists are the same as for ``ChunkCombinedOffsets`` except that each
+which is one here. The first two lists are the same as for ``ChunkCombinedOffset`` except that each
 outer and its holes are stored contiguously. The third list is an array of polygon offsets into the
 boundary offsets array to identify the start and end indices of each polygon.
 
@@ -242,6 +238,6 @@ subsequent analysis.
 
    The order of boundaries returned by a particular :func:`~contourpy.SerialContourGenerator.filled`
    call is deterministic except for the combination of ``name="threaded"`` and either
-   ``fill_type=FillType.OuterCodes`` or ``fill_type=FillType.OuterOffsets``. This is because the
+   ``fill_type=FillType.OuterCode`` or ``fill_type=FillType.OuterOffset``. This is because the
    order that the chunks are processed in is not deterministic and boundaries are appended to the
    returned arrays as soon as their chunks are completed.

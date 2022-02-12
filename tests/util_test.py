@@ -26,35 +26,35 @@ def all_names(exclude=None):
 
 def all_names_and_fill_types():
     return [
-        ("mpl2005", FillType.OuterCodes),
-        ("mpl2014", FillType.OuterCodes),
-        ("serial", FillType.OuterCodes),
-        ("serial", FillType.OuterOffsets),
-        ("serial", FillType.ChunkCombinedCodes),
-        ("serial", FillType.ChunkCombinedOffsets),
-        ("serial", FillType.ChunkCombinedCodesOffsets),
-        ("serial", FillType.ChunkCombinedOffsets2),
-        ("threaded", FillType.OuterCodes),
-        ("threaded", FillType.OuterOffsets),
-        ("threaded", FillType.ChunkCombinedCodes),
-        ("threaded", FillType.ChunkCombinedOffsets),
-        ("threaded", FillType.ChunkCombinedCodesOffsets),
-        ("threaded", FillType.ChunkCombinedOffsets2),
+        ("mpl2005", FillType.OuterCode),
+        ("mpl2014", FillType.OuterCode),
+        ("serial", FillType.OuterCode),
+        ("serial", FillType.OuterOffset),
+        ("serial", FillType.ChunkCombinedCode),
+        ("serial", FillType.ChunkCombinedOffset),
+        ("serial", FillType.ChunkCombinedCodeOffset),
+        ("serial", FillType.ChunkCombinedOffsetOffset),
+        ("threaded", FillType.OuterCode),
+        ("threaded", FillType.OuterOffset),
+        ("threaded", FillType.ChunkCombinedCode),
+        ("threaded", FillType.ChunkCombinedOffset),
+        ("threaded", FillType.ChunkCombinedCodeOffset),
+        ("threaded", FillType.ChunkCombinedOffsetOffset),
     ]
 
 
 def all_names_and_line_types():
     return [
-        ("mpl2005", LineType.SeparateCodes),
-        ("mpl2014", LineType.SeparateCodes),
+        ("mpl2005", LineType.SeparateCode),
+        ("mpl2014", LineType.SeparateCode),
         ("serial", LineType.Separate),
-        ("serial", LineType.SeparateCodes),
-        ("serial", LineType.ChunkCombinedCodes),
-        ("serial", LineType.ChunkCombinedOffsets),
+        ("serial", LineType.SeparateCode),
+        ("serial", LineType.ChunkCombinedCode),
+        ("serial", LineType.ChunkCombinedOffset),
         ("threaded", LineType.Separate),
-        ("threaded", LineType.SeparateCodes),
-        ("threaded", LineType.ChunkCombinedCodes),
-        ("threaded", LineType.ChunkCombinedOffsets),
+        ("threaded", LineType.SeparateCode),
+        ("threaded", LineType.ChunkCombinedCode),
+        ("threaded", LineType.ChunkCombinedOffset),
     ]
 
 
@@ -68,21 +68,21 @@ def quad_as_tri_names():
 
 def all_fill_types_str_value():
     return [
-        ("OuterCodes", 201),
-        ("OuterOffsets", 202),
-        ("ChunkCombinedCodes", 203),
-        ("ChunkCombinedOffsets", 204),
-        ("ChunkCombinedCodesOffsets", 205),
-        ("ChunkCombinedOffsets2", 206),
+        ("OuterCode", 201),
+        ("OuterOffset", 202),
+        ("ChunkCombinedCode", 203),
+        ("ChunkCombinedOffset", 204),
+        ("ChunkCombinedCodeOffset", 205),
+        ("ChunkCombinedOffsetOffset", 206),
     ]
 
 
 def all_line_types_str_value():
     return [
         ("Separate", 101),
-        ("SeparateCodes", 102),
-        ("ChunkCombinedCodes", 103),
-        ("ChunkCombinedOffsets", 104),
+        ("SeparateCode", 102),
+        ("ChunkCombinedCode", 103),
+        ("ChunkCombinedOffset", 104),
     ]
 
 
@@ -123,7 +123,7 @@ def assert_offset_array(offsets, max_offset):
 
 
 def assert_filled(filled, fill_type):
-    if fill_type == FillType.OuterCodes:
+    if fill_type == FillType.OuterCode:
         assert isinstance(filled, tuple) and len(filled) == 2
         polygons, codes = filled
         assert isinstance(polygons, list)
@@ -132,7 +132,7 @@ def assert_filled(filled, fill_type):
         for polygon, code in zip(polygons, codes):
             npoints = assert_point_array(polygon)
             assert_code_array(code, npoints)
-    elif fill_type == FillType.OuterOffsets:
+    elif fill_type == FillType.OuterOffset:
         assert isinstance(filled, tuple) and len(filled) == 2
         polygons, offsets = filled
         assert isinstance(polygons, list)
@@ -141,7 +141,7 @@ def assert_filled(filled, fill_type):
         for polygon, offset in zip(polygons, offsets):
             npoints = assert_point_array(polygon)
             assert_offset_array(offset, npoints)
-    elif fill_type == FillType.ChunkCombinedCodes:
+    elif fill_type == FillType.ChunkCombinedCode:
         assert isinstance(filled, tuple) and len(filled) == 2
         polygons, codes = filled
         assert isinstance(polygons, list)
@@ -153,7 +153,7 @@ def assert_filled(filled, fill_type):
             else:
                 npoints = assert_point_array(polygon)
                 assert_code_array(code, npoints)
-    elif fill_type == FillType.ChunkCombinedOffsets:
+    elif fill_type == FillType.ChunkCombinedOffset:
         assert isinstance(filled, tuple) and len(filled) == 2
         polygons, offsets = filled
         assert isinstance(polygons, list)
@@ -165,7 +165,7 @@ def assert_filled(filled, fill_type):
             else:
                 npoints = assert_point_array(polygon)
                 assert_offset_array(offset, npoints)
-    elif fill_type == FillType.ChunkCombinedCodesOffsets:
+    elif fill_type == FillType.ChunkCombinedCodeOffset:
         assert isinstance(filled, tuple) and len(filled) == 3
         polygons, codes, outer_offsets = filled
         assert isinstance(polygons, list)
@@ -179,7 +179,7 @@ def assert_filled(filled, fill_type):
                 npoints = assert_point_array(polygon)
                 assert_code_array(code, npoints)
                 assert_offset_array(outer_offset, npoints)
-    elif fill_type == FillType.ChunkCombinedOffsets2:
+    elif fill_type == FillType.ChunkCombinedOffsetOffset:
         assert isinstance(filled, tuple) and len(filled) == 3
         polygons, offsets, outer_offsets = filled
         assert isinstance(polygons, list)
@@ -202,7 +202,7 @@ def assert_lines(lines, line_type):
         assert isinstance(lines, list)
         for line in lines:
             assert_point_array(line)
-    elif line_type == LineType.SeparateCodes:
+    elif line_type == LineType.SeparateCode:
         assert isinstance(lines, tuple) and len(lines) == 2
         lines, codes = lines
         assert isinstance(lines, list)
@@ -211,7 +211,7 @@ def assert_lines(lines, line_type):
         for line, code in zip(lines, codes):
             npoints = assert_point_array(line)
             assert_code_array(code, npoints)
-    elif line_type == LineType.ChunkCombinedCodes:
+    elif line_type == LineType.ChunkCombinedCode:
         assert isinstance(lines, tuple) and len(lines) == 2
         points, codes = lines
         assert isinstance(points, list)
@@ -223,7 +223,7 @@ def assert_lines(lines, line_type):
             else:
                 npoints = assert_point_array(line)
                 assert_code_array(code, npoints)
-    elif line_type == LineType.ChunkCombinedOffsets:
+    elif line_type == LineType.ChunkCombinedOffset:
         assert isinstance(lines, tuple) and len(lines) == 2
         points, offsets = lines
         assert isinstance(points, list)

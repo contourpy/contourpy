@@ -33,7 +33,7 @@ def one_loop_one_strip():
 def test_level_outside(xy_2x2, name, zlevel):
     x, y = xy_2x2
     z = x
-    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCodes)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCode)
     lines = cont_gen.lines(zlevel)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
@@ -45,7 +45,7 @@ def test_level_outside(xy_2x2, name, zlevel):
 def test_w_to_e(xy_2x2, name):
     x, y = xy_2x2
     z = y.copy()
-    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCodes)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCode)
     lines = cont_gen.lines(0.5)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
@@ -59,7 +59,7 @@ def test_w_to_e(xy_2x2, name):
 def test_e_to_w(xy_2x2, name):
     x, y = xy_2x2
     z = 1.0 - y.copy()
-    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCodes)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCode)
     lines = cont_gen.lines(0.5)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
@@ -77,7 +77,7 @@ def test_loop(xy_3x3, name):
     x, y = xy_3x3
     z = np.zeros_like(x)
     z[1, 1] = 1.0
-    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCodes)
+    cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCode)
     lines = cont_gen.lines(0.5)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
@@ -157,7 +157,7 @@ def test_lines_simple_no_corner_mask_chunk(name, line_type):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_simple_corner_mask(name):
     x, y, z = simple((30, 40), want_mask=True)
-    line_type = LineType.SeparateCodes
+    line_type = LineType.SeparateCode
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=True)
     levels = np.arange(-1.0, 1.01, 0.1)
 
@@ -174,7 +174,7 @@ def test_lines_simple_corner_mask(name):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_simple_corner_mask_chunk(name):
     x, y, z = simple((30, 40), want_mask=True)
-    line_type = LineType.SeparateCodes
+    line_type = LineType.SeparateCode
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=line_type, corner_mask=True, chunk_size=2)
     levels = np.arange(-1.0, 1.01, 0.1)
@@ -282,7 +282,7 @@ def test_lines_random_no_corner_mask_chunk(name, line_type):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_random_corner_mask(name):
     x, y, z = random((30, 40), mask_fraction=0.05)
-    line_type = LineType.SeparateCodes
+    line_type = LineType.SeparateCode
     cont_gen = contour_generator(x, y, z, name=name, corner_mask=True, line_type=line_type)
     levels = np.arange(0.0, 1.01, 0.2)
 
@@ -297,7 +297,7 @@ def test_lines_random_corner_mask(name):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_random_corner_mask_chunk(name):
     x, y, z = random((30, 40), mask_fraction=0.05)
-    line_type = LineType.SeparateCodes
+    line_type = LineType.SeparateCode
     cont_gen = contour_generator(x, y, z, name=name, corner_mask=True, line_type=line_type)
     levels = np.arange(0.0, 1.01, 0.2)
 
@@ -339,19 +339,19 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
         assert len(points) == 2
         assert points[0].shape == (5, 2)
         assert points[1].shape == (2, 2)
-    elif line_type == LineType.SeparateCodes:
+    elif line_type == LineType.SeparateCode:
         points, codes = lines
         assert len(points) == 2
         assert points[0].shape == (5, 2)
         assert points[1].shape == (2, 2)
         assert_array_equal(codes[0], [1, 2, 2, 2, 79])
         assert_array_equal(codes[1], [1, 2])
-    elif line_type == LineType.ChunkCombinedCodes:
+    elif line_type == LineType.ChunkCombinedCode:
         assert len(lines[0]) == 1  # Single chunk.
         points, codes = lines[0][0], lines[1][0]
         assert points.shape == (7, 2)
         assert_array_equal(codes, [1, 2, 2, 2, 79, 1, 2])
-    elif line_type == LineType.ChunkCombinedOffsets:
+    elif line_type == LineType.ChunkCombinedOffset:
         assert len(lines[0]) == 1  # Single chunk.
         points, offsets = lines[0][0], lines[1][0]
         assert points.shape == (7, 2)

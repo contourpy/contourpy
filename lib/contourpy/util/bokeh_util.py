@@ -5,9 +5,9 @@ from .mpl_util import mpl_codes_to_offsets
 def filled_to_bokeh(filled, fill_type):
     xs = []
     ys = []
-    if fill_type in (FillType.OuterOffsets, FillType.ChunkCombinedOffsets,
-                     FillType.OuterCodes, FillType.ChunkCombinedCodes):
-        have_codes = fill_type in (FillType.OuterCodes, FillType.ChunkCombinedCodes)
+    if fill_type in (FillType.OuterOffset, FillType.ChunkCombinedOffset,
+                     FillType.OuterCode, FillType.ChunkCombinedCode):
+        have_codes = fill_type in (FillType.OuterCode, FillType.ChunkCombinedCode)
 
         for points, offsets in zip(*filled):
             if points is None:
@@ -20,12 +20,12 @@ def filled_to_bokeh(filled, fill_type):
                 xys = points[offsets[i]:offsets[i+1]]
                 xs[-1].append(xys[:, 0])
                 ys[-1].append(xys[:, 1])
-    elif fill_type in (FillType.ChunkCombinedCodesOffsets, FillType.ChunkCombinedOffsets2):
+    elif fill_type in (FillType.ChunkCombinedCodeOffset, FillType.ChunkCombinedOffsetOffset):
         for points, codes_or_offsets, outer_offsets in zip(*filled):
             if points is None:
                 continue
             for j in range(len(outer_offsets)-1):
-                if fill_type == FillType.ChunkCombinedCodesOffsets:
+                if fill_type == FillType.ChunkCombinedCodeOffset:
                     codes = codes_or_offsets[outer_offsets[j]:outer_offsets[j+1]]
                     offsets = mpl_codes_to_offsets(codes) + outer_offsets[j]
                 else:
@@ -50,15 +50,15 @@ def lines_to_bokeh(lines, line_type):
         for line in lines:
             xs.append(line[:, 0])
             ys.append(line[:, 1])
-    elif line_type == LineType.SeparateCodes:
+    elif line_type == LineType.SeparateCode:
         for line in lines[0]:
             xs.append(line[:, 0])
             ys.append(line[:, 1])
-    elif line_type in (LineType.ChunkCombinedCodes, LineType.ChunkCombinedOffsets):
+    elif line_type in (LineType.ChunkCombinedCode, LineType.ChunkCombinedOffset):
         for points, offsets in zip(*lines):
             if points is None:
                 continue
-            if line_type == LineType.ChunkCombinedCodes:
+            if line_type == LineType.ChunkCombinedCode:
                 offsets = mpl_codes_to_offsets(offsets)
 
             for i in range(len(offsets)-1):

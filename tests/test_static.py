@@ -17,9 +17,9 @@ def test_default_fill_type(class_name):
     default = cls.default_fill_type
     assert isinstance(default, FillType)
     if class_name in ("Mpl2005ContourGenerator", "Mpl2014ContourGenerator"):
-        expect = FillType.OuterCodes
+        expect = FillType.OuterCode
     else:
-        expect = FillType.OuterOffsets
+        expect = FillType.OuterOffset
     assert default == expect
 
 
@@ -29,7 +29,7 @@ def test_default_line_type(class_name):
     default = cls.default_line_type
     assert isinstance(default, LineType)
     if class_name in ("Mpl2005ContourGenerator", "Mpl2014ContourGenerator"):
-        expect = LineType.SeparateCodes
+        expect = LineType.SeparateCode
     else:
         expect = LineType.Separate
     assert default == expect
@@ -47,11 +47,11 @@ def test_supports_corner_mask(class_name):
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
 def test_supports_fill_type(class_name):
     cls = get_class_from_name(class_name)
-    supports = cls.supports_fill_type(FillType.OuterCodes)
+    supports = cls.supports_fill_type(FillType.OuterCode)
     assert isinstance(supports, bool)
     expect = True
     assert supports == expect
-    supports = cls.supports_fill_type(FillType.ChunkCombinedOffsets2)
+    supports = cls.supports_fill_type(FillType.ChunkCombinedOffsetOffset)
     assert isinstance(supports, bool)
     expect = class_name not in ("Mpl2005ContourGenerator", "Mpl2014ContourGenerator")
     assert supports == expect
@@ -60,11 +60,11 @@ def test_supports_fill_type(class_name):
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
 def test_supports_line_type(class_name):
     cls = get_class_from_name(class_name)
-    supports = cls.supports_line_type(LineType.SeparateCodes)
+    supports = cls.supports_line_type(LineType.SeparateCode)
     assert isinstance(supports, bool)
     expect = True
     assert supports == expect
-    supports = cls.supports_line_type(LineType.ChunkCombinedOffsets)
+    supports = cls.supports_line_type(LineType.ChunkCombinedOffset)
     assert isinstance(supports, bool)
     expect = class_name not in ("Mpl2005ContourGenerator", "Mpl2014ContourGenerator")
     assert supports == expect
