@@ -359,7 +359,7 @@ def test_filled_random_big(name, fill_type, corner_mask):
 
 
 @pytest.mark.slow
-@pytest.mark.parametrize('seed', np.arange(1000))
+@pytest.mark.parametrize('seed', np.arange(10))
 def test_filled_compare_slow(seed):
     x, y, z = random((1000, 1000), seed=seed)
     levels = np.arange(0.0, 1.01, 0.1)
