@@ -1,4 +1,4 @@
-<img alt="ContourPy" src="/docs/_static/contourpy_logo_horiz.svg" height="90">
+<img alt="ContourPy" src="https://raw.githubusercontent.com/contourpy/contourpy/main/docs/_static/contourpy_logo_horiz.svg" height="90">
 
 Python library for calculating contours of 2D quadrilateral grids.
 
