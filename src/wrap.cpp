@@ -89,6 +89,12 @@ PYBIND11_MODULE(_contourpy, m) {
              py::kw_only(),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
+        .def("create_contour", &Mpl2005ContourGenerator::lines,
+            "Synonym for :func:`~contourpy.Mpl2005ContourGenerator.lines` to provide backward "
+            "compatibility with Matplotlib.")
+        .def("create_filled_contour", &Mpl2005ContourGenerator::filled,
+            "Synonym for :func:`~contourpy.Mpl2005ContourGenerator.filled` to provide backward "
+            "compatibility with Matplotlib.")
         .def("filled", &Mpl2005ContourGenerator::filled)
         .def("lines", &Mpl2005ContourGenerator::lines)
         .def_property_readonly("chunk_count", &Mpl2005ContourGenerator::get_chunk_count)
@@ -143,6 +149,12 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("corner_mask"),
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
+        .def("create_contour", &mpl2014::Mpl2014ContourGenerator::lines,
+            "Synonym for :func:`~contourpy.Mpl2014ContourGenerator.lines` to provide backward "
+            "compatibility with Matplotlib.")
+        .def("create_filled_contour", &mpl2014::Mpl2014ContourGenerator::filled,
+            "Synonym for :func:`~contourpy.Mpl2014ContourGenerator.filled` to provide backward "
+            "compatibility with Matplotlib.")
         .def("filled", &mpl2014::Mpl2014ContourGenerator::filled)
         .def("lines", &mpl2014::Mpl2014ContourGenerator::lines)
         .def_property_readonly("chunk_count", &mpl2014::Mpl2014ContourGenerator::get_chunk_count)
@@ -195,6 +207,12 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0)
         .def("_write_cache", &SerialContourGenerator::write_cache)
+        .def("create_contour", &SerialContourGenerator::lines,
+            "Synonym for :func:`~contourpy.SerialContourGenerator.lines` to provide backward "
+            "compatibility with Matplotlib.")
+        .def("create_filled_contour", &SerialContourGenerator::filled,
+            "Synonym for :func:`~contourpy.SerialContourGenerator.filled` to provide backward "
+            "compatibility with Matplotlib.")
         .def("filled", &SerialContourGenerator::filled,
             "Calculate and return filled contours between two levels.\n\n"
             "Args:\n"
@@ -279,7 +297,13 @@ PYBIND11_MODULE(_contourpy, m) {
              py::arg("x_chunk_size") = 0,
              py::arg("y_chunk_size") = 0,
              py::arg("thread_count") = 0)
-        .def("debug_write_cache", &ThreadedContourGenerator::write_cache)
+        .def("_write_cache", &ThreadedContourGenerator::write_cache)
+        .def("create_contour", &ThreadedContourGenerator::lines,
+            "Synonym for :func:`~contourpy.ThreadedContourGenerator.lines` to provide backward "
+            "compatibility with Matplotlib.")
+        .def("create_filled_contour", &ThreadedContourGenerator::filled,
+            "Synonym for :func:`~contourpy.ThreadedContourGenerator.filled` to provide backward "
+            "compatibility with Matplotlib.")
         .def("filled", &ThreadedContourGenerator::filled)
         .def("lines", &ThreadedContourGenerator::lines)
         .def_property_readonly("chunk_count", &ThreadedContourGenerator::get_chunk_count)

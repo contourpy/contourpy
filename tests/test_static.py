@@ -36,6 +36,14 @@ def test_default_line_type(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
+def test_has_lines_and_filled(class_name):
+    cls = get_class_from_name(class_name)
+    for func_name in ["create_contour", "create_filled_contour", "filled", "lines"]:
+        assert hasattr(cls, func_name)
+        assert callable(getattr(cls, func_name))
+
+
+@pytest.mark.parametrize("class_name", util_test.all_class_names())
 def test_supports_corner_mask(class_name):
     cls = get_class_from_name(class_name)
     supports = cls.supports_corner_mask()
