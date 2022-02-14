@@ -22,5 +22,6 @@ contourpy
 .. autoclass:: SerialContourGenerator
    :members:
    :special-members: __init__
+   :exclude-members: create_contour, create_filled_contour
 
 .. autoclass:: ThreadedContourGenerator
