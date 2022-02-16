@@ -21,7 +21,7 @@ macOS and Windows.
 
 The only compulsory runtime dependency is `NumPy`_.
 
-If you want to make use of one of contourpy's utility renderers int the :mod:`contourpy.util` module
+If you want to make use of one of contourpy's utility renderers in the :mod:`contourpy.util` module
 you will also have to install either `Matplotlib`_ or `Bokeh`_.
 
 Installing from source
@@ -50,15 +50,15 @@ using:
    $ pip install -ve .
 
 
-To build in debug mode which enables ``assert`` statements in the C++ code use the
-``CONTOURPY_DEBUG`` environment variable as follows:
+To build in debug mode, which enables ``assert`` statements in the C++ code, use the
+``CONTOURPY_DEBUG`` environment variable:
 
 .. code-block:: console
 
    $ CONTOURPY_DEBUG=1 pip install -ve .
 
-To run the test suite, ensure that the required dependencies are installed and then run the tests
-using ``pytest``:
+To run the test suite, first ensure that the required dependencies are installed and then run the
+tests using ``pytest``:
 
 .. code-block:: console
 

@@ -9,7 +9,7 @@ z array
 
 The ``z`` array is the 2D array of values to calculate the contours of and is the only compulsory
 argument to :func:`~contourpy.contour_generator`. It can be specified in any form that is
-convertible to a 2D ``numpy`` array of ``dtype=np.float64``, such as nested Python lists.
+convertible to a 2D `NumPy`_ array of ``dtype=np.float64``, such as nested Python lists.
 
 Within the C++ code it is stored as a contiguous C-ordered ``np.float64`` array. If it is not
 already in this format it will be converted to it and hence the underlying data will be copied.
@@ -54,9 +54,9 @@ You can avoid this copy by passing it in the desired format.
 Mask
 ^^^^
 
-The ``z`` array passed to :func:`~contourpy.contour_generator` can be a ``numpy``
-`masked array <https://numpy.org/doc/stable/reference/maskedarray.html>`_ to mask out specific grid
-points from contour calculations.
+The ``z`` array passed to :func:`~contourpy.contour_generator` can be a
+`NumPy masked array <https://numpy.org/doc/stable/reference/maskedarray.html>`_ to mask out specific
+grid points from contour calculations.
 
 A ``z`` that isn't masked but instead contains non-finite values like ``np.nan`` and ``np.inf`` can
 be converted to a masked array using ``np.ma.masked_invalid()``.  For example:
@@ -89,7 +89,7 @@ to control how much of the domain is masked out by masked ``z`` values.
 
 If ``corner_mask=False`` all quads that touch a masked out point are completely masked out.
 If ``corner_mask=True`` then only the triangular corners of quads nearest masked out points are
-always masked out, other corners that contain 3 unmasked points are contoured as usual.
+always masked out, other corners that contain three unmasked points are contoured as usual.
 
 Here is an example of the difference, the black circles indicate masked out points:
 

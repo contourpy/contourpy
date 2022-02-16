@@ -11,3 +11,5 @@ wheelhouse/
 .asv/
 _build/
 generated/
+benchmarks/*.png
+benchmarks/*.svg

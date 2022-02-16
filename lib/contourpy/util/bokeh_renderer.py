@@ -75,7 +75,7 @@ class BokehRenderer:
                 :func:`~contourpy.SerialContourGenerator.filled`.
             fill_type (FillType): Type of ``filled`` data, as returned by
                 :attr:`~contourpy.SerialContourGenerator.fill_type`.
-            ax (int or Bokeh Figure, optional): Which plot to use.
+            ax (int or Bokeh Figure, optional): Which plot to use, default ``0``.
             color (str, optional): Color to plot with. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``Category10`` palette. Default ``"C0"``.
@@ -93,12 +93,13 @@ class BokehRenderer:
         Args:
             x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
-            ax (int or Bokeh Figure, optional): Which plot to use.
+            ax (int or Bokeh Figure, optional): Which plot to use, default ``0``.
             color (str, optional): Color to plot grid lines, default ``"black"``.
             alpha (float, optional): Opacity to plot lines with, default ``0.1``.
             point_color (str, optional): Color to plot grid points or ``None`` if grid points
                 should not be plotted, default ``None``.
-            quad_as_tri_alpha (float, optional): Opacity to plot ``quad_as_tri`` grid, default 0.
+            quad_as_tri_alpha (float, optional): Opacity to plot ``quad_as_tri`` grid, default
+                ``0``.
 
         Colors may be a string color or the letter ``"C"`` followed by an integer in the range
         ``"C0"`` to ``"C9"`` to use a color from the ``Category10`` palette.
@@ -136,7 +137,7 @@ class BokehRenderer:
                 :func:`~contourpy.SerialContourGenerator.lines`.
             line_type (LineType): Type of ``lines`` data, as returned by
                 :attr:`~contourpy.SerialContourGenerator.line_type`.
-            ax (int or Bokeh Figure, optional): Which plot to use.
+            ax (int or Bokeh Figure, optional): Which plot to use, default ``0``.
             color (str, optional): Color to plot lines. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``Category10`` palette. Default ``"C0"``.
@@ -159,8 +160,8 @@ class BokehRenderer:
             x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
             z (masked array of shape (ny, nx): z-values.
-            ax (int or Bokeh Figure, optional): Which plot to use.
-            color (str, optional): Circle color.
+            ax (int or Bokeh Figure, optional): Which plot to use, default ``0``.
+            color (str, optional): Circle color, default ``"black"``.
         """
         mask = np.ma.getmask(z)
         if mask is np.ma.nomask:
@@ -170,15 +171,22 @@ class BokehRenderer:
         x, y = self._grid_as_2d(x, y)
         fig.circle(x[mask], y[mask], fill_color=color, size=10)
 
-    def save(self, filename):
+    def save(self, filename, transparent=False):
         """Save plots to SVG or PNG file.
 
         Args:
             filename (str): Filename to save to.
+            transparent (bool, optional): Whether background should be transparent, default
+                ``False``.
 
         Warning:
             To output to SVG file, ``want_svg=True`` must have been passed to the constructor.
         """
+        if transparent:
+            for fig in self._figures:
+                fig.background_fill_color = None
+                fig.border_fill_color = None
+
         if self._want_svg:
             export_svg(self._layout, filename=filename)
         else:
@@ -205,7 +213,7 @@ class BokehRenderer:
 
         Args:
             title (str): Title text.
-            ax (int or Bokeh Figure, optional): Which plot to set the titie of.
+            ax (int or Bokeh Figure, optional): Which plot to set the title of, default ``0``.
             color (str, optional): Color to set title. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``Category10`` palette. Default ``None`` which is ``black``.
@@ -223,7 +231,7 @@ class BokehRenderer:
             x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
             z (array-like of shape (ny, nx): z-values.
-            ax (int or Bokeh Figure, optional): Which plot to use.
+            ax (int or Bokeh Figure, optional): Which plot to use, default ``0``.
             color (str, optional): Color of added text. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``Category10`` palette. Default ``"green"``.

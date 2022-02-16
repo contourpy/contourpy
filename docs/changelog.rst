@@ -6,18 +6,18 @@ Changelog
 v0.0.5 (2022-02-13)
 -------------------
 
-* All ContourGenerator classes implement the same readonly properties (#91)
-* Support string to enum conversion in contour_generator (#92)
-* Default line/fill type for serial/threaded (#96)
-* Check for negative z if using log interp (#97)
-* contour_generator args vs kwargs (#99)
-* String to enum moved from C++ to python (#100)
-* Don't store mask in mpl2005 (#101)
-* Sphinx documentation (#102)
-* Fixed missing SW corner mask starts (#105)
-* Finalise enum spellings (#106)
-* Complete mask render function (#107)
-* Test filled compare slow (#108)
+* All ContourGenerator classes implement the same readonly properties `#91 <https://github.com/contourpy/contourpy/pull/91>`_
+* Support string to enum conversion in contour_generator `#92 <https://github.com/contourpy/contourpy/pull/92>`_
+* Default line/fill type for serial/threaded `#96 <https://github.com/contourpy/contourpy/pull/96>`_
+* Check for negative z if using log interp `#97 <https://github.com/contourpy/contourpy/pull/97>`_
+* contour_generator args vs kwargs `#99 <https://github.com/contourpy/contourpy/pull/99>`_
+* String to enum moved from C++ to python `#100 <https://github.com/contourpy/contourpy/pull/100>`_
+* Don't store mask in mpl2005 `#101 <https://github.com/contourpy/contourpy/pull/101>`_
+* Sphinx documentation `#102 <https://github.com/contourpy/contourpy/pull/102>`_
+* Fixed missing SW corner mask starts `#105 <https://github.com/contourpy/contourpy/pull/105>`_
+* Finalise enum spellings `#106 <https://github.com/contourpy/contourpy/pull/106>`_
+* Complete mask render function `#107 <https://github.com/contourpy/contourpy/pull/107>`_
+* Test filled compare slow `#108 <https://github.com/contourpy/contourpy/pull/108>`_
 
 v0.0.4 (2021-11-07)
 -------------------

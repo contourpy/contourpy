@@ -3,6 +3,8 @@ import numpy as np
 
 
 class BenchBase:
+    timeout = 120  # Some rendering benchmarks can take more than the default minute.
+
     def set_xyz_and_levels(self, dataset, n, want_mask):
         if dataset == "random":
             mask_fraction = 0.05 if want_mask else 0.0

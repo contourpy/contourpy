@@ -11,7 +11,7 @@ Matplotlib as a dependency.
 
 Advantages of the new algorithm compared to Matplotlib's default algorithm of 2014 - 2022:
 
-#. Improved performance (need reference here).
+#. Improved performance in many situations (see :ref:`benchmarks`).
 #. Multiple return types for both contour lines and filled contours, with different complexity and
    performance tradeoffs (see :ref:`line_type` and :ref:`fill_type`).
 #. Multiple ways to specify chunk sizes and/or counts (see :ref:`chunks`).
@@ -40,6 +40,6 @@ Advantages of the new algorithm compared to Matplotlib's default algorithm of 20
    :maxdepth: 1
    :caption: Extra Information
 
-   benchmarks
+   benchmarks/index
    description
    config
