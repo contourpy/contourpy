@@ -57,8 +57,11 @@ threaded
 This is a multi-threaded version of the ``serial`` algorithm, and requires the domain to be divided
 into chunks.  It shares the majority of its code with ``serial`` except for the high-level
 processing of chunks which here are performed in parallel using a thread pool rather than being
-performed serially.
+performed serially, and creation of NumPy arrays is limited to a single thread at a time.
 
 .. warning::
 
-   This algorithm is work in progress and should be considered experimental.
+   This algorithm is work in progress and should be considered experimental.  It works fine
+   in an isolated environment using the ``contourpy`` tests and benchmarks, but needs to be
+   rigorously tested in real-world environments that that include mixed Python/C++ code and multiple
+   threads.

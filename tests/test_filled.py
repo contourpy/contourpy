@@ -361,7 +361,7 @@ def test_filled_random_big(name, fill_type, corner_mask):
 @pytest.mark.slow
 @pytest.mark.parametrize('seed', np.arange(10))
 def test_filled_compare_slow(seed):
-    x, y, z = random((1000, 1000), seed=seed)
+    x, y, z = random((1000, 1000), mask_fraction=0.05, seed=seed)
     levels = np.arange(0.0, 1.01, 0.1)
 
     cont_gen_mpl2014 = contour_generator(x, y, z, name="mpl2014", corner_mask=True)

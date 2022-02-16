@@ -150,7 +150,7 @@ class MplRenderer:
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
             z (masked array of shape (ny, nx): z-values.
             ax (int or Matplotlib Axes, optional): Which Axes to plot on.
-            color (str, optional): Circle color.
+            color (str, optional): Circle color, default ``"black"``.
         """
         mask = np.ma.getmask(z)
         if mask is np.ma.nomask:
@@ -159,14 +159,16 @@ class MplRenderer:
         x, y = self._grid_as_2d(x, y)
         ax.plot(x[mask], y[mask], 'o', c=color)
 
-    def save(self, filename):
+    def save(self, filename, transparent=False):
         """Save plots to SVG or PNG file.
 
         Args:
             filename (str): Filename to save to.
+            transparent (bool, optional): Whether background should be transparent, default
+                ``False``.
         """
         self._autoscale()
-        self._fig.savefig(filename)
+        self._fig.savefig(filename, transparent=transparent)
 
     def save_to_buffer(self):
         """Save plots to an ``io.BytesIO`` buffer.

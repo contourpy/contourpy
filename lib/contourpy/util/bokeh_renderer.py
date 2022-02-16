@@ -160,7 +160,7 @@ class BokehRenderer:
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
             z (masked array of shape (ny, nx): z-values.
             ax (int or Bokeh Figure, optional): Which plot to use.
-            color (str, optional): Circle color.
+            color (str, optional): Circle color, default ``"black"``.
         """
         mask = np.ma.getmask(z)
         if mask is np.ma.nomask:
@@ -170,15 +170,22 @@ class BokehRenderer:
         x, y = self._grid_as_2d(x, y)
         fig.circle(x[mask], y[mask], fill_color=color, size=10)
 
-    def save(self, filename):
+    def save(self, filename, transparent=False):
         """Save plots to SVG or PNG file.
 
         Args:
             filename (str): Filename to save to.
+            transparent (bool, optional): Whether background should be transparent, default
+                ``False``.
 
         Warning:
             To output to SVG file, ``want_svg=True`` must have been passed to the constructor.
         """
+        if transparent:
+            for fig in self._figures:
+                fig.background_fill_color = None
+                fig.border_fill_color = None
+
         if self._want_svg:
             export_svg(self._layout, filename=filename)
         else:

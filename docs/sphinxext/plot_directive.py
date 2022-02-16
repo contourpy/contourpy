@@ -28,7 +28,7 @@ class PlotDirective(CodeBlock):
 
         output_filename = f"{filename}_{index}.svg"
 
-        renderer.save(os.path.join(output_directory, output_filename))
+        renderer.save(os.path.join(output_directory, output_filename), transparent=True)
         image_filenames.append(os.path.join("generated", output_filename))
 
     def run(self):
