@@ -1,18 +1,18 @@
-Multi threaded calculation
---------------------------
+Multithreaded calculation
+-------------------------
 
 Benchmarks for the ``threaded`` algorithm are shown here, for unmasked ``z``, a
 ``total_chunk_count`` of 40, ``LineType.ChunkCombinedOffset`` and
 ``FillType.ChunkCombinedOffsetOffset`` on a 6-core processor.
 
-.. image:: ../_static/threaded_simple_1000.png
+.. image:: ../_static/threaded_simple_1000.svg
 
 For the ``simple`` dataset contour calculations are faster with more threads but only slightly.  The
 speedup with 6 threads is only about 1.8 for both :func:`~contourpy.SerialContourGenerator.lines`
 and :func:`~contourpy.SerialContourGenerator.filled`.  This problem dataset is not computationally
 expensive enough to justify the use of multiple threads.
 
-.. image:: ../_static/threaded_random_1000.png
+.. image:: ../_static/threaded_random_1000.svg
 
 For the ``random`` dataset contour calculations scale much better with increasing number of threads.
 Using 6 threads the speedup is between 4.1 for ``lines`` and 4.7 for ``filled``.

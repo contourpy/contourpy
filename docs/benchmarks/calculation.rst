@@ -23,13 +23,13 @@ and the following filled contours
 Contour lines
 ^^^^^^^^^^^^^
 
-.. image:: ../_static/lines_simple_1000.png
+.. image:: ../_static/lines_simple_1000.svg
 
 For the ``simple`` dataset above the performance of ``serial`` for contour lines is the same
 regardless of ``LineType``. It is slightly faster than ``mpl2005`` and significantly faster than
 ``mpl2014`` with a speedup of 1.7-1.9.
 
-.. image:: ../_static/lines_random_1000.png
+.. image:: ../_static/lines_random_1000.svg
 
 For the ``random`` dataset above the performance of ``serial`` varies significantly by ``LineType``.
 For ``LineType.SeparateCode`` ``serial`` is 10-15% faster than ``mpl2005`` and is slightly faster
@@ -47,13 +47,13 @@ array allocation, for a single chunk these two ``LineType`` allocate just two la
 
 Filled contours
 ^^^^^^^^^^^^^^^
-.. image:: ../_static/filled_simple_1000.png
+.. image:: ../_static/filled_simple_1000.svg
 
 For the ``simple`` dataset above the performance of ``serial`` for filled contours is the same
 regardless of ``FillType``.  It has about the same performance as ``mpl2005`` and is significantly
 faster than ``mpl2014`` with a speedup of 1.75-1.9.
 
-.. image:: ../_static/filled_random_1000.png
+.. image:: ../_static/filled_random_1000.svg
 
 For the ``random`` dataset above the performance of ``serial`` varies significantly by ``FillType``.
 For ``FillType.OuterCode`` it is faster than ``mpl2014`` with a speedup of about 1.3.  It is also

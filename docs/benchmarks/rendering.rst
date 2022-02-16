@@ -1,4 +1,4 @@
-Calculating and rendering
+Calculation and rendering
 -------------------------
 
 This section considers the time taken to calculate contours and render them using Matplotlib on a
@@ -7,7 +7,7 @@ This section considers the time taken to calculate contours and render them usin
 Contour lines
 ^^^^^^^^^^^^^
 
-.. image:: ../_static/lines_simple_1000_render.png
+.. image:: ../_static/lines_simple_1000_render.svg
 
 For the ``simple`` dataset above the performance of ``serial`` for contour lines is the same
 regardless of ``LineType``. It is slightly faster than ``mpl2005`` and significantly faster than
@@ -15,7 +15,7 @@ regardless of ``LineType``. It is slightly faster than ``mpl2005`` and significa
 the previous section shows that the rendering time here is only about 120 ms so there is a fairly
 even split between calculation and rendering time for ``serial``.
 
-.. image:: ../_static/lines_random_1000_render.png
+.. image:: ../_static/lines_random_1000_render.svg
 
 For the ``random`` dataset above the performance of ``serial`` varies significantly by ``LineType``.
 For ``LineType.SeparateCode`` all three algorithms take about the same time.  The calculation time
@@ -37,14 +37,14 @@ out of memory.
 Filled contours
 ^^^^^^^^^^^^^^^
 
-.. image:: ../_static/filled_simple_1000_render.png
+.. image:: ../_static/filled_simple_1000_render.svg
 
 As usual, for the ``simple`` dataset above the performance of ``serial`` for filled contours is the
 same regardless of ``FillType``.  It has about the same performance as ``mpl2005`` and is faster
 than ``mpl2014`` with a speedup of 1.4-1.5.  As with ``lines`` the rendering time here is only
 about 120 ms so there is a fairly even split between calculation and rendering time for ``serial``.
 
-.. image:: ../_static/filled_random_1000_render.png
+.. image:: ../_static/filled_random_1000_render.svg
 
 For the ``random`` dataset above the performance of ``serial`` varies significantly by ``FillType``.
 For ``FillType.OuterCode`` it is faster than ``mpl2014`` by about 10-15%.  The calculation for

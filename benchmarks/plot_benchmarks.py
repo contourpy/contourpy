@@ -109,10 +109,10 @@ def by_name_and_type(loader, filled, dataset, render, n):
     elif render and dataset == "simple":
         loc = "lower right"
     elif filled and render and dataset == "random":
-        loc = (0.52, 0.6)
+        loc = (0.51, 0.6)
     ax.legend(loc=loc, framealpha=0.9)
 
-    ax.grid(axis='y', c='k', alpha=0.1)
+    ax.grid(axis='y', c='k', alpha=0.2)
     ax.set_xticks(np.arange(ntypes+2))
     xticklabels = map(capital_letters_to_newlines, xticklabels)
     ax.set_xticklabels(xticklabels)
@@ -122,7 +122,7 @@ def by_name_and_type(loader, filled, dataset, render, n):
         spine.set_zorder(5)
     fig.tight_layout()
 
-    filename = f"{filled_str}_{dataset}_{n}{'_render' if render else ''}.png"
+    filename = f"{filled_str}_{dataset}_{n}{'_render' if render else ''}.svg"
     print(f"Saving {filename}")
     fig.savefig(filename, transparent=True)
 
@@ -162,7 +162,7 @@ def by_thread_count(loader, dataset):
         ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
 
         ax.set_ylim(0, ax.get_ylim()[1]*1.18)  # Magic number.
-        ax.grid(axis='y', c='k', alpha=0.1)
+        ax.grid(axis='y', c='k', alpha=0.2)
         ax.set_xlabel("Thread count")
         ax.set_ylabel("Time (seconds)")
         ax.legend(framealpha=0.9)
@@ -170,7 +170,7 @@ def by_thread_count(loader, dataset):
 
     fig.tight_layout()
 
-    filename = f"threaded_{dataset}_{n}.png"
+    filename = f"threaded_{dataset}_{n}.svg"
     print(f"Saving {filename}")
     fig.savefig(filename, transparent=True)
 
@@ -184,8 +184,6 @@ def main():
     for filled in [False, True]:
         for dataset in ["random", "simple"]:
             for render in [False, True]:
-                #if render and dataset == "simple":
-                #    continue
                 by_name_and_type(loader, filled, dataset, render, n)
 
     for dataset in ["random", "simple"]:
