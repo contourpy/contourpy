@@ -37,13 +37,13 @@ than ``mpl2014`` when ``z`` is masked but about 5% slower when ``z`` is not mask
 
 Other ``LineType`` are faster.  ``LineType.Separate`` has a speedup of about 1.4 compared to
 ``LineType.SeparateCode``; most of the difference here is the time taken to allocate the extra 850
-thousand NumPy arrays (one per line) and a small amount is the time taken to calculate the
-Matplotlib kind codes to put in them.
+thousand `NumPy`_ arrays (one per line) and a small amount is the time taken to calculate the
+`Matplotlib`_ kind codes to put in them.
 
 Both ``LineType.ChunkCombinedCode`` and ``LineType.ChunkCombinedOffset`` have similar timings with
 a speedup of 2.3-2.5 compared to ``LineType.SeparateCode``.  The big difference here again is in
 array allocation, for a single chunk these two ``LineType`` allocate just two large arrays whereas
-``LineType.SeparateCode`` allocates 1.7 million NumPy arrays, i.e. two per each line returned.
+``LineType.SeparateCode`` allocates 1.7 million `NumPy`_ arrays, i.e. two per each line returned.
 
 Filled contours
 ^^^^^^^^^^^^^^^
@@ -63,7 +63,7 @@ outer and hole boundaries in an interleaved format which need to be reordered, a
 scales badly for a large outer boundary containing many holes as occurs here for unmasked ``z``.
 
 Other ``FillType`` are faster, although ``FillType.OuterOffset`` is only marginally so as it
-creates the same number of NumPy arrays as ``FillType.OuterCode`` but the arrays are shorter.
+creates the same number of `NumPy`_ arrays as ``FillType.OuterCode`` but the arrays are shorter.
 
 The other four ``FillType`` can be grouped in pairs: ``FillType.ChunkCombinedCodeOffset`` and
 ``FillType.ChunkCombinedOffsetOffset`` have a speedup of 1.8-1.95 compared to

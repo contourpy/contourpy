@@ -2,9 +2,9 @@ x and y grid
 ============
 
 ``x`` and ``y`` are optional keyword arguments to :func:`~contourpy.contour_generator` that are
-used to specify the (x, y) grid that the ``z`` values are located on. They may be 1D or 2D arrays
-of ``np.float64`` or convertible to such. If one is specified then so should the other, and they
-must both have the same number of dimensions.
+used to specify the (x, y) grid that the ``z`` values are located on. They may be 1D or 2D `NumPy`_
+arrays of ``np.float64`` or convertible to such. If one is specified then so should the other, and
+they must both have the same number of dimensions.
 
 If the ``z`` array has shape ``(ny, nx)`` then the options available for ``x`` and ``y`` are:
 
@@ -28,7 +28,7 @@ If the ``z`` array has shape ``(ny, nx)`` then the options available for ``x`` a
    To mask out grid points the mask must be applied to the ``z`` array, not the ``x`` or ``y``
    arrays. See :ref:`z mask <z_mask>`.
 
-Individual quads should all be either convex or 3-point collinear.  Convex quads may produce
+Individual quads should be either convex or 3-point collinear.  Concave quads may produce
 acceptable results in some situations but not others so they should be avoided.
 
 .. plot::
@@ -56,11 +56,11 @@ acceptable results in some situations but not others so they should be avoided.
 
 .. note::
 
-   ``quad_as_tri=True`` is more tolerant of convex quads. Provided the central virtual point
+   ``quad_as_tri=True`` is more tolerant of concave quads. Provided the central virtual point
    (mean x, y of the corner points) lies within the quad then it will be contoured correctly.
 
-Most of the examples in this documentation use Cartesian grids for convenience. Here are examples
-of curved and polar grids:
+Most of the examples in this documentation use Cartesian grids. But they do not have to be, here are
+examples of curved and polar grids:
 
 .. plot::
    :source-position: below

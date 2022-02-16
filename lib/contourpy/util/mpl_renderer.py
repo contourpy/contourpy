@@ -69,7 +69,7 @@ class MplRenderer:
                 :func:`~contourpy.SerialContourGenerator.filled`.
             fill_type (FillType): Type of ``filled`` data, as returned by
                 :attr:`~contourpy.SerialContourGenerator.fill_type`.
-            ax (int or Maplotlib Axes, optional): Which axes to plot on.
+            ax (int or Maplotlib Axes, optional): Which axes to plot on, default ``0``.
             color (str, optional): Color to plot with. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``tab10`` colormap. Default ``"C0"``.
@@ -88,7 +88,7 @@ class MplRenderer:
         Args:
             x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
-            ax (int or Matplotlib Axes, optional): Which Axes to plot on.
+            ax (int or Matplotlib Axes, optional): Which Axes to plot on, default ``0``.
             color (str, optional): Color to plot grid lines, default ``"black"``.
             alpha (float, optional): Opacity to plot lines with, default ``0.1``.
             point_color (str, optional): Color to plot grid points or ``None`` if grid points
@@ -128,7 +128,7 @@ class MplRenderer:
                 :func:`~contourpy.SerialContourGenerator.lines`.
             line_type (LineType): Type of ``lines`` data, as returned by
                 :attr:`~contourpy.SerialContourGenerator.line_type`.
-            ax (int or Matplotlib Axes, optional): Which Axes to plot on.
+            ax (int or Matplotlib Axes, optional): Which Axes to plot on, default ``0``.
             color (str, optional): Color to plot lines. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``tab10`` colormap. Default ``"C0"``.
@@ -149,7 +149,7 @@ class MplRenderer:
             x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
             z (masked array of shape (ny, nx): z-values.
-            ax (int or Matplotlib Axes, optional): Which Axes to plot on.
+            ax (int or Matplotlib Axes, optional): Which Axes to plot on, default ``0``.
             color (str, optional): Circle color, default ``"black"``.
         """
         mask = np.ma.getmask(z)
@@ -193,7 +193,7 @@ class MplRenderer:
 
         Args:
             title (str): Title text.
-            ax (int or Matplotlib Axes, optional): Which Axes to set the titie of.
+            ax (int or Matplotlib Axes, optional): Which Axes to set the title of, default ``0``.
             color (str, optional): Color to set title. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``tab10`` colormap. Default ``None`` which is ``black``.
@@ -210,7 +210,7 @@ class MplRenderer:
             x (array-like of shape (ny, nx) or (nx,)): The x-coordinates of the grid points.
             y (array-like of shape (ny, nx) or (ny,)): The y-coordinates of the grid points.
             z (array-like of shape (ny, nx): z-values.
-            ax (int or Matplotlib Axes, optional): Which Axes to plot on.
+            ax (int or Matplotlib Axes, optional): Which Axes to plot on, default ``0``.
             color (str, optional): Color of added text. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``tab10`` colormap. Default ``"green"``.

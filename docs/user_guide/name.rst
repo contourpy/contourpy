@@ -10,7 +10,7 @@ The four names are ``mpl2005``, ``mpl2014``, ``serial`` and ``threaded``. The de
 which you should use unless you have a good reason not to.
 
 There are four optional features that the algorithms may support, which are ``corner_mask``,
-``quad_as_tri``, ``threads`` and ``z_interp``. This table indicates which algorithm supports which
+``quad_as_tri``, ``threads`` and ``z_interp``. This table indicates which algorithms supports which
 feature:
 
 .. name_supports::
@@ -54,14 +54,15 @@ well as adding new features and performance improvements.
 threaded
 ^^^^^^^^
 
-This is a multi-threaded version of the ``serial`` algorithm, and requires the domain to be divided
-into chunks.  It shares the majority of its code with ``serial`` except for the high-level
-processing of chunks which here are performed in parallel using a thread pool rather than being
-performed serially, and creation of NumPy arrays is limited to a single thread at a time.
+This is a multithreaded version of the ``serial`` algorithm, and requires the domain to be divided
+into chunks.  It shares the majority of its code with ``serial`` except:
+
+  #. High-level processing of chunks occurs in parallel using a thread pool.
+  #. Creation of `NumPy`_ arrays is limited to a single thread at a time.
 
 .. warning::
 
    This algorithm is work in progress and should be considered experimental.  It works fine
    in an isolated environment using the ``contourpy`` tests and benchmarks, but needs to be
    rigorously tested in real-world environments that that include mixed Python/C++ code and multiple
-   threads.
+   threads before it can be considered production quality.

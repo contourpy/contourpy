@@ -18,7 +18,7 @@ Import the :func:`~contourpy.contour_generator` function and call it to create a
   >>> cont_gen
   <contourpy._contourpy.SerialContourGenerator object at 0x7ff827fc4a30>
 
-The hexadecimal number will be different, it is the address of the pybind11-wrapped C++ object.
+The hexadecimal number will be different, it is the address of the `pybind11`_-wrapped C++ object.
 
 Contour lines
 -------------
@@ -30,7 +30,7 @@ Create some contour lines at a z-level of ``0.25``:
   [array([[0.5, 1.0],
           [1. , 0.75]])]
 
-The output is a list of lines, here just one line that is a numpy array of shape ``(2, 2)``
+The output is a list of lines, here just one line that is a `NumPy`_ array of shape ``(2, 2)``
 consisting of two ``(x, y)`` points from ``(0.5, 1)`` to ``(1, 0.75)``.
 
 .. note::
@@ -54,11 +54,11 @@ Create some filled contours between the z-levels of ``0.15`` and ``0.25``:
    [array([0, 6], dtype=uint32)])
 
 The output data is more complicated, it is a tuple of two lists each of which has a length of one
-corresponding to a single polygon. The first numpy array has shape ``(6, 2)`` and is the
+corresponding to a single polygon. The first `NumPy`_ array has shape ``(6, 2)`` and is the
 ``(x, y)`` coordinates of the 6 points that make up the polygon; the first and last points are the
-same. The second numpy array is an integer array of offsets
-into the points array; here the offsets cover the whole length of the points array indicating that
-it is a single polygon. This is explained further in section XXX.
+same. The second `NumPy`_ array is an integer array of offsets into the points array; here the
+offsets cover the whole length of the points array indicating that it is a single polygon. This is
+explained further in :ref:`fill_type`.
 
 .. note::
 
@@ -69,8 +69,7 @@ Graphical output
 ----------------
 
 It is easier to understand the contour lines and filled contours by looking at graphical output.
-Here is the full example using the ``matplotlib`` renderer from the
-:mod:`contourpy.util` module:
+Here is the full example using the `Matplotlib`_ renderer from the :mod:`contourpy.util` module:
 
 .. plot::
    :source-position: below
@@ -88,7 +87,7 @@ Here is the full example using the ``matplotlib`` renderer from the
    renderer.lines(lines, cont_gen.line_type, color="red", linewidth=2)
    renderer.show()
 
-Alternatively you can use the ``bokeh`` renderer from the :mod:`contourpy.util.bokeh_renderer`
+Alternatively you can use the `Bokeh`_ renderer from the :mod:`contourpy.util.bokeh_renderer`
 module. In the example above change the line
 
 .. code-block:: python
@@ -101,4 +100,4 @@ into
 
    from contourpy.util.bokeh_renderer import BokehRenderer as Renderer
 
-Output for the ``bokeh`` renderer is sent to your web browser.
+Output for the `Bokeh`_ renderer is sent to your web browser.

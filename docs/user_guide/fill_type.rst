@@ -8,7 +8,7 @@ Fill type
 to :func:`~contourpy.SerialContourGenerator.filled`. If not explicitly specified then the default is
 used for the requested algorithm ``name``.
 
-Valid enum members and the default vary by algorithm:
+Supported enum members and the default vary by algorithm:
 
 .. name_supports_type:: FillType
 
@@ -33,12 +33,12 @@ Enum members are a combination of the following words:
   * **Combined**: multiple boundaries are concatenated in the same array regardless of whether they
     are outer boundaries or holes.
   * **Chunk**: each chunk is separate, and is ``None`` if the chunk has no polygons.
-  * **Code**: includes ``matplotlib`` kind codes for the previous array.
+  * **Code**: includes `Matplotlib`_ kind codes for the previous array.
   * **Offset**: the previous array is divided up using start and end offsets.
 
-Where **Offset** occurs twice the first refers to the offsets of individual boundaries within a
-larger collection and the second to which of those boundaries (outers and holes) are grouped
-together into polygons.
+Where **Offset** occurs twice the first refers to the offsets of individual boundaries (outers and
+holes) within a larger collection and the second to which of those boundaries are grouped together
+into polygons.
 
 The format of data returned by :func:`~contourpy.SerialContourGenerator.filled` for each of the
 possible :class:`~contourpy.FillType` members is best illustrated through an example.  This is the
@@ -100,7 +100,7 @@ OuterCode
 
 This returns a tuple of two lists, each list has a length equal to the number of polygons. Each
 polygon comprises an outer boundary and its holes. The first list contains the polygons points and
-the second list their corresponding ``matplotlib`` kind codes. For polygon ``i`` the points are
+the second list their corresponding `Matplotlib`_ kind codes. For polygon ``i`` the points are
 ``filled[0][i]`` and the ``matplotlib`` kind codes are ``filled[1][i]``.
 
 Here the first polygon has 13 points, 8 for the outer and 5 for the hole. The hole starts at index
@@ -122,8 +122,8 @@ polygon comprises an outer boundary and its holes. The first list contains the p
 the second list the offsets into the points arrays for the start and end indices of the outers and
 holes. For polygon ``i`` the points are ``filled[0][i]`` and offsets are ``filled[1][i]``.
 
-Here the first polygon has 13 points, the outer is indices ``0::8`` and the hole is indices
-``8:13``. The second polygon does not have any holes so its indices ``0:5`` cover the whole of the
+Here the first polygon has 13 points, the outer is indices ``0:8`` and the hole is indices
+``8:13``. The second polygon does not have any holes so its indices ``0:5`` cover the whole of its
 points array.
 
 ChunkCombinedCode
@@ -140,7 +140,7 @@ This returns a tuple of two lists, each list has a length equal to the number of
 is one here. All of the boundary points are combined into a single array per chunk, there is no
 information on the relationship between the outer boundaries and their holes, and each outer is not
 necessarily stored contiguously with its corresponding holes. The first list contains the boundary
-points and the second list their corresponding ``matplotlib`` kind codes.
+points and the second list their corresponding `Matplotlib`_ kind codes.
 
 For chunk ``j`` the combined points are ``filled[0][j]`` and the combined codes are
 ``filled[1][j]``. An empty chunk has ``None`` for each. The start of each polygon boundary is
@@ -186,7 +186,7 @@ those arrays.
 For chunk ``j`` the combined points are ``filled[0][j]``, the combined codes are ``filled[1][j]``
 and the combined polygon offsets are ``filled[2][j]``. An empty chunk has ``None`` for all three.
 
-Here there are 18 points in three boundaries, the latter starting at indices 0, 8 and 13 which is
+Here there are 18 points in three boundaries, the latter starting at indices 0, 8 and 13 which are
 determined from the kind codes of 1. The polygon offsets arrays indicates that there are two
 polygons, the first is indices ``0:13`` (so outer plus one hole) and the second is indices ``13:18``
 (outer only).
@@ -212,14 +212,14 @@ For chunk ``j`` the combined points are ``filled[0][j]``, the combined boundary 
 for all three.
 
 Here there are three boundaries with point indices ``0:8``, ``8:13`` and ``13:18`` respectively,
-and two polygons with boundary indices ``0::2`` and ``2:3`` respectively. So the first polygon
+and two polygons with boundary indices ``0:2`` and ``2:3`` respectively. So the first polygon
 consists of two boundaries (outer plus one hole) and the second polygon is a single boundary (outer
 only).
 
 How to choose which fill type to use
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  #. Do you need ``matplotlib`` kind codes?
+  #. Do you need `Matplotlib`_ kind codes?
 
   #. Do you want each boundary's points in a separate array or combined together?
 
@@ -228,7 +228,7 @@ How to choose which fill type to use
 As with contour lines, the second question is one of convenience and performance. It is often more
 convenient to deal with a single array of points per polygon, but it is slower to do this as more
 arrays have to be created.  The difference may only be significant for scenarios that generate many
-polygons.
+polygons.  See :ref:`benchmarks`.
 
 The decision also depends on how the polygon data is to be used. The performance advantage of
 combined arrays is usually wasted if the polygons have to separated out into their own arrays for

@@ -63,17 +63,19 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
             :meth:`~contourpy.SerialContourGenerator.filled`. If not specified, uses the default
             provided by the algorithm ``name``.
         chunk_size (int or tuple(int, int), optional): Chunk size in (y, x) directions, or the same
-            size in both directions if only one is specified.
+            size in both directions if only one value is specified.
         chunk_count (int or tuple(int, int), optional): Chunk count in (y, x) directions, or the
-            same count in both directions if only one is specified.
+            same count in both directions if only one value is specified.
         total_chunk_count (int, optional): Total number of chunks.
         quad_as_tri (bool): Enable/disable treating quads as 4 triangles, default ``False``.
             If ``False``, a contour line within a quad is a straight line between points on two of
             its edges. If ``True``, each full quad is divided into 4 triangles using a virtual point
             at the centre (mean x, y of the corner points) and a contour line is piecewise linear
-            within those triangles. Corner-masked triangles are not affected by this setting.
+            within those triangles. Corner-masked triangles are not affected by this setting, only
+            full unmasked quads.
         z_interp (ZInterp): How to interpolate ``z`` values when determining where contour lines
-            intersect the edges of quads, default ``ZInterp.Linear``.
+            intersect the edges of quads and the ``z`` values of the central points of quads,
+            default ``ZInterp.Linear``.
         thread_count (int): Number of threads to use for contour calculation, default 0. Threads can
             only be used with an algorithm ``name`` that supports threads (currently only
             ``name="threaded"``) and there must be at least the same number of chunks as threads.

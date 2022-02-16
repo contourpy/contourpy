@@ -5,12 +5,12 @@ Quad as triangles
 
 A contour line within a quad is, by default, a straight line between points on two of its edges.
 The ``quad_as_tri`` option divides each quad into four triangles using a virtual point at the
-centre (mean x, y of the corner points) and extra points are inserted where the contour level
-intersects the diagonals so that contour lines are piecewise linear within the triangles.
+centre (mean x, y of the corner points) and extra contour points are inserted where the contour
+level intersects the diagonals so that contour lines are piecewise linear within the triangles.
 
 The ``z`` value of the central point is calculated depending on the :ref:`z_interp` setting; for
 the default ``z_interp=ZInterp.Linear`` this is the mean of the ``z`` values of the corner points.
-Corner masked triangles are not affected by this setting.
+Corner masked triangles are not affected by this setting, only full unmasked quads.
 
 .. name_supports::
    :filter: quad_as_tri

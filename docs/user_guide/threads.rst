@@ -13,11 +13,11 @@ The ``threaded`` algorithm supports the use of multiple threads.
    The threaded algorithm is work in progress and should be considered experimental.  It works fine
    in an isolated environment using the ``contourpy`` tests and benchmarks, but needs to be
    rigorously tested in real-world environments that that include mixed Python/C++ code and multiple
-   threads.
+   threads before it can be considered production quality.
 
 ``threaded`` shares most of its code with ``serial`` except for the high-level processing of chunks
-which it performs in parallel using a thread pool rather than serially, and creation of NumPy arrays
-is limited to a single thread at a time.
+which it performs in parallel using a thread pool, and the creation of `NumPy`_ arrays is limited to
+a single thread at a time.
 
 .. note::
 

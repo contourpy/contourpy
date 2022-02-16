@@ -13,7 +13,7 @@ Advantages of using chunks:
 
 Disadvantages:
 
-  * There is a performance overhead of using chunks.
+  * There is a slight performance cost of using chunks.
   * Some rendering algorithms show faint lines between neighbouring chunks.
 
 .. note::

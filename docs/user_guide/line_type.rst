@@ -8,7 +8,7 @@ Line type
 to :func:`~contourpy.SerialContourGenerator.lines`. If not explicitly specified then the default is
 used for the requested algorithm ``name``.
 
-Valid enum members and the default vary by algorithm:
+Supported enum members and the default vary by algorithm:
 
 .. name_supports_type:: LineType
 
@@ -22,7 +22,7 @@ Enum members are a combination of the following words:
   * **Separate**: each line is a separate array.
   * **Combined**: multiple lines are concatenated in the same array.
   * **Chunk**: each chunk is separate, and is ``None`` if the chunk has no lines.
-  * **Code**: includes ``matplotlib`` kind codes for the previous line array.
+  * **Code**: includes `Matplotlib`_ kind codes for the previous line array.
   * **Offset**: individual lines are identified via offsets into the previous line array.
 
 The format of data returned by :func:`~contourpy.SerialContourGenerator.lines` for each of the
@@ -61,7 +61,7 @@ For the ``z`` values shown in green text, two contour lines are returned at ``z=
    clockwise if they enclose a region that is lower than the contour level.  This assumes a
    right-hand coordinate system.
 
-First set up the imports, define the ``z`` array and limit ``numpy`` printing to 2 decimal places:
+First set up the imports, define the ``z`` array and limit `NumPy`_ printing to 2 decimal places:
 
    >>> from contourpy import contour_generator, LineType
    >>> import numpy as np
@@ -91,7 +91,7 @@ SeparateCode
 
 This returns a tuple of two lists, each list has a length equal to the number of lines.
 The first list is the same as for ``LineType.Separate``. The second list is of 1D ``np.uint8``
-arrays containing the ``matplotlib`` kind codes (1 = start new line loop or strip, 2 = move to
+arrays containing the `Matplotlib`_ kind codes (1 = start new line loop or strip, 2 = move to
 point, 79 = close line loop). For line ``i`` the points are ``lines[0][i]`` and the kind codes are
 ``lines[1][i]``.
 
@@ -106,7 +106,7 @@ ChunkCombinedCode
 This returns a tuple of two lists, each list has a length equal to the number of chunks used which
 is one here. The first list contains a 2D ``np.float64`` array for each chunk containing the
 combined points for all lines in that chunk, and the second list contains a 1D ``np.uint8`` array
-for each chunk containing the combined ``matplotlib`` kind codes for all lines in that chunk.
+for each chunk containing the combined `Matplotlib`_ kind codes for all lines in that chunk.
 
 For chunk ``j`` the combined points are ``lines[0][j]`` and the combined codes are ``lines[1][j]``.
 An empty chunk has ``None`` for each. The start of each line loop/strip is identified by a kind code
@@ -133,13 +133,14 @@ the number of lines.
 How to choose which line type to use
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  #. Do you need ``matplotlib`` kind codes?
+  #. Do you need `Matplotlib`_ kind codes?
 
   #. Do you want each line's points in a separate array or combined together?
 
 The second question is one of convenience and performance. It is often more convenient to deal with
 a single array of points per line, but it is slower to do this as more arrays have to be created.
 The difference may only be significant for scenarios that generate many contour lines.
+See :ref:`benchmarks`.
 
 The decision also depends on how the line data is to be used. The performance advantage of combined
 arrays is usually wasted if the lines have to separated out into their own arrays for subsequent

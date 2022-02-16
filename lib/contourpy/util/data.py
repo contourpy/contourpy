@@ -9,7 +9,7 @@ def simple(shape, want_mask=False):
         want_mask (bool, optional): Whether test data should be masked or not, default ``False``.
 
     Return:
-        tuple of 3 arrays: ``x``, ``y``, ``z`` test data, ``z`` will be masked if
+        Tuple of 3 arrays: ``x``, ``y``, ``z`` test data, ``z`` will be masked if
         ``want_mask=True``.
     """
     ny, nx = shape
@@ -48,7 +48,7 @@ def random(shape, seed=2187, mask_fraction=0.0):
         mask_fraction (float, optional): Fraction of elements to mask, default 0.
 
     Return:
-        tuple of 3 arrays: ``x``, ``y``, ``z`` test data, ``z`` will be masked if
+        Tuple of 3 arrays: ``x``, ``y``, ``z`` test data, ``z`` will be masked if
         ``mask_fraction`` is greater than zero.
     """
     ny, nx = shape

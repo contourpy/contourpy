@@ -72,11 +72,11 @@ html_theme_options = {
 }
 
 rst_epilog = """
-.. _Bokeh: https://www.github.com/bokeh/bokeh/
-.. _Matplotlib: https://www.github.com/matplotlib/matplotlib/
-.. _NumPy: https://www.github.com/numpy/numpy/
+.. _Bokeh: https://bokeh.org/
+.. _Matplotlib: https://matplotlib.org/
+.. _NumPy: https://numpy.org/
 .. _PyPI: https://pypi.org/project/contourpy/
 .. _conda-forge: https://anaconda.org/conda-forge/contourpy/
 .. _github: https://www.github.com/contourpy/contourpy/
-.. _pybind11: https://www.github.com/pybind/pybind11/
+.. _pybind11: https://pybind11.readthedocs.io/
 """

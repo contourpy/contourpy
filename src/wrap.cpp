@@ -22,8 +22,7 @@ PYBIND11_MODULE(_contourpy, m) {
         "directly. Instead, :func:`contourpy.contour_generator` should be used to create "
         "ContourGenerator objects, and the enums (:class:`~contourpy.FillType`, "
         ":class:`~contourpy.LineType` and :class:`~contourpy.ZInterp`) and "
-        ":func:`contourpy.max_threads` function are all available in the :mod:`contourpy` module "
-        "well.";
+        ":func:`contourpy.max_threads` function are all available in the :mod:`contourpy` module.";
 
     m.attr("CONTOURPY_DEBUG") = CONTOURPY_DEBUG;
     m.attr("CONTOURPY_CXX11") = CONTOURPY_CXX11;
@@ -33,7 +32,7 @@ PYBIND11_MODULE(_contourpy, m) {
         "Enum used for ``fill_type`` keyword argument in :func:`~contourpy.contour_generator`.\n\n"
         "This controls the format of filled contour data returned from "
         ":meth:`~contourpy.SerialContourGenerator.filled`.")
-        .value("OuterCode", FillType::OuterCode, "docstring for individual enum value")
+        .value("OuterCode", FillType::OuterCode)
         .value("OuterOffset", FillType::OuterOffset)
         .value("ChunkCombinedCode", FillType::ChunkCombinedCode)
         .value("ChunkCombinedOffset", FillType::ChunkCombinedOffset)

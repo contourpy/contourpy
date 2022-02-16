@@ -1,3 +1,5 @@
+.. _algorithm_description:
+
 Algorithm description
 =====================
 
@@ -19,8 +21,8 @@ and the other below, then the contour crosses that edge. The (x, y) position whe
 level crosses the edge is determined by interpolation (see :ref:`z_interp`).
 
 A single quad can have 0, 2 or 4 contour points, up to one per edge, depending upon how the contour
-line intersects it. The contour points are connected in a predictable order with higher ``z`` on the
-left as you follow them.
+line intersects it. The contour points are connected together in a predictable order with higher
+``z`` on the left as you follow them around.
 
 If ``quad_as_tri=False`` then the points are connected with straight lines across each quad.  The
 only complexity here are quads that intersect the contour line on all four edges. Here the two

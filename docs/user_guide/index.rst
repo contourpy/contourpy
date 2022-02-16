@@ -2,7 +2,7 @@ User guide
 ==========
 
 This User Guide is a tour of the options available for contouring.  These equate to keyword
-arguments that can be passed to the :func:`~contourpy.contour_generator` function.
+arguments that are passed to the :func:`~contourpy.contour_generator` function.
 
 Before reading this you should check out the :ref:`quickstart`.
 
