@@ -5,8 +5,8 @@ from .util_bench import corner_masks, datasets, problem_sizes, thread_counts
 
 class BenchFilledThreaded(BenchBase):
     params = (
-        ["threaded"], datasets(), [FillType.ChunkCombinedOffsetOffset], corner_masks(), problem_sizes(),
-        [40], thread_counts())
+        ["threaded"], datasets(), [FillType.ChunkCombinedOffsetOffset], corner_masks(),
+        problem_sizes(), [40], thread_counts())
     param_names = (
         "name", "dataset", "fill_type", "corner_mask", "n", "chunk_count", "thread_count")
 
@@ -14,7 +14,7 @@ class BenchFilledThreaded(BenchBase):
         self.set_xyz_and_levels(dataset, n, corner_mask != "no mask")
 
     def time_filled_threaded(
-        self, name, dataset, fill_type, corner_mask, n, chunk_count, thread_count):
+            self, name, dataset, fill_type, corner_mask, n, chunk_count, thread_count):
         if corner_mask == "no mask":
             corner_mask = False
         cont_gen = contour_generator(
