@@ -15,8 +15,8 @@ class NameSupports(Directive):
     }
 
     def run(self):
-        names = contourpy._valid_names
-        classes = [contourpy._name_to_class(name) for name in names]
+        names = list(contourpy._class_lookup)
+        classes = list(contourpy._class_lookup.values())
         function_names = [
             "supports_corner_mask",
             "supports_quad_as_tri",

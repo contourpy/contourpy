@@ -7,8 +7,16 @@ from contourpy import (
 )
 
 
-def get_class_from_name(name):
-    return globals()[name]
+_lookup = {
+    "Mpl2005ContourGenerator": Mpl2005ContourGenerator,
+    "Mpl2014ContourGenerator": Mpl2014ContourGenerator,
+    "SerialContourGenerator": SerialContourGenerator,
+    "ThreadedContourGenerator": ThreadedContourGenerator,
+}
+
+
+def get_class_from_name(class_name):
+    return _lookup[class_name]
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())

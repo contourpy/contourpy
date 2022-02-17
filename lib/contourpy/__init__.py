@@ -23,13 +23,13 @@ __all__ = [
 ]
 
 
-def _name_to_class(name):
-    class_name = f"{name.capitalize()}ContourGenerator"
-    cls = globals()[class_name]
-    return cls
-
-
-_valid_names = ["mpl2005", "mpl2014", "serial", "threaded"]
+# Simple mapping of algorithm name to class name.
+_class_lookup = dict(
+    mpl2005=Mpl2005ContourGenerator,
+    mpl2014=Mpl2014ContourGenerator,
+    serial=SerialContourGenerator,
+    threaded=ThreadedContourGenerator,
+)
 
 
 def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None, line_type=None,
@@ -141,14 +141,14 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
         raise ValueError("If mask is set it must be a 2D array with the same shape as z")
 
     # Check arguments: name.
-    if name not in _valid_names:
+    if name not in _class_lookup:
         raise ValueError(f"Unrecognised contour generator name: {name}")
 
     # Check arguments: chunk_size, chunk_count and total_chunk_count.
     y_chunk_size, x_chunk_size = calc_chunk_sizes(
         chunk_size, chunk_count, total_chunk_count, ny, nx)
 
-    cls = _name_to_class(name)
+    cls = _class_lookup[name]
 
     # Check arguments: corner_mask.
     if corner_mask is None:

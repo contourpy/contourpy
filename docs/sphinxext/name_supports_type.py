@@ -19,8 +19,8 @@ class NameSupportsType(Directive):
         supports_func_name = f"supports_{lowercase_name}"
         type_enum = getattr(contourpy, type_name)
 
-        names = contourpy._valid_names
-        classes = [contourpy._name_to_class(name) for name in names]
+        names = list(contourpy._class_lookup)
+        classes = list(contourpy._class_lookup.values())
         default_types = [getattr(cls, default_func_name).name for cls in classes]
 
         table = Table(1 + len(names))
