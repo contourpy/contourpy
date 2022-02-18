@@ -56,24 +56,8 @@ Mask
 
 The ``z`` array passed to :func:`~contourpy.contour_generator` can be a
 `NumPy masked array <https://numpy.org/doc/stable/reference/maskedarray.html>`_ to mask out specific
-grid points from contour calculations.
-
-A ``z`` that isn't masked but instead contains non-finite values like ``np.nan`` and ``np.inf`` can
-be converted to a masked array using ``np.ma.masked_invalid()``.  For example:
-
-  >>> import numpy as np
-  >>> z = np.asarray([[np.nan, 1.0], [2.0, np.inf]])
-  >>> z
-  array([[nan,  1.],
-         [ 2., inf]])
-  >>> z = np.ma.masked_invalid(z)
-  >>> z
-  masked_array(
-    data=[[--, 1.0],
-          [2.0, --]],
-    mask=[[ True, False],
-          [False,  True]],
-    fill_value=1e+20)
+grid points from contour calculations.  In addition, any ``z`` values which are non-finite
+(``np.inf`` or ``np.nan``) will also be masked out.
 
 .. note::
 

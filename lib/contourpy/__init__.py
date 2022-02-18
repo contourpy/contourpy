@@ -32,6 +32,19 @@ _class_lookup = dict(
 )
 
 
+def _remove_z_mask(z):
+    z = np.ma.asarray(z, dtype=np.float64)  # Preserves mask if present.
+    z = np.ma.masked_invalid(z, copy=False)
+
+    if np.ma.is_masked(z):
+        mask = np.ma.getmask(z)
+    else:
+        mask = None
+
+    z = np.ma.getdata(z)
+    return z, mask
+
+
 def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None, line_type=None,
                       fill_type=None, chunk_size=None, chunk_count=None, total_chunk_count=None,
                       quad_as_tri=False, z_interp=ZInterp.Linear, thread_count=0):
@@ -48,7 +61,8 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
             May be 2D with the same shape as ``z.shape``, or 1D with length ``ny = z.shape[0]``.
             If not specified are assumed to be ``np.arange(ny)``. Must be ordered monotonically.
         z (array-like of shape (ny, nx), may be a masked array): The 2D gridded values to calculate
-            the contours of.
+            the contours of.  May be a masked array, and any invalid values (``np.inf`` or
+            ``np.nan``) will also be masked out.
         name (str): Algorithm name, one of ``"serial"``, ``"threaded"``, ``"mpl2005"`` or
             ``"mpl2014"``, default ``"serial"``.
         corner_mask (bool, optional): Enable/disable corner masking, which only has an effect if
@@ -95,7 +109,7 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
     """
     x = np.asarray(x, dtype=np.float64)
     y = np.asarray(y, dtype=np.float64)
-    z = np.ma.asarray(z, dtype=np.float64)  # Preserve mask if present.
+    z, mask = _remove_z_mask(z)
 
     # Check arguments: z.
     if z.ndim != 2:
@@ -127,14 +141,6 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
             raise TypeError(f"Shapes of y {y.shape} and z {z.shape} do not match")
     else:
         raise TypeError(f"Inputs x and y must be None, 1D or 2D, not {x.ndim}D")
-
-    # Extract optional mask from z array.
-    mask = None
-    if np.ma.is_masked(z):
-        mask = np.ma.getmask(z)
-        if mask is np.ma.nomask:
-            mask = None
-        z = np.ma.getdata(z)
 
     # Check mask shape just in case.
     if mask is not None and mask.shape != z.shape:
