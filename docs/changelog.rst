@@ -3,6 +3,17 @@
 Changelog
 #########
 
+v1.0.0 (2022-02-19)
+-------------------
+
+Finalised API for version 1.0 release.
+
+* Synonym functions for backward compatibility with Matplotlib `#111 <https://github.com/contourpy/contourpy/pull/111>`_
+* Add benchmarks to docs `#112 <https://github.com/contourpy/contourpy/pull/112>`_
+* Updated readmes, added security policy and code of conduct `#113 <https://github.com/contourpy/contourpy/pull/113>`_
+* Improved name to class mapping `#114 <https://github.com/contourpy/contourpy/pull/114>`_
+* Convert np.nan/np.inf in z to masked array `#115 <https://github.com/contourpy/contourpy/pull/115>`_
+
 v0.0.5 (2022-02-13)
 -------------------
 
