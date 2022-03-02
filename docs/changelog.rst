@@ -3,6 +3,12 @@
 Changelog
 #########
 
+v1.0.1 (2022-03-02)
+-------------------
+
+* Add docs and tests to sdist `#119 <https://github.com/contourpy/contourpy/pull/119>`_
+* Relax numpy version requirement `#120 <https://github.com/contourpy/contourpy/pull/120>`_
+
 v1.0.0 (2022-02-19)
 -------------------
 
