@@ -7,8 +7,10 @@ from contourpy.util.mpl_renderer import MplRenderer
 from image_comparison import compare_images
 
 
+@pytest.mark.text
+@pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
-def test_renderer_filled(fill_type):
+def test_renderer_filled(show_text, fill_type):
     x, y, z = random((3, 4))
     renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=False)
     for ax, quad_as_tri in enumerate((False, True)):
@@ -24,19 +26,24 @@ def test_renderer_filled(fill_type):
 
         if quad_as_tri:
             renderer.grid(x, y, ax=ax, alpha=0.5, quad_as_tri_alpha=0.5)
-            renderer.title("Title", ax=ax)
+            if show_text:
+                renderer.title("Title", ax=ax)
         else:
             renderer.grid(x, y, ax=ax, alpha=0.8, point_color="black")
-            renderer.title("Colored title", ax=ax, color="red")
+            if show_text:
+                renderer.title("Colored title", ax=ax, color="red")
 
     image_buffer = renderer.save_to_buffer()
-    compare_images(image_buffer, "renderer_filled_mpl.png", f"{fill_type}")
+    suffix = "" if show_text else "_no_text"
+    compare_images(image_buffer, f"renderer_filled_mpl{suffix}.png", f"{fill_type}")
 
 
+@pytest.mark.text
+@pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
-def test_renderer_lines(line_type):
+def test_renderer_lines(show_text, line_type):
     x, y, z = random((3, 4))
-    renderer = MplRenderer(ncols=2, figsize=(8, 3))
+    renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, line_type=line_type)
 
@@ -50,12 +57,15 @@ def test_renderer_lines(line_type):
 
         if quad_as_tri:
             renderer.grid(x, y, ax=ax, alpha=0.2, quad_as_tri_alpha=0.2)
-            renderer.z_values(x, y, z, ax=ax, fmt=".2f", quad_as_tri=True)
-            renderer.title("Title", ax=ax)
+            if show_text:
+                renderer.z_values(x, y, z, ax=ax, fmt=".2f", quad_as_tri=True)
+                renderer.title("Title", ax=ax)
         else:
             renderer.grid(x, y, ax=ax, point_color="black")
-            renderer.z_values(x, y, z, ax=ax, fmt=".2f", color="blue")
-            renderer.title("Colored title", ax=ax, color="red")
+            if show_text:
+                renderer.z_values(x, y, z, ax=ax, fmt=".2f", color="blue")
+                renderer.title("Colored title", ax=ax, color="red")
 
     image_buffer = renderer.save_to_buffer()
-    compare_images(image_buffer, "renderer_lines_mpl.png", f"{line_type}")
+    suffix = "" if show_text else "_no_text"
+    compare_images(image_buffer, f"renderer_lines_mpl{suffix}.png", f"{line_type}")
