@@ -23,11 +23,12 @@ class Corner(Enum):
 
 
 class Config:
-    def __init__(self, name, is_filled, corner_mask, quad_as_tri):
+    def __init__(self, name, is_filled, corner_mask, quad_as_tri, show_text):
         self.name = name
         self.is_filled = is_filled
         self.corner_mask = corner_mask
         self.quad_as_tri = quad_as_tri
+        self.show_text = show_text
 
         self.arrowsize = 0.1
         self.fontsize = 8
@@ -87,24 +88,27 @@ class Config:
             title = f"{ne}{sw}{se}={config}{suffix}"
         else:
             raise RuntimeError("Invalid corner")
-        ax.set_title(title, size=self.title_fontsize)
+
+        if self.show_text:
+            ax.set_title(title, size=self.title_fontsize)
 
         # Axes bounds include gap for arrows and corner points.
         ax.set_xlim(-self.gap, 1.0+self.gap)
         ax.set_ylim(-self.gap, 1.0+self.gap)
 
-        # Text for corner and optional middle z-levels.
-        fontsize = self.fontsize
-        if corner != Corner.NW:
-            ax.text(1+self.text_gap, 0, se, va="center", size=fontsize, ha="left")
-        if corner != Corner.SW:
-            ax.text(1+self.text_gap, 1, ne, va="center", size=fontsize, ha="left")
-        if corner != Corner.NE:
-            ax.text(-self.text_gap, 0, sw, va="center", size=fontsize, ha="right")
-        if corner != Corner.SE:
-            ax.text(-self.text_gap, 1, nw, va="center", size=fontsize, ha="right")
-        if suffix:  # Suffix (without brackets) is the z-level of quad middle.
-            ax.text(0.5, 0.5, suffix[1:-1], va="center", size=fontsize, ha="center")
+        if self.show_text:
+            # Text for corner and optional middle z-levels.
+            fontsize = self.fontsize
+            if corner != Corner.NW:
+                ax.text(1+self.text_gap, 0, se, va="center", size=fontsize, ha="left")
+            if corner != Corner.SW:
+                ax.text(1+self.text_gap, 1, ne, va="center", size=fontsize, ha="left")
+            if corner != Corner.NE:
+                ax.text(-self.text_gap, 0, sw, va="center", size=fontsize, ha="right")
+            if corner != Corner.SE:
+                ax.text(-self.text_gap, 1, nw, va="center", size=fontsize, ha="right")
+            if suffix:  # Suffix (without brackets) is the z-level of quad middle.
+                ax.text(0.5, 0.5, suffix[1:-1], va="center", size=fontsize, ha="center")
 
         lookup = {0: set_0, 1: set_1, 2: set_2, None: None}
         nw = lookup[nw]
@@ -249,8 +253,8 @@ class Config:
 
 
 class ConfigFilledCommon(Config):
-    def __init__(self, name, corner_mask, quad_as_tri):
-        super().__init__(name, True, corner_mask, quad_as_tri)
+    def __init__(self, name, corner_mask, quad_as_tri, show_text):
+        super().__init__(name, True, corner_mask, quad_as_tri, show_text)
 
     def _decode_config(self, config, corner=None):
         if corner is None:
@@ -297,8 +301,8 @@ class ConfigFilledCommon(Config):
 
 
 class ConfigFilled(ConfigFilledCommon):
-    def __init__(self, name, quad_as_tri=False):
-        super().__init__(name, False, quad_as_tri)
+    def __init__(self, name, quad_as_tri=False, show_text=True):
+        super().__init__(name, False, quad_as_tri, show_text)
 
         subplot_kw = dict(aspect="equal")
         if self.quad_as_tri:
@@ -383,8 +387,8 @@ class ConfigFilled(ConfigFilledCommon):
 
 
 class ConfigFilledCorner(ConfigFilledCommon):
-    def __init__(self, name):
-        super().__init__(name, corner_mask=True, quad_as_tri=False)
+    def __init__(self, name, show_text=True):
+        super().__init__(name, corner_mask=True, quad_as_tri=False, show_text=show_text)
 
         self.fig, axes = plt.subplots(8, 14, figsize=(12.1, 7.6), subplot_kw={"aspect": "equal"})
         self.axes = axes.flatten()
@@ -409,8 +413,8 @@ class ConfigFilledCorner(ConfigFilledCommon):
 
 
 class ConfigLinesCommon(Config):
-    def __init__(self, name, corner_mask, quad_as_tri):
-        super().__init__(name, False, corner_mask, quad_as_tri)
+    def __init__(self, name, corner_mask, quad_as_tri, show_text):
+        super().__init__(name, False, corner_mask, quad_as_tri, show_text)
 
     def _decode_config(self, config, corner=None):
         if corner is None:
@@ -434,8 +438,8 @@ class ConfigLinesCommon(Config):
 
 
 class ConfigLines(ConfigLinesCommon):
-    def __init__(self, name, quad_as_tri=False):
-        super().__init__(name, False, quad_as_tri)
+    def __init__(self, name, quad_as_tri=False, show_text=True):
+        super().__init__(name, False, quad_as_tri, show_text)
 
         subplot_kw = dict(aspect="equal")
         if self.quad_as_tri:
@@ -469,8 +473,8 @@ class ConfigLines(ConfigLinesCommon):
 
 class ConfigLinesCorner(ConfigLinesCommon):
     # All 4 corners plotted together.
-    def __init__(self, name):
-        super().__init__(name, corner_mask=True, quad_as_tri=False)
+    def __init__(self, name, show_text=True):
+        super().__init__(name, corner_mask=True, quad_as_tri=False, show_text=show_text)
 
         self.fig, axes = plt.subplots(4, 8, figsize=(6.93, 3.8), subplot_kw={"aspect": "equal"})
         self.axes = axes.flatten()
