@@ -3,6 +3,11 @@
 Changelog
 #########
 
+v1.0.2 (2022-04-08)
+-------------------
+
+* Add tests that do not write text to images `#124 <https://github.com/contourpy/contourpy/pull/124>`_
+
 v1.0.1 (2022-03-02)
 -------------------
 
