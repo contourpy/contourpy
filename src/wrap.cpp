@@ -108,9 +108,6 @@ PYBIND11_MODULE(_contourpy, m) {
             return mpl20xx_fill_type;})
         .def_property_readonly_static("default_line_type", [](py::object /* self */) {
             return mpl20xx_line_type;})
-        .def_property_readonly("fill_type", [](py::object /* self */) {return mpl20xx_fill_type;})
-        .def_property_readonly("line_type", [](py::object /* self */) {return mpl20xx_line_type;})
-        .def_property_readonly("quad_as_tri", [](py::object /* self */) {return false;})
         .def_static("supports_corner_mask", []() {return false;})
         .def_static("supports_fill_type", [](FillType fill_type) {
             return fill_type == mpl20xx_fill_type;})
