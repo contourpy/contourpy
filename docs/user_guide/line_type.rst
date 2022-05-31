@@ -5,7 +5,7 @@ Line type
 
 :class:`~contourpy.LineType` is an enum that is passed as the ``line_type`` keyword argument to
 :func:`~contourpy.contour_generator()` and is used to specify the format of data returned from calls
-to :func:`~contourpy.SerialContourGenerator.lines`. If not explicitly specified then the default is
+to :func:`~contourpy.ContourGenerator.lines`. If not explicitly specified then the default is
 used for the requested algorithm ``name``.
 
 Supported enum members and the default vary by algorithm:
@@ -25,7 +25,7 @@ Enum members are a combination of the following words:
   * **Code**: includes `Matplotlib`_ kind codes for the previous line array.
   * **Offset**: individual lines are identified via offsets into the previous line array.
 
-The format of data returned by :func:`~contourpy.SerialContourGenerator.lines` for each of the
+The format of data returned by :func:`~contourpy.ContourGenerator.lines` for each of the
 possible :class:`~contourpy.LineType` members is best illustrated through an example.
 
 .. plot::
@@ -148,7 +148,7 @@ analysis.
 
 .. note::
 
-   The order of lines returned by a particular :func:`~contourpy.SerialContourGenerator.lines` call
+   The order of lines returned by a particular :func:`~contourpy.ContourGenerator.lines` call
    is deterministic except for the combination of ``name="threaded"`` and either
    ``line_type=LineType.Separate`` or ``line_type=LineType.SeparateCode``. This is because the
    order that the chunks are processed in is not deterministic and lines are appended to the

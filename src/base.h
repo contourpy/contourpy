@@ -11,6 +11,7 @@
 #define CONTOURPY_BASE_H
 
 #include "chunk_local.h"
+#include "contour_generator.h"
 #include "fill_type.h"
 #include "line_type.h"
 #include "outer_or_hole.h"
@@ -18,7 +19,7 @@
 #include <vector>
 
 template <typename Derived>
-class BaseContourGenerator
+class BaseContourGenerator : public ContourGenerator
 {
 public:
     ~BaseContourGenerator();
@@ -45,12 +46,6 @@ public:
     static bool supports_line_type(LineType line_type);
 
     void write_cache() const;  // For debug purposes only.
-
-    // Non-copyable and non-moveable.
-    BaseContourGenerator(const BaseContourGenerator& other) = delete;
-    BaseContourGenerator(const BaseContourGenerator&& other) = delete;
-    BaseContourGenerator& operator=(const BaseContourGenerator& other) = delete;
-    BaseContourGenerator& operator=(const BaseContourGenerator&& other) = delete;
 
 protected:
     BaseContourGenerator(

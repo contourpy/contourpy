@@ -66,9 +66,9 @@ class MplRenderer:
 
         Args:
             filled (sequence of arrays): Filled contour data as returned by
-                :func:`~contourpy.SerialContourGenerator.filled`.
+                :func:`~contourpy.ContourGenerator.filled`.
             fill_type (FillType): Type of ``filled`` data, as returned by
-                :attr:`~contourpy.SerialContourGenerator.fill_type`.
+                :attr:`~contourpy.ContourGenerator.fill_type`.
             ax (int or Maplotlib Axes, optional): Which axes to plot on, default ``0``.
             color (str, optional): Color to plot with. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
@@ -125,9 +125,9 @@ class MplRenderer:
 
         Args:
             lines (sequence of arrays): Contour line data as returned by
-                :func:`~contourpy.SerialContourGenerator.lines`.
+                :func:`~contourpy.ContourGenerator.lines`.
             line_type (LineType): Type of ``lines`` data, as returned by
-                :attr:`~contourpy.SerialContourGenerator.line_type`.
+                :attr:`~contourpy.ContourGenerator.line_type`.
             ax (int or Matplotlib Axes, optional): Which Axes to plot on, default ``0``.
             color (str, optional): Color to plot lines. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
