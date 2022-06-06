@@ -3,14 +3,16 @@ import pytest
 
 from contourpy import contour_generator, FillType, LineType
 from contourpy.util.data import random
-from contourpy.util.mpl_renderer import MplRenderer
-from image_comparison import compare_images
 
 
+@pytest.mark.needs_mpl
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
 def test_renderer_filled(show_text, fill_type):
+    from contourpy.util.mpl_renderer import MplRenderer
+    from image_comparison import compare_images
+
     x, y, z = random((3, 4))
     renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=False)
     for ax, quad_as_tri in enumerate((False, True)):
@@ -38,10 +40,14 @@ def test_renderer_filled(show_text, fill_type):
     compare_images(image_buffer, f"renderer_filled_mpl{suffix}.png", f"{fill_type}")
 
 
+@pytest.mark.needs_mpl
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
 def test_renderer_lines(show_text, line_type):
+    from contourpy.util.mpl_renderer import MplRenderer
+    from image_comparison import compare_images
+
     x, y, z = random((3, 4))
     renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)
     for ax, quad_as_tri in enumerate((False, True)):
