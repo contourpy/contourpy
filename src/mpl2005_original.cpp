@@ -1317,7 +1317,7 @@ reorder(double *xpp, double *ypp, short *kpp, double *xy, unsigned char *c, int 
 
     /* Find the subpaths as sets of connected segments. */
 
-    subp.resize(nsegs);
+    subp.resize(nsegs, false);
     for (i=0; i<nsegs; i++) subp[i] = -1;
 
     nsp = 0;
@@ -1425,11 +1425,11 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
         }
 
         dims[0] = n;
-        xyv.resize(dims);
+        xyv.resize(dims, false);
         all_verts[i] = xyv;
 
         kdims[0] = n;
-        kv.resize(kdims);
+        kv.resize(kdims, false);
         all_codes[i] = kv;
     }
 
