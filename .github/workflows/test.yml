@@ -24,6 +24,13 @@ jobs:
           - os: ubuntu-latest
             python-version: 3.9
             debug: 1
+          # PyPy only tested on ubuntu for speed.
+          - os: ubuntu-latest
+            python-version: 'pypy-3.7'
+            debug: 0
+          - os: ubuntu-latest
+            python-version: 'pypy-3.8'
+            debug: 0
 
     steps:
       - name: Checkout source
@@ -32,20 +39,28 @@ jobs:
           fetch-depth: 0
 
       - name: Install Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install contourpy
-        if: matrix.debug == 0
+        shell: bash
         run: |
-          python -m pip install -ve .[test]
-          python -m pip list
-
-      - name: Install contourpy (debug)
-        if: matrix.debug == 1
-        run: |
-          CONTOURPY_DEBUG=1 CONTOURPY_CXX11=1 python -m pip install -ve .[test]
+          if [[ ${{ matrix.debug }} == 0 ]];
+          then
+            if [[ ${{ matrix.python-version }} == pypy* ]];
+            then
+              echo "Install without test dependencies"
+              python -m pip install -ve .
+              python -m pip install pytest
+            else
+              echo "Install with test dependencies"
+              python -m pip install -ve .[test]
+            fi
+          else
+            echo "Install in debug mode with test dependencies"
+            CONTOURPY_DEBUG=1 CONTOURPY_CXX11=1 python -m pip install -ve .[test]
+          fi
           python -m pip list
 
       - name: Install cppcheck
@@ -54,8 +69,16 @@ jobs:
           sudo apt install -y cppcheck
 
       - name: Run tests
+        shell: bash
         run: |
-          python -m pytest -v tests/
+          if [[ ${{ matrix.python-version }} == pypy* ]];
+          then
+            echo "Run only tests that do not need mpl"
+            python -m pytest -v tests/ -k "not needs_mpl"
+          else
+            echo "Run tests"
+            python -m pytest -v tests/
+          fi
 
       - name: Collect test image failures
         if: always()
