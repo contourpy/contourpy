@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 
-from contourpy import contour_generator, LineType, ZInterp
+from contourpy import LineType, ZInterp, contour_generator
 
 
 @pytest.fixture

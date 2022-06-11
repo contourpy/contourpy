@@ -1,10 +1,11 @@
+import re
+
 from asv.util import human_value
-from contourpy import FillType, LineType
 from loader import Loader
 import matplotlib.pyplot as plt
 import numpy as np
-import re
 
+from contourpy import FillType, LineType
 
 # Default fill/line types that exist in all algorithms.
 default_fill_type = FillType.OuterCode

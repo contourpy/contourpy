@@ -1,9 +1,11 @@
 import io
-import matplotlib.pyplot as plt
+
 import matplotlib.collections as mcollections
+import matplotlib.pyplot as plt
 import numpy as np
 
 from contourpy import FillType, LineType
+
 from .mpl_util import filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offsets
 
 

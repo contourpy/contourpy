@@ -2,7 +2,8 @@ import pytest
 
 from contourpy import FillType, LineType, ZInterp
 from contourpy.enum_util import as_fill_type, as_line_type, as_z_interp
-import util_test
+
+from . import util_test
 
 
 @pytest.mark.parametrize("name, value", util_test.all_fill_types_str_value())

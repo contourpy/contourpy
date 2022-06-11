@@ -1,4 +1,5 @@
 from contourpy import FillType, LineType
+
 from .mpl_util import mpl_codes_to_offsets
 
 

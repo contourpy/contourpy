@@ -1,9 +1,11 @@
+from copy import deepcopy
+from datetime import datetime
+
 from asv.benchmarks import Benchmarks
 from asv.config import Config
 from asv.results import iter_results_for_machine
+
 from contourpy import FillType, LineType
-from copy import deepcopy
-from datetime import datetime
 
 
 class Loader:

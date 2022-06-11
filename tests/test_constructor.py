@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 
 import contourpy
-import util_test
+
+from . import util_test
 
 
 @pytest.fixture

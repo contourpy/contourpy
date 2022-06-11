@@ -1,8 +1,10 @@
-from contourpy.util.mpl_renderer import MplRenderer
+import os
+
 from docutils import nodes
 from docutils.parsers.rst.directives import choice
-import os
 from sphinx.directives.code import CodeBlock
+
+from contourpy.util.mpl_renderer import MplRenderer
 
 
 class PlotDirective(CodeBlock):

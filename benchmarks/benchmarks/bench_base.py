@@ -1,5 +1,6 @@
-from contourpy.util.data import random, simple
 import numpy as np
+
+from contourpy.util.data import random, simple
 
 
 class BenchBase:

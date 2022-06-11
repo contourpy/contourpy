@@ -1,5 +1,6 @@
-from contourpy import max_threads, _remove_z_mask
 import numpy as np
+
+from contourpy import _remove_z_mask, max_threads
 
 
 def test_max_threads():

@@ -11,8 +11,10 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sphinx_rtd_theme
 import sys
+
+import sphinx_rtd_theme
+
 sys.path.append(os.path.abspath("./sphinxext"))
 
 
