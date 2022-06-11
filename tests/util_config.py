@@ -1,9 +1,10 @@
 from enum import Enum
 import io
+
 import matplotlib.pyplot as plt
 import numpy as np
 
-from contourpy import contour_generator, LineType
+from contourpy import LineType, contour_generator
 
 
 class PointType(Enum):

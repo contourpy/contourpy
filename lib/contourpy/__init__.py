@@ -1,13 +1,12 @@
 import numpy as np
 
-from .chunk import calc_chunk_sizes
 from ._contourpy import (
-    FillType, LineType, ContourGenerator, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
-    SerialContourGenerator, ThreadedContourGenerator, ZInterp, max_threads
+    ContourGenerator, FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
+    SerialContourGenerator, ThreadedContourGenerator, ZInterp, max_threads,
 )
-from .enum_util import as_fill_type, as_line_type, as_z_interp
 from ._version import __version__
-
+from .chunk import calc_chunk_sizes
+from .enum_util import as_fill_type, as_line_type, as_z_interp
 
 __all__ = [
     "__version__",

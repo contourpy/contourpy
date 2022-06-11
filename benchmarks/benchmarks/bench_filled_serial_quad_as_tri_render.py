@@ -1,5 +1,6 @@
-from contourpy import contour_generator, FillType
+from contourpy import FillType, contour_generator
 from contourpy.util.mpl_renderer import MplTestRenderer
+
 from .bench_base import BenchBase
 from .util_bench import corner_masks, datasets, problem_sizes
 

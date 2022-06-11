@@ -1,7 +1,8 @@
 import os
 import re
+
+from pybind11.setup_helpers import ParallelCompile, Pybind11Extension, build_ext, naive_recompile
 from setuptools import setup
-from pybind11.setup_helpers import build_ext, naive_recompile, ParallelCompile, Pybind11Extension
 
 
 def get_version():

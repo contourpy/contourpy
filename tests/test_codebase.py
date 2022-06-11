@@ -1,6 +1,7 @@
-import pytest
 import re
 from subprocess import run
+
+import pytest
 
 import contourpy
 
@@ -36,6 +37,16 @@ def test_flake8():
         pytest.skip()
 
     assert proc.returncode == 0, f"Flake8 issues:\n{proc.stdout.decode('utf-8')}"
+
+
+def test_isort():
+    cmd = ["isort", ".", "--diff", "--check-only"]
+    try:
+        proc = run(cmd, capture_output=True)
+    except FileNotFoundError:
+        pytest.skip()
+
+    assert proc.returncode == 0, f"isort issues:\n{proc.stderr.decode('utf-8')}"
 
 
 def test_version():

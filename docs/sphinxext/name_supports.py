@@ -1,8 +1,10 @@
-import contourpy
+import sys
+
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import unchanged
 
-import sys
+import contourpy
+
 sys.path.insert(0, '.')
 from sphinxext.table import Table
 

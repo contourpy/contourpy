@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from contourpy import contour_generator, FillType, LineType
+from contourpy import FillType, LineType, contour_generator
 from contourpy.util.data import random
 
 
@@ -11,7 +11,8 @@ from contourpy.util.data import random
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
 def test_renderer_filled(show_text, fill_type):
     from contourpy.util.mpl_renderer import MplRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((3, 4))
     renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=False)
@@ -46,7 +47,8 @@ def test_renderer_filled(show_text, fill_type):
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
 def test_renderer_lines(show_text, line_type):
     from contourpy.util.mpl_renderer import MplRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((3, 4))
     renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)

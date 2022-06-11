@@ -1,10 +1,11 @@
+import io
+
 from bokeh.io import export_png, export_svg, show
 from bokeh.io.export import get_screenshot_as_png
 from bokeh.layouts import gridplot
 from bokeh.models import Label
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
-import io
 import numpy as np
 
 from .bokeh_util import filled_to_bokeh, lines_to_bokeh

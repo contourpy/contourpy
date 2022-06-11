@@ -2,9 +2,10 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 import pytest
 
-from contourpy import contour_generator, LineType
+from contourpy import LineType, contour_generator
 from contourpy.util.data import random, simple
-import util_test
+
+from . import util_test
 
 
 @pytest.fixture
@@ -91,7 +92,8 @@ def test_loop(xy_3x3, name):
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_simple(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40))
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type)
@@ -111,7 +113,8 @@ def test_lines_simple(name, line_type):
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_simple_chunk(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40))
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, chunk_size=2)
@@ -131,7 +134,8 @@ def test_lines_simple_chunk(name, line_type):
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_simple_no_corner_mask(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40), want_mask=True)
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=False)
@@ -151,7 +155,8 @@ def test_lines_simple_no_corner_mask(name, line_type):
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_simple_no_corner_mask_chunk(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40), want_mask=True)
     cont_gen = contour_generator(
@@ -172,7 +177,8 @@ def test_lines_simple_no_corner_mask_chunk(name, line_type):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_simple_corner_mask(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40), want_mask=True)
     line_type = LineType.SeparateCode
@@ -193,7 +199,8 @@ def test_lines_simple_corner_mask(name):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_simple_corner_mask_chunk(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40), want_mask=True)
     line_type = LineType.SeparateCode
@@ -215,7 +222,8 @@ def test_lines_simple_corner_mask_chunk(name):
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_lines_simple_quad_as_tri(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40))
     cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
@@ -234,7 +242,8 @@ def test_lines_simple_quad_as_tri(name):
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.0)
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type)
@@ -254,7 +263,8 @@ def test_lines_random(name, line_type):
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random_chunk(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.0)
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, chunk_size=2)
@@ -283,7 +293,8 @@ def test_lines_random_chunk(name, line_type):
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random_no_corner_mask(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, corner_mask=False)
@@ -303,7 +314,8 @@ def test_lines_random_no_corner_mask(name, line_type):
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random_no_corner_mask_chunk(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     if name in ("mpl2005"):
         pytest.skip()  # mpl2005 does not support chunks for lines.
@@ -325,7 +337,8 @@ def test_lines_random_no_corner_mask_chunk(name, line_type):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_random_corner_mask(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     line_type = LineType.SeparateCode
@@ -344,7 +357,8 @@ def test_lines_random_corner_mask(name):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_random_corner_mask_chunk(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     line_type = LineType.SeparateCode
@@ -363,7 +377,8 @@ def test_lines_random_corner_mask_chunk(name):
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_lines_random_quad_as_tri(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.0)
     cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)

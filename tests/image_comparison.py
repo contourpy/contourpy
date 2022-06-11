@@ -1,7 +1,8 @@
-import numpy as np
 import os
-from PIL import Image
 from shutil import copyfile
+
+from PIL import Image
+import numpy as np
 
 
 def compare_images(test_buffer, baseline_filename, test_filename_suffix=None, max_threshold=None,

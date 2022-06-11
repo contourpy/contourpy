@@ -2,7 +2,6 @@ import numpy as np
 
 from contourpy import FillType, LineType
 
-
 point_dtype = np.float64
 code_dtype = np.uint8
 offset_dtype = np.uint32

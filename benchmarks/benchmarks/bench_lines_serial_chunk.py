@@ -1,4 +1,5 @@
-from contourpy import contour_generator, LineType
+from contourpy import LineType, contour_generator
+
 from .bench_base import BenchBase
 from .util_bench import chunk_counts, corner_masks, datasets
 

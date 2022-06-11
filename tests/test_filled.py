@@ -1,12 +1,14 @@
 from functools import reduce
+from operator import add
+
 import numpy as np
 from numpy.testing import assert_array_equal
-from operator import add
 import pytest
 
-from contourpy import contour_generator, FillType
+from contourpy import FillType, contour_generator
 from contourpy.util.data import random, simple
-import util_test
+
+from . import util_test
 
 
 @pytest.fixture
@@ -22,7 +24,8 @@ def two_outers_one_hole():
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_simple(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40))
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type)
@@ -42,7 +45,8 @@ def test_filled_simple(name, fill_type):
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_simple_chunk(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40))
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, chunk_size=2)
@@ -63,7 +67,8 @@ def test_filled_simple_chunk(name, fill_type):
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_simple_no_corner_mask(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40), want_mask=True)
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, corner_mask=False)
@@ -83,7 +88,8 @@ def test_filled_simple_no_corner_mask(name, fill_type):
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_simple_no_corner_mask_chunk(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40), want_mask=True)
     cont_gen = contour_generator(
@@ -107,7 +113,8 @@ def test_filled_simple_no_corner_mask_chunk(name, fill_type):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_simple_corner_mask(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40), want_mask=True)
     fill_type = FillType.OuterCode
@@ -128,7 +135,8 @@ def test_filled_simple_corner_mask(name):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_simple_corner_mask_chunk(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40), want_mask=True)
     fill_type = FillType.OuterCode
@@ -153,7 +161,8 @@ def test_filled_simple_corner_mask_chunk(name):
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_filled_simple_quad_as_tri(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = simple((30, 40))
     cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
@@ -172,7 +181,8 @@ def test_filled_simple_quad_as_tri(name):
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.0)
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type)
@@ -192,7 +202,8 @@ def test_filled_random(name, fill_type):
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random_chunk(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.0)
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, chunk_size=2)
@@ -228,7 +239,8 @@ def test_filled_random_chunk(name, fill_type):
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random_no_corner_mask(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, corner_mask=False)
@@ -248,7 +260,8 @@ def test_filled_random_no_corner_mask(name, fill_type):
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random_no_corner_mask_chunk(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(
@@ -283,7 +296,8 @@ def test_filled_random_no_corner_mask_chunk(name, fill_type):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_random_corner_mask(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     fill_type = FillType.OuterCode
@@ -302,7 +316,8 @@ def test_filled_random_corner_mask(name):
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_random_corner_mask_chunk(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     fill_type = FillType.OuterCode
@@ -331,7 +346,8 @@ def test_filled_random_corner_mask_chunk(name):
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_filled_random_quad_as_tri(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
-    from image_comparison import compare_images
+
+    from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.0)
     cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
