@@ -1,6 +1,3 @@
-import matplotlib
-matplotlib.use("Agg")
-
 from enum import Enum
 import io
 import matplotlib.pyplot as plt
@@ -44,6 +41,9 @@ class Config:
         # Set in derived classes.
         self.fig = None
         self.axes = None
+
+        import matplotlib
+        matplotlib.use("Agg")
 
     def __del__(self):
         if self.fig:

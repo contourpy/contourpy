@@ -1,11 +1,3 @@
-# Force use of Agg backend to render to image file which is required for
-# testing on headless servers.  This is used by MplTestRenderer.  All other
-# mpl renderer classes switch back to the default interactive backend in their
-# constructors.
-import matplotlib
-_default_backend = matplotlib.get_backend()
-matplotlib.use("Agg")
-
 import io
 import matplotlib.pyplot as plt
 import matplotlib.collections as mcollections
@@ -23,16 +15,31 @@ class MplRenderer:
         ncols (int, optional): Number of columns of plots, default ``1``.
         figsize (tuple(float, float), optional): Figure size in inches, default ``(9, 9)``.
         show_frame (bool, optional): Whether to show frame and axes ticks, default ``True``.
+        backend (str, optional): Matplotlib backend to use or ``None`` for default backend.
+            Default ``None``.
+        gridspec_kw (dict, optional): Gridspec keyword arguments to pass to ``plt.subplots``,
+            default None.
     """
-    def __init__(self, nrows=1, ncols=1, figsize=(9, 9), show_frame=True):
-        plt.switch_backend(_default_backend)
-        self._fig, axes = plt.subplots(
-            nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False, sharex=True, sharey=True,
-            subplot_kw={"aspect": "equal"})
+    def __init__(
+        self, nrows=1, ncols=1, figsize=(9, 9), show_frame=True, backend=None, gridspec_kw=None,
+    ):
+        if backend is not None:
+            import matplotlib
+            matplotlib.use(backend)
+
+        kwargs = dict(figsize=figsize, squeeze=False, sharex=True, sharey=True)
+        if gridspec_kw is not None:
+            kwargs["gridspec_kw"] = gridspec_kw
+        else:
+            kwargs["subplot_kw"] = dict(aspect="equal")
+
+        self._fig, axes = plt.subplots(nrows, ncols, **kwargs)
         self._axes = axes.flatten()
         if not show_frame:
             for ax in self._axes:
                 ax.axis("off")
+
+        self._want_tight = True
 
     def __del__(self):
         if hasattr(self, "_fig"):
@@ -46,7 +53,7 @@ class MplRenderer:
             if getattr(ax, "_need_autoscale", False):
                 ax.autoscale_view(tight=True)
                 ax._need_autoscale = False
-        if len(self._axes) > 1:
+        if self._want_tight and len(self._axes) > 1:
             self._fig.tight_layout()
 
     def _get_ax(self, ax):
@@ -254,14 +261,17 @@ class MplTestRenderer(MplRenderer):
             "wspace": 0.01,
             "hspace": 0.01,
         }
-        self._fig, axes = plt.subplots(
-            nrows=nrows, ncols=ncols, figsize=figsize, squeeze=False, gridspec_kw=gridspec)
-        self._axes = axes.flatten()
+        super().__init__(
+            nrows, ncols, figsize, show_frame=True, backend="Agg", gridspec_kw=gridspec,
+        )
+
         for ax in self._axes:
             ax.set_xmargin(0.0)
             ax.set_ymargin(0.0)
             ax.set_xticks([])
             ax.set_yticks([])
+
+        self._want_tight = False
 
 
 class MplDebugRenderer(MplRenderer):
