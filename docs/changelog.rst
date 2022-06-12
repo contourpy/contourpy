@@ -3,6 +3,16 @@
 Changelog
 #########
 
+v1.0.3 (2022-06-12)
+-------------------
+
+* Remove unnecessary code duplication `#130 <https://github.com/contourpy/contourpy/pull/130>`_
+* ContourGenerator base class `#131 <https://github.com/contourpy/contourpy/pull/131>`_
+* Mark tests that need mpl `#133 <https://github.com/contourpy/contourpy/pull/133>`_
+* Fix for PyPy np.resize bug `#135 <https://github.com/contourpy/contourpy/pull/135>`_
+* Initialise mpl backend when first needed `#137 <https://github.com/contourpy/contourpy/pull/137>`_
+* Add isort to pytest `#138 <https://github.com/contourpy/contourpy/pull/138>`_
+
 v1.0.2 (2022-04-08)
 -------------------
 
