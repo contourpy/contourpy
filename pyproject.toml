@@ -13,8 +13,11 @@ profile = "hug"
 skip_gitignore = true
 
 [tool.cibuildwheel]
+build-frontend = "build"
 build-verbosity = "2"
 build = "cp37-* cp38-* cp39-* cp310-* pp37-* pp38-*"
+test-command = "python -c 'import contourpy as c; c.contour_generator(z=[[0, 1], [2, 3]]).lines(0.9)'"
+test-skip = "*-macosx_universal2"
 
 [tool.cibuildwheel.linux]
 archs = "auto aarch64"
