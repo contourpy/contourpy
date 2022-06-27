@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+namespace contourpy {
+
 /* the data about edges, zones, and points -- boundary or not, exists
  * or not, z value 0, 1, or 2 -- is kept in a mesh sized data array */
 typedef short Cdata;
@@ -48,5 +50,7 @@ void cntr_init(Csite *site, long iMax, long jMax, const double *x, const double 
 void cntr_del(Csite *site);
 
 py::tuple cntr_trace(Csite *site, double levels[], int nlevels);
+
+} // namespace contourpy
 
 #endif // CONTOURPY_MPL_2005_ORIGINAL_H

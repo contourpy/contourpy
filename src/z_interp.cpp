@@ -1,6 +1,8 @@
 #include "z_interp.h"
 #include <iostream>
 
+namespace contourpy {
+
 std::ostream &operator<<(std::ostream &os, const ZInterp& z_interp)
 {
     switch (z_interp) {
@@ -13,3 +15,5 @@ std::ostream &operator<<(std::ostream &os, const ZInterp& z_interp)
     }
     return os;
 }
+
+} // namespace contourpy

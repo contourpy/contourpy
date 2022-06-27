@@ -1,6 +1,8 @@
 #include "line_type.h"
 #include <iostream>
 
+namespace contourpy {
+
 std::ostream &operator<<(std::ostream &os, const LineType& line_type)
 {
     switch (line_type) {
@@ -19,3 +21,5 @@ std::ostream &operator<<(std::ostream &os, const LineType& line_type)
     }
     return os;
 }
+
+} // namespace contourpy

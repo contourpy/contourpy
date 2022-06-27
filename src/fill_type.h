@@ -4,6 +4,8 @@
 #include <iosfwd>
 #include <string>
 
+namespace contourpy {
+
 // C++11 scoped enum, must be fully qualified to use.
 enum class FillType
 {
@@ -16,5 +18,7 @@ enum class FillType
 };
 
 std::ostream &operator<<(std::ostream &os, const FillType& fill_type);
+
+} // namespace contourpy
 
 #endif // CONTOURPY_FILL_TYPE_H

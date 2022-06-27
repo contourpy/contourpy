@@ -9,7 +9,7 @@
 #include "mpl_kind_code.h"
 #include <algorithm>
 
-
+namespace contourpy {
 namespace mpl2014 {
 
 // Point indices from current quad index.
@@ -1756,3 +1756,4 @@ void Mpl2014ContourGenerator::write_cache_quad(
 }
 
 } // namespace mpl2014
+} // namespace contourpy

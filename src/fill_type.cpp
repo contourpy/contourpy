@@ -1,6 +1,8 @@
 #include "fill_type.h"
 #include <iostream>
 
+namespace contourpy {
+
 std::ostream &operator<<(std::ostream &os, const FillType& fill_type)
 {
     switch (fill_type) {
@@ -25,3 +27,5 @@ std::ostream &operator<<(std::ostream &os, const FillType& fill_type)
     }
     return os;
 }
+
+} // namespace contourpy

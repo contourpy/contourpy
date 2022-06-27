@@ -18,6 +18,8 @@
 #include "z_interp.h"
 #include <vector>
 
+namespace contourpy {
+
 template <typename Derived>
 class BaseContourGenerator : public ContourGenerator
 {
@@ -203,5 +205,7 @@ private:
     bool _outer_offsets_into_points;  // Otherwise into line offsets.  Only used if _identify_holes.
     unsigned int _return_list_count;
 };
+
+} // namespace contourpy
 
 #endif // CONTOURPY_BASE_H

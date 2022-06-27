@@ -3,6 +3,8 @@
 
 #include "base.h"
 
+namespace contourpy {
+
 class SerialContourGenerator : public BaseContourGenerator<SerialContourGenerator>
 {
 public:
@@ -29,5 +31,7 @@ private:
 
     void march(std::vector<py::list>& return_lists);
 };
+
+} // namespace contourpy
 
 #endif // CONTOURPY_SERIAL_H

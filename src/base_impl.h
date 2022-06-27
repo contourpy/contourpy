@@ -5,6 +5,7 @@
 #include "converter.h"
 #include <iostream>
 
+namespace contourpy {
 
 // Point indices from current quad index.
 #define POINT_NE (quad)
@@ -2542,5 +2543,7 @@ typename BaseContourGenerator<Derived>::ZLevel BaseContourGenerator<Derived>::z_
 {
     return (_filled && z_value > _upper_level) ? 2 : (z_value > _lower_level ? 1 : 0);
 }
+
+} // namespace contourpy
 
 #endif // CONTOURPY_BASE_IMPL_H

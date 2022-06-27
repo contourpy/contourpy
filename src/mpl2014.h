@@ -147,7 +147,7 @@
 #include <iostream>
 #include <vector>
 
-
+namespace contourpy {
 namespace mpl2014 {
 
 // Edge of a quad including diagonal edges of masked quads if _corner_mask true.
@@ -513,5 +513,6 @@ private:
 };
 
 } // namespace mpl2014
+} // namespace contourpy
 
 #endif // #define CONTOURPY_MPL_2014_H

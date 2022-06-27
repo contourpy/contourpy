@@ -5,6 +5,8 @@
 #include <condition_variable>
 #include <mutex>
 
+namespace contourpy {
+
 class ThreadedContourGenerator : public BaseContourGenerator<ThreadedContourGenerator>
 {
 public:
@@ -45,5 +47,7 @@ private:
     std::mutex _python_mutex;  // Locks access to Python objects.
     std::condition_variable _condition_variable;  // Implements multithreaded barrier.
 };
+
+} // namespace contourpy
 
 #endif // CONTOURPY_THREADED_H
