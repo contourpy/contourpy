@@ -1,6 +1,8 @@
 #include "base_impl.h"
 #include "serial.h"
 
+namespace contourpy {
+
 SerialContourGenerator::SerialContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
     const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
@@ -23,3 +25,5 @@ void SerialContourGenerator::march(std::vector<py::list>& return_lists)
         local.clear();
     }
 }
+
+} // namespace contourpy

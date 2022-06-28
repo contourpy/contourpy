@@ -3,6 +3,8 @@
 #include "util.h"
 #include <thread>
 
+namespace contourpy {
+
 ThreadedContourGenerator::ThreadedContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
     const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
@@ -107,3 +109,5 @@ void ThreadedContourGenerator::thread_function(std::vector<py::list>& return_lis
         local.clear();
     }
 }
+
+} // namespace contourpy

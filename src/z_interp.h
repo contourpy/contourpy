@@ -4,6 +4,8 @@
 #include <iosfwd>
 #include <string>
 
+namespace contourpy {
+
 // Enum for type of interpolation used to find intersection of contour lines
 // with grid cell edges.
 
@@ -15,5 +17,7 @@ enum class ZInterp
 };
 
 std::ostream &operator<<(std::ostream &os, const ZInterp& z_interp);
+
+} // namespace contourpy
 
 #endif // CONTOURPY_ZINTERP_H

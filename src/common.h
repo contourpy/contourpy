@@ -4,6 +4,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
+namespace contourpy {
+
 namespace py = pybind11;
 
 // quad/point index type, the same as for numpy array shape/indices (== npy_intp).  Also used for
@@ -24,5 +26,7 @@ typedef py::array_t<bool,   py::array::c_style | py::array::forcecast> MaskArray
 typedef py::array_t<double>   PointArray;
 typedef py::array_t<uint8_t>  CodeArray;
 typedef py::array_t<offset_t> OffsetArray;
+
+} // namespace contourpy
 
 #endif // CONTOURPY_COMMON_H

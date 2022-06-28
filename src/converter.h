@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+namespace contourpy {
+
 // Conversion of C++ object to return to python.
 class Converter
 {
@@ -23,5 +25,7 @@ public:
 private:
     static void check_max_offset(count_t max_offset);
 };
+
+} // namespace contourpy
 
 #endif // CONTOURPY_CONVERTER_H

@@ -1,5 +1,7 @@
 #include "mpl2005.h"
 
+namespace contourpy {
+
 Mpl2005ContourGenerator::Mpl2005ContourGenerator(
     const CoordinateArray& x, const CoordinateArray& y, const CoordinateArray& z,
     const MaskArray& mask, index_t x_chunk_size, index_t y_chunk_size)
@@ -70,3 +72,5 @@ py::tuple Mpl2005ContourGenerator::lines(const double& level)
     double levels[2] = {level, 0.0};
     return cntr_trace(_site, levels, 1);
 }
+
+} // namespace contourpy

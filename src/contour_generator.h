@@ -3,6 +3,8 @@
 
 #include "common.h"
 
+namespace contourpy {
+
 class ContourGenerator
 {
 public:
@@ -15,5 +17,7 @@ public:
 protected:
     ContourGenerator() = default;
 };
+
+} // namespace contourpy
 
 #endif // CONTOURPY_CONTOUR_GENERATOR_H

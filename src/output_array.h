@@ -4,6 +4,8 @@
 #include "common.h"
 #include <vector>
 
+namespace contourpy {
+
 // A reusable array that is output from C++ to Python.  Depending on the chosen line or fill type,
 // it can either be created as a NumPy array that will be directly returned to the Python caller,
 // or as a C++ vector that will be further manipulated (such as split up) before being converted to
@@ -62,5 +64,7 @@ public:
     T* start;               // Start of array, whether C++ or Python.
     T* current;             // Where to write next value to before incrementing.
 };
+
+} // namespace contourpy
 
 #endif // CONTOURPY_OUTPUT_ARRAY_H

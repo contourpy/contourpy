@@ -4,6 +4,8 @@
 #include "output_array.h"
 #include <iosfwd>
 
+namespace contourpy {
+
 struct ChunkLocal
 {
     ChunkLocal();
@@ -32,5 +34,7 @@ struct ChunkLocal
     // Data for current outer.
     std::vector<index_t> look_up_quads;  // To find holes of current outer.
 };
+
+} // namespace contourpy
 
 #endif // CONTOURPY_CHUNK_LOCAL_H

@@ -4,6 +4,8 @@
 #include "contour_generator.h"
 #include "mpl2005_original.h"
 
+namespace contourpy {
+
 class Mpl2005ContourGenerator : public ContourGenerator
 {
 public:
@@ -24,5 +26,7 @@ private:
     CoordinateArray _x, _y, _z;
     Csite *_site;
 };
+
+} // namespace contourpy
 
 #endif // CONTOURPY_MPL_2005_H

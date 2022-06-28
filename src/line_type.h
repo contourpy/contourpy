@@ -4,6 +4,8 @@
 #include <iosfwd>
 #include <string>
 
+namespace contourpy {
+
 // C++11 scoped enum, must be fully qualified to use.
 enum class LineType
 {
@@ -14,5 +16,7 @@ enum class LineType
 };
 
 std::ostream &operator<<(std::ostream &os, const LineType& line_type);
+
+} // namespace contourpy
 
 #endif // CONTOURPY_LINE_TYPE_H

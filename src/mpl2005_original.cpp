@@ -168,6 +168,8 @@
 
 /* ------------------------------------------------------------------------ */
 
+namespace contourpy {
+
 void print_Csite(Csite *Csite)
 {
     Cdata *data = Csite->data;
@@ -1522,3 +1524,5 @@ cntr_trace(Csite *site, double levels[], int nlevels)
     return build_cntr_list_v2(
         nseg0.data(), xp0.data(), yp0.data(), kp0.data(), nparts, ntotal, nlevels);
 }
+
+} // namespace contourpy

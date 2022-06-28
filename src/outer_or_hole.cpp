@@ -1,6 +1,8 @@
 #include "outer_or_hole.h"
 #include <iostream>
 
+namespace contourpy {
+
 std::ostream &operator<<(std::ostream &os, const OuterOrHole& outer_or_hole)
 {
     switch (outer_or_hole) {
@@ -13,3 +15,5 @@ std::ostream &operator<<(std::ostream &os, const OuterOrHole& outer_or_hole)
     }
     return os;
 }
+
+} // namespace contourpy

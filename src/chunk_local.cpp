@@ -2,6 +2,8 @@
 #include <iostream>
 #include <limits>
 
+namespace contourpy {
+
 ChunkLocal::ChunkLocal()
 {
     look_up_quads.reserve(100);
@@ -53,3 +55,6 @@ std::ostream &operator<<(std::ostream &os, const ChunkLocal& local)
 
     return os;
 }
+
+} // namespace contourpy
+

@@ -2,6 +2,8 @@
 #include "mpl_kind_code.h"
 #include <limits>
 
+namespace contourpy {
+
 void Converter::check_max_offset(count_t max_offset)
 {
     if (max_offset > std::numeric_limits<OffsetArray::value_type>::max())
@@ -102,3 +104,5 @@ PointArray Converter::convert_points(count_t point_count, const double* start)
 
     return py_points;
 }
+
+} // namespace contourpy
