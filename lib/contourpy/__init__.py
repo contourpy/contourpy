@@ -57,7 +57,7 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
         x (array-like of shape (ny, nx) or (nx,), optional): The x-coordinates of the ``z`` values.
             May be 2D with the same shape as ``z.shape``, or 1D with length ``nx = z.shape[1]``.
             If not specified are assumed to be ``np.arange(nx)``. Must be ordered monotonically.
-        y (array-like of shape (ny, nx) or (ny,), optional): The y-coordinates of the ``z`` values,
+        y (array-like of shape (ny, nx) or (ny,), optional): The y-coordinates of the ``z`` values.
             May be 2D with the same shape as ``z.shape``, or 1D with length ``ny = z.shape[0]``.
             If not specified are assumed to be ``np.arange(ny)``. Must be ordered monotonically.
         z (array-like of shape (ny, nx), may be a masked array): The 2D gridded values to calculate

@@ -108,7 +108,7 @@ Here the first polygon has 13 points, 8 for the outer and 5 for the hole. The ho
 
 OuterOffset
 ^^^^^^^^^^^
-   >>> cont_gen = contour_generator(z=z, fill_type=FillType.OuterCode)
+   >>> cont_gen = contour_generator(z=z, fill_type=FillType.OuterOffset)
    >>> filled = cont_gen.filled(1, 2)
    >>> filled
    ([array([[0., 0.], [1., 0.], [1.67, 0.], [1.77, 1.], [1., 1.71], [0.17, 1.], [0., 0.5],
@@ -148,7 +148,7 @@ identified by a kind code of 1, so here there are three boundaries.
 
 ChunkCombinedOffset
 ^^^^^^^^^^^^^^^^^^^
-   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedCode)
+   >>> cont_gen = contour_generator(z=z, fill_type=FillType.ChunkCombinedOffset)
    >>> filled = cont_gen.filled(1, 2)
    >>> filled
    ([array([[0., 0.], [1., 0.], [1.67, 0.], [1.77, 1.], [1., 1.71], [0.17, 1.], [0., 0.5],
