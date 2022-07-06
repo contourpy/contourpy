@@ -55,11 +55,11 @@ jobs:
               python -m pip install pytest
             else
               echo "Install with test dependencies"
-              python -m pip install -ve .[test]
+              python -m pip install -ve .[dev]
             fi
           else
             echo "Install in debug mode with test dependencies"
-            CONTOURPY_DEBUG=1 CONTOURPY_CXX11=1 python -m pip install -ve .[test]
+            CONTOURPY_DEBUG=1 CONTOURPY_CXX11=1 python -m pip install -ve .[dev]
           fi
           python -m pip list
 
