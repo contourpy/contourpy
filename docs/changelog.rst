@@ -3,6 +3,14 @@
 Changelog
 #########
 
+v1.0.4 (2022-07-31)
+-------------------
+
+This release puts all C++ code within a namespace to avoid symbol conflicts such as on IBM AIX.
+
+* Add namespace `#144 <https://github.com/contourpy/contourpy/pull/144>`_
+* Allow install of test dependencies without codebase deps `#147 <https://github.com/contourpy/contourpy/pull/147>`_
+
 v1.0.3 (2022-06-12)
 -------------------
 
