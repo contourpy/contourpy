@@ -88,7 +88,7 @@ def test_loop(xy_3x3, name):
     assert_array_equal(codes[0], [1, 2, 2, 2, 79])
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_simple(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -109,7 +109,7 @@ def test_lines_simple(name, line_type):
     compare_images(image_buffer, "lines_simple.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_simple_chunk(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -130,7 +130,7 @@ def test_lines_simple_chunk(name, line_type):
     compare_images(image_buffer, "lines_simple_chunk.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_simple_no_corner_mask(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -151,7 +151,7 @@ def test_lines_simple_no_corner_mask(name, line_type):
     compare_images(image_buffer, "lines_simple_no_corner_mask.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_simple_no_corner_mask_chunk(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -173,7 +173,7 @@ def test_lines_simple_no_corner_mask_chunk(name, line_type):
     compare_images(image_buffer, "lines_simple_no_corner_mask_chunk.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_simple_corner_mask(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -195,7 +195,7 @@ def test_lines_simple_corner_mask(name):
     compare_images(image_buffer, "lines_simple_corner_mask.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_simple_corner_mask_chunk(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -218,7 +218,7 @@ def test_lines_simple_corner_mask_chunk(name):
     compare_images(image_buffer, "lines_simple_corner_mask_chunk.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_lines_simple_quad_as_tri(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -238,7 +238,7 @@ def test_lines_simple_quad_as_tri(name):
     compare_images(image_buffer, "lines_simple_quad_as_tri.png", f"{name}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -259,7 +259,7 @@ def test_lines_random(name, line_type):
     compare_images(image_buffer, "lines_random.png", f"{name}_{line_type}", max_threshold=103)
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random_chunk(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -289,7 +289,7 @@ def test_lines_random_chunk(name, line_type):
     )
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random_no_corner_mask(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -310,7 +310,7 @@ def test_lines_random_no_corner_mask(name, line_type):
     compare_images(image_buffer, "lines_random_no_corner_mask.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 def test_lines_random_no_corner_mask_chunk(name, line_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -333,7 +333,7 @@ def test_lines_random_no_corner_mask_chunk(name, line_type):
     compare_images(image_buffer, "lines_random_no_corner_mask_chunk.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_random_corner_mask(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -353,7 +353,7 @@ def test_lines_random_corner_mask(name):
     compare_images(image_buffer, "lines_random_corner_mask.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_lines_random_corner_mask_chunk(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -373,7 +373,7 @@ def test_lines_random_corner_mask_chunk(name):
     compare_images(image_buffer, "lines_random_corner_mask_chunk.png", f"{name}_{line_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_lines_random_quad_as_tri(name):
     from contourpy.util.mpl_renderer import MplTestRenderer

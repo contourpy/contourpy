@@ -1,12 +1,13 @@
 import os
 from shutil import copyfile
 
-from PIL import Image
 import numpy as np
 
 
 def compare_images(test_buffer, baseline_filename, test_filename_suffix=None, max_threshold=None,
                    mean_threshold=None):
+    from PIL import Image
+
     if max_threshold is None:
         max_threshold = 100
     if mean_threshold is None:

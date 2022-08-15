@@ -13,7 +13,7 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     config.addinivalue_line("markers", "slow: mark test as slow to run")
     config.addinivalue_line("markers", "text: mark test as outputting text")
-    config.addinivalue_line("markers", "needs_mpl: mark test as needing matplotlib")
+    config.addinivalue_line("markers", "image: mark test as generating comparison image")
 
 
 def pytest_collection_modifyitems(config, items):
