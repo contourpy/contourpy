@@ -20,7 +20,7 @@ def two_outers_one_hole():
     return x, y, z
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_simple(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -41,7 +41,7 @@ def test_filled_simple(name, fill_type):
     compare_images(image_buffer, "filled_simple.png", f"{name}_{fill_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_simple_chunk(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -63,7 +63,7 @@ def test_filled_simple_chunk(name, fill_type):
         image_buffer, "filled_simple_chunk.png", f"{name}_{fill_type}", mean_threshold=0.12)
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_simple_no_corner_mask(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -84,7 +84,7 @@ def test_filled_simple_no_corner_mask(name, fill_type):
     compare_images(image_buffer, "filled_simple_no_corner_mask.png", f"{name}_{fill_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_simple_no_corner_mask_chunk(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -109,7 +109,7 @@ def test_filled_simple_no_corner_mask_chunk(name, fill_type):
     )
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_simple_corner_mask(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -131,7 +131,7 @@ def test_filled_simple_corner_mask(name):
     compare_images(image_buffer, "filled_simple_corner_mask.png", f"{name}_{fill_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_simple_corner_mask_chunk(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -157,7 +157,7 @@ def test_filled_simple_corner_mask_chunk(name):
     )
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_filled_simple_quad_as_tri(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -177,7 +177,7 @@ def test_filled_simple_quad_as_tri(name):
     compare_images(image_buffer, "filled_simple_quad_as_tri.png", f"{name}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -198,7 +198,7 @@ def test_filled_random(name, fill_type):
     compare_images(image_buffer, "filled_random.png", f"{name}_{fill_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random_chunk(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -235,7 +235,7 @@ def test_filled_random_chunk(name, fill_type):
         )
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random_no_corner_mask(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -256,7 +256,7 @@ def test_filled_random_no_corner_mask(name, fill_type):
     compare_images(image_buffer, "filled_random_no_corner_mask.png", f"{name}_{fill_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_random_no_corner_mask_chunk(name, fill_type):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -292,7 +292,7 @@ def test_filled_random_no_corner_mask_chunk(name, fill_type):
     )
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_random_corner_mask(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -312,7 +312,7 @@ def test_filled_random_corner_mask(name):
     compare_images(image_buffer, "filled_random_corner_mask.png", f"{name}_{fill_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_random_corner_mask_chunk(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -342,7 +342,7 @@ def test_filled_random_corner_mask_chunk(name):
     )
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_filled_random_quad_as_tri(name):
     from contourpy.util.mpl_renderer import MplTestRenderer

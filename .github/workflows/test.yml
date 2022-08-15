@@ -17,20 +17,37 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.7, 3.8, 3.9, '3.10']
+        python-version: ['3.7', '3.8', '3.9', '3.10']
         debug: [0]
+        test-image: [1]
         include:
           # Add debug build and test to matrix.
           - os: ubuntu-latest
-            python-version: 3.9
+            python-version: '3.10'
             debug: 1
-          # PyPy only tested on ubuntu for speed.
+            test-image: 1
+          # PyPy only tested on ubuntu for speed, without image tests.
           - os: ubuntu-latest
             python-version: 'pypy-3.7'
             debug: 0
+            test-image: 0
           - os: ubuntu-latest
             python-version: 'pypy-3.8'
             debug: 0
+            test-image: 0
+          # Pre-release Python version without image tests.
+          - os: ubuntu-latest
+            python-version: '3.11-dev'
+            debug: 0
+            test-image: 0
+          - os: macos-latest
+            python-version: '3.11-dev'
+            debug: 0
+            test-image: 0
+          - os: windows-latest
+            python-version: '3.11-dev'
+            debug: 0
+            test-image: 0
 
     steps:
       - name: Checkout source
@@ -39,7 +56,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -48,14 +65,13 @@ jobs:
         run: |
           if [[ ${{ matrix.debug }} == 0 ]];
           then
-            if [[ ${{ matrix.python-version }} == pypy* ]];
+            if [[ ${{ matrix.test-image }} == 1 ]];
             then
-              echo "Install without test dependencies"
-              python -m pip install -ve .
-              python -m pip install pytest
-            else
-              echo "Install with test dependencies"
+              echo "Install with full test dependencies"
               python -m pip install -ve .[test]
+            else
+              echo "Install with minimal test dependencies"
+              python -m pip install -ve .[test-minimal]
             fi
           else
             echo "Install in debug mode with test dependencies"
@@ -71,13 +87,13 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          if [[ ${{ matrix.python-version }} == pypy* ]];
+          if [[ ${{ matrix.test-image }} == 1 ]];
           then
-            echo "Run only tests that do not need mpl"
-            python -m pytest -v tests/ -k "not needs_mpl"
-          else
-            echo "Run tests"
+            echo "Run all tests"
             python -m pytest -v tests/
+          else
+            echo "Run only tests that do not generate images"
+            python -m pytest -v tests/ -k "not image"
           fi
 
       - name: Collect test image failures

@@ -5,7 +5,7 @@ from contourpy import FillType, LineType, contour_generator
 from contourpy.util.data import random
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
@@ -41,7 +41,7 @@ def test_renderer_filled(show_text, fill_type):
     compare_images(image_buffer, f"renderer_filled_mpl{suffix}.png", f"{fill_type}")
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("line_type", LineType.__members__.values())

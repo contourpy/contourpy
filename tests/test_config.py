@@ -3,7 +3,7 @@ import pytest
 from . import util_test
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("name", util_test.all_names())
@@ -17,7 +17,7 @@ def test_config_filled(show_text, name):
     compare_images(image_buffer, f"config_filled{suffix}.png", name)
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
@@ -31,7 +31,7 @@ def test_config_filled_quad_as_tri(show_text, name):
     compare_images(image_buffer, f"config_filled_quad_as_tri{suffix}.png", name)
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
@@ -45,7 +45,7 @@ def test_config_filled_corner(show_text, name):
     compare_images(image_buffer, f"config_filled_corner{suffix}.png", name)
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("name", util_test.all_names())
@@ -61,7 +61,7 @@ def test_config_lines(show_text, name):
     compare_images(image_buffer, f"config_lines{suffix}.png", name)
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
@@ -75,7 +75,7 @@ def test_config_lines_quad_as_tri(show_text, name):
     compare_images(image_buffer, f"config_lines_quad_as_tri{suffix}.png", name)
 
 
-@pytest.mark.needs_mpl
+@pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
