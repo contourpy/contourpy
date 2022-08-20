@@ -149,6 +149,7 @@ def test_lines_simple_chunk_threads(line_type, thread_count):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -207,7 +208,7 @@ def test_lines_simple_no_corner_mask_chunk(name, line_type):
 @pytest.mark.threads
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
 @pytest.mark.parametrize("thread_count", util_test.thread_counts())
-def test_lines_simple_no_corner_mask_chunk_thread(line_type, thread_count):
+def test_lines_simple_no_corner_mask_chunk_threads(line_type, thread_count):
     from contourpy.util.mpl_renderer import MplTestRenderer
 
     from .image_comparison import compare_images
@@ -221,6 +222,7 @@ def test_lines_simple_no_corner_mask_chunk_thread(line_type, thread_count):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -298,6 +300,7 @@ def test_lines_simple_corner_mask_chunk_threads(line_type, thread_count):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -399,6 +402,7 @@ def test_lines_random_chunk_threads(line_type, thread_count):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -477,6 +481,7 @@ def test_lines_random_no_corner_mask_chunk_threads(line_type, thread_count):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -554,6 +559,7 @@ def test_lines_random_corner_mask_chunk_threads(line_type, thread_count):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
