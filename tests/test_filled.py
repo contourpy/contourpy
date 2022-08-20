@@ -32,6 +32,7 @@ def test_filled_simple(name, fill_type):
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (1, 1)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -53,6 +54,7 @@ def test_filled_simple_chunk(name, fill_type):
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -60,7 +62,37 @@ def test_filled_simple_chunk(name, fill_type):
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
-        image_buffer, "filled_simple_chunk.png", f"{name}_{fill_type}", mean_threshold=0.12)
+        image_buffer, "filled_simple_chunk.png", f"{name}_{fill_type}", mean_threshold=0.12,
+    )
+
+
+@pytest.mark.image
+@pytest.mark.threads
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("thread_count", util_test.thread_counts())
+def test_filled_simple_chunk_threads(fill_type, thread_count):
+    from contourpy.util.mpl_renderer import MplTestRenderer
+
+    from .image_comparison import compare_images
+
+    x, y, z = simple((30, 40))
+    cont_gen = contour_generator(
+        x, y, z, name="threaded", fill_type=fill_type, chunk_size=2, thread_count=thread_count,
+    )
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(
+        image_buffer, "filled_simple_chunk.png", f"{fill_type}_{thread_count}", mean_threshold=0.12,
+    )
 
 
 @pytest.mark.image
@@ -75,6 +107,7 @@ def test_filled_simple_no_corner_mask(name, fill_type):
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (1, 1)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -93,10 +126,12 @@ def test_filled_simple_no_corner_mask_chunk(name, fill_type):
 
     x, y, z = simple((30, 40), want_mask=True)
     cont_gen = contour_generator(
-        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2)
+        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2,
+    )
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -105,6 +140,37 @@ def test_filled_simple_no_corner_mask_chunk(name, fill_type):
 
     compare_images(
         image_buffer, "filled_simple_no_corner_mask_chunk.png", f"{name}_{fill_type}",
+        mean_threshold=0.11,
+    )
+
+
+@pytest.mark.image
+@pytest.mark.threads
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("thread_count", util_test.thread_counts())
+def test_filled_simple_no_corner_mask_chunk_threads(fill_type, thread_count):
+    from contourpy.util.mpl_renderer import MplTestRenderer
+
+    from .image_comparison import compare_images
+
+    x, y, z = simple((30, 40), want_mask=True)
+    cont_gen = contour_generator(
+        x, y, z, name="threaded", fill_type=fill_type, corner_mask=False, chunk_size=2,
+        thread_count=thread_count,
+    )
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(
+        image_buffer, "filled_simple_no_corner_mask_chunk.png", f"{fill_type}_{thread_count}",
         mean_threshold=0.11,
     )
 
@@ -122,6 +188,7 @@ def test_filled_simple_corner_mask(name):
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (1, 1)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -141,10 +208,12 @@ def test_filled_simple_corner_mask_chunk(name):
     x, y, z = simple((30, 40), want_mask=True)
     fill_type = FillType.OuterCode
     cont_gen = contour_generator(
-        x, y, z, name=name, fill_type=fill_type, corner_mask=True, chunk_size=2)
+        x, y, z, name=name, fill_type=fill_type, corner_mask=True, chunk_size=2,
+    )
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -153,6 +222,38 @@ def test_filled_simple_corner_mask_chunk(name):
 
     compare_images(
         image_buffer, "filled_simple_corner_mask_chunk.png", f"{name}_{fill_type}",
+        mean_threshold=0.10,
+    )
+
+
+@pytest.mark.image
+@pytest.mark.threads
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("thread_count", util_test.thread_counts())
+def test_filled_simple_corner_mask_chunk_threads(fill_type, thread_count):
+    from contourpy.util.mpl_renderer import MplTestRenderer
+
+    from .image_comparison import compare_images
+
+    x, y, z = simple((30, 40), want_mask=True)
+    fill_type = FillType.OuterCode
+    cont_gen = contour_generator(
+        x, y, z, name="threaded", fill_type=fill_type, corner_mask=True, chunk_size=2,
+        thread_count=thread_count,
+    )
+    levels = np.arange(-1.0, 1.01, 0.1)
+
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(
+        image_buffer, "filled_simple_corner_mask_chunk.png", f"{fill_type}_{thread_count}",
         mean_threshold=0.10,
     )
 
@@ -189,6 +290,7 @@ def test_filled_random(name, fill_type):
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (1, 1)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -210,6 +312,7 @@ def test_filled_random_chunk(name, fill_type):
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -232,7 +335,44 @@ def test_filled_random_chunk(name, fill_type):
     compare_images(
         image_buffer, "filled_random_chunk.png", f"{name}_{fill_type}",
         max_threshold=max_threshold, mean_threshold=mean_threshold,
-        )
+    )
+
+
+@pytest.mark.image
+@pytest.mark.threads
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("thread_count", util_test.thread_counts())
+def test_filled_random_chunk_threads(fill_type, thread_count):
+    from contourpy.util.mpl_renderer import MplTestRenderer
+
+    from .image_comparison import compare_images
+
+    x, y, z = random((30, 40), mask_fraction=0.0)
+    cont_gen = contour_generator(
+        x, y, z, name="threaded", fill_type=fill_type, chunk_size=2, thread_count=thread_count,
+    )
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
+        max_threshold = 99
+        mean_threshold = 0.142
+    else:
+        max_threshold = 135
+        mean_threshold = 0.19
+
+    compare_images(
+        image_buffer, "filled_random_chunk.png", f"{fill_type}_{thread_count}",
+        max_threshold=max_threshold, mean_threshold=mean_threshold,
+    )
 
 
 @pytest.mark.image
@@ -247,6 +387,7 @@ def test_filled_random_no_corner_mask(name, fill_type):
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (1, 1)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -265,8 +406,12 @@ def test_filled_random_no_corner_mask_chunk(name, fill_type):
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(
-        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2)
+        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2,
+    )
     levels = np.arange(0.0, 1.01, 0.2)
+
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -293,6 +438,44 @@ def test_filled_random_no_corner_mask_chunk(name, fill_type):
 
 
 @pytest.mark.image
+@pytest.mark.threads
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("thread_count", util_test.thread_counts())
+def test_filled_random_no_corner_mask_chunk_threads(fill_type, thread_count):
+    from contourpy.util.mpl_renderer import MplTestRenderer
+
+    from .image_comparison import compare_images
+
+    x, y, z = random((30, 40), mask_fraction=0.05)
+    cont_gen = contour_generator(
+        x, y, z, name="threaded", fill_type=fill_type, corner_mask=False, chunk_size=2,
+        thread_count=thread_count,
+    )
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
+        max_threshold = 99
+        mean_threshold = 0.18
+    else:
+        max_threshold = 135
+        mean_threshold = 0.23
+
+    compare_images(
+        image_buffer, "filled_random_no_corner_mask_chunk.png", f"{fill_type}_{thread_count}",
+        max_threshold=max_threshold, mean_threshold=mean_threshold,
+    )
+
+
+@pytest.mark.image
 @pytest.mark.parametrize("name", util_test.corner_mask_names())
 def test_filled_random_corner_mask(name):
     from contourpy.util.mpl_renderer import MplTestRenderer
@@ -303,6 +486,9 @@ def test_filled_random_corner_mask(name):
     fill_type = FillType.OuterCode
     cont_gen = contour_generator(x, y, z, name=name, corner_mask=True, fill_type=fill_type)
     levels = np.arange(0.0, 1.01, 0.2)
+
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (1, 1)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -322,8 +508,12 @@ def test_filled_random_corner_mask_chunk(name):
     x, y, z = random((30, 40), mask_fraction=0.05)
     fill_type = FillType.OuterCode
     cont_gen = contour_generator(
-        x, y, z, name=name, corner_mask=True, fill_type=fill_type, chunk_size=2)
+        x, y, z, name=name, corner_mask=True, fill_type=fill_type, chunk_size=2,
+    )
     levels = np.arange(0.0, 1.01, 0.2)
+
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -339,6 +529,38 @@ def test_filled_random_corner_mask_chunk(name):
     compare_images(
         image_buffer, "filled_random_corner_mask_chunk.png", f"{name}_{fill_type}",
         max_threshold=max_threshold, mean_threshold=mean_threshold,
+    )
+
+
+@pytest.mark.image
+@pytest.mark.threads
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("thread_count", util_test.thread_counts())
+def test_filled_random_corner_mask_chunk_threads(fill_type, thread_count):
+    from contourpy.util.mpl_renderer import MplTestRenderer
+
+    from .image_comparison import compare_images
+
+    x, y, z = random((30, 40), mask_fraction=0.05)
+    fill_type = FillType.OuterCode
+    cont_gen = contour_generator(
+        x, y, z, name="threaded", corner_mask=True, fill_type=fill_type, chunk_size=2,
+        thread_count=thread_count,
+    )
+    levels = np.arange(0.0, 1.01, 0.2)
+
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == thread_count
+
+    renderer = MplTestRenderer()
+    for i in range(len(levels)-1):
+        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    image_buffer = renderer.save_to_buffer()
+
+    compare_images(
+        image_buffer, "filled_random_corner_mask_chunk.png", f"{fill_type}_{thread_count}",
+        max_threshold=135, mean_threshold=0.17,
     )
 
 

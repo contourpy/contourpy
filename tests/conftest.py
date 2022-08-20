@@ -14,6 +14,7 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "slow: mark test as slow to run")
     config.addinivalue_line("markers", "text: mark test as outputting text")
     config.addinivalue_line("markers", "image: mark test as generating comparison image")
+    config.addinivalue_line("markers", "threads: mark test as using multiple threads")
 
 
 def pytest_collection_modifyitems(config, items):

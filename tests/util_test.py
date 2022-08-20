@@ -1,6 +1,6 @@
 import numpy as np
 
-from contourpy import FillType, LineType
+from contourpy import FillType, LineType, max_threads
 
 point_dtype = np.float64
 code_dtype = np.uint8
@@ -90,6 +90,11 @@ def all_z_interps_str_value():
         ("Linear", 1),
         ("Log", 2),
     ]
+
+
+def thread_counts():
+    thread_counts = [2, 3]
+    return list(filter(lambda n: n <= max(max_threads(), 1), thread_counts))
 
 
 def assert_point_array(points):
