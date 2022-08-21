@@ -41,6 +41,7 @@ CodeArray Converter::convert_codes_check_closed(
     count_t point_count, count_t cut_count, const offset_t* cut_start, const double* points)
 {
     assert(point_count > 0 && cut_count > 0);
+    assert(cut_start != nullptr);
     assert(points != nullptr);
 
     index_t codes_shape = static_cast<index_t>(point_count);
@@ -54,6 +55,7 @@ void Converter::convert_codes_check_closed(
     CodeArray::value_type* codes)
 {
     assert(point_count > 0 && cut_count > 0);
+    assert(cut_start != nullptr);
     assert(points != nullptr);
     assert(codes != nullptr);
 
@@ -85,6 +87,7 @@ void Converter::convert_codes_check_closed_single(
     count_t point_count, const double* points, CodeArray::value_type* codes)
 {
     assert(point_count > 0);
+    assert(points != nullptr);
     assert(codes != nullptr);
 
     codes[0] = MOVETO;
@@ -103,9 +106,8 @@ void Converter::convert_codes_check_closed_single(
 OffsetArray Converter::convert_offsets(
     count_t offset_count, const offset_t* start, offset_t subtract)
 {
-    assert(offset_count > 0);
+    assert(offset_count > 0 && subtract >= 0);
     assert(start != nullptr);
-    assert(subtract >= 0);
 
     index_t offsets_shape = static_cast<index_t>(offset_count);
     OffsetArray py_offsets(offsets_shape);
@@ -117,9 +119,8 @@ void Converter::convert_offsets(
     count_t offset_count, const offset_t* start, offset_t subtract,
     OffsetArray::value_type* offsets)
 {
-    assert(offset_count > 0);
+    assert(offset_count > 0 && subtract >= 0);
     assert(start != nullptr);
-    assert(subtract >= 0);
     assert(offsets != nullptr);
 
     check_max_offset(*(start + offset_count - 1) - subtract);

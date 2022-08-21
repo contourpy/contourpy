@@ -19,6 +19,10 @@ ThreadedContourGenerator::ThreadedContourGenerator(
 
 void ThreadedContourGenerator::export_filled(ChunkLocal& local, std::vector<py::list>& return_lists)
 {
+    // Reimplementation of SerialContourGenerator::export_filled() to separate out the creation of
+    // numpy arrays (which requires a thread lock) from the population of those arrays (which does
+    // not). This minimises the time that the lock is used for.
+
     assert(local.total_point_count > 0);
 
     switch (get_fill_type())
@@ -91,7 +95,6 @@ void ThreadedContourGenerator::export_filled(ChunkLocal& local, std::vector<py::
             // If ChunkCombinedCodeOffset. return_lists[2][local.chunk] already contains outer
             //    offsets.
 
-            assert(local.total_point_count > 0);
             index_t codes_shape = static_cast<index_t>(local.total_point_count);
 
             Lock lock(*this);
@@ -177,7 +180,6 @@ void ThreadedContourGenerator::export_lines(ChunkLocal& local, std::vector<py::l
             assert(has_direct_points() && !has_direct_line_offsets());
             // return_lists[0][local.chunk] already contains points.
 
-            assert(local.total_point_count > 0);
             index_t codes_shape = static_cast<index_t>(local.total_point_count);
 
             Lock lock(*this);

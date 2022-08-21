@@ -1,10 +1,6 @@
 from contourpy import FillType, LineType, max_threads
 
 
-def chunk_counts():
-    return [4, 10, 40, 100]
-
-
 def corner_masks():
     return ["no mask", False, True]
 
@@ -28,3 +24,7 @@ def problem_sizes():
 def thread_counts():
     thread_counts = [1, 2, 4, 6, 8]
     return list(filter(lambda n: n <= max(max_threads(), 1), thread_counts))
+
+
+def total_chunk_counts():
+    return [4, 10, 40, 100]
