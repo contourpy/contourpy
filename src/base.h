@@ -99,9 +99,6 @@ protected:
     // If point/line/hole counts not consistent, throw runtime error.
     void check_consistent_counts(const ChunkLocal& local) const;
 
-    // Write points and offsets/codes to output numpy arrays.
-    void export_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
-
     index_t find_look_S(index_t look_N_quad) const;
 
     // Return true if finished (i.e. back to start quad, direction and upper).
@@ -135,6 +132,10 @@ protected:
     double get_point_x(index_t point) const;
     double get_point_y(index_t point) const;
     double get_point_z(index_t point) const;
+
+    bool has_direct_line_offsets() const;
+    bool has_direct_outer_offsets() const;
+    bool has_direct_points() const;
 
     void init_cache_grid(const MaskArray& mask);
 
@@ -197,11 +198,9 @@ private:
     // Current contouring operation, based on return type and filled or lines.
     bool _identify_holes;
     bool _output_chunked;             // Implies empty chunks will have py::none().
-protected:  ///////////////////////////////////////////////////////////////////////////
     bool _direct_points;              // Whether points array is written direct to Python.
     bool _direct_line_offsets;        // Whether line offsets array is written direct to Python.
     bool _direct_outer_offsets;       // Whether outer offsets array is written direct to Python.
-private:
     bool _outer_offsets_into_points;  // Otherwise into line offsets.  Only used if _identify_holes.
     unsigned int _return_list_count;
 };

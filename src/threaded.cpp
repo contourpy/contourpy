@@ -17,6 +17,107 @@ ThreadedContourGenerator::ThreadedContourGenerator(
       _next_chunk(0)
 {}
 
+void ThreadedContourGenerator::export_filled(ChunkLocal& local, std::vector<py::list>& return_lists)
+{
+    assert(local.total_point_count > 0);
+
+    switch (get_fill_type())
+    {
+        case FillType::OuterCode:
+        case FillType::OuterOffset: {
+            assert(!has_direct_points() && !has_direct_line_offsets());
+
+            auto outer_count = local.line_count - local.hole_count;
+            bool outer_code = (get_fill_type() == FillType::OuterCode);
+            std::vector<PointArray::value_type*> points_ptrs(outer_count);
+            std::vector<CodeArray::value_type*> codes_ptrs(outer_code ? outer_count: 0);
+            std::vector<OffsetArray::value_type*> offsets_ptrs(outer_code ? 0 : outer_count);
+
+            Lock lock(*this);
+            for (decltype(outer_count) i = 0; i < outer_count; ++i) {
+                auto outer_start = local.outer_offsets.start[i];
+                auto outer_end = local.outer_offsets.start[i+1];
+                auto point_start = local.line_offsets.start[outer_start];
+                auto point_end = local.line_offsets.start[outer_end];
+                auto point_count = point_end - point_start;
+                assert(point_count > 2);
+
+                index_t points_shape[2] = {static_cast<index_t>(point_count), 2};
+                PointArray point_array(points_shape);
+                return_lists[0].append(point_array);
+                points_ptrs[i] = point_array.mutable_data();
+
+                if (outer_code) {
+                    index_t codes_shape = static_cast<index_t>(point_count);
+                    CodeArray code_array(codes_shape);
+                    return_lists[1].append(code_array);
+                    codes_ptrs[i] = code_array.mutable_data();
+                }
+                else {
+                    index_t offsets_shape = static_cast<index_t>(outer_end - outer_start + 1);
+                    OffsetArray offset_array(offsets_shape);
+                    return_lists[1].append(offset_array);
+                    offsets_ptrs[i] = offset_array.mutable_data();
+                }
+            }
+            lock.unlock();
+
+            for (decltype(outer_count) i = 0; i < outer_count; ++i) {
+                auto outer_start = local.outer_offsets.start[i];
+                auto outer_end = local.outer_offsets.start[i+1];
+                auto point_start = local.line_offsets.start[outer_start];
+                auto point_end = local.line_offsets.start[outer_end];
+                auto point_count = point_end - point_start;
+                assert(point_count > 2);
+
+                Converter::convert_points(
+                    point_count, local.points.start + 2*point_start, points_ptrs[i]);
+
+                if (outer_code)
+                    Converter::convert_codes(
+                        point_count, outer_end - outer_start + 1,
+                        local.line_offsets.start + outer_start, point_start, codes_ptrs[i]);
+                else
+                    Converter::convert_offsets(
+                        outer_end - outer_start + 1, local.line_offsets.start + outer_start,
+                        point_start, offsets_ptrs[i]);
+            }
+            break;
+        }
+        case FillType::ChunkCombinedCode:
+        case FillType::ChunkCombinedCodeOffset: {
+            assert(has_direct_points() && !has_direct_line_offsets());
+            // return_lists[0][local_chunk] already contains combined points.
+            // If ChunkCombinedCodeOffset. return_lists[2][local.chunk] already contains outer
+            //    offsets.
+
+            assert(local.total_point_count > 0);
+            index_t codes_shape = static_cast<index_t>(local.total_point_count);
+
+            Lock lock(*this);
+            CodeArray code_array(codes_shape);
+            lock.unlock();
+
+            return_lists[1][local.chunk] = code_array;
+            Converter::convert_codes(
+                local.total_point_count, local.line_count + 1, local.line_offsets.start, 0,
+                code_array.mutable_data());
+            break;
+        }
+        case FillType::ChunkCombinedOffset:
+        case FillType::ChunkCombinedOffsetOffset:
+            assert(has_direct_points() && has_direct_line_offsets());
+            if (get_fill_type() == FillType::ChunkCombinedOffsetOffset) {
+                assert(has_direct_outer_offsets());
+            }
+            // return_lists[0][local_chunk] already contains combined points.
+            // return_lists[1][local.chunk] already contains line offsets.
+            // If ChunkCombinedOffsetOffset, return_lists[2][local.chunk] already contains
+            //      outer offsets.
+            break;
+    }
+}
+
 void ThreadedContourGenerator::export_lines(ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Reimplementation of SerialContourGenerator::export_lines() to separate out the creation of
@@ -29,7 +130,7 @@ void ThreadedContourGenerator::export_lines(ChunkLocal& local, std::vector<py::l
     {
         case LineType::Separate:
         case LineType::SeparateCode: {
-            assert(!_direct_points && !_direct_line_offsets);
+            assert(!has_direct_points() && !has_direct_line_offsets());
 
             bool separate_code = (get_line_type() == LineType::SeparateCode);
             std::vector<PointArray::value_type*> points_ptrs(local.line_count);
@@ -73,7 +174,7 @@ void ThreadedContourGenerator::export_lines(ChunkLocal& local, std::vector<py::l
             break;
         }
         case LineType::ChunkCombinedCode: {
-            assert(_direct_points && !_direct_line_offsets);
+            assert(has_direct_points() && !has_direct_line_offsets());
             // return_lists[0][local.chunk] already contains points.
 
             assert(local.total_point_count > 0);
@@ -87,11 +188,10 @@ void ThreadedContourGenerator::export_lines(ChunkLocal& local, std::vector<py::l
             Converter::convert_codes_check_closed(
                 local.total_point_count, local.line_count + 1, local.line_offsets.start,
                 local.points.start, code_array.mutable_data());
-
             break;
         }
         case LineType::ChunkCombinedOffset:
-            assert(_direct_points && _direct_line_offsets);
+            assert(has_direct_points() && has_direct_line_offsets());
             // return_lists[0][local.chunk] already contains points.
             // return_lists[1][local.chunk] already contains line offsets.
             break;

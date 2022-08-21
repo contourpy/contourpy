@@ -13,19 +13,28 @@ void Converter::check_max_offset(count_t max_offset)
 CodeArray Converter::convert_codes(
     count_t point_count, count_t cut_count, const offset_t* cut_start, offset_t subtract)
 {
-    assert(point_count > 0 && cut_count > 0);
+    assert(point_count > 0 && cut_count > 0 && subtract >= 0);
+    assert(cut_start != nullptr);
 
     index_t codes_shape = static_cast<index_t>(point_count);
     CodeArray py_codes(codes_shape);
-    auto py_ptr = py_codes.mutable_data();
-
-    std::fill(py_ptr + 1, py_ptr + point_count - 1, LINETO);
-    for (decltype(cut_count) i = 0; i < cut_count-1; ++i) {
-        py_ptr[cut_start[i] - subtract] = MOVETO;
-        py_ptr[cut_start[i+1] - 1 - subtract] = CLOSEPOLY;
-    }
-
+    convert_codes(point_count, cut_count, cut_start, subtract, py_codes.mutable_data());
     return py_codes;
+}
+
+void Converter::convert_codes(
+    count_t point_count, count_t cut_count, const offset_t* cut_start, offset_t subtract,
+    CodeArray::value_type* codes)
+{
+    assert(point_count > 0 && cut_count > 0 && subtract >= 0);
+    assert(cut_start != nullptr);
+    assert(codes != nullptr);
+
+    std::fill(codes + 1, codes + point_count - 1, LINETO);
+    for (decltype(cut_count) i = 0; i < cut_count-1; ++i) {
+        codes[cut_start[i] - subtract] = MOVETO;
+        codes[cut_start[i+1] - 1 - subtract] = CLOSEPOLY;
+    }
 }
 
 CodeArray Converter::convert_codes_check_closed(
@@ -39,7 +48,6 @@ CodeArray Converter::convert_codes_check_closed(
     convert_codes_check_closed(point_count, cut_count, cut_start, points, codes.mutable_data());
     return codes;
 }
-
 
 void Converter::convert_codes_check_closed(
     count_t point_count, count_t cut_count, const offset_t* cut_start, const double* points,
@@ -73,7 +81,6 @@ CodeArray Converter::convert_codes_check_closed_single(
     return py_codes;
 }
 
-
 void Converter::convert_codes_check_closed_single(
     count_t point_count, const double* points, CodeArray::value_type* codes)
 {
@@ -98,20 +105,31 @@ OffsetArray Converter::convert_offsets(
 {
     assert(offset_count > 0);
     assert(start != nullptr);
-
-    check_max_offset(*(start + offset_count - 1) - subtract);
+    assert(subtract >= 0);
 
     index_t offsets_shape = static_cast<index_t>(offset_count);
     OffsetArray py_offsets(offsets_shape);
-    if (subtract == 0)
-        std::copy(start, start + offset_count, py_offsets.mutable_data());
-    else {
-        auto py_ptr = py_offsets.mutable_data();
-        for (decltype(offset_count) i = 0; i < offset_count; ++i)
-            *py_ptr++ = start[i] - subtract;
-    }
-
+    convert_offsets(offset_count, start, subtract, py_offsets.mutable_data());
     return py_offsets;
+}
+
+void Converter::convert_offsets(
+    count_t offset_count, const offset_t* start, offset_t subtract,
+    OffsetArray::value_type* offsets)
+{
+    assert(offset_count > 0);
+    assert(start != nullptr);
+    assert(subtract >= 0);
+    assert(offsets != nullptr);
+
+    check_max_offset(*(start + offset_count - 1) - subtract);
+
+    if (subtract == 0)
+        std::copy(start, start + offset_count, offsets);
+    else {
+        for (decltype(offset_count) i = 0; i < offset_count; ++i)
+            *offsets++ = start[i] - subtract;
+    }
 }
 
 PointArray Converter::convert_points(count_t point_count, const double* start)
