@@ -31,6 +31,8 @@ private:
         {}
     };
 
+    void export_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
+
     static index_t limit_n_threads(index_t n_threads, index_t n_chunks);
 
     void march(std::vector<py::list>& return_lists);

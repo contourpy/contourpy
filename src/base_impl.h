@@ -413,55 +413,6 @@ void BaseContourGenerator<Derived>::export_filled(
 }
 
 template <typename Derived>
-void BaseContourGenerator<Derived>::export_lines(
-    ChunkLocal& local, std::vector<py::list>& return_lists)
-{
-    assert(local.total_point_count > 0);
-
-    switch (_line_type)
-    {
-        case LineType::Separate:
-        case LineType::SeparateCode: {
-            assert(!_direct_points && !_direct_line_offsets);
-
-            typename Derived::Lock lock(static_cast<Derived&>(*this));
-
-            for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
-                auto point_start = local.line_offsets.start[i];
-                auto point_end = local.line_offsets.start[i+1];
-                auto point_count = point_end - point_start;
-                assert(point_count > 1);
-
-                return_lists[0].append(Converter::convert_points(
-                    point_count, local.points.start + 2*point_start));
-
-                if (_line_type == LineType::SeparateCode)
-                    return_lists[1].append(
-                        Converter::convert_codes_check_closed_single(
-                            point_count, local.points.start + 2*point_start));
-            }
-            break;
-        }
-        case LineType::ChunkCombinedCode: {
-            assert(_direct_points && !_direct_line_offsets);
-
-            typename Derived::Lock lock(static_cast<Derived&>(*this));
-
-            // return_lists[0][local.chunk] already contains points.
-            return_lists[1][local.chunk] = Converter::convert_codes_check_closed(
-                local.total_point_count, local.line_count + 1, local.line_offsets.start,
-                local.points.start);
-            break;
-        }
-        case LineType::ChunkCombinedOffset:
-            assert(_direct_points && _direct_line_offsets);
-            // return_lists[0][local.chunk] already contains points.
-            // return_lists[1][local.chunk] already contains line offsets.
-            break;
-    }
-}
-
-template <typename Derived>
 py::sequence BaseContourGenerator<Derived>::filled(double lower_level, double upper_level)
 {
     if (lower_level > upper_level)
@@ -2243,7 +2194,7 @@ void BaseContourGenerator<Derived>::march_chunk(
     else if (_filled)
         export_filled(local, return_lists);
     else
-        export_lines(local, return_lists);
+        static_cast<Derived*>(this)->export_lines(local, return_lists);
 }
 
 template <typename Derived>

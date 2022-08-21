@@ -1,4 +1,5 @@
 #include "base_impl.h"
+#include "converter.h"
 #include "threaded.h"
 #include "util.h"
 #include <thread>
@@ -15,6 +16,87 @@ ThreadedContourGenerator::ThreadedContourGenerator(
       _n_threads(limit_n_threads(n_threads, get_n_chunks())),
       _next_chunk(0)
 {}
+
+void ThreadedContourGenerator::export_lines(ChunkLocal& local, std::vector<py::list>& return_lists)
+{
+    // Reimplementation of SerialContourGenerator::export_lines() to separate out the creation of
+    // numpy arrays (which requires a thread lock) from the population of those arrays (which does
+    // not). This minimises the time that the lock is used for.
+
+    assert(local.total_point_count > 0);
+
+    switch (get_line_type())
+    {
+        case LineType::Separate:
+        case LineType::SeparateCode: {
+            assert(!_direct_points && !_direct_line_offsets);
+
+            bool separate_code = (get_line_type() == LineType::SeparateCode);
+            std::vector<PointArray::value_type*> points_ptrs(local.line_count);
+            std::vector<CodeArray::value_type*> codes_ptrs(separate_code ? local.line_count: 0);
+
+            Lock lock(*this);
+            for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
+                auto point_start = local.line_offsets.start[i];
+                auto point_end = local.line_offsets.start[i+1];
+                auto point_count = point_end - point_start;
+                assert(point_count > 1);
+
+                index_t points_shape[2] = {static_cast<index_t>(point_count), 2};
+                PointArray point_array(points_shape);
+                return_lists[0].append(point_array);
+                points_ptrs[i] = point_array.mutable_data();
+
+                if (separate_code) {
+                    index_t codes_shape = static_cast<index_t>(point_count);
+                    CodeArray code_array(codes_shape);
+                    return_lists[1].append(code_array);
+                    codes_ptrs[i] = code_array.mutable_data();
+                }
+            }
+            lock.unlock();
+
+            for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
+                auto point_start = local.line_offsets.start[i];
+                auto point_end = local.line_offsets.start[i+1];
+                auto point_count = point_end - point_start;
+                assert(point_count > 1);
+
+                Converter::convert_points(
+                    point_count, local.points.start + 2*point_start, points_ptrs[i]);
+
+                if (separate_code) {
+                    Converter::convert_codes_check_closed_single(
+                        point_count, local.points.start + 2*point_start, codes_ptrs[i]);
+                }
+            }
+            break;
+        }
+        case LineType::ChunkCombinedCode: {
+            assert(_direct_points && !_direct_line_offsets);
+            // return_lists[0][local.chunk] already contains points.
+
+            assert(local.total_point_count > 0);
+            index_t codes_shape = static_cast<index_t>(local.total_point_count);
+
+            Lock lock(*this);
+            CodeArray code_array(codes_shape);
+            lock.unlock();
+
+            return_lists[1][local.chunk] = code_array;
+            Converter::convert_codes_check_closed(
+                local.total_point_count, local.line_count + 1, local.line_offsets.start,
+                local.points.start, code_array.mutable_data());
+
+            break;
+        }
+        case LineType::ChunkCombinedOffset:
+            assert(_direct_points && _direct_line_offsets);
+            // return_lists[0][local.chunk] already contains points.
+            // return_lists[1][local.chunk] already contains line offsets.
+            break;
+    }
+}
 
 index_t ThreadedContourGenerator::get_thread_count() const
 {

@@ -29,6 +29,8 @@ private:
         {}
     };
 
+    void export_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
+
     void march(std::vector<py::list>& return_lists);
 };
 
