@@ -145,6 +145,10 @@ def by_thread_count(loader, dataset):
         filled_str = "filled" if filled else "lines"
         benchmarks_name = f"time_{filled_str}_{name}"
         kwargs = dict(name="threaded", dataset=dataset, corner_mask=corner_mask, n=n)
+        if filled:
+            kwargs["fill_type"] = FillType.ChunkCombinedOffsetOffset
+        else:
+            kwargs["line_type"] = LineType.ChunkCombinedOffset
         results = loader.get(benchmarks_name, **kwargs)
 
         title = f"{filled_str} {dataset} n={n}"
