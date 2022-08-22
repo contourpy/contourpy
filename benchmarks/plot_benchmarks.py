@@ -75,7 +75,7 @@ def by_name_and_type(loader, filled, dataset, render, n):
 
             name = results["name"]
             mean = results["mean"]
-            std = results["std"]
+            error = results["error"]
             if corner_mask == "no mask":
                 types = results["fill_type" if filled else "line_type"]
                 if not isinstance(types, list):
@@ -85,14 +85,14 @@ def by_name_and_type(loader, filled, dataset, render, n):
             color, edge_color, hatch, line_width = get_style(name, corner_mask)
             offset = width*(i - 0.5*(nbars - 1))
             label = f"{name} {get_corner_mask_label(corner_mask)}"
-            yerr = std if show_error else None
+            yerr = error if show_error else None
             mean = np.asarray(mean, dtype=np.float64)  # None -> nan.
 
             rects = ax.bar(
                 xs + offset, mean, width, yerr=yerr, color=color, edgecolor=edge_color, hatch=hatch,
                 linewidth=line_width, capsize=4, label=label, zorder=3)
             if show_error:
-                labels = [human_value(m, "seconds", s) for m, s in zip(mean, std)]
+                labels = [human_value(m, "seconds", s) for m, s in zip(mean, error)]
             else:
                 labels = [human_value(m, "seconds") for m in mean]
             ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
