@@ -27,4 +27,4 @@ def thread_counts():
 
 
 def total_chunk_counts():
-    return [4, 10, 40, 100]
+    return [4, 12, 40, 120]
