@@ -31,6 +31,12 @@ private:
         {}
     };
 
+    // Write points and offsets/codes to output numpy arrays.
+    void export_filled(const ChunkLocal& local, std::vector<py::list>& return_lists);
+
+    // Write points and offsets/codes to output numpy arrays.
+    void export_lines(const ChunkLocal& local, std::vector<py::list>& return_lists);
+
     static index_t limit_n_threads(index_t n_threads, index_t n_chunks);
 
     void march(std::vector<py::list>& return_lists);

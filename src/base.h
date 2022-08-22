@@ -99,11 +99,6 @@ protected:
     // If point/line/hole counts not consistent, throw runtime error.
     void check_consistent_counts(const ChunkLocal& local) const;
 
-    // Write points and offsets/codes to output numpy arrays.
-    void export_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
-
-    void export_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
-
     index_t find_look_S(index_t look_N_quad) const;
 
     // Return true if finished (i.e. back to start quad, direction and upper).
@@ -137,6 +132,10 @@ protected:
     double get_point_x(index_t point) const;
     double get_point_y(index_t point) const;
     double get_point_z(index_t point) const;
+
+    bool has_direct_line_offsets() const;
+    bool has_direct_outer_offsets() const;
+    bool has_direct_points() const;
 
     void init_cache_grid(const MaskArray& mask);
 
