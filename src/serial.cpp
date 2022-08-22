@@ -12,7 +12,8 @@ SerialContourGenerator::SerialContourGenerator(
                            x_chunk_size, y_chunk_size)
 {}
 
-void SerialContourGenerator::export_filled(ChunkLocal& local, std::vector<py::list>& return_lists)
+void SerialContourGenerator::export_filled(
+    const ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     assert(local.total_point_count > 0);
 
@@ -70,7 +71,8 @@ void SerialContourGenerator::export_filled(ChunkLocal& local, std::vector<py::li
     }
 }
 
-void SerialContourGenerator::export_lines(ChunkLocal& local, std::vector<py::list>& return_lists)
+void SerialContourGenerator::export_lines(
+    const ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     assert(local.total_point_count > 0);
 

@@ -17,7 +17,8 @@ ThreadedContourGenerator::ThreadedContourGenerator(
       _next_chunk(0)
 {}
 
-void ThreadedContourGenerator::export_filled(ChunkLocal& local, std::vector<py::list>& return_lists)
+void ThreadedContourGenerator::export_filled(
+    const ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Reimplementation of SerialContourGenerator::export_filled() to separate out the creation of
     // numpy arrays (which requires a thread lock) from the population of those arrays (which does
@@ -121,7 +122,8 @@ void ThreadedContourGenerator::export_filled(ChunkLocal& local, std::vector<py::
     }
 }
 
-void ThreadedContourGenerator::export_lines(ChunkLocal& local, std::vector<py::list>& return_lists)
+void ThreadedContourGenerator::export_lines(
+    const ChunkLocal& local, std::vector<py::list>& return_lists)
 {
     // Reimplementation of SerialContourGenerator::export_lines() to separate out the creation of
     // numpy arrays (which requires a thread lock) from the population of those arrays (which does

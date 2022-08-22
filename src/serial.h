@@ -30,10 +30,10 @@ private:
     };
 
     // Write points and offsets/codes to output numpy arrays.
-    void export_filled(ChunkLocal& local, std::vector<py::list>& return_lists);
+    void export_filled(const ChunkLocal& local, std::vector<py::list>& return_lists);
 
     // Write points and offsets/codes to output numpy arrays.
-    void export_lines(ChunkLocal& local, std::vector<py::list>& return_lists);
+    void export_lines(const ChunkLocal& local, std::vector<py::list>& return_lists);
 
     void march(std::vector<py::list>& return_lists);
 };

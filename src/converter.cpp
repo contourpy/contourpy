@@ -96,7 +96,6 @@ void Converter::convert_codes_check_closed_single(
     bool closed = *start == *(end-2) && *(start+1) == *(end-1);
     if (closed) {
         std::fill(codes + 1, codes + point_count - 1, LINETO);
-        // cppcheck-suppress unreadVariable
         codes[point_count-1] = CLOSEPOLY;
     }
     else
