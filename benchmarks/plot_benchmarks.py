@@ -41,6 +41,13 @@ def get_style(name, corner_mask):
     return colors[name], "#444444", hatches[corner_mask], 0.5
 
 
+def with_time_units(value, error=None):
+    # ASV's human_value() doesn't put a space between numbers and units.
+    # See e.g. https://physics.nist.gov/cuu/Units/checklist.html
+    with_units = human_value(value, "seconds", error)
+    return re.sub(r"(?<=\S)([a-zA-Z]+)$", r" \1", with_units)
+
+
 def by_name_and_type(loader, filled, dataset, render, n):
     show_error = False
     corner_masks = ["no mask", False, True]
@@ -92,9 +99,9 @@ def by_name_and_type(loader, filled, dataset, render, n):
                 xs + offset, mean, width, yerr=yerr, color=color, edgecolor=edge_color, hatch=hatch,
                 linewidth=line_width, capsize=4, label=label, zorder=3)
             if show_error:
-                labels = [human_value(m, "seconds", s) for m, s in zip(mean, error)]
+                labels = [with_time_units(m, s) for m, s in zip(mean, error)]
             else:
-                labels = [human_value(m, "seconds") for m in mean]
+                labels = [with_time_units(m) for m in mean]
             ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
 
             i += 1
@@ -134,7 +141,7 @@ def by_thread_count(loader, dataset):
     corner_mask = "no mask"
 
     def get_label(i):
-        label = human_value(mean[i], "seconds")
+        label = with_time_units(mean[i])
         if i > 0:
             label += f"\n(x {speedups[i]:.2f})"
         return label
