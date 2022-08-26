@@ -120,14 +120,21 @@ void SerialContourGenerator::export_lines(
 
 void SerialContourGenerator::march(std::vector<py::list>& return_lists)
 {
-    // Stage 1: Initialise cache z-levels and starting locations for whole domain.
-    init_cache_levels_and_starts();
+    auto n_chunks = get_n_chunks();
+    bool single_chunk = (n_chunks == 1);
+
+    if (single_chunk) {
+        // Stage 1: If single chunk, initialise cache z-levels and starting locations for whole
+        // domain.
+        init_cache_levels_and_starts();
+    }
 
     // Stage 2: Trace contours.
-    auto n_chunks = get_n_chunks();
     ChunkLocal local;
     for (index_t chunk = 0; chunk < n_chunks; ++chunk) {
         get_chunk_limits(chunk, local);
+        if (!single_chunk)
+            init_cache_levels_and_starts(&local);
         march_chunk(local, return_lists);
         local.clear();
     }
