@@ -1,13 +1,12 @@
-from contourpy import LineType, contour_generator
+from contourpy import contour_generator
 
 from .bench_base import BenchBase
-from .util_bench import corner_masks, datasets, total_chunk_counts
+from .util_bench import corner_masks, datasets, line_types, total_chunk_counts
 
 
 class BenchLinesSerialChunk(BenchBase):
     params = (
-        ["serial"], datasets(), [LineType.ChunkCombinedOffset], corner_masks(), [1000],
-        total_chunk_counts())
+        ["serial"], datasets(), line_types(), corner_masks(), [1000], total_chunk_counts())
     param_names = ("name", "dataset", "line_type", "corner_mask", "n", "total_chunk_count")
 
     def setup(self, name, dataset, line_type, corner_mask, n, total_chunk_count):
