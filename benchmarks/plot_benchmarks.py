@@ -41,6 +41,13 @@ def get_style(name, corner_mask):
     return colors[name], "#444444", hatches[corner_mask], 0.5
 
 
+def with_time_units(value, error=None):
+    # ASV's human_value() doesn't put a space between numbers and units.
+    # See e.g. https://physics.nist.gov/cuu/Units/checklist.html
+    with_units = human_value(value, "seconds", error)
+    return re.sub(r"(?<=\S)([a-zA-Z]+)$", r" \1", with_units)
+
+
 def by_name_and_type(loader, filled, dataset, render, n):
     show_error = False
     corner_masks = ["no mask", False, True]
@@ -75,7 +82,7 @@ def by_name_and_type(loader, filled, dataset, render, n):
 
             name = results["name"]
             mean = results["mean"]
-            std = results["std"]
+            error = results["error"]
             if corner_mask == "no mask":
                 types = results["fill_type" if filled else "line_type"]
                 if not isinstance(types, list):
@@ -85,16 +92,16 @@ def by_name_and_type(loader, filled, dataset, render, n):
             color, edge_color, hatch, line_width = get_style(name, corner_mask)
             offset = width*(i - 0.5*(nbars - 1))
             label = f"{name} {get_corner_mask_label(corner_mask)}"
-            yerr = std if show_error else None
+            yerr = error if show_error else None
             mean = np.asarray(mean, dtype=np.float64)  # None -> nan.
 
             rects = ax.bar(
                 xs + offset, mean, width, yerr=yerr, color=color, edgecolor=edge_color, hatch=hatch,
                 linewidth=line_width, capsize=4, label=label, zorder=3)
             if show_error:
-                labels = [human_value(m, "seconds", s) for m, s in zip(mean, std)]
+                labels = [with_time_units(m, s) for m, s in zip(mean, error)]
             else:
-                labels = [human_value(m, "seconds") for m in mean]
+                labels = [with_time_units(m) for m in mean]
             ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
 
             i += 1
@@ -128,50 +135,119 @@ def by_name_and_type(loader, filled, dataset, render, n):
     fig.savefig(filename, transparent=True)
 
 
-def by_thread_count(loader, dataset):
+def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
+    if varying == "thread_count":
+        file_prefix = "threaded"
+    elif varying == "total_chunk_count":
+        file_prefix = "chunk"
+    else:
+        raise RuntimeError(f"Invalid varying field '{varying}'")
+
+    show_error = False
+    show_speedups = (varying == "thread_count")
     n = 1000
-    name = "threaded"
-    corner_mask = "no mask"
+    corner_mask = 'no mask'
 
-    def get_label(i):
-        label = human_value(mean[i], "seconds")
-        if i > 0:
-            label += f"\n(x {speedups[i]:.2f})"
-        return label
+    filled_str = "filled" if filled else "lines"
+    kwargs = dict(dataset=dataset, corner_mask=corner_mask, n=n)
+    if varying == "thread_count":
+        kwargs["total_chunk_count"] = 40
 
-    fig, axes = plt.subplots(ncols=2, figsize=(8, 4))
+    name0 = "serial"
+    name1 = "threaded" if varying == "thread_count" else "serial"
 
-    for i, filled in enumerate([False, True]):
-        filled_str = "filled" if filled else "lines"
-        benchmarks_name = f"time_{filled_str}_{name}"
-        kwargs = dict(name="threaded", dataset=dataset, corner_mask=corner_mask, n=n)
-        results = loader.get(benchmarks_name, **kwargs)
+    kwargs["name"] = name0
+    if varying == "thread_count":
+        benchmarks_name = f"time_{filled_str}_{name0}_chunk"
+    else:
+        benchmarks_name = f"time_{filled_str}_{name0}"
+    results = loader.get(benchmarks_name, **kwargs)
+    fill_or_line_type = results["fill_type"] if filled else results["line_type"]
+    ntype = len(fill_or_line_type)
+    mean0 = results["mean"]
+    error0 = results["error"]
 
-        title = f"{filled_str} {dataset} n={n}"
+    kwargs["name"] = name1
+    kwargs[varying] = varying_values
+    if varying == "thread_count":
+        benchmarks_name = f"time_{filled_str}_{name1}"
+    else:
+        benchmarks_name = f"time_{filled_str}_{name1}_chunk"
+    results = loader.get(benchmarks_name, **kwargs)
+    mean1 = results["mean"]
+    error1 = results["error"]
 
-        thread_count = np.asarray(results["thread_count"])
-        mean = np.asarray(results["mean"])
-        speedups = mean[0] / mean
+    varying_count = len(varying_values)
+    xs = np.arange(ntype*(varying_count+2))
+    xs.shape = (ntype, varying_count+2)
 
-        color, edge_color, hatch, line_width = get_style(name, corner_mask)
+    speedups = np.expand_dims(mean0, axis=1) / np.reshape(mean1, (ntype, varying_count))
+    speedups = speedups.ravel()
 
-        ax = axes[i]
-        label = f"{name} {get_corner_mask_label(corner_mask)}"
-        rects = ax.bar(thread_count, mean, color=color, edgecolor=edge_color, hatch=hatch,
-                       linewidth=line_width, label=label, zorder=3)
-        labels = [get_label(i) for i in range(len(thread_count))]
-        ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
+    def in_bar_label(ax, rect, value):
+        kwargs = dict(fontsize="medium", ha="center", va="bottom")
+        if varying != "thread_count":
+            kwargs["rotation"] = "vertical"
+        ax.annotate(value, (rect.xy[0] + 0.5*rect.get_width(), rect.xy[1]), **kwargs)
 
-        ax.set_ylim(0, ax.get_ylim()[1]*1.18)  # Magic number.
-        ax.grid(axis='y', c='k', alpha=0.2)
-        ax.set_xlabel("Thread count")
-        ax.set_ylabel("Time (seconds)")
-        ax.legend(framealpha=0.9)
-        ax.set_title(title)
+    fig, ax = plt.subplots(figsize=(8.5, 6))
 
+    # Serial bars.
+    color, edge_color, hatch, line_width = get_style(name0, corner_mask)
+    if varying == "thread_count":
+        label = f"{name0} {get_corner_mask_label(corner_mask)}"
+    else:
+        label = None
+    rects = ax.bar(xs[:, 0], mean0, width=1, color=color, edgecolor=edge_color, hatch=hatch,
+                   linewidth=line_width, label=label, zorder=3)
+    if show_error:
+        labels = [with_time_units(m, s) for m, s in zip(mean0, error0)]
+    else:
+        labels = [with_time_units(m) for m in mean0]
+    ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
+    if varying != "thread_count":
+        for rect in rects:
+            in_bar_label(ax, rect, " 1")
+
+    # Threaded bars.
+    color, edge_color, hatch, line_width = get_style(name1, corner_mask)
+    label = varying.replace("_", " ")
+    label = f"{name1} {get_corner_mask_label(corner_mask)}\n({label} shown at bottom of bar)"
+    rects = ax.bar(xs[:, 1:-1].ravel(), mean1, width=1, color=color, edgecolor=edge_color,
+                   hatch=hatch, linewidth=line_width, label=label, zorder=3)
+    labels = []
+    for i, (mean, error, speedup) in enumerate(zip(mean1, error1, speedups)):
+        if show_error:
+            label = with_time_units(mean, error)
+        else:
+            label = with_time_units(mean)
+        if show_speedups and i % varying_count > 0:
+            label += f" (x {speedup:.2f})"
+        labels.append(label)
+    ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
+    for rect, value in zip(rects, np.tile(varying_values, ntype)):
+        in_bar_label(ax, rect, f" {value}")
+
+    if dataset == "random":
+        ymax = 2.0 if filled else 1.4
+    elif varying == "thread_count":
+        ymax = ax.get_ylim()[1]*1.32
+    else:
+        ymax = ax.get_ylim()[1]*1.25
+    ax.set_ylim(0, ymax)
+
+    ax.set_xticks(xs[:, 0] + 0.5*varying_count)
+    xticklabels = [str(t).split(".")[1] for t in fill_or_line_type]
+    xticklabels = map(capital_letters_to_newlines, xticklabels)
+    ax.set_xticklabels(xticklabels)
+
+    ax.legend(loc="upper right", framealpha=0.9)
+    ax.grid(axis='y', c='k', alpha=0.2)
+    ax.set_ylabel("Time (seconds)")
+    ax.set_title(f"{filled_str} {dataset} n={n}")
     fig.tight_layout()
 
-    filename = f"threaded_{dataset}_{n}.svg"
+    filename = f"{file_prefix}_{filled_str}_{dataset}.svg"
     print(f"Saving {filename}")
     fig.savefig(filename, transparent=True)
 
@@ -181,14 +257,19 @@ def main():
 
     print(f"Saving benchmark plots for machine={loader.machine} commit={loader.commit[:7]}")
 
-    n = 1000
     for filled in [False, True]:
         for dataset in ["random", "simple"]:
             for render in [False, True]:
-                by_name_and_type(loader, filled, dataset, render, n)
+                by_name_and_type(loader, filled, dataset, render, 1000)
 
-    for dataset in ["random", "simple"]:
-        by_thread_count(loader, dataset)
+    for filled in [False, True]:
+        for dataset in ["random", "simple"]:
+            comparison_two_benchmarks(loader, filled, dataset, "total_chunk_count",
+                                      [4, 12, 40, 120])
+
+    for filled in [False, True]:
+        for dataset in ["random", "simple"]:
+            comparison_two_benchmarks(loader, filled, dataset, "thread_count", [1, 2, 4, 6])
 
 
 if __name__ == "__main__":

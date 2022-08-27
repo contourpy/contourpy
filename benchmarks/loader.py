@@ -4,6 +4,7 @@ from datetime import datetime
 from asv.benchmarks import Benchmarks
 from asv.config import Config
 from asv.results import iter_results_for_machine
+from asv.statistics import get_err
 
 from contourpy import FillType, LineType
 
@@ -44,9 +45,13 @@ class Loader:
         params = deepcopy(benchmark["params"])
         for name, value in kwargs.items():
             index = param_names.index(name)
-            params[index] = [repr(value)]
+            if isinstance(value, list):
+                params[index] = [repr(item) for item in value]
+            else:
+                params[index] = [repr(value)]
 
         stats = self._results.get_result_stats(benchmark["name"], params)
+        values = self._results.get_result_value(benchmark["name"], params)
 
         ret = {}
         for name, param in zip(param_names, params):
@@ -71,11 +76,11 @@ class Loader:
                     param[i] = item
             ret[name] = param[0] if len(param) == 1 else param
 
-        for name in ["mean", "std"]:
-            if stats[0] is None:
-                ret[name] = None
-            else:
-                ret[name] = [s[name] if s is not None else None for s in stats]
+        if values[0] is None:
+            ret["mean"] = ret["error"] = None
+        else:
+            ret["mean"] = values
+            ret["error"] = [get_err(v, s) for v, s in zip(values, stats)]
 
         return ret
 

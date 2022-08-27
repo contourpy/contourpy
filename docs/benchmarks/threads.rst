@@ -1,21 +1,32 @@
 Multithreaded calculation
 -------------------------
 
-Benchmarks for the ``threaded`` algorithm are shown here, for unmasked ``z``, a
-``total_chunk_count`` of 40, ``LineType.ChunkCombinedOffset`` and
-``FillType.ChunkCombinedOffsetOffset`` on a 6-core processor.
+Benchmarks for the ``threaded`` algorithm are shown here, for unmasked ``z``, a problem size ``n``
+of 1000 and a ``total_chunk_count`` of 40 for up to 6 threads.
 
-.. image:: ../_static/threaded_simple_1000.svg
+.. image:: ../_static/threaded_lines_simple.svg
 
-For the ``simple`` dataset contour calculations are faster with more threads but only slightly.  The
-speedup with 6 threads is only about 1.8 for both :func:`~contourpy.ContourGenerator.lines` and
-:func:`~contourpy.ContourGenerator.filled`.  This problem dataset is not computationally expensive
-enough to justify the use of multiple threads.
+.. image:: ../_static/threaded_filled_simple.svg
 
-.. image:: ../_static/threaded_random_1000.svg
+For the ``simple`` dataset contour calculations are faster with more threads but it does not scale
+particulary well.  The speedup with 6 threads is about 2.6 for :func:`~contourpy.ContourGenerator.lines`
+and about 2.7 for :func:`~contourpy.ContourGenerator.filled`.  This problem dataset is perhaps not
+computationally expensive enough to justify the use of multiple threads.
 
-For the ``random`` dataset contour calculations scale much better with increasing number of threads.
-Using 6 threads the speedup is between 4.1 for ``lines`` and 4.7 for ``filled``.
+.. image:: ../_static/threaded_lines_random.svg
+
+.. image:: ../_static/threaded_filled_random.svg
+
+For the ``random`` dataset contour calculations scale much better with increasing number of threads
+as long as one of the ``ChunkCombined...`` line or fill types is being used.
+Using 6 threads the speedup is about 4.4 for :func:`~contourpy.ContourGenerator.lines` and 5.2 for
+:func:`~contourpy.ContourGenerator.filled`.
+
+The ``LineType`` and ``FillType`` options that do not scale well are those that return individual
+NumPy arrays for each line or polygon rather than combined arrays for each chunk. This is because
+the allocation of a new NumPy array can only be performed by one thread at a time, so the larger the
+number of arrays that are generated, the greater the likelihood that other threads are left waiting
+before they can allocate arrays.
 
 .. note::
 

@@ -41,7 +41,7 @@ thousand `NumPy`_ arrays (one per line) and a small amount is the time taken to 
 `Matplotlib`_ kind codes to put in them.
 
 Both ``LineType.ChunkCombinedCode`` and ``LineType.ChunkCombinedOffset`` have similar timings with
-a speedup of 2.3-2.5 compared to ``LineType.SeparateCode``.  The big difference here again is in
+a speedup of 2.3-2.6 compared to ``LineType.SeparateCode``.  The big difference here again is in
 array allocation, for a single chunk these two ``LineType`` allocate just two large arrays whereas
 ``LineType.SeparateCode`` allocates 1.7 million `NumPy`_ arrays, i.e. two per each line returned.
 
@@ -68,7 +68,7 @@ creates the same number of `NumPy`_ arrays as ``FillType.OuterCode`` but the arr
 The other four ``FillType`` can be grouped in pairs: ``FillType.ChunkCombinedCodeOffset`` and
 ``FillType.ChunkCombinedOffsetOffset`` have a speedup of 1.8-1.95 compared to
 ``FillType.OuterCode``; whereas ``FillType.ChunkCombinedCode`` and
-``FillType.ChunkCombinedOffset`` are marginally faster with a speedup of 1.9-2.05.  The speed
+``FillType.ChunkCombinedOffset`` are marginally faster with a speedup of 1.9-2.  The speed
 improvement has the usual explanation that they only allocate a small number of arrays whereas
 ``FillType.OuterCode`` allocates 1.7 million arrays.  ``FillType.ChunkCombinedCode`` and
 ``FillType.ChunkCombinedOffset`` are slightly faster than the other two because they do not

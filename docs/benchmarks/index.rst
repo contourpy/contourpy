@@ -24,13 +24,14 @@ the results in a web browser using:
 For further information see the ``README.md`` document in the ``benchmarks`` directory.
 
 There follows a summary of key benchmark results taken on a 6-core Intel Core i7-10750H processor
-for commit ``f3e864e``.
+for commit ``c4959cfb``.
 
 .. toctree::
    :maxdepth: 1
 
    calculation
    rendering
+   chunks
    threads
 
 .. note::
