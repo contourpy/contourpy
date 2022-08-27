@@ -45,7 +45,10 @@ class Loader:
         params = deepcopy(benchmark["params"])
         for name, value in kwargs.items():
             index = param_names.index(name)
-            params[index] = [repr(value)]
+            if isinstance(value, list):
+                params[index] = [repr(item) for item in value]
+            else:
+                params[index] = [repr(value)]
 
         stats = self._results.get_result_stats(benchmark["name"], params)
         values = self._results.get_result_value(benchmark["name"], params)
