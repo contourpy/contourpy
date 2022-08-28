@@ -1,5 +1,6 @@
 from functools import reduce
 from operator import add
+import platform
 
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
@@ -644,6 +645,9 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
 @pytest.mark.parametrize("name, thread_count",
                          [("serial", 1), ("threaded", 1), ("threaded", 2)])
 def test_return_by_fill_type_chunk(xyz_chunk_test, name, thread_count, fill_type):
+    if platform.python_implementation() == "PyPy" and thread_count > 1:
+        pytest.skip()
+
     x, y, z = xyz_chunk_test
     kwargs = dict(name=name, fill_type=fill_type, chunk_count=2)
     if name == "threaded":
