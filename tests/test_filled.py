@@ -2,7 +2,7 @@ from functools import reduce
 from operator import add
 
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 import pytest
 
 from contourpy import FillType, contour_generator
@@ -17,6 +17,13 @@ def two_outers_one_hole():
     z = np.array([[1.5, 1.5, 0.9, 0.0],
                   [1.5, 2.8, 0.4, 0.8],
                   [0.0, 0.0, 0.8, 1.9]])
+    return x, y, z
+
+
+@pytest.fixture
+def xyz_chunk_test():
+    x, y = np.meshgrid(np.arange(5), np.arange(5))
+    z = 0.5*np.abs(y - 2) + 0.1*(x - 2)
     return x, y, z
 
 
@@ -585,7 +592,7 @@ def test_filled_random_quad_as_tri(name):
 
 
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
-@pytest.mark.parametrize("name", ["serial"])
+@pytest.mark.parametrize("name", ["serial", "threaded"])
 def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
     x, y, z = two_outers_one_hole
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type)
@@ -631,6 +638,79 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
         elif fill_type == FillType.ChunkCombinedOffsetOffset:
             outer_offsets = filled[2][0]
             assert_array_equal(outer_offsets, [0, 2, 3])
+
+
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("name, thread_count",
+                         [("serial", 1), ("threaded", 1), ("threaded", 2)])
+def test_return_by_fill_type_chunk(xyz_chunk_test, name, thread_count, fill_type):
+    x, y, z = xyz_chunk_test
+    kwargs = dict(name=name, fill_type=fill_type, chunk_count=2)
+    if name == "threaded":
+        kwargs["thread_count"] = thread_count
+    cont_gen = contour_generator(x, y, z, **kwargs)
+    assert cont_gen.fill_type == fill_type
+    assert cont_gen.chunk_count == (2, 2)
+    assert cont_gen.chunk_size == (2, 2)
+    if name == "threaded":
+        assert cont_gen.thread_count == thread_count
+    filled = cont_gen.filled(0.45, 0.55)
+
+    util_test.assert_filled(filled, fill_type)
+
+    # Expected points by chunk.
+    expected = (
+        [[0.0, 0.7], [0.0, 0.5], [1.0, 0.7], [2.0, 0.9], [2.0, 1.0], [2.0, 1.1], [1.5, 1.0],
+         [1.0, 0.9], [0.0, 0.7]],
+        [[2.0, 1.0], [2.0, 0.9], [2.5, 1.0], [3.0, 1.1], [4.0, 1.3], [4.0, 1.5], [3.0, 1.3],
+         [2.0, 1.1], [2.0, 1.0]],
+        [[1.5, 3.0], [2.0, 2.9], [2.0, 3.0], [2.0, 3.1], [1.0, 3.3], [0.0, 3.5], [0.0, 3.3],
+         [1.0, 3.1], [1.5, 3.0]],
+        [[2.0, 3.0], [2.0, 2.9], [3.0, 2.7], [4.0, 2.5], [4.0, 2.7], [3.0, 2.9], [2.5, 3.0],
+         [2.0, 3.1], [2.0, 3.0]],
+    )
+
+    if fill_type in (FillType.OuterCode, FillType.OuterOffset):
+        points = filled[0]
+        assert len(points) == 4
+        if name == "threaded" and cont_gen.thread_count > 1:
+            # Polygons may be in any order so sort lines and expected.
+            points = sorted([polygon.tolist() for polygon in points])
+            expected = sorted(expected)
+        for chunk in range(4):
+            assert_allclose(points[chunk], expected[chunk])
+
+        if fill_type == FillType.OuterCode:
+            codes = filled[1]
+            for chunk in range(4):
+                assert_array_equal(codes[chunk], [1, 2, 2, 2, 2, 2, 2, 2, 79])
+        else:
+            offsets = filled[1]
+            for chunk in range(4):
+                assert_array_equal(offsets[chunk], [0, 9])
+    else:
+        points = filled[0]
+        assert len(points) == 4
+        for chunk in range(4):
+            assert_allclose(points[chunk], expected[chunk])
+
+        if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedCodeOffset):
+            codes = filled[1]
+            for chunk in range(4):
+                assert_array_equal(codes[chunk], [1, 2, 2, 2, 2, 2, 2, 2, 79])
+        else:
+            offsets = filled[1]
+            for chunk in range(4):
+                assert_array_equal(offsets[chunk], [0, 9])
+
+        if fill_type == FillType.ChunkCombinedCodeOffset:
+            outer_offsets = filled[2]
+            for chunk in range(4):
+                assert_array_equal(outer_offsets[chunk], [0, 9])
+        elif fill_type == FillType.ChunkCombinedOffsetOffset:
+            outer_offsets = filled[2]
+            for chunk in range(4):
+                assert_array_equal(outer_offsets[chunk], [0, 1])
 
 
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
