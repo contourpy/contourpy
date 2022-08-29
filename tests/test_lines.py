@@ -1,3 +1,5 @@
+import platform
+
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 import pytest
@@ -24,6 +26,13 @@ def one_loop_one_strip():
     z = np.array([[1.5, 1.5, 0.9, 0.0],
                   [1.5, 2.8, 0.4, 0.8],
                   [0.0, 0.0, 0.8, 6.0]])
+    return x, y, z
+
+
+@pytest.fixture
+def xyz_chunk_test():
+    x, y = np.meshgrid(np.arange(5), np.arange(5))
+    z = 0.5*np.abs(y - 2) + 0.1*(x - 2)
     return x, y, z
 
 
@@ -592,7 +601,7 @@ def test_lines_random_quad_as_tri(name):
 
 
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
-@pytest.mark.parametrize("name", ["serial"])
+@pytest.mark.parametrize("name", ["serial", "threaded"])
 def test_return_by_line_type(one_loop_one_strip, name, line_type):
     x, y, z = one_loop_one_strip
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type)
@@ -623,6 +632,65 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
         points, offsets = lines[0][0], lines[1][0]
         assert points.shape == (7, 2)
         assert_array_equal(offsets, [0, 5, 7])
+
+
+@pytest.mark.parametrize("line_type", LineType.__members__.values())
+@pytest.mark.parametrize("name, thread_count",
+                         [("serial", 1), ("threaded", 1), ("threaded", 2)])
+def test_return_by_line_type_chunk(xyz_chunk_test, name, thread_count, line_type):
+    if platform.python_implementation() == "PyPy" and thread_count > 1:
+        pytest.skip()
+
+    x, y, z = xyz_chunk_test
+    kwargs = dict(name=name, line_type=line_type, chunk_count=2)
+    if name == "threaded":
+        kwargs["thread_count"] = thread_count
+    cont_gen = contour_generator(x, y, z, **kwargs)
+    assert cont_gen.line_type == line_type
+    assert cont_gen.chunk_count == (2, 2)
+    assert cont_gen.chunk_size == (2, 2)
+    if name == "threaded":
+        assert cont_gen.thread_count == thread_count
+    lines = cont_gen.lines(0.45)
+
+    util_test.assert_lines(lines, line_type)
+
+    # Expected points by chunk.
+    expected = (
+        [[2.0, 1.1], [1.5, 1.0], [1.0, 0.9], [0.0, 0.7]],
+        [[4.0, 1.5], [3.0, 1.3], [2.0, 1.1]],
+        [[0.0, 3.3], [1.0, 3.1], [1.5, 3.0], [2.0, 2.9]],
+        [[2.0, 2.9], [3.0, 2.7], [4.0, 2.5]],
+    )
+
+    if line_type == LineType.Separate:
+        assert len(lines) == 4
+        if name == "threaded" and cont_gen.thread_count > 1:
+            # Lines may be in any order so sort lines and expected.
+            lines = sorted([line.tolist() for line in lines])
+            expected = sorted(expected)
+        for chunk in range(4):
+            assert_allclose(lines[chunk], expected[chunk])
+    elif line_type == LineType.SeparateCode:
+        assert len(lines[0]) == 4
+        if name == "threaded" and cont_gen.thread_count > 1:
+            # Lines may be in any order so sort lines and expected.
+            order = np.argsort([line[0] for line in lines[0]], axis=0)[:, 0]
+            lines = ([lines[0][o] for o in order], [lines[1][o] for o in order])
+            expected = sorted(expected)
+        for chunk in range(4):
+            assert_allclose(lines[0][chunk], expected[chunk])
+            assert_array_equal(lines[1][chunk], [1] + [2]*(len(expected[chunk])-1))
+    elif line_type == LineType.ChunkCombinedCode:
+        assert len(lines[0]) == 4
+        for chunk in range(4):
+            assert_allclose(lines[0][chunk], expected[chunk])
+            assert_array_equal(lines[1][chunk], [1] + [2]*(len(expected[chunk])-1))
+    elif line_type == LineType.ChunkCombinedOffset:
+        assert len(lines[0]) == 4
+        for chunk in range(4):
+            assert_allclose(lines[0][chunk], expected[chunk])
+            assert_array_equal(lines[1][chunk], [0, len(expected[chunk])])
 
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
