@@ -3,6 +3,23 @@
 Changelog
 #########
 
+v1.0.5 (2022-09-02)
+-------------------
+
+This release includes performance improvements for threaded and serial chunked algorithms, and is
+the first release to support CPython 3.11.
+
+Performance improvements:
+
+* Shorter threaded lock `#154 <https://github.com/contourpy/contourpy/pull/154>`_
+* Init cache by chunk if more than 1 chunk `#155 <https://github.com/contourpy/contourpy/pull/155>`_
+* Update benchmark documentation and plots `#156 <https://github.com/contourpy/contourpy/pull/156>`_
+
+CPython 3.11 support:
+
+* Add python 3.11 release candidate to CI `#151 <https://github.com/contourpy/contourpy/pull/151>`_
+* Build CPython 3.11 wheels `#152 <https://github.com/contourpy/contourpy/pull/152>`_
+
 v1.0.4 (2022-07-31)
 -------------------
 
