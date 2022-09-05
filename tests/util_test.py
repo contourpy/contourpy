@@ -241,3 +241,14 @@ def assert_lines(lines, line_type):
                 assert_offset_array(offset, npoints)
     else:
         raise RuntimeError(f"Unexpected line_type {line_type}")
+
+
+def sort_by_first_xy(lines, others=None):
+    first_xy = np.array([line[0] for line in lines])
+    order = np.lexsort((first_xy[:, 1], first_xy[:, 0]))
+    lines = [lines[o] for o in order]
+    if others is None:
+        return lines
+    else:
+        others = [others[o] for o in order]
+        return lines, others

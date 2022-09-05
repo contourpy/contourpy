@@ -679,8 +679,8 @@ def test_return_by_fill_type_chunk(xyz_chunk_test, name, thread_count, fill_type
         assert len(points) == 4
         if name == "threaded" and cont_gen.thread_count > 1:
             # Polygons may be in any order so sort lines and expected.
-            points = sorted([polygon.tolist() for polygon in points])
-            expected = sorted(expected)
+            points = util_test.sort_by_first_xy(points)
+            expected = util_test.sort_by_first_xy(expected)
         for chunk in range(4):
             assert_allclose(points[chunk], expected[chunk])
 

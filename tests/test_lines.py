@@ -667,17 +667,16 @@ def test_return_by_line_type_chunk(xyz_chunk_test, name, thread_count, line_type
         assert len(lines) == 4
         if name == "threaded" and cont_gen.thread_count > 1:
             # Lines may be in any order so sort lines and expected.
-            lines = sorted([line.tolist() for line in lines])
-            expected = sorted(expected)
+            lines = util_test.sort_by_first_xy(lines)
+            expected = util_test.sort_by_first_xy(expected)
         for chunk in range(4):
             assert_allclose(lines[chunk], expected[chunk])
     elif line_type == LineType.SeparateCode:
         assert len(lines[0]) == 4
         if name == "threaded" and cont_gen.thread_count > 1:
             # Lines may be in any order so sort lines and expected.
-            order = np.argsort([line[0] for line in lines[0]], axis=0)[:, 0]
-            lines = ([lines[0][o] for o in order], [lines[1][o] for o in order])
-            expected = sorted(expected)
+            lines = util_test.sort_by_first_xy(lines[0], lines[1])
+            expected = util_test.sort_by_first_xy(expected)
         for chunk in range(4):
             assert_allclose(lines[0][chunk], expected[chunk])
             assert_array_equal(lines[1][chunk], [1] + [2]*(len(expected[chunk])-1))
