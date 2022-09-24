@@ -94,7 +94,8 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
             only be used with an algorithm ``name`` that supports threads (currently only
             ``name="threaded"``) and there must be at least the same number of chunks as threads.
             If ``thread_count=0`` and ``name="threaded"`` then it uses the maximum number of threads
-            as determined by the C++11 call ``std::thread::hardware_concurrency()``.
+            as determined by the C++11 call ``std::thread::hardware_concurrency()``. If ``name`` is
+            something other than ``"threaded"`` then the ``thread_count`` will be set to ``1``.
 
     Return:
         :class:`~contourpy._contourpy.ContourGenerator`.

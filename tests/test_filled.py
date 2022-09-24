@@ -41,6 +41,7 @@ def test_filled_simple(name, fill_type):
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -58,11 +59,14 @@ def test_filled_simple_chunk(name, fill_type):
     from .image_comparison import compare_images
 
     x, y, z = simple((30, 40))
-    cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, chunk_size=2)
+    cont_gen = contour_generator(
+        x, y, z, name=name, fill_type=fill_type, chunk_size=2, thread_count=1,
+    )
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -116,6 +120,7 @@ def test_filled_simple_no_corner_mask(name, fill_type):
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -134,12 +139,13 @@ def test_filled_simple_no_corner_mask_chunk(name, fill_type):
 
     x, y, z = simple((30, 40), want_mask=True)
     cont_gen = contour_generator(
-        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2,
+        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2, thread_count=1,
     )
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -197,6 +203,7 @@ def test_filled_simple_corner_mask(name):
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -216,12 +223,13 @@ def test_filled_simple_corner_mask_chunk(name):
     x, y, z = simple((30, 40), want_mask=True)
     fill_type = FillType.OuterCode
     cont_gen = contour_generator(
-        x, y, z, name=name, fill_type=fill_type, corner_mask=True, chunk_size=2,
+        x, y, z, name=name, fill_type=fill_type, corner_mask=True, chunk_size=2, thread_count=1,
     )
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -277,6 +285,10 @@ def test_filled_simple_quad_as_tri(name):
     cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
     levels = np.arange(-1.0, 1.01, 0.1)
 
+    assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
+    assert cont_gen.quad_as_tri
+
     fill_type = cont_gen.fill_type
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -299,6 +311,7 @@ def test_filled_random(name, fill_type):
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -316,11 +329,14 @@ def test_filled_random_chunk(name, fill_type):
     from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.0)
-    cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type, chunk_size=2)
+    cont_gen = contour_generator(
+        x, y, z, name=name, fill_type=fill_type, chunk_size=2, thread_count=1,
+    )
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -396,6 +412,7 @@ def test_filled_random_no_corner_mask(name, fill_type):
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -414,12 +431,13 @@ def test_filled_random_no_corner_mask_chunk(name, fill_type):
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(
-        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2,
+        x, y, z, name=name, fill_type=fill_type, corner_mask=False, chunk_size=2, thread_count=1,
     )
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -497,6 +515,7 @@ def test_filled_random_corner_mask(name):
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -516,12 +535,13 @@ def test_filled_random_corner_mask_chunk(name):
     x, y, z = random((30, 40), mask_fraction=0.05)
     fill_type = FillType.OuterCode
     cont_gen = contour_generator(
-        x, y, z, name=name, corner_mask=True, fill_type=fill_type, chunk_size=2,
+        x, y, z, name=name, corner_mask=True, fill_type=fill_type, chunk_size=2, thread_count=1,
     )
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -583,6 +603,9 @@ def test_filled_random_quad_as_tri(name):
     cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
     levels = np.arange(0.0, 1.01, 0.2)
 
+    assert cont_gen.thread_count == 1
+    assert cont_gen.quad_as_tri
+
     fill_type = cont_gen.fill_type
     renderer = MplTestRenderer()
     for i in range(len(levels)-1):
@@ -597,7 +620,10 @@ def test_filled_random_quad_as_tri(name):
 def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
     x, y, z = two_outers_one_hole
     cont_gen = contour_generator(x, y, z, name=name, fill_type=fill_type)
+
     assert cont_gen.fill_type == fill_type
+    assert cont_gen.thread_count == 1
+
     filled = cont_gen.filled(1.0, 2.0)
 
     util_test.assert_filled(filled, fill_type)
@@ -641,6 +667,7 @@ def test_return_by_fill_type(two_outers_one_hole, name, fill_type):
             assert_array_equal(outer_offsets, [0, 2, 3])
 
 
+@pytest.mark.threads
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
 @pytest.mark.parametrize("name, thread_count",
                          [("serial", 1), ("threaded", 1), ("threaded", 2)])
@@ -649,15 +676,15 @@ def test_return_by_fill_type_chunk(xyz_chunk_test, name, thread_count, fill_type
         pytest.skip()
 
     x, y, z = xyz_chunk_test
-    kwargs = dict(name=name, fill_type=fill_type, chunk_count=2)
-    if name == "threaded":
-        kwargs["thread_count"] = thread_count
-    cont_gen = contour_generator(x, y, z, **kwargs)
+    cont_gen = contour_generator(
+        x, y, z, name=name, fill_type=fill_type, chunk_count=2, thread_count=thread_count,
+    )
+
     assert cont_gen.fill_type == fill_type
     assert cont_gen.chunk_count == (2, 2)
     assert cont_gen.chunk_size == (2, 2)
-    if name == "threaded":
-        assert cont_gen.thread_count == thread_count
+    assert cont_gen.thread_count == thread_count
+
     filled = cont_gen.filled(0.45, 0.55)
 
     util_test.assert_filled(filled, fill_type)
