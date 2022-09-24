@@ -110,6 +110,7 @@ def test_lines_simple(name, line_type):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -127,11 +128,14 @@ def test_lines_simple_chunk(name, line_type):
     from .image_comparison import compare_images
 
     x, y, z = simple((30, 40))
-    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, chunk_size=2)
+    cont_gen = contour_generator(
+        x, y, z, name=name, line_type=line_type, chunk_size=2, thread_count=1,
+    )
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -181,6 +185,7 @@ def test_lines_simple_no_corner_mask(name, line_type):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -199,11 +204,13 @@ def test_lines_simple_no_corner_mask_chunk(name, line_type):
 
     x, y, z = simple((30, 40), want_mask=True)
     cont_gen = contour_generator(
-        x, y, z, name=name, line_type=line_type, corner_mask=False, chunk_size=2)
+        x, y, z, name=name, line_type=line_type, corner_mask=False, chunk_size=2, thread_count=1,
+    )
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -257,6 +264,7 @@ def test_lines_simple_corner_mask(name):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -276,12 +284,13 @@ def test_lines_simple_corner_mask_chunk(name):
     x, y, z = simple((30, 40), want_mask=True)
     line_type = LineType.SeparateCode
     cont_gen = contour_generator(
-        x, y, z, name=name, line_type=line_type, corner_mask=True, chunk_size=2,
+        x, y, z, name=name, line_type=line_type, corner_mask=True, chunk_size=2, thread_count=1,
     )
     levels = np.arange(-1.0, 1.01, 0.1)
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -332,6 +341,10 @@ def test_lines_simple_quad_as_tri(name):
     cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
     levels = np.arange(-1.0, 1.01, 0.1)
 
+    assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
+    assert cont_gen.quad_as_tri
+
     line_type = cont_gen.line_type
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -354,6 +367,7 @@ def test_lines_random(name, line_type):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -371,11 +385,14 @@ def test_lines_random_chunk(name, line_type):
     from .image_comparison import compare_images
 
     x, y, z = random((30, 40), mask_fraction=0.0)
-    cont_gen = contour_generator(x, y, z, name=name, line_type=line_type, chunk_size=2)
+    cont_gen = contour_generator(
+        x, y, z, name=name, line_type=line_type, chunk_size=2, thread_count=1,
+    )
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -436,6 +453,7 @@ def test_lines_random_no_corner_mask(name, line_type):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -457,12 +475,13 @@ def test_lines_random_no_corner_mask_chunk(name, line_type):
 
     x, y, z = random((30, 40), mask_fraction=0.05)
     cont_gen = contour_generator(
-        x, y, z, name=name, line_type=line_type, corner_mask=False, chunk_size=2,
+        x, y, z, name=name, line_type=line_type, corner_mask=False, chunk_size=2, thread_count=1,
     )
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -516,6 +535,7 @@ def test_lines_random_corner_mask(name):
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -535,12 +555,13 @@ def test_lines_random_corner_mask_chunk(name):
     x, y, z = random((30, 40), mask_fraction=0.05)
     line_type = LineType.SeparateCode
     cont_gen = contour_generator(
-        x, y, z, name=name, corner_mask=True, line_type=line_type, chunk_size=2,
+        x, y, z, name=name, corner_mask=True, line_type=line_type, chunk_size=2, thread_count=1,
     )
     levels = np.arange(0.0, 1.01, 0.2)
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (15, 20)
+    assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -591,6 +612,10 @@ def test_lines_random_quad_as_tri(name):
     cont_gen = contour_generator(x, y, z, name=name, quad_as_tri=True)
     levels = np.arange(0.0, 1.01, 0.2)
 
+    assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
+    assert cont_gen.quad_as_tri
+
     line_type = cont_gen.line_type
     renderer = MplTestRenderer()
     for i in range(len(levels)):
@@ -605,7 +630,11 @@ def test_lines_random_quad_as_tri(name):
 def test_return_by_line_type(one_loop_one_strip, name, line_type):
     x, y, z = one_loop_one_strip
     cont_gen = contour_generator(x, y, z, name=name, line_type=line_type)
+
     assert cont_gen.line_type == line_type
+    assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
+
     lines = cont_gen.lines(2.0)
 
     util_test.assert_lines(lines, line_type)
@@ -634,6 +663,7 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
         assert_array_equal(offsets, [0, 5, 7])
 
 
+@pytest.mark.threads
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
 @pytest.mark.parametrize("name, thread_count",
                          [("serial", 1), ("threaded", 1), ("threaded", 2)])
@@ -642,15 +672,15 @@ def test_return_by_line_type_chunk(xyz_chunk_test, name, thread_count, line_type
         pytest.skip()
 
     x, y, z = xyz_chunk_test
-    kwargs = dict(name=name, line_type=line_type, chunk_count=2)
-    if name == "threaded":
-        kwargs["thread_count"] = thread_count
-    cont_gen = contour_generator(x, y, z, **kwargs)
+    cont_gen = contour_generator(
+        x, y, z, name=name, line_type=line_type, chunk_count=2, thread_count=thread_count,
+    )
+
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (2, 2)
     assert cont_gen.chunk_size == (2, 2)
-    if name == "threaded":
-        assert cont_gen.thread_count == thread_count
+    assert cont_gen.thread_count == thread_count
+
     lines = cont_gen.lines(0.45)
 
     util_test.assert_lines(lines, line_type)
@@ -703,6 +733,8 @@ def test_lines_random_big(name, line_type, corner_mask):
     levels = np.arange(0.0, 1.01, 0.1)
 
     assert cont_gen.line_type == line_type
+    assert cont_gen.chunk_count == (1, 1)
+    assert cont_gen.thread_count == 1
 
     for level in levels:
         lines = cont_gen.lines(level)

@@ -57,6 +57,10 @@ To build in debug mode, which enables ``assert`` statements in the C++ code, use
 
    $ CONTOURPY_DEBUG=1 pip install -ve .
 
+
+Running tests
+-------------
+
 To run the test suite, first ensure that the required dependencies are installed and then run the
 tests using ``pytest``:
 
@@ -64,6 +68,24 @@ tests using ``pytest``:
 
    $ pip install -ve .[test]
    $ pytest
+
+It is possible to exclude certain tests.
+
+#. To exclude image comparison tests (if you do not have ``matplotlib`` installed):
+
+   .. code-block:: console
+
+      $ pytest -k "not image"
+
+#. To exclude threaded tests (because the ``threaded`` algorithm is not yet fully robust):
+
+   .. code-block:: console
+
+      $ pytest -k "not threads"
+
+
+Building the documentation
+--------------------------
 
 To build the documentation:
 
