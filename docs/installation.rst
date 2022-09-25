@@ -4,8 +4,8 @@ Installation
 Installing from prepackaged binaries
 ------------------------------------
 
-Stable releases of ``contourpy`` are available from both `PyPI`_ and `conda-forge`_ for Linux,
-macOS and Windows.
+Stable releases of ``contourpy`` are available from `PyPI`_, `conda-forge`_, and Anaconda
+`default`_ channels for Linux, macOS and Windows.
 
 #. To install from `PyPI`_:
 
@@ -18,6 +18,12 @@ macOS and Windows.
    .. code-block:: bash
 
       $ conda install -c conda-forge contourpy
+
+#. To install from Anaconda `default`_ channel:
+
+   .. code-block:: bash
+
+      $ conda install contourpy
 
 The only compulsory runtime dependency is `NumPy`_.
 
