@@ -79,6 +79,7 @@ rst_epilog = """
 .. _NumPy: https://numpy.org/
 .. _PyPI: https://pypi.org/project/contourpy/
 .. _conda-forge: https://anaconda.org/conda-forge/contourpy/
+.. _default: https://anaconda.org/anaconda/contourpy/
 .. _github: https://www.github.com/contourpy/contourpy/
 .. _pybind11: https://pybind11.readthedocs.io/
 """

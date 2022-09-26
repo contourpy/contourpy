@@ -9,6 +9,6 @@ It contains the 2005 and 2014 algorithms used in Matplotlib as well as a newer a
 
 | | |
 | --- | --- |
-| Latest release | [![PyPI version](https://img.shields.io/pypi/v/contourpy.svg?label=pypi&color=fdae61)](https://pypi.python.org/pypi/contourpy) [![conda-forge version](https://img.shields.io/conda/v/conda-forge/contourpy.svg?label=conda-forge&color=a6d96a)](https://anaconda.org/conda-forge/contourpy) |
+| Latest release | [![PyPI version](https://img.shields.io/pypi/v/contourpy.svg?label=pypi&color=fdae61)](https://pypi.python.org/pypi/contourpy) [![conda-forge version](https://img.shields.io/conda/v/conda-forge/contourpy.svg?label=conda-forge&color=a6d96a)](https://anaconda.org/conda-forge/contourpy) [![anaconda version](https://img.shields.io/conda/v/anaconda/contourpy.svg?label=anaconda&color=1a9641)](https://anaconda.org/anaconda/contourpy) |
 | Downloads | [![PyPi downloads](https://img.shields.io/pypi/dm/contourpy?label=pypi&style=flat&color=fdae61)](https://pepy.tech/project/contourpy) [![conda-forge downloads](https://img.shields.io/conda/dn/conda-forge/contourpy?label=conda-forge&color=a6d96a)](https://anaconda.org/conda-forge/contourpy) |
-| Python | [![Python versions](https://img.shields.io/pypi/pyversions/contourpy?color=1a9641)](https://pypi.org/project/contourpy/) |
+| Python version | [![Platforms](https://img.shields.io/pypi/pyversions/contourpy?color=fdae61)](https://pypi.org/project/contourpy/) |
