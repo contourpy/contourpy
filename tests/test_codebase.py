@@ -1,6 +1,7 @@
 import re
 from subprocess import run
 
+from packaging.version import Version
 import pytest
 
 import contourpy
@@ -17,14 +18,20 @@ def test_cppcheck():
     # Skip test if cppcheck is not installed.
     cmd = ["cppcheck", "--version"]
     try:
-        proc = run(cmd)
+        proc = run(cmd, capture_output=True)
     except FileNotFoundError:
         pytest.skip()
+
+    cpp_version = Version(proc.stdout.decode('utf-8').strip().split()[-1])
 
     # Note excluding mpl2005 code.
     cmd = [
         "cppcheck", "--quiet", "--enable=all", "--error-exitcode=1", "src",
         "-isrc/mpl2005_original.cpp", "--suppress=missingIncludeSystem", "--inline-suppr"]
+
+    if cpp_version >= Version("2.7"):
+        cmd += ["--suppress=assertWithSideEffect"]
+
     proc = run(cmd, capture_output=True)
     assert proc.returncode == 0, f"cppcheck issues:\n{proc.stderr.decode('utf-8')}"
 
