@@ -82,7 +82,13 @@ jobs:
       - name: Install cppcheck
         if: runner.os == 'Linux'
         run: |
-          sudo apt install -y cppcheck
+          CPPCHECK_VERSION=2.9
+          CPPCHECK_TGZ=$CPPCHECK_VERSION.tar.gz
+          cd $RUNNER_TEMP
+          wget --no-verbose https://github.com/danmar/cppcheck/archive/refs/tags/$CPPCHECK_TGZ
+          tar xzf $CPPCHECK_TGZ
+          cd cppcheck-$CPPCHECK_VERSION
+          sudo make install MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck CXXFLAGS="-O2 -DNDEBUG" -j 2
 
       - name: Run tests
         shell: bash
