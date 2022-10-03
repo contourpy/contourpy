@@ -1725,7 +1725,7 @@ bool Mpl2014ContourGenerator::start_line(
     return VISITED(quad,1);
 }
 
-void Mpl2014ContourGenerator::write_cache(bool grid_only) const
+/*void Mpl2014ContourGenerator::write_cache(bool grid_only) const
 {
     std::cout << "-----------------------------------------------" << std::endl;
     for (index_t quad = 0; quad < _n; ++quad)
@@ -1753,7 +1753,7 @@ void Mpl2014ContourGenerator::write_cache_quad(
             << VISITED_CORNER(quad);
     }
     std::cout << std::endl;
-}
+}*/
 
 } // namespace mpl2014
 } // namespace contourpy

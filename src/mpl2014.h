@@ -485,11 +485,11 @@ private:
         const double& level);
 
     // Debug function that writes the cache status to stdout.
-    void write_cache(bool grid_only = false) const;
+    //void write_cache(bool grid_only = false) const;
 
     // Debug function that writes that cache status for a single quad to
     // stdout.
-    void write_cache_quad(index_t quad, bool grid_only) const;
+    //void write_cache_quad(index_t quad, bool grid_only) const;
 
 
 
