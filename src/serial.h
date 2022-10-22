@@ -24,9 +24,6 @@ private:
     public:
         explicit Lock(SerialContourGenerator& contour_generator)
         {}
-
-        void unlock()
-        {}
     };
 
     // Write points and offsets/codes to output numpy arrays.

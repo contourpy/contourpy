@@ -1,5 +1,3 @@
-import platform
-
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 import pytest
@@ -668,9 +666,6 @@ def test_return_by_line_type(one_loop_one_strip, name, line_type):
 @pytest.mark.parametrize("name, thread_count",
                          [("serial", 1), ("threaded", 1), ("threaded", 2)])
 def test_return_by_line_type_chunk(xyz_chunk_test, name, thread_count, line_type):
-    if platform.python_implementation() == "PyPy" and thread_count > 1:
-        pytest.skip()
-
     x, y, z = xyz_chunk_test
     cont_gen = contour_generator(
         x, y, z, name=name, line_type=line_type, chunk_count=2, thread_count=thread_count,

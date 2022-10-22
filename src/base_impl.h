@@ -370,7 +370,7 @@ py::sequence BaseContourGenerator<Derived>::filled(double lower_level, double up
     _return_list_count = (_fill_type == FillType::ChunkCombinedCodeOffset ||
                           _fill_type == FillType::ChunkCombinedOffsetOffset) ? 3 : 2;
 
-    return static_cast<Derived*>(this)->march_wrapper();
+    return march_wrapper();
 }
 
 template <typename Derived>
@@ -1944,7 +1944,7 @@ py::sequence BaseContourGenerator<Derived>::lines(double level)
     _outer_offsets_into_points = false;
     _return_list_count = (_line_type == LineType::Separate) ? 1 : 2;
 
-    return static_cast<Derived*>(this)->march_wrapper();
+    return march_wrapper();
 }
 
 template <typename Derived>

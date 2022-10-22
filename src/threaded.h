@@ -22,13 +22,23 @@ private:
     friend class BaseContourGenerator<ThreadedContourGenerator>;
 
     // Lock class is used to lock access to a single thread when creating/modifying Python objects.
-    // Automatically unlocks in destructor or when unlock() member function is called.
-    class Lock : public std::unique_lock<std::mutex>
+    // Also acquires the GIL for the duration of the lock.
+    class Lock
     {
     public:
         explicit Lock(ThreadedContourGenerator& contour_generator)
-            : std::unique_lock<std::mutex>(contour_generator._python_mutex)
+            : _lock(contour_generator._python_mutex)
         {}
+
+        // Non-copyable and non-moveable.
+        Lock(const Lock& other) = delete;
+        Lock(const Lock&& other) = delete;
+        Lock& operator=(const Lock& other) = delete;
+        Lock& operator=(const Lock&& other) = delete;
+
+    private:
+        std::unique_lock<std::mutex> _lock;
+        py::gil_scoped_acquire _gil;
     };
 
     // Write points and offsets/codes to output numpy arrays.

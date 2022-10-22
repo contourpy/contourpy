@@ -38,34 +38,35 @@ void ThreadedContourGenerator::export_filled(
             std::vector<CodeArray::value_type*> codes_ptrs(outer_code ? outer_count: 0);
             std::vector<OffsetArray::value_type*> offsets_ptrs(outer_code ? 0 : outer_count);
 
-            Lock lock(*this);
-            for (decltype(outer_count) i = 0; i < outer_count; ++i) {
-                auto outer_start = local.outer_offsets.start[i];
-                auto outer_end = local.outer_offsets.start[i+1];
-                auto point_start = local.line_offsets.start[outer_start];
-                auto point_end = local.line_offsets.start[outer_end];
-                auto point_count = point_end - point_start;
-                assert(point_count > 2);
+            {
+                Lock lock(*this);  // cppcheck-suppress unreadVariable
+                for (decltype(outer_count) i = 0; i < outer_count; ++i) {
+                    auto outer_start = local.outer_offsets.start[i];
+                    auto outer_end = local.outer_offsets.start[i+1];
+                    auto point_start = local.line_offsets.start[outer_start];
+                    auto point_end = local.line_offsets.start[outer_end];
+                    auto point_count = point_end - point_start;
+                    assert(point_count > 2);
 
-                index_t points_shape[2] = {static_cast<index_t>(point_count), 2};
-                PointArray point_array(points_shape);
-                return_lists[0].append(point_array);
-                points_ptrs[i] = point_array.mutable_data();
+                    index_t points_shape[2] = {static_cast<index_t>(point_count), 2};
+                    PointArray point_array(points_shape);
+                    return_lists[0].append(point_array);
+                    points_ptrs[i] = point_array.mutable_data();
 
-                if (outer_code) {
-                    index_t codes_shape = static_cast<index_t>(point_count);
-                    CodeArray code_array(codes_shape);
-                    return_lists[1].append(code_array);
-                    codes_ptrs[i] = code_array.mutable_data();
-                }
-                else {
-                    index_t offsets_shape = static_cast<index_t>(outer_end - outer_start + 1);
-                    OffsetArray offset_array(offsets_shape);
-                    return_lists[1].append(offset_array);
-                    offsets_ptrs[i] = offset_array.mutable_data();
+                    if (outer_code) {
+                        index_t codes_shape = static_cast<index_t>(point_count);
+                        CodeArray code_array(codes_shape);
+                        return_lists[1].append(code_array);
+                        codes_ptrs[i] = code_array.mutable_data();
+                    }
+                    else {
+                        index_t offsets_shape = static_cast<index_t>(outer_end - outer_start + 1);
+                        OffsetArray offset_array(offsets_shape);
+                        return_lists[1].append(offset_array);
+                        offsets_ptrs[i] = offset_array.mutable_data();
+                    }
                 }
             }
-            lock.unlock();
 
             for (decltype(outer_count) i = 0; i < outer_count; ++i) {
                 auto outer_start = local.outer_offsets.start[i];
@@ -97,15 +98,18 @@ void ThreadedContourGenerator::export_filled(
             //    offsets.
 
             index_t codes_shape = static_cast<index_t>(local.total_point_count);
+            CodeArray::value_type* codes_ptr = nullptr;
 
-            Lock lock(*this);
-            CodeArray code_array(codes_shape);
-            lock.unlock();
+            {
+                Lock lock(*this);  // cppcheck-suppress unreadVariable
+                CodeArray code_array(codes_shape);
+                return_lists[1][local.chunk] = code_array;
+                codes_ptr = code_array.mutable_data();
+            }
 
-            return_lists[1][local.chunk] = code_array;
             Converter::convert_codes(
                 local.total_point_count, local.line_count + 1, local.line_offsets.start, 0,
-                code_array.mutable_data());
+                codes_ptr);
             break;
         }
         case FillType::ChunkCombinedOffset:
@@ -141,26 +145,28 @@ void ThreadedContourGenerator::export_lines(
             std::vector<PointArray::value_type*> points_ptrs(local.line_count);
             std::vector<CodeArray::value_type*> codes_ptrs(separate_code ? local.line_count: 0);
 
-            Lock lock(*this);
-            for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
-                auto point_start = local.line_offsets.start[i];
-                auto point_end = local.line_offsets.start[i+1];
-                auto point_count = point_end - point_start;
-                assert(point_count > 1);
+            {
+                Lock lock(*this);  // cppcheck-suppress unreadVariable
+                for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
+                    auto point_start = local.line_offsets.start[i];
+                    auto point_end = local.line_offsets.start[i+1];
+                    auto point_count = point_end - point_start;
+                    assert(point_count > 1);
 
-                index_t points_shape[2] = {static_cast<index_t>(point_count), 2};
-                PointArray point_array(points_shape);
-                return_lists[0].append(point_array);
-                points_ptrs[i] = point_array.mutable_data();
+                    index_t points_shape[2] = {static_cast<index_t>(point_count), 2};
+                    PointArray point_array(points_shape);
 
-                if (separate_code) {
-                    index_t codes_shape = static_cast<index_t>(point_count);
-                    CodeArray code_array(codes_shape);
-                    return_lists[1].append(code_array);
-                    codes_ptrs[i] = code_array.mutable_data();
+                    return_lists[0].append(point_array);
+                    points_ptrs[i] = point_array.mutable_data();
+
+                    if (separate_code) {
+                        index_t codes_shape = static_cast<index_t>(point_count);
+                        CodeArray code_array(codes_shape);
+                        return_lists[1].append(code_array);
+                        codes_ptrs[i] = code_array.mutable_data();
+                    }
                 }
             }
-            lock.unlock();
 
             for (decltype(local.line_count) i = 0; i < local.line_count; ++i) {
                 auto point_start = local.line_offsets.start[i];
@@ -183,15 +189,18 @@ void ThreadedContourGenerator::export_lines(
             // return_lists[0][local.chunk] already contains points.
 
             index_t codes_shape = static_cast<index_t>(local.total_point_count);
+            CodeArray::value_type* codes_ptr = nullptr;
 
-            Lock lock(*this);
-            CodeArray code_array(codes_shape);
-            lock.unlock();
+            {
+                Lock lock(*this);  // cppcheck-suppress unreadVariable
+                CodeArray code_array(codes_shape);
+                return_lists[1][local.chunk] = code_array;
+                codes_ptr = code_array.mutable_data();
+            }
 
-            return_lists[1][local.chunk] = code_array;
             Converter::convert_codes_check_closed(
                 local.total_point_count, local.line_count + 1, local.line_offsets.start,
-                local.points.start, code_array.mutable_data());
+                local.points.start, codes_ptr);
             break;
         }
         case LineType::ChunkCombinedOffset:
@@ -226,9 +235,13 @@ void ThreadedContourGenerator::march(std::vector<py::list>& return_lists)
     _next_chunk = 0;      // Next available chunk index.
     _finished_count = 0;  // Count of threads that have finished the cache init.
 
+    // Main thread releases GIL for remainder of this function.
+    // It is temporarily reacquired as necessary within the scope of threaded Lock objects.
+    py::gil_scoped_release release;
+
     // Create (_n_threads-1) new worker threads.
     std::vector<std::thread> threads;
-    threads.reserve(_n_threads);
+    threads.reserve(_n_threads-1);
     for (index_t i = 0; i < _n_threads-1; ++i)
         threads.emplace_back(
             &ThreadedContourGenerator::thread_function, this, std::ref(return_lists));
