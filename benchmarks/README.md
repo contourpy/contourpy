@@ -9,7 +9,7 @@ Installing ASV
 ASV creates virtualenvs to run benchmarks in.  Before using it you need to
 
 ```
-pip install asv virtualenv
+pip install asv==0.4.2 virtualenv
 ```
 or the `conda` equivalent.
 
