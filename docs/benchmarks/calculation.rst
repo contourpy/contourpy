@@ -26,13 +26,13 @@ Contour lines
 .. image:: ../_static/lines_simple_1000.svg
 
 For the ``simple`` dataset above the performance of ``serial`` for contour lines is the same
-regardless of ``LineType``. It is slightly faster than ``mpl2005`` and significantly faster than
+regardless of ``LineType``. It is slightly slower than ``mpl2005`` and significantly faster than
 ``mpl2014`` with a speedup of 1.7-1.9.
 
 .. image:: ../_static/lines_random_1000.svg
 
 For the ``random`` dataset above the performance of ``serial`` varies significantly by ``LineType``.
-For ``LineType.SeparateCode`` ``serial`` is 10-15% faster than ``mpl2005`` and is slightly faster
+For ``LineType.SeparateCode`` ``serial`` is 10-20% faster than ``mpl2005`` and is slightly faster
 than ``mpl2014`` when ``z`` is masked but about 5% slower when ``z`` is not masked.
 
 Other ``LineType`` are faster.  ``LineType.Separate`` has a speedup of about 1.4 compared to
@@ -50,15 +50,15 @@ Filled contours
 .. image:: ../_static/filled_simple_1000.svg
 
 For the ``simple`` dataset above the performance of ``serial`` for filled contours is the same
-regardless of ``FillType``.  It has about the same performance as ``mpl2005`` and is significantly
-faster than ``mpl2014`` with a speedup of 1.75-1.9.
+regardless of ``FillType``.  It it 5-20% slower than ``mpl2005`` and significantly
+faster than ``mpl2014`` with a speedup of 1.6-1.7.
 
 .. image:: ../_static/filled_random_1000.svg
 
 For the ``random`` dataset above the performance of ``serial`` varies significantly by ``FillType``.
-For ``FillType.OuterCode`` it is faster than ``mpl2014`` with a speedup of about 1.3.  It is also
+For ``FillType.OuterCode`` it is faster than ``mpl2014`` with a speedup of 1.3-1.4.  It is also
 faster than ``mpl2005`` but only the ``corner_mask=False`` option is shown in full as the unmasked
-benchmark here is off the scale at 12.1 seconds.  The ``mpl2005`` algorithm calculates points for
+benchmark here is off the scale at 11.4 seconds.  The ``mpl2005`` algorithm calculates points for
 outer and hole boundaries in an interleaved format which need to be reordered, and this approach
 scales badly for a large outer boundary containing many holes as occurs here for unmasked ``z``.
 
@@ -66,9 +66,9 @@ Other ``FillType`` are faster, although ``FillType.OuterOffset`` is only margina
 creates the same number of `NumPy`_ arrays as ``FillType.OuterCode`` but the arrays are shorter.
 
 The other four ``FillType`` can be grouped in pairs: ``FillType.ChunkCombinedCodeOffset`` and
-``FillType.ChunkCombinedOffsetOffset`` have a speedup of 1.8-1.95 compared to
+``FillType.ChunkCombinedOffsetOffset`` have a speedup of 1.8-2 compared to
 ``FillType.OuterCode``; whereas ``FillType.ChunkCombinedCode`` and
-``FillType.ChunkCombinedOffset`` are marginally faster with a speedup of 1.9-2.  The speed
+``FillType.ChunkCombinedOffset`` are marginally faster with a speedup of 1.9-2.1.  The speed
 improvement has the usual explanation that they only allocate a small number of arrays whereas
 ``FillType.OuterCode`` allocates 1.7 million arrays.  ``FillType.ChunkCombinedCode`` and
 ``FillType.ChunkCombinedOffset`` are slightly faster than the other two because they do not
