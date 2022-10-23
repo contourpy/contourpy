@@ -10,7 +10,7 @@ Contour lines
 .. image:: ../_static/lines_simple_1000_render.svg
 
 For the ``simple`` dataset above the performance of ``serial`` for contour lines is the same
-regardless of ``LineType``. It is slightly faster than ``mpl2005`` and significantly faster than
+regardless of ``LineType``. It is slightly slower than ``mpl2005`` and significantly faster than
 ``mpl2014`` with a speedup of about 1.4.  Comparing these times with the calculation-only times of
 the previous section shows that the rendering time here is only about 120 ms so there is a fairly
 even split between calculation and rendering time for ``serial``.
@@ -27,7 +27,7 @@ codes yourself or allow `Matplotlib`_ to generate them for you, either way is sl
 ``contourpy`` to generate them for you in C++.
 
 ``LineType.ChunkCombinedCode`` is significantly faster than ``LineType.SeparateCode`` with a speedup
-of 1.9-2.3.  This means that use of the ``serial`` algorithm with ``LineType.ChunkCombinedCode``
+of 2-2.3.  This means that use of the ``serial`` algorithm with ``LineType.ChunkCombinedCode``
 could halve the calculation and rendering time in `Matplotlib`_ for such complicated datasets.
 The benefit here is in just having two `NumPy`_ arrays per chunk, one for points and one for codes,
 which are ultimately used by `Matplotlib`_'s Agg renderer.  Compare this with
@@ -40,8 +40,8 @@ Filled contours
 .. image:: ../_static/filled_simple_1000_render.svg
 
 As usual, for the ``simple`` dataset above the performance of ``serial`` for filled contours is the
-same regardless of ``FillType``.  It has about the same performance as ``mpl2005`` and is faster
-than ``mpl2014`` with a speedup of 1.4-1.5.  As with ``lines`` the rendering time here is only
+same regardless of ``FillType``.  It is slightly slower than ``mpl2005`` and is faster
+than ``mpl2014`` with a speedup of 1.3-1.4.  As with ``lines`` the rendering time here is only
 about 120 ms so there is a fairly even split between calculation and rendering time for ``serial``.
 
 .. image:: ../_static/filled_random_1000_render.svg
@@ -56,7 +56,7 @@ C++, or in the case of ``FillType.ChunkCombinedCodeOffset`` by breaking up the l
 codes arrays into many smaller arrays, one per polygon (outer plus holes).
 
 ``FillType.ChunkCombinedCode`` and ``FillType.ChunkCombinedOffset`` are significantly faster than
-``FillType.OuterCode`` with a speedup of 2.7-3.2 compared to ``serial`` and 3.1-3.5 compared to
+``FillType.OuterCode`` with a speedup of 2.7-3.1 compared to ``serial`` and 3-3.5 compared to
 ``mpl2014``.  Again this only has to send two `NumPy`_ arrays to `Matplotlib`_ for rendering rather
 than 850 thousand pairs of them.
 

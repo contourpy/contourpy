@@ -106,8 +106,11 @@ def by_name_and_type(loader, filled, dataset, render, n):
 
             i += 1
 
-    if filled and not render and dataset == "random":
-        ax.set_ylim(0, 2.7)
+    if filled and not render:
+        if dataset == "random":
+            ax.set_ylim(0, 2.75)
+        else:
+            ax.set_ylim(0, 0.32)
     else:
         ax.set_ylim(0, ax.get_ylim()[1]*1.1)  # Magic number.
 
