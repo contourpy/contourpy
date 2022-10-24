@@ -71,14 +71,16 @@ jobs:
           then
             if [[ ${{ matrix.test-image }} == 1 ]];
             then
-              echo "Install with full test dependencies"
+              echo "Install contourpy with full test dependencies"
               python -m pip install -ve .[test]
             else
-              echo "Install with minimal test dependencies"
+              echo "Install contourpy with minimal test dependencies"
               python -m pip install -ve .[test-minimal]
             fi
           else
-            echo "Install in debug mode with test dependencies"
+            echo "Install numpy from sdist with debug asserts enabled"
+            CFLAGS=-UNDEBUG pip install --no-binary=numpy numpy
+            echo "Install contourpy in debug mode with test dependencies"
             CONTOURPY_DEBUG=1 CONTOURPY_CXX11=1 python -m pip install -ve .[test]
           fi
           python -m pip list
