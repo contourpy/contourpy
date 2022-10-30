@@ -75,19 +75,32 @@ tests using ``pytest``:
    $ pip install -ve .[test]
    $ pytest
 
-It is possible to exclude certain tests.
-
-#. To exclude image comparison tests (if you do not have ``matplotlib`` installed):
+It is possible to exclude certain tests. To exclude image comparison tests, for example if you do
+not have ``matplotlib`` installed:
 
    .. code-block:: console
 
       $ pytest -k "not image"
 
-#. To exclude threaded tests (because the ``threaded`` algorithm is not yet fully robust):
+To exclude threaded tests:
 
    .. code-block:: console
 
       $ pytest -k "not threads"
+
+Other tests are excluded by default but can be manually enabled. To include tests that generate text
+output:
+
+   .. code-block:: console
+
+     $ pytest --runtext
+
+but note that the output depends on the version of ``freetype`` that ``matplotlib`` is compiled
+against. To include tests that take a long time to run:
+
+   .. code-block:: console
+
+     $ pytest --runslow
 
 
 Building the documentation

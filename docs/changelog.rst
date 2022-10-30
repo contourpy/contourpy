@@ -3,6 +3,25 @@
 Changelog
 #########
 
+v1.0.6 (2022-10-30)
+-------------------
+
+This release features major improvements to the robustness of the threaded algorithm on both
+CPython and PyPy.
+
+Thanks to new contributors `@mgorny <https://github.com/mgorny>`_ and
+`@Zac-HD <https://github.com/Zac-HD>`_.
+
+Threaded algorithm improvements:
+
+* Correctly acquire and release GIL in multithreaded code `#172 <https://github.com/contourpy/contourpy/pull/172>`_
+* Update benchmarks in line with recent changes `#174 <https://github.com/contourpy/contourpy/pull/174>`_
+
+CI improvements:
+
+* Add PyPy 3.9 to CI `#173 <https://github.com/contourpy/contourpy/pull/173>`_
+* Use numpy debug build in debug CI run `#175 <https://github.com/contourpy/contourpy/pull/175>`_
+
 v1.0.5 (2022-09-02)
 -------------------
 
