@@ -50,7 +50,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install build
+          python -m pip install build
 
       - name: Build sdist
         run: |
