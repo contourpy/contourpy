@@ -50,6 +50,7 @@ jobs:
       - name: Install contourpy
         shell: bash
         run: |
+          python -m pip install --upgrade pip setuptools
           if [[ ${{ matrix.debug }} == 0 ]];
           then
             if [[ ${{ matrix.test-image }} == 1 ]];
