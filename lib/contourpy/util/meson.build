@@ -1,0 +1,14 @@
+python_sources = [
+  '__init__.py',
+  'bokeh_renderer.py',
+  'bokeh_util.py',
+  'data.py',
+  'mpl_renderer.py',
+  'mpl_util.py',
+]
+
+py3.install_sources(
+  python_sources,
+  pure: false,
+  subdir: 'contourpy/util',
+)
