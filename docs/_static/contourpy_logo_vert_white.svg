@@ -6,7 +6,7 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2022-11-26T14:28:00.089447</dc:date>
+    <dc:date>2022-11-26T14:28:00.129440</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -403,7 +403,7 @@ L 88.814769 45.308245
 L 87.569231 45.640498 
 L 86.323692 45.501109 
 z
-" clip-path="url(#p832089e22b)" style="fill: #1a9641"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: #1a9641"/>
    </g>
    <g id="PathCollection_2">
     <path d="M 84.646582 44.649846 
@@ -690,7 +690,7 @@ L 85.408952 38.422154
 L 85.848857 39.667692 
 L 85.078154 40.763375 
 z
-" clip-path="url(#p832089e22b)" style="fill: #a6d96a"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: #a6d96a"/>
    </g>
    <g id="PathCollection_3">
     <path d="M 82.91669 39.667692 
@@ -857,7 +857,7 @@ L 67.640615 31.291079
 L 66.395077 31.536767 
 L 65.149538 31.672075 
 z
-" clip-path="url(#p832089e22b)" style="fill: #ffffbf"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: #ffffbf"/>
    </g>
    <g id="PathCollection_4">
     <path d="M 63.740534 30.948923 
@@ -946,7 +946,7 @@ L 71.377231 28.925379
 L 70.131692 28.855777 
 L 68.886154 28.738521 
 z
-" clip-path="url(#p832089e22b)" style="fill: #fdae61"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: #fdae61"/>
    </g>
    <g id="PathCollection_5">
     <path d="M 67.421909 28.457846 
@@ -984,7 +984,7 @@ L 65.149538 26.393954
 L 65.575827 27.212308 
 L 66.395077 27.981099 
 z
-" clip-path="url(#p832089e22b)" style="fill: #d7191c"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: #d7191c"/>
    </g>
    <g id="PathCollection_6">
     <path d="M 85.318604 48.386462 
@@ -1189,7 +1189,7 @@ L 83.832615 47.547931
 L 85.078154 48.306101 
 L 85.318604 48.386462 
 z
-" clip-path="url(#p832089e22b)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
    </g>
    <g id="PathCollection_7">
     <path d="M 84.646582 44.649846 
@@ -1364,7 +1364,7 @@ L 83.176634 43.404308
 L 83.832615 44.035603 
 L 84.646582 44.649846 
 z
-" clip-path="url(#p832089e22b)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
    </g>
    <g id="PathCollection_8">
     <path d="M 82.91669 39.667692 
@@ -1481,7 +1481,7 @@ L 81.341538 38.783675
 L 82.587077 39.51151 
 L 82.91669 39.667692 
 z
-" clip-path="url(#p832089e22b)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
    </g>
    <g id="PathCollection_9">
     <path d="M 63.740534 30.948923 
@@ -1536,7 +1536,7 @@ L 62.658462 28.664094
 L 63.07241 29.703385 
 L 63.740534 30.948923 
 z
-" clip-path="url(#p832089e22b)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
    </g>
    <g id="PathCollection_10">
     <path d="M 67.421909 28.457846 
@@ -1575,12 +1575,12 @@ L 65.575827 27.212308
 L 66.395077 27.981099 
 L 67.421909 28.457846 
 z
-" clip-path="url(#p832089e22b)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
+" clip-path="url(#pffa2fe50d2)" style="fill: none; stroke: #000000; stroke-width: 0.5"/>
    </g>
    <g id="PathCollection_11"/>
    <g id="text_1">
     <!-- ContourPy -->
-    <g transform="translate(7.080187 69.843125) scale(0.28 -0.28)">
+    <g style="fill: #efefef" transform="translate(7.080187 69.843125) scale(0.28 -0.28)">
      <defs>
       <path id="Catamaran-Bold-43" d="M 3475 4160 
 Q 3219 4301 2886 4371 
@@ -1757,7 +1757,7 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="p832089e22b">
+  <clipPath id="pffa2fe50d2">
    <rect x="47.712" y="0" width="48.576" height="79.2"/>
   </clipPath>
  </defs>
