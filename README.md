@@ -1,4 +1,7 @@
-<img alt="ContourPy" src="https://raw.githubusercontent.com/contourpy/contourpy/main/docs/_static/contourpy_logo_horiz.svg" height="90">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/contourpy/contourpy/main/docs/_static/contourpy_logo_horiz_white.svg">
+  <img alt="ContourPy" src="https://raw.githubusercontent.com/contourpy/contourpy/main/docs/_static/contourpy_logo_horiz.svg" height="90">
+</picture>
 
 ContourPy is a Python library for calculating contours of 2D quadrilateral grids.  It is written in C++11 and wrapped using pybind11.
 
