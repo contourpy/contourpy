@@ -8,7 +8,7 @@ project(
     'werror=true',
   ],
   license: 'BSD-3-Clause',
-  #meson_version: '>= 0.63.0',
+  meson_version: '>= 0.64.0',
   version: '1.0.7.dev1',
 )
 
@@ -20,7 +20,7 @@ if meson.project_version() != version
 endif
 
 py_mod = import('python')
-py3 = py_mod.find_installation()
+py3 = py_mod.find_installation(pure: false)
 
 message('----- INFO -----')
 message(meson.backend())

@@ -47,7 +47,7 @@ ext = py3.extension_module(
   ],
   cpp_args: [cpp_args],
   #link_args: version_link_args,
-  dependencies : [python3_dep, pybind11_dep],
+  dependencies : [pybind11_dep],
   install: true,
   #override_options: [],   # Can override options from project
   subdir: 'contourpy',
