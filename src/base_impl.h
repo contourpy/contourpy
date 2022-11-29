@@ -2064,7 +2064,7 @@ void BaseContourGenerator<Derived>::march_chunk(
             // Number of starts at end of row.
             auto start_count =
                 (_identify_holes ? local.line_count - local.hole_count : local.line_count);
-            if (start_count - prev_start_count)
+            if (start_count > prev_start_count)
                 j_final_start = j;
             else
                 _cache[local.istart + j*_nx] |= MASK_NO_STARTS_IN_ROW;
