@@ -33,6 +33,7 @@ author = 'ContourPy Contributors'
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
+    "sphinx.ext.extlinks",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx_rtd_theme",
@@ -83,3 +84,8 @@ rst_epilog = """
 .. _github: https://www.github.com/contourpy/contourpy/
 .. _pybind11: https://pybind11.readthedocs.io/
 """
+
+extlinks = {
+    'pr': ("https://github.com/contourpy/contourpy/pull/%s", "#%s"),
+    'user': ("https://github.com/%s", "@%s"),
+}
