@@ -20,8 +20,6 @@ pybind11_dep = declare_dependency(
   include_directories: [pybind11_config_ret.stdout().split('-I')[-1].strip()],
 )
 
-python3_dep = dependency('python3', )
-
 cpp_args = [
   '-DCONTOURPY_DEBUG=0',
   '-DCONTOURPY_CXX11=0',  # only for information purposes.
