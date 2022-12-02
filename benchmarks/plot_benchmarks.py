@@ -38,7 +38,9 @@ def get_style(name, corner_mask):
         True: "///",
     }
 
-    return colors[name], "#444444", hatches[corner_mask], 0.5
+    edge_color = "#222222"
+
+    return colors[name], edge_color, hatches[corner_mask], 0.5
 
 
 def with_time_units(value, error=None):
@@ -54,88 +56,92 @@ def by_name_and_type(loader, filled, dataset, render, n):
     filled_str = "filled" if filled else "lines"
     title = f"{filled_str} {dataset} n={n} {'(calculate and render)' if render else ''}"
 
-    fig, ax = plt.subplots(figsize=(8.5, 6))
     nbars = 3
     width = 1.0 / (nbars + 1)
     ntypes = len(FillType.__members__ if filled else LineType.__members__)
-    xticklabels = []
 
-    for name in ["mpl2005", "mpl2014", "serial"]:
-        bname = "serial" if name == "serial" else "mpl20xx"
-        benchmarks_name = f"time_{filled_str}_{bname}{'_render' if render else ''}"
+    for mode in ["light", "dark"]:
+        plt.style.use("default" if mode == "light" else "dark_background")
 
-        if name == "serial":
-            xs = 2 + np.arange(ntypes)
-        else:
-            xs = np.array((0 if name == "mpl2005" else 1))
+        fig, ax = plt.subplots(figsize=(8.5, 6))
+        xticklabels = []
 
-        i = 0
-        for corner_mask in corner_masks:
-            kwargs = dict(name=name, dataset=dataset, corner_mask=corner_mask, n=n)
+        for name in ["mpl2005", "mpl2014", "serial"]:
+            bname = "serial" if name == "serial" else "mpl20xx"
+            benchmarks_name = f"time_{filled_str}_{bname}{'_render' if render else ''}"
 
-            results = loader.get(benchmarks_name, **kwargs)
-            if results["name"] != name:
-                raise RuntimeError("Loader returning wrong name: {name} != {results['name']}")
-
-            if results["mean"] is None:
-                continue
-
-            name = results["name"]
-            mean = results["mean"]
-            error = results["error"]
-            if corner_mask == "no mask":
-                types = results["fill_type" if filled else "line_type"]
-                if not isinstance(types, list):
-                    types = [types]
-                xticklabels += [name + str(t).split(".")[1] for t in types]
-
-            color, edge_color, hatch, line_width = get_style(name, corner_mask)
-            offset = width*(i - 0.5*(nbars - 1))
-            label = f"{name} {get_corner_mask_label(corner_mask)}"
-            yerr = error if show_error else None
-            mean = np.asarray(mean, dtype=np.float64)  # None -> nan.
-
-            rects = ax.bar(
-                xs + offset, mean, width, yerr=yerr, color=color, edgecolor=edge_color, hatch=hatch,
-                linewidth=line_width, capsize=4, label=label, zorder=3)
-            if show_error:
-                labels = [with_time_units(m, s) for m, s in zip(mean, error)]
+            if name == "serial":
+                xs = 2 + np.arange(ntypes)
             else:
-                labels = [with_time_units(m) for m in mean]
-            ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
+                xs = np.array((0 if name == "mpl2005" else 1))
 
-            i += 1
+            i = 0
+            for corner_mask in corner_masks:
+                kwargs = dict(name=name, dataset=dataset, corner_mask=corner_mask, n=n)
 
-    if filled and not render:
-        if dataset == "random":
-            ax.set_ylim(0, 2.75)
+                results = loader.get(benchmarks_name, **kwargs)
+                if results["name"] != name:
+                    raise RuntimeError("Loader returning wrong name: {name} != {results['name']}")
+
+                if results["mean"] is None:
+                    continue
+
+                name = results["name"]
+                mean = results["mean"]
+                error = results["error"]
+                if corner_mask == "no mask":
+                    types = results["fill_type" if filled else "line_type"]
+                    if not isinstance(types, list):
+                        types = [types]
+                    xticklabels += [name + str(t).split(".")[1] for t in types]
+
+                color, edge_color, hatch, line_width = get_style(name, corner_mask)
+                offset = width*(i - 0.5*(nbars - 1))
+                label = f"{name} {get_corner_mask_label(corner_mask)}"
+                yerr = error if show_error else None
+                mean = np.asarray(mean, dtype=np.float64)  # None -> nan.
+
+                rects = ax.bar(
+                    xs + offset, mean, width, yerr=yerr, color=color, edgecolor=edge_color,
+                    hatch=hatch, linewidth=line_width, capsize=4, label=label, zorder=3)
+                if show_error:
+                    labels = [with_time_units(m, s) for m, s in zip(mean, error)]
+                else:
+                    labels = [with_time_units(m) for m in mean]
+                ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
+
+                i += 1
+
+        if filled and not render:
+            if dataset == "random":
+                ax.set_ylim(0, 2.75)
+            else:
+                ax.set_ylim(0, 0.32)
         else:
-            ax.set_ylim(0, 0.32)
-    else:
-        ax.set_ylim(0, ax.get_ylim()[1]*1.1)  # Magic number.
+            ax.set_ylim(0, ax.get_ylim()[1]*1.1)  # Magic number.
 
-    loc = "best"
-    if not filled and render and dataset == "random":
-        loc = "lower left"
-    elif render and dataset == "simple":
-        loc = "lower right"
-    elif filled and render and dataset == "random":
-        loc = (0.51, 0.6)
-    ax.legend(loc=loc, framealpha=0.9)
+        loc = "best"
+        if not filled and render and dataset == "random":
+            loc = "lower left"
+        elif render and dataset == "simple":
+            loc = "lower right"
+        elif filled and render and dataset == "random":
+            loc = (0.51, 0.6)
+        ax.legend(loc=loc, framealpha=0.9)
 
-    ax.grid(axis='y', c='k', alpha=0.2)
-    ax.set_xticks(np.arange(ntypes+2))
-    xticklabels = map(capital_letters_to_newlines, xticklabels)
-    ax.set_xticklabels(xticklabels)
-    ax.set_ylabel("Time (seconds)")
-    ax.set_title(title)
-    for spine in ax.spines.values():
-        spine.set_zorder(5)
-    fig.tight_layout()
+        ax.grid(axis="y", c="k" if mode == "light" else "w", alpha=0.2)
+        ax.set_xticks(np.arange(ntypes+2))
+        xticklabels = map(capital_letters_to_newlines, xticklabels)
+        ax.set_xticklabels(xticklabels)
+        ax.set_ylabel("Time (seconds)")
+        ax.set_title(title)
+        for spine in ax.spines.values():
+            spine.set_zorder(5)
+        fig.tight_layout()
 
-    filename = f"{filled_str}_{dataset}_{n}{'_render' if render else ''}.svg"
-    print(f"Saving {filename}")
-    fig.savefig(filename, transparent=True)
+        filename = f"{filled_str}_{dataset}_{n}{'_render' if render else ''}_{mode}.svg"
+        print(f"Saving {filename}")
+        fig.savefig(filename, transparent=True)
 
 
 def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
@@ -188,71 +194,73 @@ def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
     speedups = speedups.ravel()
 
     def in_bar_label(ax, rect, value):
-        kwargs = dict(fontsize="medium", ha="center", va="bottom")
+        kwargs = dict(fontsize="medium", ha="center", va="bottom", color="k")
         if varying != "thread_count":
             kwargs["rotation"] = "vertical"
         ax.annotate(value, (rect.xy[0] + 0.5*rect.get_width(), rect.xy[1]), **kwargs)
 
-    fig, ax = plt.subplots(figsize=(8.5, 6))
+    for mode in ["light", "dark"]:
+        plt.style.use("default" if mode == "light" else "dark_background")
+        fig, ax = plt.subplots(figsize=(8.5, 6))
 
-    # Serial bars.
-    color, edge_color, hatch, line_width = get_style(name0, corner_mask)
-    if varying == "thread_count":
-        label = f"{name0} {get_corner_mask_label(corner_mask)}"
-    else:
-        label = None
-    rects = ax.bar(xs[:, 0], mean0, width=1, color=color, edgecolor=edge_color, hatch=hatch,
-                   linewidth=line_width, label=label, zorder=3)
-    if show_error:
-        labels = [with_time_units(m, s) for m, s in zip(mean0, error0)]
-    else:
-        labels = [with_time_units(m) for m in mean0]
-    ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
-    if varying != "thread_count":
-        for rect in rects:
-            in_bar_label(ax, rect, " 1")
-
-    # Threaded bars.
-    color, edge_color, hatch, line_width = get_style(name1, corner_mask)
-    label = varying.replace("_", " ")
-    label = f"{name1} {get_corner_mask_label(corner_mask)}\n({label} shown at bottom of bar)"
-    rects = ax.bar(xs[:, 1:-1].ravel(), mean1, width=1, color=color, edgecolor=edge_color,
-                   hatch=hatch, linewidth=line_width, label=label, zorder=3)
-    labels = []
-    for i, (mean, error, speedup) in enumerate(zip(mean1, error1, speedups)):
-        if show_error:
-            label = with_time_units(mean, error)
+        # Serial bars.
+        color, edge_color, hatch, line_width = get_style(name0, corner_mask)
+        if varying == "thread_count":
+            label = f"{name0} {get_corner_mask_label(corner_mask)}"
         else:
-            label = with_time_units(mean)
-        if show_speedups and i % varying_count > 0:
-            label += f" (x {speedup:.2f})"
-        labels.append(label)
-    ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
-    for rect, value in zip(rects, np.tile(varying_values, ntype)):
-        in_bar_label(ax, rect, f" {value}")
+            label = None
+        rects = ax.bar(xs[:, 0], mean0, width=1, color=color, edgecolor=edge_color, hatch=hatch,
+                       linewidth=line_width, label=label, zorder=3)
+        if show_error:
+            labels = [with_time_units(m, s) for m, s in zip(mean0, error0)]
+        else:
+            labels = [with_time_units(m) for m in mean0]
+        ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
+        if varying != "thread_count":
+            for rect in rects:
+                in_bar_label(ax, rect, " 1")
 
-    if dataset == "random":
-        ymax = 2.0 if filled else 1.4
-    elif varying == "thread_count":
-        ymax = ax.get_ylim()[1]*1.32
-    else:
-        ymax = ax.get_ylim()[1]*1.25
-    ax.set_ylim(0, ymax)
+        # Threaded bars.
+        color, edge_color, hatch, line_width = get_style(name1, corner_mask)
+        label = varying.replace("_", " ")
+        label = f"{name1} {get_corner_mask_label(corner_mask)}\n({label} shown at bottom of bar)"
+        rects = ax.bar(xs[:, 1:-1].ravel(), mean1, width=1, color=color, edgecolor=edge_color,
+                       hatch=hatch, linewidth=line_width, label=label, zorder=3)
+        labels = []
+        for i, (mean, error, speedup) in enumerate(zip(mean1, error1, speedups)):
+            if show_error:
+                label = with_time_units(mean, error)
+            else:
+                label = with_time_units(mean)
+            if show_speedups and i % varying_count > 0:
+                label += f" (x {speedup:.2f})"
+            labels.append(label)
+        ax.bar_label(rects, labels, padding=5, rotation="vertical", size="medium")
+        for rect, value in zip(rects, np.tile(varying_values, ntype)):
+            in_bar_label(ax, rect, f" {value}")
 
-    ax.set_xticks(xs[:, 0] + 0.5*varying_count)
-    xticklabels = [str(t).split(".")[1] for t in fill_or_line_type]
-    xticklabels = map(capital_letters_to_newlines, xticklabels)
-    ax.set_xticklabels(xticklabels)
+        if dataset == "random":
+            ymax = 2.0 if filled else 1.4
+        elif varying == "thread_count":
+            ymax = ax.get_ylim()[1]*1.32
+        else:
+            ymax = ax.get_ylim()[1]*1.25
+        ax.set_ylim(0, ymax)
 
-    ax.legend(loc="upper right", framealpha=0.9)
-    ax.grid(axis='y', c='k', alpha=0.2)
-    ax.set_ylabel("Time (seconds)")
-    ax.set_title(f"{filled_str} {dataset} n={n}")
-    fig.tight_layout()
+        ax.set_xticks(xs[:, 0] + 0.5*varying_count)
+        xticklabels = [str(t).split(".")[1] for t in fill_or_line_type]
+        xticklabels = map(capital_letters_to_newlines, xticklabels)
+        ax.set_xticklabels(xticklabels)
 
-    filename = f"{file_prefix}_{filled_str}_{dataset}.svg"
-    print(f"Saving {filename}")
-    fig.savefig(filename, transparent=True)
+        ax.legend(loc="upper right", framealpha=0.9)
+        ax.grid(axis="y", c="k" if mode == "light" else "w", alpha=0.2)
+        ax.set_ylabel("Time (seconds)")
+        ax.set_title(f"{filled_str} {dataset} n={n}")
+        fig.tight_layout()
+
+        filename = f"{file_prefix}_{filled_str}_{dataset}_{mode}.svg"
+        print(f"Saving {filename}")
+        fig.savefig(filename, transparent=True)
 
 
 def main():

@@ -34,7 +34,8 @@ class Config:
         self.marker_size = 3.5
         self.gap = 0.1
         self.text_gap = self.gap/2
-        self.grid_kwargs = dict(color="lightgray", linewidth=1)
+        self.grid_kwargs = dict(color="gray", linewidth=0.35)
+        self.fill_alpha = 0.2
 
         self.x, self.y = np.meshgrid([0.0, 1.0], [0.0, 1.0])
         self.mask = False
@@ -159,7 +160,7 @@ class Config:
             n = len(points)
 
             if self.is_filled:
-                ax.fill(points[:, 0], points[:, 1], c="C2", alpha=0.2, ec=None)
+                ax.fill(points[:, 0], points[:, 1], c="C2", alpha=self.fill_alpha, ec=None)
 
                 # Classify points, either corner, lower level or upper level.
                 point_types = []
