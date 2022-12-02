@@ -61,7 +61,7 @@ def by_name_and_type(loader, filled, dataset, render, n):
     ntypes = len(FillType.__members__ if filled else LineType.__members__)
 
     for mode in ["light", "dark"]:
-        plt.style.use("default" if mode=="light" else "dark_background")
+        plt.style.use("default" if mode == "light" else "dark_background")
 
         fig, ax = plt.subplots(figsize=(8.5, 6))
         xticklabels = []
@@ -129,7 +129,7 @@ def by_name_and_type(loader, filled, dataset, render, n):
             loc = (0.51, 0.6)
         ax.legend(loc=loc, framealpha=0.9)
 
-        ax.grid(axis="y", c="k" if mode=="light" else "w", alpha=0.2)
+        ax.grid(axis="y", c="k" if mode == "light" else "w", alpha=0.2)
         ax.set_xticks(np.arange(ntypes+2))
         xticklabels = map(capital_letters_to_newlines, xticklabels)
         ax.set_xticklabels(xticklabels)
@@ -200,7 +200,7 @@ def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
         ax.annotate(value, (rect.xy[0] + 0.5*rect.get_width(), rect.xy[1]), **kwargs)
 
     for mode in ["light", "dark"]:
-        plt.style.use("default" if mode=="light" else "dark_background")
+        plt.style.use("default" if mode == "light" else "dark_background")
         fig, ax = plt.subplots(figsize=(8.5, 6))
 
         # Serial bars.
@@ -210,7 +210,7 @@ def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
         else:
             label = None
         rects = ax.bar(xs[:, 0], mean0, width=1, color=color, edgecolor=edge_color, hatch=hatch,
-                    linewidth=line_width, label=label, zorder=3)
+                       linewidth=line_width, label=label, zorder=3)
         if show_error:
             labels = [with_time_units(m, s) for m, s in zip(mean0, error0)]
         else:
@@ -225,7 +225,7 @@ def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
         label = varying.replace("_", " ")
         label = f"{name1} {get_corner_mask_label(corner_mask)}\n({label} shown at bottom of bar)"
         rects = ax.bar(xs[:, 1:-1].ravel(), mean1, width=1, color=color, edgecolor=edge_color,
-                    hatch=hatch, linewidth=line_width, label=label, zorder=3)
+                       hatch=hatch, linewidth=line_width, label=label, zorder=3)
         labels = []
         for i, (mean, error, speedup) in enumerate(zip(mean1, error1, speedups)):
             if show_error:
@@ -253,7 +253,7 @@ def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
         ax.set_xticklabels(xticklabels)
 
         ax.legend(loc="upper right", framealpha=0.9)
-        ax.grid(axis="y", c="k" if mode=="light" else "w", alpha=0.2)
+        ax.grid(axis="y", c="k" if mode == "light" else "w", alpha=0.2)
         ax.set_ylabel("Time (seconds)")
         ax.set_title(f"{filled_str} {dataset} n={n}")
         fig.tight_layout()
