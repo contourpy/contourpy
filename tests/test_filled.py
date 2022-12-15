@@ -27,6 +27,13 @@ def xyz_chunk_test():
     return x, y, z
 
 
+@pytest.mark.parametrize("name", util_test.all_names())
+def test_filled_decreasing_levels(name):
+    cont_gen = contour_generator(z=[[0, 1], [2, 3]], fill_type=FillType.OuterCode)
+    with pytest.raises(ValueError, match="upper and lower levels are the wrong way round"):
+        cont_gen.filled(2.0, 1.0)
+
+
 @pytest.mark.image
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 def test_filled_simple(name, fill_type):
@@ -786,3 +793,12 @@ def test_filled_compare_slow(seed):
         assert n_points == len(filled_serial[0][0])
         assert n_lines == len(filled_serial[1][0]) - 1
         assert n_outers == len(filled_serial[2][0]) - 1
+
+
+@pytest.mark.parametrize("name", util_test.all_names())
+@pytest.mark.parametrize("z", [np.nan, -np.nan, np.inf, -np.inf])
+@pytest.mark.parametrize("zlevel", [0.0, np.nan, -np.nan, np.inf, -np.inf])
+def test_filled_z_nonfinite(name, z, zlevel):
+    cont_gen = contour_generator(z=[[z, z], [z, z]], name=name, fill_type=FillType.OuterCode)
+    filled = cont_gen.filled(zlevel, zlevel)
+    assert filled == ([], [])
