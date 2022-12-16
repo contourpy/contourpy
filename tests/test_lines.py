@@ -734,3 +734,12 @@ def test_lines_random_big(name, line_type, corner_mask):
     for level in levels:
         lines = cont_gen.lines(level)
         util_test.assert_lines(lines, line_type)
+
+
+@pytest.mark.parametrize("name", util_test.all_names())
+@pytest.mark.parametrize("z", [np.nan, -np.nan, np.inf, -np.inf])
+@pytest.mark.parametrize("zlevel", [0.0, np.nan, -np.nan, np.inf, -np.inf])
+def test_lines_z_nonfinite(name, z, zlevel):
+    cont_gen = contour_generator(z=[[z, z], [z, z]], name=name, line_type=LineType.SeparateCode)
+    lines = cont_gen.lines(zlevel)
+    assert lines == ([], [])
