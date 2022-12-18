@@ -46,8 +46,13 @@ bokeh = [
     # Also need geckodriver and firefox, or chromedriver and chrome, for export to PNG/SVG/buffer.
 ]
 test = [
+    # Standard test dependencies.
     "matplotlib",
     "Pillow",
+    "pytest",
+]
+test-no-images = [
+    # Dependencies to run tests excluding image-generating tests.
     "pytest",
 ]
 
