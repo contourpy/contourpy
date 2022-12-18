@@ -57,4 +57,3 @@ std::ostream &operator<<(std::ostream &os, const ChunkLocal& local)
 }
 
 } // namespace contourpy
-
