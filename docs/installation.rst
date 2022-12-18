@@ -125,3 +125,33 @@ To build the documentation:
 
    although use this with care as it will also delete any new files that you have created that have
    not been added to ``git`` and are not mentioned in the ``.gitignore`` file.
+
+
+Notes for contributors
+----------------------
+
+Contributors are recommended to install `pre-commit`_ hooks which will automatically run various
+checks whenever ``git commit`` is run. First install ``pre-commit`` using either
+
+   .. code-block:: bash
+
+      $ pip install pre-commit
+
+or
+
+   .. code-block:: bash
+
+      $ conda install -c conda-forge pre-commit
+
+and then install the hooks using
+
+   .. code-block:: bash
+
+      $ pre-commit install
+
+The hooks will then be run on each ``git commit``. You can manually run the hooks outside of a
+```git commit`` using
+
+   .. code-block:: bash
+
+      $ pre-commit run --all-files

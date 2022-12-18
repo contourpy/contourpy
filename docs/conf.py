@@ -83,6 +83,7 @@ rst_epilog = """
 .. _conda-forge: https://anaconda.org/conda-forge/contourpy/
 .. _default: https://anaconda.org/anaconda/contourpy/
 .. _github: https://www.github.com/contourpy/contourpy/
+.. _pre-commit: https://pre-commit.com/
 .. _pybind11: https://pybind11.readthedocs.io/
 """
 

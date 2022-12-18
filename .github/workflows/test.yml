@@ -12,6 +12,14 @@ on:
     - cron: '42 01 * * SUN'
 
 jobs:
+  pre-commit:
+    name: pre-commit
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+    - uses: pre-commit/action@v3.0.0
+
   test:
     name: Test ${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.debug == 1 && 'debug' || '' }}
     runs-on: ${{ matrix.os }}
@@ -58,11 +66,11 @@ jobs:
           then
             if [[ ${{ matrix.test-image }} == 1 ]];
             then
-              echo "Install contourpy with full test dependencies"
+              echo "Install contourpy with standard test dependencies"
               python -m pip install -ve .[test]
             else
-              echo "Install contourpy with minimal test dependencies"
-              python -m pip install -ve .[test-minimal]
+              echo "Install contourpy with non-image-generating test dependencies"
+              python -m pip install -ve .[test-no-images]
             fi
           else
             echo "Install numpy from sdist with debug asserts enabled"
