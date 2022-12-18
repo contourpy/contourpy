@@ -45,20 +45,10 @@ bokeh = [
     "selenium",
     # Also need geckodriver and firefox, or chromedriver and chrome, for export to PNG/SVG/buffer.
 ]
-test-minimal = [
-    "pytest",
-]
-test-no-codebase = [
-    # All test dependencies excluding codebase tests.
-    "contourpy[test-minimal]",
+test = [
     "matplotlib",
     "Pillow",
-]
-test = [
-    # All test dependencies.
-    "contourpy[test-no-codebase]",
-    "flake8",
-    "isort",
+    "pytest",
 ]
 
 [project.urls]
