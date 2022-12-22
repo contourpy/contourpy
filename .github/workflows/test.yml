@@ -42,7 +42,7 @@ jobs:
           # Test against numpy debug build.
           - os: ubuntu-latest
             python-version: '3.10'
-            debug: 1
+            debug: 0
             numpy-debug: 1
             test-image: 1
           # PyPy only tested on ubuntu for speed, without image tests.
