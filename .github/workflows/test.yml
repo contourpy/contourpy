@@ -75,8 +75,8 @@ jobs:
           else
             echo "Install numpy from sdist with debug asserts enabled"
             CFLAGS=-UNDEBUG pip install -v --no-binary=numpy numpy
-            echo "Install contourpy in debug mode with test dependencies"
-            CONTOURPY_DEBUG=1 CONTOURPY_CXX11=1 python -m pip install -ve .[test]
+            echo "Install contourpy in debug mode with test and bokeh dependencies"
+            CONTOURPY_DEBUG=1 CONTOURPY_CXX11=1 python -m pip install -ve .[bokeh,test]
           fi
           python -m pip list
 
