@@ -47,7 +47,10 @@ def test_renderer_filled(show_text, fill_type, renderer_type):
 
     image_buffer = renderer.save_to_buffer()
     suffix = "" if show_text else "_no_text"
-    compare_images(image_buffer, f"renderer_filled_{renderer_type}{suffix}.png", f"{fill_type}")
+    compare_images(
+        image_buffer, f"renderer_filled_{renderer_type}{suffix}.png", f"{fill_type}",
+        mean_threshold=0.03 if renderer_type == "bokeh" else None,
+    )
 
 
 @pytest.mark.image
