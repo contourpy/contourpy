@@ -9,13 +9,22 @@ from contourpy.util.data import random
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
-def test_renderer_filled(show_text, fill_type):
-    from contourpy.util.mpl_renderer import MplRenderer
+@pytest.mark.parametrize("renderer_type", ["mpl", "bokeh"])
+def test_renderer_filled(show_text, fill_type, renderer_type):
+    if renderer_type == "mpl":
+        from contourpy.util.mpl_renderer import MplRenderer as Renderer
+    elif renderer_type == "bokeh":
+        try:
+            from contourpy.util.bokeh_renderer import BokehRenderer as Renderer
+        except ImportError:
+            pytest.skip("Optional bokeh dependencies not installed")
+    else:
+        raise ValueError(f"Unrecognised renderer type {renderer_type}")
 
     from .image_comparison import compare_images
 
     x, y, z = random((3, 4))
-    renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=False)
+    renderer = Renderer(ncols=2, figsize=(8, 3), show_frame=False)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, fill_type=fill_type)
 
@@ -38,20 +47,29 @@ def test_renderer_filled(show_text, fill_type):
 
     image_buffer = renderer.save_to_buffer()
     suffix = "" if show_text else "_no_text"
-    compare_images(image_buffer, f"renderer_filled_mpl{suffix}.png", f"{fill_type}")
+    compare_images(image_buffer, f"renderer_filled_{renderer_type}{suffix}.png", f"{fill_type}")
 
 
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
-def test_renderer_lines(show_text, line_type):
-    from contourpy.util.mpl_renderer import MplRenderer
+@pytest.mark.parametrize("renderer_type", ["mpl", "bokeh"])
+def test_renderer_lines(show_text, line_type, renderer_type):
+    if renderer_type == "mpl":
+        from contourpy.util.mpl_renderer import MplRenderer as Renderer
+    elif renderer_type == "bokeh":
+        try:
+            from contourpy.util.bokeh_renderer import BokehRenderer as Renderer
+        except ImportError:
+            pytest.skip("Optional bokeh dependencies not installed")
+    else:
+        raise ValueError(f"Unrecognised renderer type {renderer_type}")
 
     from .image_comparison import compare_images
 
     x, y, z = random((3, 4))
-    renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)
+    renderer = Renderer(ncols=2, figsize=(8, 3), show_frame=show_text)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, line_type=line_type)
 
@@ -76,4 +94,4 @@ def test_renderer_lines(show_text, line_type):
 
     image_buffer = renderer.save_to_buffer()
     suffix = "" if show_text else "_no_text"
-    compare_images(image_buffer, f"renderer_lines_mpl{suffix}.png", f"{line_type}")
+    compare_images(image_buffer, f"renderer_lines_{renderer_type}{suffix}.png", f"{line_type}")

@@ -102,6 +102,9 @@ against. To include tests that take a long time to run:
 
      $ pytest --runslow
 
+:class:`~contourpy.util.bokeh_renderer.BokehRenderer` tests will be run if ``bokeh`` is installed,
+otherwise they will be skipped.
+
 
 Building the documentation
 --------------------------

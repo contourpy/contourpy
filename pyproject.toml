@@ -41,9 +41,11 @@ docs = [
     "sphinx-rtd-theme",
 ]
 bokeh = [
+    # Optional dependencies to support use of bokeh renderer.
+    # Also needs chrome/chromium for export to PNG/SVG/buffer.
     "bokeh",
+    "chromedriver",
     "selenium",
-    # Also need geckodriver and firefox, or chromedriver and chrome, for export to PNG/SVG/buffer.
 ]
 test = [
     # Standard test dependencies.
