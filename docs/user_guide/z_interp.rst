@@ -5,12 +5,12 @@ z interpolation
 
 Interpolation of ``z`` values occurs in two situations:
 
-  #. When calculating how far along the edge of a quad (or corner-masked corner) a contour line
-     intersects it.
+#. When calculating how far along the edge of a quad (or corner-masked corner) a contour line
+   intersects it.
 
-  #. When calculating the ``z`` value of the central point of quad. This is needed for all quads if
-     ``quad_as_tri=True`` or just saddle quads if ``quad_as_tri=False`` (see
-     :ref:`algorithm_description` about saddle quads).
+#. When calculating the ``z`` value of the central point of quad. This is needed for all quads if
+   ``quad_as_tri=True`` or just saddle quads if ``quad_as_tri=False`` (see
+   :ref:`algorithm_description` about saddle quads).
 
 The default for all algorithms is linear z-interpolation, but ``serial`` and ``threaded`` support
 the use of a :class:`~contourpy.ZInterp` enum that contains other possibilities.

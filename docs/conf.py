@@ -69,14 +69,6 @@ html_theme_options = {
     "dark_logo": "contourpy_logo_horiz_white.svg",
     "light_logo": "contourpy_logo_horiz.svg",
     "sidebar_hide_name": True,
-    "footer_icons": [
-        {
-            "name": "GitHub",
-            "url": "https://github.com/contourpy/contourpy",
-            "html": "",
-            "class": "fa-solid fa-github fa-2x",
-        },
-    ],
 }
 
 rst_epilog = """

@@ -7,14 +7,14 @@ The domain to contour can be divided up into a number of chunks that are process
 
 Advantages of using chunks:
 
-  * They produce shorter lines/polygons that may be simpler or faster to render.
-  * They make subsequent spatial queries easier.
-  * They allow the use of multithreaded contouring (see :ref:`threads`).
+- They produce shorter lines/polygons that may be simpler or faster to render.
+- They make subsequent spatial queries easier.
+- They allow the use of multithreaded contouring (see :ref:`threads`).
 
 Disadvantages:
 
-  * There is a slight performance cost of using chunks.
-  * Some rendering algorithms show faint lines between neighbouring chunks.
+- There is a slight performance cost of using chunks.
+- Some rendering algorithms show faint lines between neighbouring chunks.
 
 .. note::
 

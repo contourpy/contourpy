@@ -38,7 +38,7 @@ class NameSupports(Directive):
             for cls in classes:
                 func = getattr(cls, function_name)
                 if func():
-                    row.append("✔️")
+                    row.append("Yes")
                 else:
                     row.append("")
             table.add_row(row)

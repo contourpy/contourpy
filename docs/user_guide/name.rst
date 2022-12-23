@@ -57,8 +57,8 @@ threaded
 This is a multithreaded version of the ``serial`` algorithm, and requires the domain to be divided
 into chunks.  It shares the majority of its code with ``serial`` except:
 
-  #. High-level processing of chunks occurs in parallel using a thread pool.
-  #. Creation of `NumPy`_ arrays is limited to a single thread at a time.
+#. High-level processing of chunks occurs in parallel using a thread pool.
+#. Creation of `NumPy`_ arrays is limited to a single thread at a time.
 
 .. warning::
 

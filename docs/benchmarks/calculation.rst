@@ -12,13 +12,13 @@ All of the results shown are for a single chunk with a problem size ``n`` (``== 
 As a guide to the complexity of the output, the unmasked datasets generate the following line
 contours in the benchmarks
 
-  * ``simple``: 38 lines of about 36 thousand points.
-  * ``random``: 850 thousand lines of about 7.4 million points.
+- ``simple``: 38 lines of about 36 thousand points.
+- ``random``: 850 thousand lines of about 7.4 million points.
 
 and the following filled contours
 
-  * ``simple``: 55 boundaries (39 outers and 16 holes) of about 76 thousand points.
-  * ``random``: 1.7 million boundaries (half each of outers and holes) of about 15 million points.
+- ``simple``: 55 boundaries (39 outers and 16 holes) of about 76 thousand points.
+- ``random``: 1.7 million boundaries (half each of outers and holes) of about 15 million points.
 
 Contour lines
 ^^^^^^^^^^^^^

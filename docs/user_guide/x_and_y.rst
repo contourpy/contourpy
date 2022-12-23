@@ -8,14 +8,14 @@ they must both have the same number of dimensions.
 
 If the ``z`` array has shape ``(ny, nx)`` then the options available for ``x`` and ``y`` are:
 
-   #. Both 2D of shape ``(ny, nx)``.
+#. Both 2D of shape ``(ny, nx)``.
 
-   #. Both 1D with ``x.shape = (nx,)`` and ``y.shape = (ny,)``.  These are broadcast from 1D to 2D
-      in :func:`~contourpy.contour_generator` using ``x, y = np.meshgrid(x, y)``.
+#. Both 1D with ``x.shape = (nx,)`` and ``y.shape = (ny,)``.  These are broadcast from 1D to 2D in
+   :func:`~contourpy.contour_generator` using ``x, y = np.meshgrid(x, y)``.
 
-   #. Both ``None``, in which case :func:`~contourpy.contour_generator` uses
-      ``x = np.arange(nx, dtype=np.float64)`` and ``y = np.arange(ny, dtype=np.float64)`` and then
-      broadcasts them to 2D as above.
+#. Both ``None``, in which case :func:`~contourpy.contour_generator` uses
+   ``x = np.arange(nx, dtype=np.float64)`` and ``y = np.arange(ny, dtype=np.float64)`` and then
+   broadcasts them to 2D as above.
 
 .. warning::
 

@@ -32,9 +32,9 @@ class NameSupportsType(Directive):
             for cls, default_type in zip(classes, default_types):
                 func = getattr(cls, supports_func_name)
                 if func(enum):
-                    cell = "✔️"
+                    cell = "Yes"
                     if name == default_type:
-                        cell += " default"
+                        cell += ", default"
                     row.append(cell)
                 else:
                     row.append("")

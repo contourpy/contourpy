@@ -11,11 +11,9 @@ The standard approach to use ``contourpy`` is to:
    :meth:`~contourpy.ContourGenerator.lines` and/or :meth:`~contourpy.ContourGenerator.filled`
    repeatedly to calculate and return contours for that (x, y, z) grid:
 
-    a. :meth:`~contourpy.ContourGenerator.lines` calculates contour lines at a particular
-       z-level.
-
-    b. :meth:`~contourpy.ContourGenerator.filled` calculates filled contours (polygons)
-       between two z-levels.
+   - :meth:`~contourpy.ContourGenerator.lines` calculates contour lines at a particular z-level.
+   - :meth:`~contourpy.ContourGenerator.filled` calculates filled contours (polygons) between two
+     z-levels.
 
 There are many arguments for :func:`~contourpy.contour_generator` but only ``z`` is compulsory and
 there are sensible defaults for the others.
