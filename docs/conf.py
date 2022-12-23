@@ -13,8 +13,6 @@
 import os
 import sys
 
-import sphinx_rtd_theme
-
 sys.path.append(os.path.abspath("./sphinxext"))
 
 
@@ -37,7 +35,6 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    "sphinx_rtd_theme",
     "name_supports",
     "name_supports_type",
     "plot_directive",
@@ -57,7 +54,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "furo"
 
 html_theme_path = ["_themes", ]
 
@@ -68,11 +65,10 @@ html_static_path = ['_static']
 
 html_favicon = '_static/contourpy_favicon.ico'
 
-html_logo = '_static/contourpy_logo_horiz_white.svg'
-
 html_theme_options = {
-    'logo_only': True,
-    'prev_next_buttons_location': 'bottom',
+    "dark_logo": "contourpy_logo_horiz_white.svg",
+    "light_logo": "contourpy_logo_horiz.svg",
+    "sidebar_hide_name": True,
 }
 
 rst_epilog = """

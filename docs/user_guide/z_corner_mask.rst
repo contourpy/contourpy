@@ -75,9 +75,10 @@ If ``corner_mask=False`` all quads that touch a masked out point are completely 
 If ``corner_mask=True`` then only the triangular corners of quads nearest masked out points are
 always masked out, other corners that contain three unmasked points are contoured as usual.
 
-Here is an example of the difference, the black circles indicate masked out points:
+Here is an example of the difference, the red circles indicate masked out points:
 
 .. plot::
+   :separate-modes:
    :source-position: below
 
    import numpy as np
@@ -100,8 +101,8 @@ Here is an example of the difference, the black circles indicate masked out poin
            filled = cont_gen.filled(levels[i], levels[i+1])
            renderer.filled(filled, cont_gen.fill_type, ax=ax, color=f"C{i}")
 
-       renderer.grid(x, y, ax=ax)
-       renderer.mask(x, y, z, ax=ax)
+       renderer.grid(x, y, ax=ax, color="gray", alpha=0.2)
+       renderer.mask(x, y, z, ax=ax, color="red")
        renderer.title(f"corner_mask = {corner_mask}", ax=ax)
 
    renderer.show()

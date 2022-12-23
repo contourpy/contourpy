@@ -75,21 +75,21 @@ is followed through the domain. When the end of the line is reached the march is
 
 The first pass does the following:
 
-   #. Counts the total number of points and lines followed.
-   #. Erases start flags that are no longer needed.
-   #. If it is calculating filled contours and the ``fill_type`` requires the relationship between
-      outer boundary and their holes, flags are set in the cache for this.
-   #. Sets extra cache flags for rows in the domain that do not contain any start flags to speed up
-      the second pass.
+#. Counts the total number of points and lines followed.
+#. Erases start flags that are no longer needed.
+#. If it is calculating filled contours and the ``fill_type`` requires the relationship between
+   outer boundary and their holes, flags are set in the cache for this.
+#. Sets extra cache flags for rows in the domain that do not contain any start flags to speed up
+   the second pass.
 
 At the end of the first pass a buffer is allocated to contain all of the contour points, and one or
 more offset buffers depending upon the ``line_type`` or ``fill_type``.
 
 The second pass does the following:
 
-   #. Calculates and stores the contour points.
-   #. Stores the offsets of the starts and ends of each contour line.
-   #. Stores the relationship between the outer boundaries and their holes, if required.
+#. Calculates and stores the contour points.
+#. Stores the offsets of the starts and ends of each contour line.
+#. Stores the relationship between the outer boundaries and their holes, if required.
 
 The sequence of operations is slightly different in the second pass if the relationship between
 outer boundaries and their holes is required. The outer boundary is always followed first, and as

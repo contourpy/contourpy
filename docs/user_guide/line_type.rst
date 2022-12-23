@@ -19,16 +19,17 @@ A string name can be used instead of the enum member so the following are equiva
 
 Enum members are a combination of the following words:
 
-  * **Separate**: each line is a separate array.
-  * **Combined**: multiple lines are concatenated in the same array.
-  * **Chunk**: each chunk is separate, and is ``None`` if the chunk has no lines.
-  * **Code**: includes `Matplotlib`_ kind codes for the previous line array.
-  * **Offset**: individual lines are identified via offsets into the previous line array.
+- **Separate**: each line is a separate array.
+- **Combined**: multiple lines are concatenated in the same array.
+- **Chunk**: each chunk is separate, and is ``None`` if the chunk has no lines.
+- **Code**: includes `Matplotlib`_ kind codes for the previous line array.
+- **Offset**: individual lines are identified via offsets into the previous line array.
 
 The format of data returned by :func:`~contourpy.ContourGenerator.lines` for each of the
 possible :class:`~contourpy.LineType` members is best illustrated through an example.
 
 .. plot::
+   :separate-modes:
    :source-position: none
 
    from contourpy import contour_generator
@@ -43,16 +44,16 @@ possible :class:`~contourpy.LineType` members is best illustrated through an exa
    lines = cont_gen.lines(2)
    c = 'C0'
    renderer.lines(lines, cont_gen.line_type, linewidth=2, color=c, start_point_color=c)
-   renderer.grid(x, y)
+   renderer.grid(x, y, color="gray", alpha=0.2)
    renderer.z_values(x, y, z, color="C2")
    renderer.title("Contour lines at z=2")
    renderer.show()
 
 For the ``z`` values shown in green text, two contour lines are returned at ``z=2``:
 
-   * A closed line loop that is entirely within the domain and consists of 5 points, the last point
-     is the same as the first.
-   * An open line strip that starts and ends on boundaries of the domain and consists of 2 points.
+- A closed line loop that is entirely within the domain and consists of 5 points, the last point is
+  the same as the first.
+- An open line strip that starts and ends on boundaries of the domain and consists of 2 points.
 
 .. note::
 
@@ -133,9 +134,9 @@ the number of lines.
 How to choose which line type to use
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  #. Do you need `Matplotlib`_ kind codes?
+#. Do you need `Matplotlib`_ kind codes?
 
-  #. Do you want each line's points in a separate array or combined together?
+#. Do you want each line's points in a separate array or combined together?
 
 The second question is one of convenience and performance. It is often more convenient to deal with
 a single array of points per line, but it is slower to do this as more arrays have to be created.

@@ -28,13 +28,13 @@ A string name can be used instead of the enum member so the following are equiva
 
 Enum members are a combination of the following words:
 
-  * **Outer**: each outer boundary is stored with its holes in a separate array to other outer
-    boundaries.
-  * **Combined**: multiple boundaries are concatenated in the same array regardless of whether they
-    are outer boundaries or holes.
-  * **Chunk**: each chunk is separate, and is ``None`` if the chunk has no polygons.
-  * **Code**: includes `Matplotlib`_ kind codes for the previous array.
-  * **Offset**: the previous array is divided up using start and end offsets.
+- **Outer**: each outer boundary is stored with its holes in a separate array to other outer
+  boundaries.
+- **Combined**: multiple boundaries are concatenated in the same array regardless of whether they
+  are outer boundaries or holes.
+- **Chunk**: each chunk is separate, and is ``None`` if the chunk has no polygons.
+- **Code**: includes `Matplotlib`_ kind codes for the previous array.
+- **Offset**: the previous array is divided up using start and end offsets.
 
 Where **Offset** occurs twice the first refers to the offsets of individual boundaries (outers and
 holes) within a larger collection and the second to which of those boundaries are grouped together
@@ -45,6 +45,7 @@ possible :class:`~contourpy.FillType` members is best illustrated through an exa
 same example data used for :ref:`line_type` but calling ``filled(1, 2)`` instead of ``lines(2)``.
 
 .. plot::
+   :separate-modes:
    :source-position: none
 
    from contourpy import contour_generator
@@ -60,20 +61,19 @@ same example data used for :ref:`line_type` but calling ``filled(1, 2)`` instead
    c = 'C0'
    renderer.filled(filled, cont_gen.fill_type, color=c, point_color=c, start_point_color=c,
       line_color=c, alpha=0.3, line_alpha=1.0)
-   renderer.grid(x, y)
+   renderer.grid(x, y, color="gray", alpha=0.2)
    renderer.z_values(x, y, z, color="C2")
    renderer.title("Filled contours between z=1 and 2")
    renderer.show()
 
 This example returns two polygons:
 
-   * A polygon that has an outer (exterior boundary) and one hole (interior boundary). The outer has
-     8 points (first and last are identical) that are on either the lower contour level or the
-     domain boundary, the hole has 5 points (first and last are identical) all on the upper contour
-     level.
-   * A simple polygon without any holes consisting of 5 points (first and last are identical) that
-     follows the lower contour level, then the domain boundary, then the upper contour level and the
-     domain boundary again.
+- A polygon that has an outer (exterior boundary) and one hole (interior boundary). The outer has
+  8 points (first and last are identical) that are on either the lower contour level or the domain
+  boundary, the hole has 5 points (first and last are identical) all on the upper contour level.
+- A simple polygon without any holes consisting of 5 points (first and last are identical) that
+  follows the lower contour level, then the domain boundary, then the upper contour level and the
+  domain boundary again.
 
 .. note::
 
@@ -219,11 +219,11 @@ only).
 How to choose which fill type to use
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  #. Do you need `Matplotlib`_ kind codes?
+#. Do you need `Matplotlib`_ kind codes?
 
-  #. Do you want each boundary's points in a separate array or combined together?
+#. Do you want each boundary's points in a separate array or combined together?
 
-  #. Do you want each outer boundary and its corresponding holes to be grouped together?
+#. Do you want each outer boundary and its corresponding holes to be grouped together?
 
 As with contour lines, the second question is one of convenience and performance. It is often more
 convenient to deal with a single array of points per polygon, but it is slower to do this as more

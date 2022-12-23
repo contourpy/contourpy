@@ -5,12 +5,12 @@ z interpolation
 
 Interpolation of ``z`` values occurs in two situations:
 
-  #. When calculating how far along the edge of a quad (or corner-masked corner) a contour line
-     intersects it.
+#. When calculating how far along the edge of a quad (or corner-masked corner) a contour line
+   intersects it.
 
-  #. When calculating the ``z`` value of the central point of quad. This is needed for all quads if
-     ``quad_as_tri=True`` or just saddle quads if ``quad_as_tri=False`` (see
-     :ref:`algorithm_description` about saddle quads).
+#. When calculating the ``z`` value of the central point of quad. This is needed for all quads if
+   ``quad_as_tri=True`` or just saddle quads if ``quad_as_tri=False`` (see
+   :ref:`algorithm_description` about saddle quads).
 
 The default for all algorithms is linear z-interpolation, but ``serial`` and ``threaded`` support
 the use of a :class:`~contourpy.ZInterp` enum that contains other possibilities.
@@ -43,6 +43,7 @@ are jagged, using logarithmic z-interpolation the contour lines are straight and
 as expected.
 
 .. plot::
+   :separate-modes:
    :source-position: below
 
    from contourpy import contour_generator, ZInterp
@@ -64,7 +65,7 @@ as expected.
    renderer = Renderer(ncols=2, figsize=(8, 4))
 
    for ax, z_interp in enumerate([ZInterp.Linear, ZInterp.Log]):
-      renderer.grid(x, y, ax=ax)
+      renderer.grid(x, y, ax=ax, color="gray", alpha=0.2)
       cont_gen = contour_generator(x, y, z, z_interp=z_interp)
       for i, level in enumerate(levels):
           lines = cont_gen.lines(level)

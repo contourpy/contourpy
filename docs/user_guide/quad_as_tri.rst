@@ -29,6 +29,7 @@ a coarse grid that are given by ``z = np.sqrt(x**2 + y**2)``. On a finer grid th
 semicircular.
 
 .. plot::
+   :separate-modes:
    :source-position: below
 
    from contourpy import contour_generator
@@ -41,7 +42,7 @@ semicircular.
    renderer = Renderer(ncols=2, figsize=(8, 2.4))
    for ax in range(2):
       quad_as_tri = bool(ax)
-      renderer.grid(x, y, ax=ax, quad_as_tri_alpha=ax*0.1)
+      renderer.grid(x, y, ax=ax, color="gray", alpha=0.2, quad_as_tri_alpha=ax*0.1)
       renderer.title(f"quad_as_tri={quad_as_tri}", ax=ax)
 
       cont_gen = contour_generator(x, y, z, quad_as_tri=quad_as_tri)
@@ -57,6 +58,7 @@ Another situation in which ``quad_as_tri`` may be useful is shown below. The qua
 at the same ``z`` level so without ``quad_as_tri`` contour lines cut across diagonally.
 
 .. plot::
+   :separate-modes:
    :source-position: below
 
    from contourpy import contour_generator
@@ -69,7 +71,7 @@ at the same ``z`` level so without ``quad_as_tri`` contour lines cut across diag
    renderer = Renderer(ncols=2, figsize=(6, 3))
    for ax in range(2):
       quad_as_tri = bool(ax)
-      renderer.grid(x, y, ax=ax, quad_as_tri_alpha=ax*0.1)
+      renderer.grid(x, y, ax=ax, color="gray", alpha=0.2, quad_as_tri_alpha=ax*0.1)
       renderer.title(f"quad_as_tri={quad_as_tri}", ax=ax)
 
       cont_gen = contour_generator(x, y, z, quad_as_tri=quad_as_tri)

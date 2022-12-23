@@ -12,24 +12,32 @@ All of the results shown are for a single chunk with a problem size ``n`` (``== 
 As a guide to the complexity of the output, the unmasked datasets generate the following line
 contours in the benchmarks
 
-  * ``simple``: 38 lines of about 36 thousand points.
-  * ``random``: 850 thousand lines of about 7.4 million points.
+- ``simple``: 38 lines of about 36 thousand points.
+- ``random``: 850 thousand lines of about 7.4 million points.
 
 and the following filled contours
 
-  * ``simple``: 55 boundaries (39 outers and 16 holes) of about 76 thousand points.
-  * ``random``: 1.7 million boundaries (half each of outers and holes) of about 15 million points.
+- ``simple``: 55 boundaries (39 outers and 16 holes) of about 76 thousand points.
+- ``random``: 1.7 million boundaries (half each of outers and holes) of about 15 million points.
 
 Contour lines
 ^^^^^^^^^^^^^
 
-.. image:: ../_static/lines_simple_1000.svg
+.. image:: ../_static/lines_simple_1000_light.svg
+   :class: only-light
+
+.. image:: ../_static/lines_simple_1000_dark.svg
+   :class: only-dark
 
 For the ``simple`` dataset above the performance of ``serial`` for contour lines is the same
 regardless of ``LineType``. It is slightly slower than ``mpl2005`` and significantly faster than
 ``mpl2014`` with a speedup of 1.7-1.9.
 
-.. image:: ../_static/lines_random_1000.svg
+.. image:: ../_static/lines_random_1000_light.svg
+   :class: only-light
+
+.. image:: ../_static/lines_random_1000_dark.svg
+   :class: only-dark
 
 For the ``random`` dataset above the performance of ``serial`` varies significantly by ``LineType``.
 For ``LineType.SeparateCode`` ``serial`` is 10-20% faster than ``mpl2005`` and is slightly faster
@@ -47,13 +55,21 @@ array allocation, for a single chunk these two ``LineType`` allocate just two la
 
 Filled contours
 ^^^^^^^^^^^^^^^
-.. image:: ../_static/filled_simple_1000.svg
+.. image:: ../_static/filled_simple_1000_light.svg
+   :class: only-light
+
+.. image:: ../_static/filled_simple_1000_dark.svg
+   :class: only-dark
 
 For the ``simple`` dataset above the performance of ``serial`` for filled contours is the same
 regardless of ``FillType``.  It it 5-20% slower than ``mpl2005`` and significantly
 faster than ``mpl2014`` with a speedup of 1.6-1.7.
 
-.. image:: ../_static/filled_random_1000.svg
+.. image:: ../_static/filled_random_1000_light.svg
+   :class: only-light
+
+.. image:: ../_static/filled_random_1000_dark.svg
+   :class: only-dark
 
 For the ``random`` dataset above the performance of ``serial`` varies significantly by ``FillType``.
 For ``FillType.OuterCode`` it is faster than ``mpl2014`` with a speedup of 1.3-1.4.  It is also

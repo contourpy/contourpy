@@ -78,29 +78,29 @@ tests using ``pytest``:
 It is possible to exclude certain tests. To exclude image comparison tests, for example if you do
 not have ``matplotlib`` installed:
 
-   .. code-block:: console
+.. code-block:: console
 
-      $ pytest -k "not image"
+   $ pytest -k "not image"
 
 To exclude threaded tests:
 
-   .. code-block:: console
+.. code-block:: console
 
-      $ pytest -k "not threads"
+   $ pytest -k "not threads"
 
 Other tests are excluded by default but can be manually enabled. To include tests that generate text
 output:
 
-   .. code-block:: console
+.. code-block:: console
 
-     $ pytest --runtext
+  $ pytest --runtext
 
 but note that the output depends on the version of ``freetype`` that ``matplotlib`` is compiled
 against. To include tests that take a long time to run:
 
-   .. code-block:: console
+.. code-block:: console
 
-     $ pytest --runslow
+  $ pytest --runslow
 
 :class:`~contourpy.util.bokeh_renderer.BokehRenderer` tests will be run if ``bokeh`` is installed,
 otherwise they will be skipped.
@@ -136,25 +136,25 @@ Notes for contributors
 Contributors are recommended to install `pre-commit`_ hooks which will automatically run various
 checks whenever ``git commit`` is run. First install ``pre-commit`` using either
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      $ pip install pre-commit
+   $ pip install pre-commit
 
 or
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      $ conda install -c conda-forge pre-commit
+   $ conda install -c conda-forge pre-commit
 
 and then install the hooks using
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      $ pre-commit install
+   $ pre-commit install
 
 The hooks will then be run on each ``git commit``. You can manually run the hooks outside of a
 ```git commit`` using
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      $ pre-commit run --all-files
+   $ pre-commit run --all-files

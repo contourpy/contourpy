@@ -37,8 +37,8 @@ requires-python = ">=3.8"
 
 [project.optional-dependencies]
 docs = [
+    "furo",
     "sphinx-copybutton",
-    "sphinx-rtd-theme",
 ]
 bokeh = [
     # Optional dependencies to support use of bokeh renderer.
