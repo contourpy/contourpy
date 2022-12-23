@@ -72,6 +72,7 @@ It is easier to understand the contour lines and filled contours by looking at g
 Here is the full example using the `Matplotlib`_ renderer from the :mod:`contourpy.util` module:
 
 .. plot::
+   :separate-modes:
    :source-position: below
 
    from contourpy import contour_generator

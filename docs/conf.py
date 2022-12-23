@@ -35,7 +35,6 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    "sphinx_rtd_theme",
     "name_supports",
     "name_supports_type",
     "plot_directive",

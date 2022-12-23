@@ -29,6 +29,7 @@ The format of data returned by :func:`~contourpy.ContourGenerator.lines` for eac
 possible :class:`~contourpy.LineType` members is best illustrated through an example.
 
 .. plot::
+   :separate-modes:
    :source-position: none
 
    from contourpy import contour_generator
@@ -43,7 +44,7 @@ possible :class:`~contourpy.LineType` members is best illustrated through an exa
    lines = cont_gen.lines(2)
    c = 'C0'
    renderer.lines(lines, cont_gen.line_type, linewidth=2, color=c, start_point_color=c)
-   renderer.grid(x, y)
+   renderer.grid(x, y, color="gray", alpha=0.2)
    renderer.z_values(x, y, z, color="C2")
    renderer.title("Contour lines at z=2")
    renderer.show()

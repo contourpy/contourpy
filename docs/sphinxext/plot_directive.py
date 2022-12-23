@@ -1,7 +1,7 @@
 import os
 
 from docutils import nodes
-from docutils.parsers.rst.directives import choice
+from docutils.parsers.rst.directives import choice, flag
 from sphinx.directives.code import CodeBlock
 
 from contourpy.util.mpl_renderer import MplRenderer
@@ -9,13 +9,24 @@ from contourpy.util.mpl_renderer import MplRenderer
 
 class PlotDirective(CodeBlock):
     has_content = True
-    optional_arguments = 1
+    optional_arguments = 2
 
     option_spec = {
+        "separate-modes": flag,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
     }
 
     latest_image_index = {}  # dict of string docname -> latest image index used.
+
+    def _mpl_mode_header(self, mode):
+        if mode == "light":
+            return "import matplotlib.pyplot as plt;plt.style.use('default');\n"
+        elif mode == "dark":
+            return "import matplotlib as mpl;cycler=mpl.rcParams['axes.prop_cycle'];\n" \
+                "import matplotlib.pyplot as plt;plt.style.use('dark_background');\n" \
+                "mpl.rcParams['axes.prop_cycle']=cycler;\n"
+        else:
+            raise ValueError(f"Unexpected mode {mode}")
 
     def _temporary_show(self, renderer, image_filenames):
         # Temporary replacement for MplRenderer.show() to save to SVG file instead.
@@ -39,18 +50,26 @@ class PlotDirective(CodeBlock):
         source = self.content
         combined_source = "\n".join(source)
 
+        using_modes = "separate-modes" in self.options
+        modes = ["light", "dark"] if using_modes else ["light"]
+
         svg_filenames = []
 
         # Temporarily replace MplRenderer.show() to save to SVG file and include SVG files in
         # sphinx output. Should probably be in a context manager instead.
         old_show = getattr(MplRenderer, "show")
         setattr(MplRenderer, "show", lambda renderer: self._temporary_show(renderer, svg_filenames))
-        exec(combined_source)
+        for mode in modes:
+            exec(self._mpl_mode_header(mode) + combined_source)
         setattr(MplRenderer, "show", old_show)
 
         images = []
-        for svg_filename in svg_filenames:
+        print("IMAGES", svg_filenames)
+        for i, svg_filename in enumerate(svg_filenames):
             image = nodes.image(uri=svg_filename)
+            if using_modes:
+                mode = modes[i % len(modes)]
+                image["classes"].append(f"only-{mode}")
             container = nodes.container()
             container += image
             images += container

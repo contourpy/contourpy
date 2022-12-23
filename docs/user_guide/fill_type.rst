@@ -45,6 +45,7 @@ possible :class:`~contourpy.FillType` members is best illustrated through an exa
 same example data used for :ref:`line_type` but calling ``filled(1, 2)`` instead of ``lines(2)``.
 
 .. plot::
+   :separate-modes:
    :source-position: none
 
    from contourpy import contour_generator
@@ -60,7 +61,7 @@ same example data used for :ref:`line_type` but calling ``filled(1, 2)`` instead
    c = 'C0'
    renderer.filled(filled, cont_gen.fill_type, color=c, point_color=c, start_point_color=c,
       line_color=c, alpha=0.3, line_alpha=1.0)
-   renderer.grid(x, y)
+   renderer.grid(x, y, color="gray", alpha=0.2)
    renderer.z_values(x, y, z, color="C2")
    renderer.title("Filled contours between z=1 and 2")
    renderer.show()

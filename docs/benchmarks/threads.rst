@@ -4,18 +4,34 @@ Multithreaded calculation
 Benchmarks for the ``threaded`` algorithm are shown here, for unmasked ``z``, a problem size ``n``
 of 1000 and a ``total_chunk_count`` of 40 for up to 6 threads.
 
-.. image:: ../_static/threaded_lines_simple.svg
+.. image:: ../_static/threaded_lines_simple_light.svg
+   :class: only-light
 
-.. image:: ../_static/threaded_filled_simple.svg
+.. image:: ../_static/threaded_lines_simple_dark.svg
+   :class: only-dark
+
+.. image:: ../_static/threaded_filled_simple_light.svg
+   :class: only-light
+
+.. image:: ../_static/threaded_filled_simple_dark.svg
+   :class: only-dark
 
 For the ``simple`` dataset contour calculations are faster with more threads but it does not scale
 particulary well.  The speedup with 6 threads is about 2.7 for :func:`~contourpy.ContourGenerator.lines`
 and about 2.8 for :func:`~contourpy.ContourGenerator.filled`.  This problem dataset is perhaps not
 computationally expensive enough to justify the use of multiple threads.
 
-.. image:: ../_static/threaded_lines_random.svg
+.. image:: ../_static/threaded_lines_random_light.svg
+   :class: only-light
 
-.. image:: ../_static/threaded_filled_random.svg
+.. image:: ../_static/threaded_lines_random_dark.svg
+   :class: only-dark
+
+.. image:: ../_static/threaded_filled_random_light.svg
+   :class: only-light
+
+.. image:: ../_static/threaded_filled_random_dark.svg
+   :class: only-dark
 
 For the ``random`` dataset contour calculations scale much better with increasing number of threads
 as long as one of the ``ChunkCombined...`` line or fill types is being used.

@@ -43,6 +43,7 @@ are jagged, using logarithmic z-interpolation the contour lines are straight and
 as expected.
 
 .. plot::
+   :separate-modes:
    :source-position: below
 
    from contourpy import contour_generator, ZInterp
@@ -64,7 +65,7 @@ as expected.
    renderer = Renderer(ncols=2, figsize=(8, 4))
 
    for ax, z_interp in enumerate([ZInterp.Linear, ZInterp.Log]):
-      renderer.grid(x, y, ax=ax)
+      renderer.grid(x, y, ax=ax, color="gray", alpha=0.2)
       cont_gen = contour_generator(x, y, z, z_interp=z_interp)
       for i, level in enumerate(levels):
           lines = cont_gen.lines(level)

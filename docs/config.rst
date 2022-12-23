@@ -27,13 +27,23 @@ Quad with ``quad_as_tri=False``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: ../tests/baseline_images/config_lines.png
+   :class: only-light
    :target: _images/config_lines.png
+
+.. image:: _static/config_lines_dark.png
+   :class: only-dark
+   :target: _images/config_lines_dark.png
 
 Quad with ``quad_as_tri=True``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: ../tests/baseline_images/config_lines_quad_as_tri.png
+   :class: only-light
    :target: _images/config_lines_quad_as_tri.png
+
+.. image:: _static/config_lines_quad_as_tri_dark.png
+   :class: only-dark
+   :target: _images/config_lines_quad_as_tri_dark.png
 
 Corner
 ^^^^^^
@@ -41,8 +51,12 @@ Corner
 For lines in corners, only 3 corner points are relevant.
 
 .. image:: ../tests/baseline_images/config_lines_corner.png
+   :class: only-light
    :target: _images/config_lines_corner.png
 
+.. image:: _static/config_lines_corner_dark.png
+   :class: only-dark
+   :target: _images/config_lines_corner_dark.png
 
 Filled contours
 ---------------
@@ -63,16 +77,31 @@ Quad with ``quad_as_tri=False``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: ../tests/baseline_images/config_filled.png
+   :class: only-light
    :target: _images/config_filled.png
+
+.. image:: _static/config_filled_dark.png
+   :class: only-dark
+   :target: _images/config_filled_dark.png
 
 Quad with ``quad_as_tri=True``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. image:: ../tests/baseline_images/config_filled_quad_as_tri.png
+   :class: only-light
    :target: _images/config_filled_quad_as_tri.png
+
+.. image:: _static/config_filled_quad_as_tri_dark.png
+   :class: only-dark
+   :target: _images/config_filled_quad_as_tri_dark.png
 
 Corner
 ^^^^^^
 
 .. image:: ../tests/baseline_images/config_filled_corner.png
+   :class: only-light
    :target: _images/config_filled_corner.png
+
+.. image:: _static/config_filled_corner_dark.png
+   :class: only-dark
+   :target: _images/config_filled_corner_dark.png
