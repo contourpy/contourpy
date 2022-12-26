@@ -29,7 +29,7 @@ def xyz_chunk_test():
 
 @pytest.mark.parametrize("name", util_test.all_names())
 def test_filled_decreasing_levels(name):
-    cont_gen = contour_generator(z=[[0, 1], [2, 3]], fill_type=FillType.OuterCode)
+    cont_gen = contour_generator(z=[[0, 1], [2, 3]], name=name, fill_type=FillType.OuterCode)
     with pytest.raises(ValueError, match="upper and lower levels are the wrong way round"):
         cont_gen.filled(2.0, 1.0)
 
