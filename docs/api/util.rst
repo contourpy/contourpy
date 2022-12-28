@@ -11,6 +11,9 @@ period.
 .. automodule:: contourpy.util.data
    :members:
 
+.. automodule:: contourpy.util.renderer
+   :members:
+
 .. automodule:: contourpy.util.bokeh_renderer
    :members:
 
