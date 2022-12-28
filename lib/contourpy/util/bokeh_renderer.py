@@ -9,9 +9,10 @@ from bokeh.plotting import figure
 import numpy as np
 
 from .bokeh_util import filled_to_bokeh, lines_to_bokeh
+from .renderer import Renderer
 
 
-class BokehRenderer:
+class BokehRenderer(Renderer):
     """Utility renderer using Bokeh to render a grid of plots over the same (x, y) range.
 
     Args:
@@ -60,13 +61,6 @@ class BokehRenderer:
         if isinstance(ax, int):
             ax = self._figures[ax]
         return ax
-
-    def _grid_as_2d(self, x, y):
-        x = np.asarray(x)
-        y = np.asarray(y)
-        if x.ndim == 1:
-            x, y = np.meshgrid(x, y)
-        return x, y
 
     def filled(self, filled, fill_type, ax=0, color="C0", alpha=0.7):
         """Plot filled contours on a single plot.
