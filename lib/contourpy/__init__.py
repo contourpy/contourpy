@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from ._contourpy import (
@@ -7,6 +11,13 @@ from ._contourpy import (
 from ._version import __version__
 from .chunk import calc_chunk_sizes
 from .enum_util import as_fill_type, as_line_type, as_z_interp
+
+if TYPE_CHECKING:
+    from typing import Any, Type
+
+    from numpy.typing import ArrayLike
+
+    from ._contourpy import CoordinateArray, MaskArray
 
 __all__ = [
     "__version__",
@@ -24,7 +35,7 @@ __all__ = [
 
 
 # Simple mapping of algorithm name to class name.
-_class_lookup = dict(
+_class_lookup: dict[str, Type[ContourGenerator]] = dict(
     mpl2005=Mpl2005ContourGenerator,
     mpl2014=Mpl2014ContourGenerator,
     serial=SerialContourGenerator,
@@ -32,22 +43,37 @@ _class_lookup = dict(
 )
 
 
-def _remove_z_mask(z):
-    z = np.ma.asarray(z, dtype=np.float64)  # Preserves mask if present.
-    z = np.ma.masked_invalid(z, copy=False)
+def _remove_z_mask(
+    z: ArrayLike | np.ma.MaskedArray[Any, Any] | None,
+) -> tuple[CoordinateArray, MaskArray | None]:
+    # Preserve mask if present.
+    z_array = np.ma.asarray(z, dtype=np.float64)  # type: ignore[no-untyped-call]
+    z_masked = np.ma.masked_invalid(z_array, copy=False)  # type: ignore[no-untyped-call]
 
-    if np.ma.is_masked(z):
-        mask = np.ma.getmask(z)
+    if np.ma.is_masked(z_masked):  # type: ignore[no-untyped-call]
+        mask = np.ma.getmask(z_masked)  # type: ignore[no-untyped-call]
     else:
         mask = None
 
-    z = np.ma.getdata(z)
-    return z, mask
+    return np.ma.getdata(z_masked), mask  # type: ignore[no-untyped-call]
 
 
-def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None, line_type=None,
-                      fill_type=None, chunk_size=None, chunk_count=None, total_chunk_count=None,
-                      quad_as_tri=False, z_interp=ZInterp.Linear, thread_count=0):
+def contour_generator(
+    x: ArrayLike | None = None,
+    y: ArrayLike | None = None,
+    z: ArrayLike | np.ma.MaskedArray[Any, Any] | None = None,
+    *,
+    name: str = "serial",
+    corner_mask: bool | None = None,
+    line_type: LineType | str | None = None,
+    fill_type: FillType | str | None = None,
+    chunk_size: int | tuple[int, int] | None = None,
+    chunk_count: int | tuple[int, int] | None = None,
+    total_chunk_count: int | None = None,
+    quad_as_tri: bool = False,
+    z_interp: ZInterp | str | None = ZInterp.Linear,
+    thread_count: int = 0,
+) -> ContourGenerator:
     """Create and return a contour generator object.
 
     The class and properties of the contour generator are determined by the function arguments,
@@ -200,7 +226,7 @@ def contour_generator(x=None, y=None, z=None, *, name="serial", corner_mask=None
 
     # Prepare args and kwargs for contour generator constructor.
     args = [x, y, z, mask]
-    kwargs = {
+    kwargs: dict[str, int | bool | LineType | FillType | ZInterp] = {
         "x_chunk_size": x_chunk_size,
         "y_chunk_size": y_chunk_size,
     }

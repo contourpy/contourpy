@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from ._contourpy import FillType, LineType, ZInterp
 
 
-def as_fill_type(fill_type):
+def as_fill_type(fill_type: FillType | str) -> FillType:
     """Coerce a FillType or string value to a FillType.
 
     Args:
@@ -11,11 +13,12 @@ def as_fill_type(fill_type):
         FillType: Converted value.
     """
     if isinstance(fill_type, str):
-        fill_type = FillType.__members__[fill_type]
-    return fill_type
+        return FillType.__members__[fill_type]
+    else:
+        return fill_type
 
 
-def as_line_type(line_type):
+def as_line_type(line_type: LineType | str) -> LineType:
     """Coerce a LineType or string value to a LineType.
 
     Args:
@@ -25,11 +28,12 @@ def as_line_type(line_type):
         LineType: Converted value.
     """
     if isinstance(line_type, str):
-        line_type = LineType.__members__[line_type]
-    return line_type
+        return LineType.__members__[line_type]
+    else:
+        return line_type
 
 
-def as_z_interp(z_interp):
+def as_z_interp(z_interp: ZInterp | str) -> ZInterp:
     """Coerce a ZInterp or string value to a ZInterp.
 
     Args:
@@ -39,5 +43,6 @@ def as_z_interp(z_interp):
         ZInterp: Converted value.
     """
     if isinstance(z_interp, str):
-        z_interp = ZInterp.__members__[z_interp]
-    return z_interp
+        return ZInterp.__members__[z_interp]
+    else:
+        return z_interp

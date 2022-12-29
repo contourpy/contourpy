@@ -1,7 +1,15 @@
+from __future__ import annotations
+
 import math
 
 
-def calc_chunk_sizes(chunk_size, chunk_count, total_chunk_count, ny, nx):
+def calc_chunk_sizes(
+    chunk_size: int | tuple[int, int] | None,
+    chunk_count: int | tuple[int, int] | None,
+    total_chunk_count: int | None,
+    ny: int,
+    nx: int,
+) -> tuple[int, int]:
     """Calculate chunk sizes.
 
     Args:
@@ -59,7 +67,7 @@ def calc_chunk_sizes(chunk_size, chunk_count, total_chunk_count, ny, nx):
     return y_chunk_size, x_chunk_size
 
 
-def two_factors(n):
+def two_factors(n: int) -> tuple[int, int]:
     """Split an integer into two integer factors.
 
     The two factors will be as close as possible to the sqrt of n, and are returned in decreasing
