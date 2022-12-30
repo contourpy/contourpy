@@ -1,18 +1,34 @@
+from __future__ import annotations
+
 import io
+from typing import TYPE_CHECKING, Any
 
 from bokeh.io import export_png, export_svg, show
 from bokeh.io.export import get_screenshot_as_png
 from bokeh.layouts import gridplot
-from bokeh.models import Label
+from bokeh.models.annotations.labels import Label
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
 import numpy as np
 
+from .. import FillType, LineType
 from .bokeh_util import filled_to_bokeh, lines_to_bokeh
 from .renderer import Renderer
 
+if TYPE_CHECKING:
+    from bokeh.models import GridPlot
+    from bokeh.palettes import Palette
+    from numpy.typing import ArrayLike
+
+    from .._contourpy import FillReturn, LineReturn
+
 
 class BokehRenderer(Renderer):
+    _figures: list[figure]
+    _layout: GridPlot
+    _palette: Palette
+    _want_svg: bool
+
     """Utility renderer using Bokeh to render a grid of plots over the same (x, y) range.
 
     Args:
@@ -29,7 +45,14 @@ class BokehRenderer(Renderer):
         :class:`~contourpy.util.mpl_renderer.MplRenderer`, needs to be told in advance if output to
         SVG format will be required later, otherwise it will assume PNG output.
     """
-    def __init__(self, nrows=1, ncols=1, figsize=(9, 9), show_frame=True, want_svg=False):
+    def __init__(
+        self,
+        nrows: int = 1,
+        ncols: int = 1,
+        figsize: tuple[int, int] = (9, 9),
+        show_frame: bool = True,
+        want_svg: bool = False,
+    ) -> None:
         self._want_svg = want_svg
         self._palette = Category10[10]
 
@@ -44,25 +67,32 @@ class BokehRenderer(Renderer):
             fig.ygrid.visible = False
             self._figures.append(fig)
             if not show_frame:
-                fig.outline_line_color = None
+                fig.outline_line_color = None  # type: ignore[assignment]
                 fig.axis.visible = False
 
         self._layout = gridplot(
-            self._figures, ncols=ncols, toolbar_location=None,
+            self._figures, ncols=ncols, toolbar_location=None,  # type: ignore[arg-type]
             width=total_size[0] // ncols, height=total_size[1] // nrows)
 
-    def _convert_color(self, color):
+    def _convert_color(self, color: str) -> str:
         if isinstance(color, str) and color[0] == "C":
             index = int(color[1:])
             color = self._palette[index]
         return color
 
-    def _get_figure(self, ax):
+    def _get_figure(self, ax: figure | int) -> figure:
         if isinstance(ax, int):
             ax = self._figures[ax]
         return ax
 
-    def filled(self, filled, fill_type, ax=0, color="C0", alpha=0.7):
+    def filled(
+        self,
+        filled: FillReturn,
+        fill_type: FillType,
+        ax: figure | int = 0,
+        color: str = "C0",
+        alpha: float = 0.7,
+    ) -> None:
         """Plot filled contours on a single plot.
 
         Args:
@@ -82,7 +112,16 @@ class BokehRenderer(Renderer):
         if len(xs) > 0:
             fig.multi_polygons(xs=[xs], ys=[ys], color=color, fill_alpha=alpha, line_width=0)
 
-    def grid(self, x, y, ax=0, color="black", alpha=0.1, point_color=None, quad_as_tri_alpha=0):
+    def grid(
+        self,
+        x: ArrayLike,
+        y: ArrayLike,
+        ax: figure | int = 0,
+        color: str = "black",
+        alpha: float = 0.1,
+        point_color: str | None = None,
+        quad_as_tri_alpha: float = 0,
+    ) -> None:
         """Plot quad grid lines on a single plot.
 
         Args:
@@ -124,7 +163,15 @@ class BokehRenderer(Renderer):
             fig.circle(
                 x=x.ravel(), y=y.ravel(), fill_color=color, line_color=None, alpha=alpha, size=8)
 
-    def lines(self, lines, line_type, ax=0, color="C0", alpha=1.0, linewidth=1):
+    def lines(
+        self,
+        lines: LineReturn,
+        line_type: LineType,
+        ax: figure | int = 0,
+        color: str = "C0",
+        alpha: float = 1.0,
+        linewidth: float = 1,
+    ) -> None:
         """Plot contour lines on a single plot.
 
         Args:
@@ -148,7 +195,14 @@ class BokehRenderer(Renderer):
         if len(xs) > 0:
             fig.multi_line(xs, ys, line_color=color, line_alpha=alpha, line_width=linewidth)
 
-    def mask(self, x, y, z, ax=0, color="black"):
+    def mask(
+        self,
+        x: ArrayLike,
+        y: ArrayLike,
+        z: ArrayLike | np.ma.MaskedArray[Any, Any],
+        ax: figure | int = 0,
+        color: str = "black",
+    ) -> None:
         """Plot masked out grid points as circles on a single plot.
 
         Args:
@@ -158,7 +212,7 @@ class BokehRenderer(Renderer):
             ax (int or Bokeh Figure, optional): Which plot to use, default ``0``.
             color (str, optional): Circle color, default ``"black"``.
         """
-        mask = np.ma.getmask(z)
+        mask = np.ma.getmask(z)  # type: ignore[no-untyped-call]
         if mask is np.ma.nomask:
             return
         fig = self._get_figure(ax)
@@ -166,7 +220,7 @@ class BokehRenderer(Renderer):
         x, y = self._grid_as_2d(x, y)
         fig.circle(x[mask], y[mask], fill_color=color, size=10)
 
-    def save(self, filename, transparent=False):
+    def save(self, filename: str, transparent: bool = False) -> None:
         """Save plots to SVG or PNG file.
 
         Args:
@@ -179,15 +233,15 @@ class BokehRenderer(Renderer):
         """
         if transparent:
             for fig in self._figures:
-                fig.background_fill_color = None
-                fig.border_fill_color = None
+                fig.background_fill_color = None  # type: ignore[assignment]
+                fig.border_fill_color = None  # type: ignore[assignment]
 
         if self._want_svg:
             export_svg(self._layout, filename=filename)
         else:
             export_png(self._layout, filename=filename)
 
-    def save_to_buffer(self):
+    def save_to_buffer(self) -> io.BytesIO:
         """Save plots to an ``io.BytesIO`` buffer.
 
         Return:
@@ -198,12 +252,12 @@ class BokehRenderer(Renderer):
         image.save(buffer, "png")
         return buffer
 
-    def show(self):
+    def show(self) -> None:
         """Show plots in web browser, in usual Bokeh manner.
         """
         show(self._layout)
 
-    def title(self, title, ax=0, color=None):
+    def title(self, title: str, ax: figure | int = 0, color: str | None = None) -> None:
         """Set the title of a single plot.
 
         Args:
@@ -214,12 +268,21 @@ class BokehRenderer(Renderer):
                 ``Category10`` palette. Default ``None`` which is ``black``.
         """
         fig = self._get_figure(ax)
-        fig.title = title
-        fig.title.align = "center"
+        fig.title = title  # type: ignore[assignment]
+        fig.title.align = "center"  # type: ignore[attr-defined]
         if color is not None:
-            fig.title.text_color = self._convert_color(color)
+            fig.title.text_color = self._convert_color(color)  # type: ignore[attr-defined]
 
-    def z_values(self, x, y, z, ax=0, color="green", fmt=".1f", quad_as_tri=False):
+    def z_values(
+        self,
+        x: ArrayLike,
+        y: ArrayLike,
+        z: ArrayLike,
+        ax: figure | int = 0,
+        color: str = "green",
+        fmt: str = ".1f",
+        quad_as_tri: bool = False,
+    ) -> None:
         """Show ``z`` values on a single plot.
 
         Args:

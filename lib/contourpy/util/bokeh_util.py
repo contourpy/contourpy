@@ -1,11 +1,22 @@
-from contourpy import FillType, LineType
+from __future__ import annotations
 
+from typing import TYPE_CHECKING, cast
+
+from .. import FillType, LineType
 from .mpl_util import mpl_codes_to_offsets
 
+if TYPE_CHECKING:
+    from .._contourpy import (
+        CoordinateArray, FillReturn, LineReturn, LineReturn_Separate, LineReturn_SeparateCode,
+    )
 
-def filled_to_bokeh(filled, fill_type):
-    xs = []
-    ys = []
+
+def filled_to_bokeh(
+    filled: FillReturn,
+    fill_type: FillType,
+) -> tuple[list[list[CoordinateArray]], list[list[CoordinateArray]]]:
+    xs: list[list[CoordinateArray]] = []
+    ys: list[list[CoordinateArray]] = []
     if fill_type in (FillType.OuterOffset, FillType.ChunkCombinedOffset,
                      FillType.OuterCode, FillType.ChunkCombinedCode):
         have_codes = fill_type in (FillType.OuterCode, FillType.ChunkCombinedCode)
@@ -43,15 +54,22 @@ def filled_to_bokeh(filled, fill_type):
     return xs, ys
 
 
-def lines_to_bokeh(lines, line_type):
-    xs = []
-    ys = []
+def lines_to_bokeh(
+    lines: LineReturn,
+    line_type: LineType,
+) -> tuple[list[CoordinateArray], list[CoordinateArray]]:
+    xs: list[CoordinateArray] = []
+    ys: list[CoordinateArray] = []
 
     if line_type == LineType.Separate:
+        if TYPE_CHECKING:
+            lines = cast(LineReturn_Separate, lines)
         for line in lines:
             xs.append(line[:, 0])
             ys.append(line[:, 1])
     elif line_type == LineType.SeparateCode:
+        if TYPE_CHECKING:
+            lines = cast(LineReturn_SeparateCode, lines)
         for line in lines[0]:
             xs.append(line[:, 0])
             ys.append(line[:, 1])

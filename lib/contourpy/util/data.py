@@ -1,7 +1,16 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
 import numpy as np
 
+if TYPE_CHECKING:
+    from .._contourpy import CoordinateArray
 
-def simple(shape, want_mask=False):
+
+def simple(
+    shape: tuple[int, int], want_mask: bool = False
+) -> tuple[CoordinateArray, CoordinateArray, CoordinateArray | np.ma.MaskedArray[Any, Any]]:
     """Return simple test data consisting of the sum of two gaussians.
 
     Args:
@@ -34,12 +43,14 @@ def simple(shape, want_mask=False):
             ((x/xscale - 1.0)**2 / 0.2 + (y/yscale - 0.0)**2 / 0.1) < 1.0,
             ((x/xscale - 0.2)**2 / 0.02 + (y/yscale - 0.45)**2 / 0.08) < 1.0
         )
-        z = np.ma.array(z, mask=mask)
+        z = np.ma.array(z, mask=mask)  # type: ignore[no-untyped-call]
 
     return x, y, z
 
 
-def random(shape, seed=2187, mask_fraction=0.0):
+def random(
+    shape: tuple[int, int], seed: int = 2187, mask_fraction: float = 0.0
+) -> tuple[CoordinateArray, CoordinateArray, CoordinateArray | np.ma.MaskedArray[Any, Any]]:
     """Return random test data..
 
     Args:
@@ -62,6 +73,6 @@ def random(shape, seed=2187, mask_fraction=0.0):
     if mask_fraction > 0.0:
         mask_fraction = min(mask_fraction, 0.99)
         mask = rng.uniform(size=shape) < mask_fraction
-        z = np.ma.array(z, mask=mask)
+        z = np.ma.array(z, mask=mask)  # type: ignore[no-untyped-call]
 
     return x, y, z
