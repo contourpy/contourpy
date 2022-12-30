@@ -6,7 +6,7 @@ import numpy as np
 import numpy.typing as npt
 from typing_extensions import TypeAlias
 
-import contourpy._contourpy
+from . import _contourpy as cpy
 
 # Input numpy array types, the same as in common.h
 CoordinateArray: TypeAlias = npt.NDArray[np.float64]
@@ -39,13 +39,13 @@ CONTOURPY_DEBUG: int
 __version__: str
 
 class FillType:
-    ChunkCombinedCode: ClassVar[contourpy._contourpy.FillType]
-    ChunkCombinedCodeOffset: ClassVar[contourpy._contourpy.FillType]
-    ChunkCombinedOffset: ClassVar[contourpy._contourpy.FillType]
-    ChunkCombinedOffsetOffset: ClassVar[contourpy._contourpy.FillType]
-    OuterCode: ClassVar[contourpy._contourpy.FillType]
-    OuterOffset: ClassVar[contourpy._contourpy.FillType]
-    __members__: ClassVar[dict[str, contourpy._contourpy.FillType]]
+    ChunkCombinedCode: ClassVar[cpy.FillType]
+    ChunkCombinedCodeOffset: ClassVar[cpy.FillType]
+    ChunkCombinedOffset: ClassVar[cpy.FillType]
+    ChunkCombinedOffsetOffset: ClassVar[cpy.FillType]
+    OuterCode: ClassVar[cpy.FillType]
+    OuterOffset: ClassVar[cpy.FillType]
+    __members__: ClassVar[dict[str, cpy.FillType]]
     def __eq__(self, other: object) -> bool: ...
     def __getstate__(self) -> int: ...
     def __hash__(self) -> int: ...
@@ -61,11 +61,11 @@ class FillType:
     def value(self) -> int: ...
 
 class LineType:
-    ChunkCombinedCode: ClassVar[contourpy._contourpy.LineType]
-    ChunkCombinedOffset: ClassVar[contourpy._contourpy.LineType]
-    Separate: ClassVar[contourpy._contourpy.LineType]
-    SeparateCode: ClassVar[contourpy._contourpy.LineType]
-    __members__: ClassVar[dict[str, contourpy._contourpy.LineType]]
+    ChunkCombinedCode: ClassVar[cpy.LineType]
+    ChunkCombinedOffset: ClassVar[cpy.LineType]
+    Separate: ClassVar[cpy.LineType]
+    SeparateCode: ClassVar[cpy.LineType]
+    __members__: ClassVar[dict[str, cpy.LineType]]
     def __eq__(self, other: object) -> bool: ...
     def __getstate__(self) -> int: ...
     def __hash__(self) -> int: ...
@@ -81,9 +81,9 @@ class LineType:
     def value(self) -> int: ...
 
 class ZInterp:
-    Linear: ClassVar[contourpy._contourpy.ZInterp]
-    Log: ClassVar[contourpy._contourpy.ZInterp]
-    __members__: ClassVar[dict[str, contourpy._contourpy.ZInterp]]
+    Linear: ClassVar[cpy.ZInterp]
+    Log: ClassVar[cpy.ZInterp]
+    __members__: ClassVar[dict[str, cpy.ZInterp]]
     def __eq__(self, other: object) -> bool: ...
     def __getstate__(self) -> int: ...
     def __hash__(self) -> int: ...
@@ -133,8 +133,8 @@ class ContourGenerator:
     def thread_count(self) -> int: ...
     @property
     def z_interp(self) -> ZInterp: ...
-    default_fill_type: contourpy._contourpy.FillType
-    default_line_type: contourpy._contourpy.LineType
+    default_fill_type: cpy.FillType
+    default_line_type: cpy.LineType
 
 class Mpl2005ContourGenerator(ContourGenerator):
     def __init__(

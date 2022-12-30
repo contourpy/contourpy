@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import io
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, cast
 
 import matplotlib.collections as mcollections
 import matplotlib.pyplot as plt
@@ -12,19 +12,11 @@ from .mpl_util import filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offs
 from .renderer import Renderer
 
 if TYPE_CHECKING:
-    from typing import Any, cast
-
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
     from numpy.typing import ArrayLike
 
-    from .._contourpy import (
-        CoordinateArray, FillReturn, FillReturn_ChunkCombinedCode,
-        FillReturn_ChunkCombinedCodeOffset, FillReturn_ChunkCombinedOffset,
-        FillReturn_ChunkCombinedOffsetOffset, FillReturn_OuterCode, FillReturn_OuterOffset,
-        LineReturn, LineReturn_ChunkCombinedCode, LineReturn_ChunkCombinedOffset,
-        LineReturn_Separate, LineReturn_SeparateCode, OffsetArray, PointArray,
-    )
+    from .. import _contourpy as cpy
 
 
 class MplRenderer(Renderer):
@@ -93,7 +85,7 @@ class MplRenderer(Renderer):
 
     def filled(
         self,
-        filled: FillReturn,
+        filled: cpy.FillReturn,
         fill_type: FillType,
         ax: Axes | int = 0,
         color: str = "C0",
@@ -168,7 +160,7 @@ class MplRenderer(Renderer):
 
     def lines(
         self,
-        lines: LineReturn,
+        lines: cpy.LineReturn,
         line_type: LineType,
         ax: Axes | int = 0,
         color: str = "C0",
@@ -356,8 +348,8 @@ class MplDebugRenderer(MplRenderer):
     def _arrow(
         self,
         ax: Axes,
-        line_start: CoordinateArray,
-        line_end: CoordinateArray,
+        line_start: cpy.CoordinateArray,
+        line_end: cpy.CoordinateArray,
         color: str,
         alpha: float,
         arrow_size: float,
@@ -375,32 +367,32 @@ class MplDebugRenderer(MplRenderer):
 
     def _filled_to_lists_of_points_and_offsets(
         self,
-        filled: FillReturn,
+        filled: cpy.FillReturn,
         fill_type: FillType,
-    ) -> tuple[list[PointArray], list[OffsetArray]]:
+    ) -> tuple[list[cpy.PointArray], list[cpy.OffsetArray]]:
         if fill_type == FillType.OuterCode:
             if TYPE_CHECKING:
-                filled = cast(FillReturn_OuterCode, filled)
+                filled = cast(cpy.FillReturn_OuterCode, filled)
             all_points = filled[0]
             all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1]]
         elif fill_type == FillType.ChunkCombinedCode:
             if TYPE_CHECKING:
-                filled = cast(FillReturn_ChunkCombinedCode, filled)
+                filled = cast(cpy.FillReturn_ChunkCombinedCode, filled)
             all_points = [points for points in filled[0] if points is not None]
             all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1] if codes is not None]
         elif fill_type == FillType.OuterOffset:
             if TYPE_CHECKING:
-                filled = cast(FillReturn_OuterOffset, filled)
+                filled = cast(cpy.FillReturn_OuterOffset, filled)
             all_points = filled[0]
             all_offsets = filled[1]
         elif fill_type == FillType.ChunkCombinedOffset:
             if TYPE_CHECKING:
-                filled = cast(FillReturn_ChunkCombinedOffset, filled)
+                filled = cast(cpy.FillReturn_ChunkCombinedOffset, filled)
             all_points = [points for points in filled[0] if points is not None]
             all_offsets = [offsets for offsets in filled[1] if offsets is not None]
         elif fill_type == FillType.ChunkCombinedCodeOffset:
             if TYPE_CHECKING:
-                filled = cast(FillReturn_ChunkCombinedCodeOffset, filled)
+                filled = cast(cpy.FillReturn_ChunkCombinedCodeOffset, filled)
             all_points = []
             all_offsets = []
             for points, codes, outer_offsets in zip(*filled):
@@ -413,7 +405,7 @@ class MplDebugRenderer(MplRenderer):
                 all_offsets += [mpl_codes_to_offsets(codes) for codes in all_codes]
         elif fill_type == FillType.ChunkCombinedOffsetOffset:
             if TYPE_CHECKING:
-                filled = cast(FillReturn_ChunkCombinedOffsetOffset, filled)
+                filled = cast(cpy.FillReturn_ChunkCombinedOffsetOffset, filled)
             all_points = []
             all_offsets = []
             for points, offsets, outer_offsets in zip(*filled):
@@ -430,18 +422,21 @@ class MplDebugRenderer(MplRenderer):
 
         return all_points, all_offsets
 
-    def _lines_to_list_of_points(self, lines: LineReturn, line_type: LineType) -> list[PointArray]:
+    def _lines_to_list_of_points(
+        self, lines: cpy.LineReturn,
+        line_type: LineType
+    ) -> list[cpy.PointArray]:
         if line_type == LineType.Separate:
             if TYPE_CHECKING:
-                lines = cast(LineReturn_Separate, lines)
+                lines = cast(cpy.LineReturn_Separate, lines)
             all_lines = lines
         elif line_type == LineType.SeparateCode:
             if TYPE_CHECKING:
-                lines = cast(LineReturn_SeparateCode, lines)
+                lines = cast(cpy.LineReturn_SeparateCode, lines)
             all_lines = lines[0]
         elif line_type == LineType.ChunkCombinedCode:
             if TYPE_CHECKING:
-                lines = cast(LineReturn_ChunkCombinedCode, lines)
+                lines = cast(cpy.LineReturn_ChunkCombinedCode, lines)
             all_lines = []
             for points, codes in zip(*lines):
                 if points is not None:
@@ -452,7 +447,7 @@ class MplDebugRenderer(MplRenderer):
                         all_lines.append(points[offsets[i]:offsets[i+1]])
         elif line_type == LineType.ChunkCombinedOffset:
             if TYPE_CHECKING:
-                lines = cast(LineReturn_ChunkCombinedOffset, lines)
+                lines = cast(cpy.LineReturn_ChunkCombinedOffset, lines)
             all_lines = []
             for points, all_offsets in zip(*lines):
                 if points is not None:
@@ -467,7 +462,7 @@ class MplDebugRenderer(MplRenderer):
 
     def filled(
         self,
-        filled: FillReturn,
+        filled: cpy.FillReturn,
         fill_type: FillType,
         ax: Axes | int = 0,
         color: str = "C1",
@@ -515,7 +510,7 @@ class MplDebugRenderer(MplRenderer):
 
     def lines(
         self,
-        lines: LineReturn,
+        lines: cpy.LineReturn,
         line_type: LineType,
         ax: Axes | int = 0,
         color: str = "C0",
