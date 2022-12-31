@@ -1,15 +1,17 @@
+from __future__ import annotations
+
 import numpy as np
 
 from contourpy import _remove_z_mask, max_threads
 
 
-def test_max_threads():
+def test_max_threads() -> None:
     n = max_threads()
     # Assume testing on machine with 2 or more cores.
     assert n > 1
 
 
-def test_remove_z_mask():
+def test_remove_z_mask() -> None:
     zlist = [[1.0, 2.0], [3.0, 4.0]]
 
     zz, mask = _remove_z_mask(zlist)
@@ -21,12 +23,12 @@ def test_remove_z_mask():
     assert isinstance(zz, np.ndarray)
     assert mask is None
 
-    z = np.ma.array(zlist, mask=[[0, 0], [0, 0]])
+    z = np.ma.array(zlist, mask=[[0, 0], [0, 0]])  # type: ignore[no-untyped-call]
     zz, mask = _remove_z_mask(zarr)
     assert isinstance(zz, np.ndarray)
     assert mask is None
 
-    z = np.ma.array(zlist, mask=[[1, 0], [0, 0]])
+    z = np.ma.array(zlist, mask=[[1, 0], [0, 0]])  # type: ignore[no-untyped-call]
     zz, mask = _remove_z_mask(z)
     assert isinstance(zz, np.ndarray)
     assert isinstance(mask, np.ndarray)
@@ -40,7 +42,7 @@ def test_remove_z_mask():
     assert mask.dtype == bool
     np.testing.assert_array_equal(mask, [[False, True], [False, True]])
 
-    z = np.ma.array(zlist, mask=[[1, 0], [0, 0]])
+    z = np.ma.array(zlist, mask=[[1, 0], [0, 0]])  # type: ignore[no-untyped-call]
     z[1][1] = np.nan
     zz, mask = _remove_z_mask(z)
     assert isinstance(zz, np.ndarray)

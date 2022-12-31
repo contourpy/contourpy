@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import numpy as np
 import pytest
 
@@ -10,14 +12,14 @@ from contourpy.util.data import random
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
 @pytest.mark.parametrize("renderer_type", ["mpl", "bokeh"])
-def test_renderer_filled(show_text, fill_type, renderer_type):
-    if renderer_type == "mpl":
-        from contourpy.util.mpl_renderer import MplRenderer as Renderer
-    elif renderer_type == "bokeh":
+def test_renderer_filled(show_text: bool, fill_type: FillType, renderer_type: str) -> None:
+    if renderer_type == "bokeh":
         try:
             from contourpy.util.bokeh_renderer import BokehRenderer as Renderer
         except ImportError:
             pytest.skip("Optional bokeh dependencies not installed")
+    elif renderer_type == "mpl":
+        from contourpy.util.mpl_renderer import MplRenderer as Renderer  # type: ignore[no-redef]
     else:
         raise ValueError(f"Unrecognised renderer type {renderer_type}")
 
@@ -58,14 +60,14 @@ def test_renderer_filled(show_text, fill_type, renderer_type):
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
 @pytest.mark.parametrize("renderer_type", ["mpl", "bokeh"])
-def test_renderer_lines(show_text, line_type, renderer_type):
-    if renderer_type == "mpl":
-        from contourpy.util.mpl_renderer import MplRenderer as Renderer
-    elif renderer_type == "bokeh":
+def test_renderer_lines(show_text: bool, line_type: LineType, renderer_type: str) -> None:
+    if renderer_type == "bokeh":
         try:
             from contourpy.util.bokeh_renderer import BokehRenderer as Renderer
         except ImportError:
             pytest.skip("Optional bokeh dependencies not installed")
+    elif renderer_type == "mpl":
+        from contourpy.util.mpl_renderer import MplRenderer as Renderer  # type: ignore[no-redef]
     else:
         raise ValueError(f"Unrecognised renderer type {renderer_type}")
 

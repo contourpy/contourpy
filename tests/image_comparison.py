@@ -1,11 +1,22 @@
+from __future__ import annotations
+
 import os
 from shutil import copyfile
+from typing import TYPE_CHECKING
 
 import numpy as np
 
+if TYPE_CHECKING:
+    import io
 
-def compare_images(test_buffer, baseline_filename, test_filename_suffix=None, max_threshold=None,
-                   mean_threshold=None):
+
+def compare_images(
+    test_buffer: io.BytesIO,
+    baseline_filename: str,
+    test_filename_suffix: str | None = None,
+    max_threshold: int | None = None,
+    mean_threshold: float | None = None,
+) -> None:
     from PIL import Image
 
     if max_threshold is None:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from subprocess import run
 
@@ -8,13 +10,13 @@ import contourpy
 
 
 # From PEP440 appendix.
-def version_is_canonical(version):
+def version_is_canonical(version: str) -> bool:
     return re.match(
         r"^([1-9][0-9]*!)?(0|[1-9][0-9]*)(\.(0|[1-9][0-9]*))*((a|b|rc)(0|[1-9][0-9]*))?"
         r"(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$", version) is not None
 
 
-def test_cppcheck():
+def test_cppcheck() -> None:
     # Skip test if cppcheck is not installed.
     cmd = ["cppcheck", "--version"]
     try:
@@ -36,7 +38,7 @@ def test_cppcheck():
     assert proc.returncode == 0, f"cppcheck issues:\n{proc.stderr.decode('utf-8')}"
 
 
-def test_version():
+def test_version() -> None:
     version_python = contourpy.__version__
     assert version_is_canonical(version_python)
     version_cxx = contourpy._contourpy.__version__
