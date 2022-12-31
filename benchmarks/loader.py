@@ -1,16 +1,25 @@
+from __future__ import annotations
+
 from copy import deepcopy
 from datetime import datetime
+from typing import Any
 
+from asv.benchmark import Benchmark
 from asv.benchmarks import Benchmarks
 from asv.config import Config
-from asv.results import iter_results_for_machine
+from asv.results import Results, iter_results_for_machine
 from asv.statistics import get_err
 
 from contourpy import FillType, LineType
 
 
 class Loader:
-    def __init__(self, machine=None):
+    _config: Config
+    _benchmarks: Benchmarks
+    _machine: str
+    _results: Results
+
+    def __init__(self, machine: str | None = None) -> None:
         self._config = Config.load()
         self._benchmarks = Benchmarks.load(self._config)
 
@@ -29,17 +38,17 @@ class Loader:
         self._results = latest_results
         self._machine = machine
 
-    def _find_benchmark_by_name(self, name):
+    def _find_benchmark_by_name(self, name: str) -> Benchmark:
         for k, v in self._benchmarks.items():
             if k.endswith(name):
                 return v
         raise RuntimeError(f"Cannot find benchmark with name {name}")
 
     @property
-    def commit(self):
-        return self._results.commit_hash
+    def commit(self) -> str:
+        return self._results.commit_hash  # type: ignore[no-any-return]
 
-    def get(self, benchmark_name, **kwargs):
+    def get(self, benchmark_name: str, **kwargs: Any) -> dict[str, Any]:
         benchmark = self._find_benchmark_by_name(benchmark_name)
         param_names = benchmark["param_names"]
         params = deepcopy(benchmark["params"])
@@ -85,5 +94,5 @@ class Loader:
         return ret
 
     @property
-    def machine(self):
+    def machine(self) -> str:
         return self._machine
