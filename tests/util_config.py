@@ -1,10 +1,23 @@
+from __future__ import annotations
+
+from abc import abstractmethod
 from enum import Enum
 import io
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from contourpy import LineType, contour_generator
+from contourpy import FillType, LineType, contour_generator
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
+    import numpy.typing as npt
+
+    from contourpy._contourpy import (
+        CoordinateArray, FillReturn_OuterCode, LineReturn_SeparateCode, MaskArray,
+    )
 
 
 class PointType(Enum):
@@ -21,9 +34,30 @@ class Corner(Enum):
 
 
 class Config:
-    def __init__(self, name, is_filled, corner_mask, quad_as_tri, show_text):
+    corner_mask: bool
+    name: str
+    quad_as_tri: bool
+    show_text: bool
+
+    arrowsize: float
+    axes: npt.NDArray[Axes]  # Set in derived classes.
+    axes_index: int
+    fill_alpha: float
+    fig: Figure  # Set in derived classes.
+    fontsize: float
+    gap: float
+    grid_kwargs: dict[str, str | float]
+    mask: MaskArray | Literal[False]
+    marker_size: float
+    text_gap: float
+    title_fontsize: float
+    x: CoordinateArray
+    y: CoordinateArray
+
+    def __init__(
+        self, name: str, corner_mask: bool, quad_as_tri: bool, show_text: bool,
+    ) -> None:
         self.name = name
-        self.is_filled = is_filled
         self.corner_mask = corner_mask
         self.quad_as_tri = quad_as_tri
         self.show_text = show_text
@@ -40,18 +74,16 @@ class Config:
         self.x, self.y = np.meshgrid([0.0, 1.0], [0.0, 1.0])
         self.mask = False
 
-        # Set in derived classes.
-        self.fig = None
-        self.axes = None
-
         import matplotlib
         matplotlib.use("Agg")
 
-    def __del__(self):
+    def __del__(self) -> None:
         if self.fig:
             plt.close(self.fig)
 
-    def _arrow(self, ax, line_start, line_end, color):
+    def _arrow(
+        self, ax: Axes, line_start: CoordinateArray, line_end: CoordinateArray, color: str,
+    ) -> None:
         mid = 0.5*(line_start + line_end)
         along = line_end - line_start
         along /= np.sqrt(np.dot(along, along))  # Unit vector.
@@ -62,7 +94,30 @@ class Config:
             mid - (along*0.5 + right)*self.arrowsize))
         ax.plot(arrow[:, 0], arrow[:, 1], "-", c=color)
 
-    def _next_quad(self, config, corner=None, suffix="", set_0=0, set_1=1, set_2=2):
+    @abstractmethod
+    def _decode_config(self, config: int, corner: Corner | None = None) -> tuple[int | None, ...]:
+        pass
+
+    @abstractmethod
+    def _quad_lines(
+        self,
+        ax: Axes,
+        z: np.ma.MaskedArray[Any, Any],
+        zlower: float,
+        zupper: float,
+        corner: Corner | None,
+    ) -> None:
+        pass
+
+    def _next_quad(
+        self,
+        config: int,
+        corner: Corner | None = None,
+        suffix: str = "",
+        set_0: float = 0,
+        set_1: float = 1,
+        set_2: float = 2,
+    ) -> None:
         zlower = 0.5
         zupper = 1.5
 
@@ -113,13 +168,16 @@ class Config:
                 ax.text(0.5, 0.5, suffix[1:-1], va="center", size=fontsize, ha="center")
 
         lookup = {0: set_0, 1: set_1, 2: set_2, None: None}
-        nw = lookup[nw]
-        ne = lookup[ne]
-        sw = lookup[sw]
-        se = lookup[se]
+        z_nw = lookup[nw]
+        z_ne = lookup[ne]
+        z_sw = lookup[sw]
+        z_se = lookup[se]
+
+        z = np.asarray([[z_sw, z_se], [z_nw, z_ne]], dtype=np.float64)
+        z_masked = np.ma.array(z, mask=self.mask)  # type: ignore[no-untyped-call]
 
         if suffix:
-            zmean = np.mean((nw, ne, sw, se))
+            zmean = z.mean()
             if suffix == "(0)":
                 if zmean > zlower:
                     raise RuntimeError(
@@ -142,101 +200,10 @@ class Config:
             elif suffix != "":
                 raise RuntimeError(f"Unexpected suffix {suffix} for config {config}")
 
-        z = np.asarray([[sw, se], [nw, ne]], dtype=np.float64)
-        z = np.ma.array(z, mask=self.mask)
-        cont_gen = contour_generator(
-            self.x, self.y, z, name=self.name, corner_mask=self.corner_mask,
-            quad_as_tri=self.quad_as_tri)
-        if self.is_filled:
-            filled = cont_gen.filled(zlower, zupper)
-            lines = filled[0]
-        else:
-            lines = cont_gen.lines(zlower)
-            if cont_gen.line_type == LineType.SeparateCode:
-                lines = lines[0]
-
-        # May be 0..2 polygons, and there cannot be any holes.
-        for points in lines:
-            n = len(points)
-
-            if self.is_filled:
-                ax.fill(points[:, 0], points[:, 1], c="C2", alpha=self.fill_alpha, ec=None)
-
-                # Classify points, either corner, lower level or upper level.
-                point_types = []
-                for i in range(n-1):
-                    xy = points[i]
-                    x_on_quad_edge = (xy[0] in (0.0, 1.0))
-                    y_on_quad_edge = (xy[1] in (0.0, 1.0))
-                    if x_on_quad_edge and y_on_quad_edge:
-                        point_types.append(PointType.CORNER)
-                    elif not self.is_filled:
-                        point_types.append(PointType.LOWER)
-                    elif corner is not None or x_on_quad_edge or y_on_quad_edge:
-                        if (self._interp(z, xy[0], xy[1], corner) < 0.5*(zlower + zupper)):
-                            point_types.append(PointType.LOWER)
-                        else:
-                            point_types.append(PointType.UPPER)
-                    else:
-                        # Point on quad diagonal from middle point, so same type as previous point.
-                        point_types.append(point_types[-1])
-                # End point is the same as the start point.
-                point_types.append(point_types[0])
-
-                # Draw lines.
-                for i in range(n-1):
-                    s = points[i]
-                    e = points[i+1]
-                    c = "C2"
-                    if point_types[i] == point_types[i+1] and point_types[i] != PointType.CORNER:
-                        c = "C3" if point_types[i] == PointType.LOWER else "C0"
-                    ax.plot([s[0], e[0]], [s[1], e[1]], "-", c=c)
-
-                    # Arrows on boundary and contour levels (the latter only if not quad_as_tri).
-                    if point_types[i] == point_types[i+1] and (
-                            point_types[i] == PointType.CORNER or not self.quad_as_tri):
-                        self._arrow(ax, s, e, c)
-
-                # Arrows on contour levels (lower and upper) for quad_as_tri.  Only want a single
-                # arrow on each line strip, so find and use the longest line segment.  Care needed
-                # identifying the longest due to rounding error, so find all segments within a small
-                # length of the longest and take the max index of these.
-                if self.quad_as_tri:
-                    for point_type in [PointType.LOWER, PointType.UPPER]:
-                        mask = np.equal(point_types, point_type)
-                        start_indices = np.nonzero(np.logical_and(mask[1:], ~mask[:-1]))[0]
-                        for start_index in start_indices:
-                            start_index = (start_index + 1) % (n-1)
-
-                            # Roll point_types array so start segment of line strip is at front.
-                            rolled = np.roll(point_types[:-1], -start_index)
-                            end_offset = np.nonzero(rolled != point_type)[0][0]
-
-                            pts = points[start_index:start_index+end_offset]  # Line strip points.
-                            diff = np.diff(pts, axis=0)
-                            lengths = np.sum(np.square(diff), axis=1)  # Segment lengths.
-                            offset = np.nonzero(lengths > lengths.max() - 1e-6)[0].max()
-
-                            i = (start_index + offset) % (n-1)
-                            c = "C3" if point_type == PointType.LOWER else "C0"
-                            self._arrow(ax, points[i], points[i+1], c)
-
-                # Draw markers.
-                for i in range(n-1):
-                    if point_types[i] != PointType.CORNER:
-                        c = "C3" if point_types[i] == PointType.LOWER else "C0"
-                        ax.plot(points[i][0], points[i][1], "o", c=c, ms=self.marker_size)
-            else:
-                ax.plot(points[:, 0], points[:, 1], "o-", c="C3", ms=self.marker_size)
-
-                # Single arrow in middle segment (if even number of points) or the following
-                # segment (if odd number of points).
-                i = (n-1) // 2
-                self._arrow(ax, points[i], points[i+1], "C3")
-
+        self._quad_lines(ax, z_masked, zlower, zupper, corner)
         self.axes_index += 1
 
-    def _set_mask(self, corner):
+    def _set_mask(self, corner: Corner | None) -> None:
         if corner is None:
             self.mask = False
         else:
@@ -244,21 +211,21 @@ class Config:
             self.mask[corner.value] = True
             self.mask.shape = (2, 2)
 
-    def save_to_buffer(self):
+    def save_to_buffer(self) -> io.BytesIO:
         buf = io.BytesIO()
         self.fig.savefig(buf, format="png")
         buf.seek(0)
         return buf
 
-    def save_to_file(self, filename):
+    def save_to_file(self, filename: str) -> None:
         self.fig.savefig(filename)
 
 
 class ConfigFilledCommon(Config):
-    def __init__(self, name, corner_mask, quad_as_tri, show_text):
-        super().__init__(name, True, corner_mask, quad_as_tri, show_text)
+    def __init__(self, name: str, corner_mask: bool, quad_as_tri: bool, show_text: bool) -> None:
+        super().__init__(name, corner_mask, quad_as_tri, show_text)
 
-    def _decode_config(self, config, corner=None):
+    def _decode_config(self, config: int, corner: Corner | None = None) -> tuple[int | None, ...]:
         if corner is None:
             nw = (config >> 6) & 0x3
             ne = (config >> 4) & 0x3
@@ -280,30 +247,127 @@ class ConfigFilledCommon(Config):
             raise ValueError("Invalid config")
         return nw, ne, sw, se
 
-    def _interp(self, zquad, x, y, corner=None):
+    def _quad_lines(
+        self,
+        ax: Axes,
+        z: np.ma.MaskedArray[Any, Any],
+        zlower: float,
+        zupper: float,
+        corner: Corner | None,
+    ) -> None:
+        cont_gen = contour_generator(
+            self.x, self.y, z, name=self.name, corner_mask=self.corner_mask,
+            quad_as_tri=self.quad_as_tri, fill_type=FillType.OuterCode)
+
+        filled = cont_gen.filled(zlower, zupper)
+        assert cont_gen.fill_type == FillType.OuterCode
+        if TYPE_CHECKING:
+            filled = cast(FillReturn_OuterCode, filled)
+        lines = filled[0]
+
+        # May be 0..2 polygons, and there cannot be any holes.
+        for points in lines:
+            n = len(points)
+
+            ax.fill(points[:, 0], points[:, 1], c="C2", alpha=self.fill_alpha, ec=None)
+
+            # Classify points, either corner, lower level or upper level.
+            point_types = np.empty(n, dtype=PointType)
+            for i in range(n-1):
+                xy = points[i]
+                x_on_quad_edge = (xy[0] in (0.0, 1.0))
+                y_on_quad_edge = (xy[1] in (0.0, 1.0))
+                if x_on_quad_edge and y_on_quad_edge:
+                    point_types[i] = PointType.CORNER
+                elif corner is not None or x_on_quad_edge or y_on_quad_edge:
+                    if (self._interp(z, xy[0], xy[1], corner) < 0.5*(zlower + zupper)):
+                        point_types[i] = PointType.LOWER
+                    else:
+                        point_types[i] = PointType.UPPER
+                else:
+                    # Point on quad diagonal from middle point, so same type as previous point.
+                    point_types[i] = point_types[i-1]
+            # End point is the same as the start point.
+            point_types[-1] = point_types[0]
+
+            # Draw lines.
+            for i in range(n-1):
+                s = points[i]
+                e = points[i+1]
+                c = "C2"
+                if point_types[i] == point_types[i+1] and point_types[i] != PointType.CORNER:
+                    c = "C3" if point_types[i] == PointType.LOWER else "C0"
+                ax.plot([s[0], e[0]], [s[1], e[1]], "-", c=c)
+
+                # Arrows on boundary and contour levels (the latter only if not quad_as_tri).
+                if point_types[i] == point_types[i+1] and (
+                        point_types[i] == PointType.CORNER or not self.quad_as_tri):
+                    self._arrow(ax, s, e, c)
+
+            # Arrows on contour levels (lower and upper) for quad_as_tri.  Only want a single
+            # arrow on each line strip, so find and use the longest line segment.  Care needed
+            # identifying the longest due to rounding error, so find all segments within a small
+            # length of the longest and take the max index of these.
+            if self.quad_as_tri:
+                for point_type in [PointType.LOWER, PointType.UPPER]:
+                    mask = np.equal(point_types, point_type)  # type: ignore[call-overload]
+                    start_indices = np.nonzero(np.logical_and(mask[1:], ~mask[:-1]))[0]
+                    for start_index in start_indices:
+                        start_index = (start_index + 1) % (n-1)
+
+                        # Roll point_types array so start segment of line strip is at front.
+                        rolled = np.roll(point_types[:-1], -start_index)
+                        end_offset = np.nonzero(rolled != point_type)[0][0]
+
+                        pts = points[start_index:start_index+end_offset]  # Line strip points.
+                        diff = np.diff(pts, axis=0)
+                        lengths = np.sum(np.square(diff), axis=1)  # Segment lengths.
+                        offset = np.nonzero(lengths > lengths.max() - 1e-6)[0].max()
+
+                        i = (start_index + offset) % (n-1)
+                        c = "C3" if point_type == PointType.LOWER else "C0"
+                        self._arrow(ax, points[i], points[i+1], c)
+
+            # Draw markers.
+            for i in range(n-1):
+                if point_types[i] != PointType.CORNER:
+                    c = "C3" if point_types[i] == PointType.LOWER else "C0"
+                    ax.plot(points[i][0], points[i][1], "o", c=c, ms=self.marker_size)
+
+    def _interp(
+        self,
+        zquad: CoordinateArray,
+        x: CoordinateArray,
+        y: CoordinateArray,
+        corner: Corner | None = None,
+    ) -> float:
         # Interpolate zquad to determine value of z at (x, y).  Could use
         # scipy.interp2d for this, but do not want scipy as a dependency just
         # for this.
         # (x, y) must lie on one of the edges of the quad.
         # zquad[0,0] = sw, zquad[0,1] = se, zquad[1,0] = nw, zquad[1,1] = ne
+        ret: float
+
         if x == 0.0:
-            return zquad[0, 0]*(1.0-y) + zquad[1, 0]*y
+            ret = zquad[0, 0]*(1.0-y) + zquad[1, 0]*y
         elif x == 1.0:
-            return zquad[0, 1]*(1.0-y) + zquad[1, 1]*y
+            ret = zquad[0, 1]*(1.0-y) + zquad[1, 1]*y
         elif y == 0.0:
-            return zquad[0, 0]*(1.0-x) + zquad[0, 1]*x
+            ret = zquad[0, 0]*(1.0-x) + zquad[0, 1]*x
         elif y == 1.0:
-            return zquad[1, 0]*(1.0-x) + zquad[1, 1]*x
+            ret = zquad[1, 0]*(1.0-x) + zquad[1, 1]*x
         else:
             # corner is not None
             if corner in (Corner.NW, Corner.SE):
-                return zquad[0, 0]*(1.0-y) + zquad[1, 1]*y
+                ret = zquad[0, 0]*(1.0-y) + zquad[1, 1]*y
             else:
-                return zquad[0, 1]*(1.0-y) + zquad[1, 0]*y
+                ret = zquad[0, 1]*(1.0-y) + zquad[1, 0]*y
+
+        return ret
 
 
 class ConfigFilled(ConfigFilledCommon):
-    def __init__(self, name, quad_as_tri=False, show_text=True):
+    def __init__(self, name: str, quad_as_tri: bool = False, show_text: bool = True) -> None:
         super().__init__(name, False, quad_as_tri, show_text)
 
         subplot_kw = dict(aspect="equal")
@@ -316,9 +380,12 @@ class ConfigFilled(ConfigFilledCommon):
         self.axes_index = 0
         for config in range(171):
             try:
-                (nw, ne, sw, se) = all = self._decode_config(config)
+                (nw, ne, sw, se) = self._decode_config(config)
             except ValueError:
                 continue
+
+            assert nw is not None and ne is not None and sw is not None and se is not None
+            all = np.asarray((nw, ne, sw, se))
 
             # A quad is degenerate if all 4 quad edges include either the lower
             # or upper contour levels.
@@ -329,10 +396,9 @@ class ConfigFilled(ConfigFilledCommon):
 
             if self.quad_as_tri:
                 if not nw == ne == sw == se:
-                    zmax = max(all)
-                    zmin = min(all)
-                    zsum = np.sum(all)
-                    all = np.asarray(all)
+                    zmax = all.max()
+                    zmin = all.min()
+                    zsum = all.sum()
                     if zmin == 0 and zmax == 1:
                         lookup_0 = {1: 0, 2: -1, 3: -1.8}
                         self._next_quad(config, suffix="(0)", set_0=lookup_0[zsum])
@@ -371,12 +437,12 @@ class ConfigFilled(ConfigFilledCommon):
                     self._next_quad(config, suffix="(2)", set_2=3.01)
                 elif degenerate_lower:
                     # middle needs to be 0 and >0.
-                    self._next_quad(config, suffix="(0)", set_0=-0.01 if max(all) == 1 else -0.51)
+                    self._next_quad(config, suffix="(0)", set_0=-0.01 if all.max() == 1 else -0.51)
                     self._next_quad(config, suffix="(>0)", set_1=1.01)
                 elif degenerate_upper:
                     # middle needs to be <2 and 2.
                     self._next_quad(config, suffix="(<2)")
-                    self._next_quad(config, suffix="(2)", set_2=2.01 if min(all) == 1 else 2.51)
+                    self._next_quad(config, suffix="(2)", set_2=2.01 if all.min() == 1 else 2.51)
                 else:
                     # Not degenerate.
                     self._next_quad(config)
@@ -389,7 +455,7 @@ class ConfigFilled(ConfigFilledCommon):
 
 
 class ConfigFilledCorner(ConfigFilledCommon):
-    def __init__(self, name, show_text=True):
+    def __init__(self, name: str, show_text: bool = True) -> None:
         super().__init__(name, corner_mask=True, quad_as_tri=False, show_text=show_text)
 
         self.fig, axes = plt.subplots(8, 14, figsize=(12.1, 7.6), subplot_kw={"aspect": "equal"})
@@ -415,10 +481,10 @@ class ConfigFilledCorner(ConfigFilledCommon):
 
 
 class ConfigLinesCommon(Config):
-    def __init__(self, name, corner_mask, quad_as_tri, show_text):
-        super().__init__(name, False, corner_mask, quad_as_tri, show_text)
+    def __init__(self, name: str, corner_mask: bool, quad_as_tri: bool, show_text: bool) -> None:
+        super().__init__(name, corner_mask, quad_as_tri, show_text)
 
-    def _decode_config(self, config, corner=None):
+    def _decode_config(self, config: int, corner: Corner | None = None) -> tuple[int | None, ...]:
         if corner is None:
             nw = (config >> 3) & 0x1
             ne = (config >> 2) & 0x1
@@ -438,9 +504,36 @@ class ConfigLinesCommon(Config):
                 [nw, ne, sw, se] = [None, a, b, c]
         return nw, ne, sw, se
 
+    def _quad_lines(
+        self,
+        ax: Axes,
+        z: np.ma.MaskedArray[Any, Any],
+        zlower: float,
+        zupper: float,
+        corner: Corner | None,
+    ) -> None:
+        cont_gen = contour_generator(
+            self.x, self.y, z, name=self.name, corner_mask=self.corner_mask,
+            quad_as_tri=self.quad_as_tri, line_type=LineType.SeparateCode)
+
+        lines_and_codes = cont_gen.lines(zlower)
+        assert cont_gen.line_type == LineType.SeparateCode
+        if TYPE_CHECKING:
+            lines_and_codes = cast(LineReturn_SeparateCode, lines_and_codes)
+        lines = lines_and_codes[0]
+
+        for points in lines:
+            ax.plot(points[:, 0], points[:, 1], "o-", c="C3", ms=self.marker_size)
+
+            # Single arrow in middle segment (if even number of points) or the following
+            # segment (if odd number of points).
+            n = len(points)
+            i = (n-1) // 2
+            self._arrow(ax, points[i], points[i+1], "C3")
+
 
 class ConfigLines(ConfigLinesCommon):
-    def __init__(self, name, quad_as_tri=False, show_text=True):
+    def __init__(self, name: str, quad_as_tri: bool = False, show_text: bool = True) -> None:
         super().__init__(name, False, quad_as_tri, show_text)
 
         subplot_kw = dict(aspect="equal")
@@ -452,7 +545,9 @@ class ConfigLines(ConfigLinesCommon):
 
         self.axes_index = 0
         for config in range(16):
-            (nw, ne, sw, se) = all = self._decode_config(config)
+            (nw, ne, sw, se) = self._decode_config(config)
+
+            assert nw is not None and ne is not None and sw is not None and se is not None
 
             # A quad is degenerate if all 4 quad edges include the z level.
             degenerate = (se == nw == 0 and sw > 0 and ne > 0) or \
@@ -460,7 +555,7 @@ class ConfigLines(ConfigLinesCommon):
 
             if degenerate or (self.quad_as_tri and not nw == ne == sw == se):
                 if self.quad_as_tri:
-                    count_1 = np.count_nonzero(all)
+                    count_1 = np.count_nonzero((nw, ne, sw, se))
                     count_0 = 4 - count_1
                     self._next_quad(config, suffix="(0)", set_0=1.01 - count_1)
                     self._next_quad(config, suffix="(1)", set_1=0.01 + count_0)
@@ -475,7 +570,7 @@ class ConfigLines(ConfigLinesCommon):
 
 class ConfigLinesCorner(ConfigLinesCommon):
     # All 4 corners plotted together.
-    def __init__(self, name, show_text=True):
+    def __init__(self, name: str, show_text: bool = True) -> None:
         super().__init__(name, corner_mask=True, quad_as_tri=False, show_text=show_text)
 
         self.fig, axes = plt.subplots(4, 8, figsize=(6.93, 3.8), subplot_kw={"aspect": "equal"})

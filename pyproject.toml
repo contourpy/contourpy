@@ -90,14 +90,13 @@ profile = "hug"
 skip_gitignore = true
 
 [tool.mypy]
-files = ["lib/contourpy"]
+files = ["lib/contourpy", "tests"]
 python_version = "3.8"
 
 check_untyped_defs = true
 disallow_untyped_defs = true
 no_implicit_optional = true
 strict = true
-warn_return_any = true
 warn_unused_ignores = true
 
 [[tool.mypy.overrides]]

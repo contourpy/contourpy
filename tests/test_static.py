@@ -1,13 +1,17 @@
+from __future__ import annotations
+
+from typing import Type
+
 import pytest
 
 from contourpy import (
-    FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator, SerialContourGenerator,
-    ThreadedContourGenerator,
+    ContourGenerator, FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
+    SerialContourGenerator, ThreadedContourGenerator,
 )
 
 from . import util_test
 
-_lookup = {
+_lookup: dict[str, Type[ContourGenerator]] = {
     "Mpl2005ContourGenerator": Mpl2005ContourGenerator,
     "Mpl2014ContourGenerator": Mpl2014ContourGenerator,
     "SerialContourGenerator": SerialContourGenerator,
@@ -15,12 +19,12 @@ _lookup = {
 }
 
 
-def get_class_from_name(class_name):
+def get_class_from_name(class_name: str) -> Type[ContourGenerator]:
     return _lookup[class_name]
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_default_fill_type(class_name):
+def test_default_fill_type(class_name: str) -> None:
     cls = get_class_from_name(class_name)
     default = cls.default_fill_type
     assert isinstance(default, FillType)
@@ -32,7 +36,7 @@ def test_default_fill_type(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_default_line_type(class_name):
+def test_default_line_type(class_name: str) -> None:
     cls = get_class_from_name(class_name)
     default = cls.default_line_type
     assert isinstance(default, LineType)
@@ -44,7 +48,7 @@ def test_default_line_type(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_has_lines_and_filled(class_name):
+def test_has_lines_and_filled(class_name: str) -> None:
     cls = get_class_from_name(class_name)
     for func_name in ["create_contour", "create_filled_contour", "filled", "lines"]:
         assert hasattr(cls, func_name)
@@ -52,7 +56,7 @@ def test_has_lines_and_filled(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_supports_corner_mask(class_name):
+def test_supports_corner_mask(class_name: str) -> None:
     cls = get_class_from_name(class_name)
     supports = cls.supports_corner_mask()
     assert isinstance(supports, bool)
@@ -61,7 +65,7 @@ def test_supports_corner_mask(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_supports_fill_type(class_name):
+def test_supports_fill_type(class_name: str) -> None:
     cls = get_class_from_name(class_name)
     supports = cls.supports_fill_type(FillType.OuterCode)
     assert isinstance(supports, bool)
@@ -74,7 +78,7 @@ def test_supports_fill_type(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_supports_line_type(class_name):
+def test_supports_line_type(class_name: str) -> None:
     cls = get_class_from_name(class_name)
     supports = cls.supports_line_type(LineType.SeparateCode)
     assert isinstance(supports, bool)
@@ -87,7 +91,7 @@ def test_supports_line_type(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_supports_quad_as_tri(class_name):
+def test_supports_quad_as_tri(class_name: str) -> None:
     cls = get_class_from_name(class_name)
     supports = cls.supports_quad_as_tri()
     assert isinstance(supports, bool)
@@ -96,7 +100,7 @@ def test_supports_quad_as_tri(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_supports_threads(class_name):
+def test_supports_threads(class_name: str) -> None:
     cls = get_class_from_name(class_name)
     supports = cls.supports_threads()
     assert isinstance(supports, bool)
@@ -105,7 +109,7 @@ def test_supports_threads(class_name):
 
 
 @pytest.mark.parametrize("class_name", util_test.all_class_names())
-def test_supports_z_interp(class_name):
+def test_supports_z_interp(class_name: str) -> None:
     cls = get_class_from_name(class_name)
     supports = cls.supports_z_interp()
     assert isinstance(supports, bool)
