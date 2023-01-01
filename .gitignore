@@ -4,6 +4,7 @@ dist/
 contourpy.egg-info/
 result_images/
 wheelhouse/
+.mypy_cache/
 .pytest_cache/
 *.so
 *.pyd

@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import os
+from typing import Any
 
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag
@@ -16,9 +19,9 @@ class PlotDirective(CodeBlock):
         "source-position": lambda x: choice(x, ("below", "above", "none")),
     }
 
-    latest_image_index = {}  # dict of string docname -> latest image index used.
+    latest_image_index: dict[str, int] = {}  # dict of string docname -> latest image index used.
 
-    def _mpl_mode_header(self, mode):
+    def _mpl_mode_header(self, mode: str) -> str:
         if mode == "light":
             return "import matplotlib.pyplot as plt;plt.style.use('default');\n"
         elif mode == "dark":
@@ -28,7 +31,7 @@ class PlotDirective(CodeBlock):
         else:
             raise ValueError(f"Unexpected mode {mode}")
 
-    def _temporary_show(self, renderer, image_filenames):
+    def _temporary_show(self, renderer: MplRenderer, image_filenames: list[str]) -> None:
         # Temporary replacement for MplRenderer.show() to save to SVG file instead.
         docname = self.env.docname
         index = self.latest_image_index.get(docname, -1) + 1
@@ -44,7 +47,7 @@ class PlotDirective(CodeBlock):
         renderer.save(os.path.join(output_directory, output_filename), transparent=True)
         image_filenames.append(os.path.join("generated", output_filename))
 
-    def run(self):
+    def run(self: Any) -> list[Any]:
         source_position = self.options.get("source-position", "below")
 
         source = self.content
@@ -53,7 +56,7 @@ class PlotDirective(CodeBlock):
         using_modes = "separate-modes" in self.options
         modes = ["light", "dark"] if using_modes else ["light"]
 
-        svg_filenames = []
+        svg_filenames: list[str] = []
 
         # Temporarily replace MplRenderer.show() to save to SVG file and include SVG files in
         # sphinx output. Should probably be in a context manager instead.
@@ -83,6 +86,6 @@ class PlotDirective(CodeBlock):
                 return images + code_block
 
 
-def setup(app):
+def setup(app: Any) -> dict[str, bool]:
     app.add_directive("plot", PlotDirective)
     return {'parallel_read_safe': True, 'parallel_write_safe': True}

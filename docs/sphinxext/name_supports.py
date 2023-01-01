@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import sys
+from typing import Any
 
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import unchanged
@@ -6,7 +9,7 @@ from docutils.parsers.rst.directives import unchanged
 import contourpy
 
 sys.path.insert(0, '.')
-from sphinxext.table import Table
+from table import Table
 
 
 class NameSupports(Directive):
@@ -16,7 +19,7 @@ class NameSupports(Directive):
         "filter": unchanged,
     }
 
-    def run(self):
+    def run(self) -> list[Any]:
         names = list(contourpy._class_lookup)
         classes = list(contourpy._class_lookup.values())
         function_names = [
@@ -28,7 +31,7 @@ class NameSupports(Directive):
 
         filter_ = self.options.get("filter")
         if filter_ is not None:
-            function_names = filter(lambda str: filter_ in str, function_names)
+            function_names = list(filter(lambda str: filter_ in str, function_names))
 
         table = Table(1 + len(names))
         table.add_header([""] + names)
@@ -46,6 +49,6 @@ class NameSupports(Directive):
         return [table.get()]
 
 
-def setup(app):
+def setup(app: Any) -> dict[str, bool]:
     app.add_directive("name_supports", NameSupports)
     return {'parallel_read_safe': True, 'parallel_write_safe': True}

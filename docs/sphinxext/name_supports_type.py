@@ -1,17 +1,20 @@
+from __future__ import annotations
+
 import sys
+from typing import Any
 
 from docutils.parsers.rst import Directive
 
 import contourpy
 
 sys.path.insert(0, '.')
-from sphinxext.table import Table
+from table import Table
 
 
 class NameSupportsType(Directive):
     required_arguments = 1
 
-    def run(self):
+    def run(self) -> list[Any]:
         if self.arguments[0] not in ("LineType", "FillType"):
             raise ValueError(f"Do not recognise argument {self.arguments[0]}")
 
@@ -43,6 +46,6 @@ class NameSupportsType(Directive):
         return [table.get()]
 
 
-def setup(app):
+def setup(app: Any) -> dict[str, bool]:
     app.add_directive("name_supports_type", NameSupportsType)
     return {'parallel_read_safe': True, 'parallel_write_safe': True}
