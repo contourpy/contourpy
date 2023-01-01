@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import re
+from typing import TYPE_CHECKING
 
 from asv.util import human_value
 from loader import Loader
@@ -7,23 +10,28 @@ import numpy as np
 
 from contourpy import FillType, LineType
 
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+    from matplotlib.text import Annotation
+
+
 # Default fill/line types that exist in all algorithms.
 default_fill_type = FillType.OuterCode
 default_line_type = LineType.SeparateCode
 
 
-def capital_letters_to_newlines(text):
+def capital_letters_to_newlines(text: str) -> str:
     return re.sub(r"([a-z0-9])([A-Z])", r"\1\n\2", text)
 
 
-def get_corner_mask_label(corner_mask):
+def get_corner_mask_label(corner_mask: bool | str) -> str:
     if corner_mask == "no mask":
         return "no mask"
     else:
         return f"corner_mask={corner_mask}"
 
 
-def get_style(name, corner_mask):
+def get_style(name: str, corner_mask: bool | str) -> tuple[str, str, str, float]:
     # Colors from Paul Tol's colorblind friendly light scheme (https://personal.sron.nl/~pault)
     colors = {
         "mpl2005": "#eedd88",   # light yellow.
@@ -43,22 +51,22 @@ def get_style(name, corner_mask):
     return colors[name], edge_color, hatches[corner_mask], 0.5
 
 
-def with_time_units(value, error=None):
+def with_time_units(value: float, error: float | None = None) -> str:
     # ASV's human_value() doesn't put a space between numbers and units.
     # See e.g. https://physics.nist.gov/cuu/Units/checklist.html
     with_units = human_value(value, "seconds", error)
     return re.sub(r"(?<=\S)([a-zA-Z]+)$", r" \1", with_units)
 
 
-def by_name_and_type(loader, filled, dataset, render, n):
+def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n: int) -> None:
     show_error = False
-    corner_masks = ["no mask", False, True]
+    corner_masks: list[str | bool] = ["no mask", False, True]
     filled_str = "filled" if filled else "lines"
     title = f"{filled_str} {dataset} n={n} {'(calculate and render)' if render else ''}"
 
     nbars = 3
     width = 1.0 / (nbars + 1)
-    ntypes = len(FillType.__members__ if filled else LineType.__members__)
+    ntypes = len(FillType.__members__) if filled else len(LineType.__members__)
 
     for mode in ["light", "dark"]:
         plt.style.use("default" if mode == "light" else "dark_background")
@@ -120,7 +128,7 @@ def by_name_and_type(loader, filled, dataset, render, n):
         else:
             ax.set_ylim(0, ax.get_ylim()[1]*1.1)  # Magic number.
 
-        loc = "best"
+        loc: str | tuple[float, float] = "best"
         if not filled and render and dataset == "random":
             loc = "lower left"
         elif render and dataset == "simple":
@@ -131,7 +139,7 @@ def by_name_and_type(loader, filled, dataset, render, n):
 
         ax.grid(axis="y", c="k" if mode == "light" else "w", alpha=0.2)
         ax.set_xticks(np.arange(ntypes+2))
-        xticklabels = map(capital_letters_to_newlines, xticklabels)
+        xticklabels = list(map(capital_letters_to_newlines, xticklabels))
         ax.set_xticklabels(xticklabels)
         ax.set_ylabel("Time (seconds)")
         ax.set_title(title)
@@ -144,7 +152,9 @@ def by_name_and_type(loader, filled, dataset, render, n):
         fig.savefig(filename, transparent=True)
 
 
-def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
+def comparison_two_benchmarks(
+    loader: Loader, filled: bool, dataset: str, varying: str, varying_values: list[float],
+) -> None:
     if varying == "thread_count":
         file_prefix = "threaded"
     elif varying == "total_chunk_count":
@@ -193,7 +203,7 @@ def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
     speedups = np.expand_dims(mean0, axis=1) / np.reshape(mean1, (ntype, varying_count))
     speedups = speedups.ravel()
 
-    def in_bar_label(ax, rect, value):
+    def in_bar_label(ax: Axes, rect: Annotation, value: str) -> None:
         kwargs = dict(fontsize="medium", ha="center", va="bottom", color="k")
         if varying != "thread_count":
             kwargs["rotation"] = "vertical"
@@ -249,7 +259,7 @@ def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
 
         ax.set_xticks(xs[:, 0] + 0.5*varying_count)
         xticklabels = [str(t).split(".")[1] for t in fill_or_line_type]
-        xticklabels = map(capital_letters_to_newlines, xticklabels)
+        xticklabels = list(map(capital_letters_to_newlines, xticklabels))
         ax.set_xticklabels(xticklabels)
 
         ax.legend(loc="upper right", framealpha=0.9)
@@ -263,7 +273,7 @@ def comparison_two_benchmarks(loader, filled, dataset, varying, varying_values):
         fig.savefig(filename, transparent=True)
 
 
-def main():
+def main() -> None:
     loader = Loader()
 
     print(f"Saving benchmark plots for machine={loader.machine} commit={loader.commit[:7]}")
