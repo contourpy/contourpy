@@ -1,8 +1,17 @@
+from __future__ import annotations
+
+from typing import Any, Sequence
+
 from docutils import nodes
 
 
 class Table:
-    def __init__(self, ncols):
+    _ncols: int
+    _table: Any
+    _tbody: Any
+    _tgroup: Any
+
+    def __init__(self, ncols: int) -> None:
         self._ncols = ncols
         self._table = nodes.table()
         self._tgroup = nodes.tgroup(cols=ncols)
@@ -12,7 +21,7 @@ class Table:
         self._table += self._tgroup
         self._tbody = None
 
-    def add_header(self, items):
+    def add_header(self, items: Sequence[Any]) -> None:
         if len(items) != self._ncols:
             raise RuntimeError(f"Expect {self._ncols} header items but {len(items)} specified")
 
@@ -27,7 +36,7 @@ class Table:
             row += entry
             entry += nodes.paragraph(text=item)
 
-    def add_row(self, items):
+    def add_row(self, items: Sequence[Any]) -> None:
         if len(items) != self._ncols:
             raise RuntimeError(f"Expect {self._ncols} row items but {len(items)} specified")
 
@@ -43,5 +52,5 @@ class Table:
             row += entry
             entry += nodes.paragraph(text=item)
 
-    def get(self):
+    def get(self) -> Any:
         return self._table

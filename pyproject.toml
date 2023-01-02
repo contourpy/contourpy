@@ -90,7 +90,7 @@ profile = "hug"
 skip_gitignore = true
 
 [tool.mypy]
-files = ["lib/contourpy", "benchmarks", "tests"]
+files = ["lib/contourpy", "benchmarks", "docs", "tests"]
 python_version = "3.8"
 
 check_untyped_defs = true
