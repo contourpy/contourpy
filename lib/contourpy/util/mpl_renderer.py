@@ -155,7 +155,7 @@ class MplRenderer(Renderer):
                 np.stack((y[1:, :-1], ymid, y[:-1, 1:])).reshape((3, -1)),
                 **kwargs)
         if point_color is not None:
-            ax.scatter(x, y, color=point_color, alpha=alpha, marker='o')
+            ax.plot(x, y, color=point_color, alpha=alpha, marker='o', lw=0)
         ax._need_autoscale = True
 
     def lines(
