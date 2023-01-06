@@ -5,10 +5,12 @@ from typing import TYPE_CHECKING, cast
 import matplotlib.path as mpath
 import numpy as np
 
-from .. import FillType, LineType
+from contourpy import FillType, LineType
 
 if TYPE_CHECKING:
-    from .._contourpy import CodeArray, FillReturn, LineReturn, LineReturn_Separate, OffsetArray
+    from contourpy._contourpy import (
+        CodeArray, FillReturn, LineReturn, LineReturn_Separate, OffsetArray,
+    )
 
 
 def filled_to_mpl_paths(filled: FillReturn, fill_type: FillType) -> list[mpath.Path]:

@@ -11,16 +11,16 @@ from bokeh.palettes import Category10
 from bokeh.plotting import figure
 import numpy as np
 
-from .. import FillType, LineType
-from .bokeh_util import filled_to_bokeh, lines_to_bokeh
-from .renderer import Renderer
+from contourpy import FillType, LineType
+from contourpy.util.bokeh_util import filled_to_bokeh, lines_to_bokeh
+from contourpy.util.renderer import Renderer
 
 if TYPE_CHECKING:
     from bokeh.models import GridPlot
     from bokeh.palettes import Palette
     from numpy.typing import ArrayLike
 
-    from .._contourpy import FillReturn, LineReturn
+    from contourpy._contourpy import FillReturn, LineReturn
 
 
 class BokehRenderer(Renderer):

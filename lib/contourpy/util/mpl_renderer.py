@@ -7,16 +7,16 @@ import matplotlib.collections as mcollections
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .. import FillType, LineType
-from .mpl_util import filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offsets
-from .renderer import Renderer
+from contourpy import FillType, LineType
+from contourpy.util.mpl_util import filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offsets
+from contourpy.util.renderer import Renderer
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
     from numpy.typing import ArrayLike
 
-    from .. import _contourpy as cpy
+    import contourpy._contourpy as cpy
 
 
 class MplRenderer(Renderer):

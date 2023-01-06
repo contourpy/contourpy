@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ._contourpy import FillType, LineType, ZInterp
+from contourpy._contourpy import FillType, LineType, ZInterp
 
 
 def as_fill_type(fill_type: FillType | str) -> FillType:
