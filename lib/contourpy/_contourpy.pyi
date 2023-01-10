@@ -6,7 +6,7 @@ import numpy as np
 import numpy.typing as npt
 from typing_extensions import TypeAlias
 
-from . import _contourpy as cpy
+import contourpy._contourpy as cpy
 
 # Input numpy array types, the same as in common.h
 CoordinateArray: TypeAlias = npt.NDArray[np.float64]

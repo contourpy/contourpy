@@ -4,13 +4,13 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from ._contourpy import (
+from contourpy._contourpy import (
     ContourGenerator, FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
     SerialContourGenerator, ThreadedContourGenerator, ZInterp, max_threads,
 )
-from ._version import __version__
-from .chunk import calc_chunk_sizes
-from .enum_util import as_fill_type, as_line_type, as_z_interp
+from contourpy._version import __version__
+from contourpy.chunk import calc_chunk_sizes
+from contourpy.enum_util import as_fill_type, as_line_type, as_z_interp
 
 if TYPE_CHECKING:
     from typing import Any, Type

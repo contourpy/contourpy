@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from .. import FillType, LineType
-from .mpl_util import mpl_codes_to_offsets
+from contourpy import FillType, LineType
+from contourpy.util.mpl_util import mpl_codes_to_offsets
 
 if TYPE_CHECKING:
-    from .._contourpy import (
+    from contourpy._contourpy import (
         CoordinateArray, FillReturn, LineReturn, LineReturn_Separate, LineReturn_SeparateCode,
     )
 

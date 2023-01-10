@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
     from numpy.typing import ArrayLike
 
-    from .._contourpy import CoordinateArray, FillReturn, FillType, LineReturn, LineType
+    from contourpy._contourpy import CoordinateArray, FillReturn, FillType, LineReturn, LineType
 
 
 class Renderer(ABC):
