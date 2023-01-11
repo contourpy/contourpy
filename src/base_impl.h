@@ -883,7 +883,7 @@ index_t BaseContourGenerator<Derived>::get_boundary_start_point(const Location& 
             start_point = quad-_nx-1;
         }
     }
-    else if (forward < 0) {
+    else {  // forward < 0
         if (forward == -_nx) {
             assert(left == 1);
             start_point = quad-1;
