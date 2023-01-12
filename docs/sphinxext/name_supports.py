@@ -29,9 +29,12 @@ class NameSupports(Directive):
             "supports_z_interp",
         ]
 
-        filter_ = self.options.get("filter")
-        if filter_ is not None:
-            function_names = list(filter(lambda str: filter_ in str, function_names))
+        filter_string = self.options.get("filter")
+        if filter_string is not None:
+            function_name = f"supports_{filter_string}"
+            if function_name not in function_names:
+                raise ValueError(f"Invalid filter string '{filter_string}'")
+            function_names = [function_name]
 
         table = Table(1 + len(names))
         table.add_header([""] + names)

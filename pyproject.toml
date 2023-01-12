@@ -47,6 +47,13 @@ bokeh = [
     "chromedriver",
     "selenium",
 ]
+mypy = [
+    # Requirements to run mypy to check type annotations.
+    "contourpy[bokeh]",
+    "docutils-stubs",
+    "mypy ==0.991",
+    "types-Pillow",
+]
 test = [
     # Standard test dependencies.
     "matplotlib",
