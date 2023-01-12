@@ -66,7 +66,7 @@ class PlotDirective(CodeBlock):
             exec(self._mpl_mode_header(mode) + combined_source)
         setattr(MplRenderer, "show", old_show)
 
-        images = []
+        images: list[nodes.Node] = []
         for i, svg_filename in enumerate(svg_filenames):
             image = nodes.image(uri=svg_filename)
             if using_modes:
