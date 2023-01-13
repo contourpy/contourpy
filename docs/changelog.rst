@@ -3,6 +3,41 @@
 Changelog
 #########
 
+v1.0.7 (2023-01-13)
+-------------------
+
+This release adds type annotations and moves project metadata to pyproject.toml (PEP 621).
+Documentation now uses the Sphinx Furo theme, supporting dark and light modes. There are no
+functional changes.
+
+Type annotations:
+
+* Add type annotations (:pr:`199`, :pr:`200`, :pr:`201`, :pr:`202`)
+* Complete mypy configuration (:pr:`206`)
+
+Documentation improvements:
+
+* Support dark mode (:pr:`185`, :pr:`188`)
+* Use sphinx copy button (:pr:`189`)
+* Add conda monthly download badges to README (:pr:`192`)
+* Furo sphinx theme (:pr:`195`)
+
+Code improvements:
+
+* Improved if statement (:pr:`186`)
+* Test nonfinite z and decreasing zlevel for filled (:pr:`190`)
+* Add abstract base class Renderer (:pr:`198`)
+* Replace mpl scatter call with plot instead (:pr:`203`)
+* Use absolute imports (:pr:`204`)
+* Minor improvement to get_boundary_start_point (:pr:`205`)
+
+Build system and CI improvements:
+
+* Switch from setup.cfg to pyproject.toml (:pr:`181`)
+* Add git pre-commit (:pr:`191`)
+* Test improvements (:pr:`193`, :pr:`194`, :pr:`197`)
+* CI improvements (:pr:`179`, :pr:`180`, :pr:`184`)
+
 v1.0.6 (2022-10-30)
 -------------------
 
