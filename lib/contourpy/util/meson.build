@@ -5,6 +5,7 @@ python_sources = [
   'data.py',
   'mpl_renderer.py',
   'mpl_util.py',
+  'renderer.py',
 ]
 
 py3.install_sources(
