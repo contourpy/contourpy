@@ -9,7 +9,7 @@ project(
   ],
   license: 'BSD-3-Clause',
   meson_version: '>= 0.64.0',
-  version: '1.0.7.dev1',
+  version: '1.0.8.dev1',
 )
 
 # Check meson project version is the same as in _version.py
