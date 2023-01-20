@@ -68,12 +68,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Prepare MSVC
-        # See https://dvdhrm.github.io/2021/04/21/meson-msvc-github-actions/
+      - name: MSVC developer command prompt
         if: runner.os == 'Windows'
-        uses: bus1/cabuild/action/msdevshell@v1
+        uses: ilammy/msvc-dev-cmd@v1
         with:
-          architecture: x64
+          arch: x64
 
       - name: Build and install numpy from sdist with debug asserts enabled
         if: matrix.numpy-debug == '1'
