@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Type
-
 import pytest
 
 from contourpy import (
@@ -11,7 +9,7 @@ from contourpy import (
 
 from . import util_test
 
-_lookup: dict[str, Type[ContourGenerator]] = {
+_lookup: dict[str, type[ContourGenerator]] = {
     "Mpl2005ContourGenerator": Mpl2005ContourGenerator,
     "Mpl2014ContourGenerator": Mpl2014ContourGenerator,
     "SerialContourGenerator": SerialContourGenerator,
@@ -19,7 +17,7 @@ _lookup: dict[str, Type[ContourGenerator]] = {
 }
 
 
-def get_class_from_name(class_name: str) -> Type[ContourGenerator]:
+def get_class_from_name(class_name: str) -> type[ContourGenerator]:
     return _lookup[class_name]
 
 

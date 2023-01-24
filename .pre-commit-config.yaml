@@ -15,10 +15,10 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.191
     hooks:
-      - id: flake8
+      - id: ruff
 
   - repo: https://github.com/PyCQA/isort
     rev: v5.11.3
@@ -29,3 +29,6 @@ repos:
     rev: v0.10.1
     hooks:
       - id: validate-pyproject
+
+ci:
+  autofix_prs: false
