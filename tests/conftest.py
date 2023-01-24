@@ -7,10 +7,10 @@ import pytest
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
-        "--runslow", action="store_true", default=False, help="run slow tests"
+        "--runslow", action="store_true", default=False, help="run slow tests",
     )
     parser.addoption(
-        "--runtext", action="store_true", default=False, help="run tests with text output"
+        "--runtext", action="store_true", default=False, help="run tests with text output",
     )
 
 

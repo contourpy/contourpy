@@ -113,3 +113,29 @@ module = [
     "matplotlib.*",
 ]
 ignore_missing_imports = true
+
+[tool.ruff]
+exclude = [
+    "__pycache__",
+    ".asv",
+    ".git",
+    ".mypy_cache",
+    "build",
+    "dist",
+]
+line-length = 100
+select = [
+    "E",
+    "F",
+    "PLC",
+    "PLE",
+    "PLW",
+    "UP",
+    "W",
+]
+target-version = "py38"
+
+[tool.ruff.per-file-ignores]
+"docs/sphinxext/name_supports.py" = ["E402"]
+"docs/sphinxext/name_supports_type.py" = ["E402"]
+"lib/contourpy/_contourpy.pyi" = ["E501"]

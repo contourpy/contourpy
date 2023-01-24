@@ -423,8 +423,7 @@ class MplDebugRenderer(MplRenderer):
         return all_points, all_offsets
 
     def _lines_to_list_of_points(
-        self, lines: cpy.LineReturn,
-        line_type: LineType
+        self, lines: cpy.LineReturn, line_type: LineType,
     ) -> list[cpy.PointArray]:
         if line_type == LineType.Separate:
             if TYPE_CHECKING:
