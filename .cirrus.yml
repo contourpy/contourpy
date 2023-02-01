@@ -1,0 +1,24 @@
+linux_aarch64_test_task:
+  name: "Linux aarch64 test"
+  arm_container:
+    # https://hub.docker.com/_/python/
+    image: python:3.10-slim
+  pip_cache:
+    folder: ~/.cache/pip
+
+  os_dependencies_script: |
+    apt update
+    apt install -yy git g++
+
+  python_venv_script: |
+    python --version
+    python -m pip install --upgrade pip setuptools
+    python -m venv venv
+    source venv/bin/activate
+
+  install_contourpy_script: |
+    python -m pip install -ve .[test]
+    python -m pip list
+
+  run_tests_script: |
+    python -m pytest -v tests/
