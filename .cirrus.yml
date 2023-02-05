@@ -1,0 +1,61 @@
+linux_aarch64_test_task:
+  name: "Cirrus linux aarch64 ${PYTHON_VERSION}"
+
+  arm_container:
+    # https://hub.docker.com/_/python/
+    image: python:${PYTHON_VERSION}-slim
+
+  matrix:
+    - env:
+        PYTHON_VERSION: "3.8"
+    - env:
+        PYTHON_VERSION: "3.11"
+
+  os_dependencies_script: |
+    apt update
+    apt install -yy g++
+
+  python_venv_script: |
+    which python
+    python --version
+    python -m pip install --upgrade pip setuptools
+    python -m venv venv
+    source venv/bin/activate
+
+  install_contourpy_script: |
+    python -m pip install -v .[test]
+    python -m pip list
+
+  run_tests_script: |
+    python -m pytest -v tests/
+
+
+macos_arm64_test_task:
+  name: "Cirrus macos arm64 ${PYTHON_VERSION}"
+
+  macos_instance:
+    # https://github.com/cirruslabs/macos-image-templates
+    image: ghcr.io/cirruslabs/macos-monterey-xcode:14
+
+  matrix:
+    - env:
+        PYTHON_VERSION: "3.10"
+
+  os_dependencies_script: |
+    brew install python@${PYTHON_VERSION}
+    echo "PATH=/opt/homebrew/opt/python@${PYTHON_VERSION}/libexec/bin:$PATH" >> $CIRRUS_ENV
+
+  python_venv_script: |
+    env | grep PATH
+    which python
+    python --version
+    python -m pip install --upgrade pip setuptools
+    python -m venv venv
+    source venv/bin/activate
+
+  install_contourpy_script: |
+    python -m pip install -v .[test]
+    python -m pip list
+
+  run_tests_script: |
+    python -m pytest -v tests/
