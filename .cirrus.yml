@@ -1,9 +1,15 @@
 linux_aarch64_test_task:
-  name: "Linux aarch64 test"
+  name: "Cirrus linux aarch64 ${PYTHON_VERSION}"
 
   arm_container:
     # https://hub.docker.com/_/python/
-    image: python:3.10-slim
+    image: python:${PYTHON_VERSION}-slim
+
+  matrix:
+    - env:
+        PYTHON_VERSION: "3.8"
+    - env:
+        PYTHON_VERSION: "3.11"
 
   pip_cache:
     folder: ~/.cache/pip
@@ -28,18 +34,22 @@ linux_aarch64_test_task:
 
 
 macos_arm64_test_task:
-  name: "macOS arm64 test"
+  name: "Cirrus macos arm64 ${PYTHON_VERSION}"
 
   macos_instance:
     # https://github.com/cirruslabs/macos-image-templates
     image: ghcr.io/cirruslabs/macos-monterey-xcode:14
 
+  matrix:
+    - env:
+        PYTHON_VERSION: "3.10"
+
   pip_cache:
     folder: ~/.cache/pip
 
   os_dependencies_script: |
-    brew install python@3.10
-    echo "PATH=/opt/homebrew/opt/python@3.10/libexec/bin:$PATH" >> $CIRRUS_ENV
+    brew install python@${PYTHON_VERSION}
+    echo "PATH=/opt/homebrew/opt/python@${PYTHON_VERSION}/libexec/bin:$PATH" >> $CIRRUS_ENV
 
   python_venv_script: |
     env | grep PATH
