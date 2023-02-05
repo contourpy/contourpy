@@ -68,11 +68,21 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Print PATH 1
+        shell: bash
+        run: |
+          python -c "import os; print(os.environ['PATH'])"
+
       - name: MSVC developer command prompt
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
+
+      - name: Print PATH 2
+        shell: bash
+        run: |
+          python -c "import os; print(os.environ['PATH'])"
 
       - name: Build and install numpy from sdist with debug asserts enabled
         if: matrix.numpy-debug == '1'
