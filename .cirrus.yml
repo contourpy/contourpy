@@ -11,9 +11,6 @@ linux_aarch64_test_task:
     - env:
         PYTHON_VERSION: "3.11"
 
-  pip_cache:
-    folder: ~/.cache/pip
-
   os_dependencies_script: |
     apt update
     apt install -yy g++
@@ -43,9 +40,6 @@ macos_arm64_test_task:
   matrix:
     - env:
         PYTHON_VERSION: "3.10"
-
-  pip_cache:
-    folder: ~/.cache/pip
 
   os_dependencies_script: |
     brew install python@${PYTHON_VERSION}
