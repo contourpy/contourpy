@@ -73,6 +73,11 @@ jobs:
         run: |
           python -c "import os; print(os.environ['PATH'])"
 
+      - name: Clean Windows PATH
+        if: runner.os == 'Windows'
+        run: |
+          Remove-Item -Path "C:\Program Files\Git\usr\bin\link.exe"
+
       - name: MSVC developer command prompt
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
