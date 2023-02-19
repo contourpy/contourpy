@@ -288,13 +288,15 @@ def assert_lines(lines: cpy.LineReturn, line_type: LineType) -> None:
 
 
 @overload
-def sort_by_first_xy(lines: list[cpy.PointArray]) -> list[cpy.PointArray]: ...
+def sort_by_first_xy(lines: list[cpy.PointArray]) -> list[cpy.PointArray]:
+    ...
 
 
 @overload
 def sort_by_first_xy(
     lines: list[cpy.PointArray], others: list[npt.NDArray[Any]],
-) -> tuple[list[cpy.PointArray], list[npt.NDArray[Any]]]: ...
+) -> tuple[list[cpy.PointArray], list[npt.NDArray[Any]]]:
+    ...
 
 
 def sort_by_first_xy(
