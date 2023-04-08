@@ -28,7 +28,12 @@ PYBIND11_MODULE(_contourpy, m) {
         ":class:`~contourpy.ZInterp`) and :func:`contourpy.max_threads` function are all available "
         "in the :mod:`contourpy` module.";
 
-    m.attr("CONTOURPY_DEBUG") = CONTOURPY_DEBUG;
+    m.attr("CONTOURPY_DEBUG") =
+#ifdef NDEBUG
+        0;
+#else
+        1;
+#endif
     m.attr("CONTOURPY_CXX11") = CONTOURPY_CXX11;
     m.attr("__version__") = MACRO_STRINGIFY(CONTOURPY_VERSION);
 

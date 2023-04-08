@@ -34,11 +34,11 @@ jobs:
         test-image: [1]
         include:
           # Debug build including bokeh tests.
-          #- os: ubuntu-latest
-          #  python-version: '3.10'
-          #  debug: 1
-          #  numpy-debug: 0
-          #  test-image: 1
+          - os: ubuntu-latest
+            python-version: '3.10'
+            debug: 1
+            numpy-debug: 0
+            test-image: 1
           # Test against numpy debug build.
           #- os: ubuntu-latest
           #  python-version: '3.10'
@@ -112,9 +112,15 @@ jobs:
           else
             chromium --version
             echo "Install contourpy in debug mode with test and bokeh dependencies"
-            CONTOURPY_DEBUG=1 CONTOURPY_CXX11=1 python -m pip install -ve .[bokeh,test]
+            # Also -Ddebug=true?
+            python -m pip install -v .[bokeh,test] --config-settings=setup-args="-Db_ndebug=false"
+            #python -m pip install -v .[bokeh,test] --config-settings=setup-args="-Db_ndebug=false" --config-settings setup-args="-Dcpp_std=c++11"
+            #python -m pip install build
+            #python -m build -Csetup-args="-Db_ndebug=false" -Csetup-args="-Dcpp_std=c++11"
           fi
           python -m pip list
+          python -c "import contourpy._contourpy as c; print('CONTOURPY_DEBUG', c.CONTOURPY_DEBUG)"
+          #python -c "import contourpy._contourpy as c; print('CONTOURPY_CXX11', c.CONTOURPY_CXX11)"
 
       - name: Install cppcheck
         if: runner.os == 'Linux'

@@ -3,7 +3,6 @@ build-backend = "mesonpy"
 requires = [
     "meson-python",
     "pybind11>=2.6",
-    "setuptools>=61",
 ]
 
 [project]

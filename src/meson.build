@@ -21,7 +21,7 @@ pybind11_dep = declare_dependency(
 )
 
 cpp_args = [
-  '-DCONTOURPY_DEBUG=0',
+  # CONTOURPY_DEBUG derived from NDEBUG in wrap.cpp
   '-DCONTOURPY_CXX11=0',  # only for information purposes.
   '-DCONTOURPY_VERSION=@0@'.format(version),
 ]
