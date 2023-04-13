@@ -18,13 +18,15 @@ linux_aarch64_test_task:
   python_venv_script: |
     which python
     python --version
-    python -m pip install --upgrade pip setuptools
+    python -m pip install --upgrade pip
+    python -m pip install meson-python ninja pybind11
     python -m venv venv
     source venv/bin/activate
 
   install_contourpy_script: |
-    python -m pip install -v .[test]
+    python -m pip install --no-build-isolation -v .[test] --config-settings=builddir=build
     python -m pip list
+    meson introspect --targets build
 
   run_tests_script: |
     python -m pytest -v tests/
@@ -49,13 +51,15 @@ macos_arm64_test_task:
     env | grep PATH
     which python
     python --version
-    python -m pip install --upgrade pip setuptools
+    python -m pip install --upgrade pip
+    python -m pip install meson-python ninja pybind11
     python -m venv venv
     source venv/bin/activate
 
   install_contourpy_script: |
-    python -m pip install -v .[test]
+    python -m pip install --no-build-isolation -v .[test] --config-settings=builddir=build
     python -m pip list
+    meson introspect --targets build
 
   run_tests_script: |
     python -m pytest -v tests/
