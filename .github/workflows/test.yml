@@ -68,21 +68,21 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Print PATH 1
-        shell: bash
-        run: |
-          python -c "import os; print(os.environ['PATH'])"
+      #- name: Print PATH 1
+      #  shell: bash
+      #  run: |
+      #    python -c "import os; print(os.environ['PATH'])"
 
-      - name: Clean Windows PATH
-        if: runner.os == 'Windows'
-        run: |
-          Remove-Item -Path "C:\Program Files\Git\usr\bin\link.exe"
+      #- name: Clean Windows PATH
+      #  if: runner.os == 'Windows'
+      #  run: |
+      #    Remove-Item -Path "C:\Program Files\Git\usr\bin\link.exe"
 
-      - name: MSVC developer command prompt
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: x64
+      #- name: MSVC developer command prompt
+      #  if: runner.os == 'Windows'
+      #  uses: ilammy/msvc-dev-cmd@v1
+      #  with:
+      #    arch: x64
 
       - name: Print PATH 2
         shell: bash
@@ -98,29 +98,29 @@ jobs:
       - name: Install contourpy
         shell: bash
         run: |
-          python -m pip install --upgrade pip setuptools
+          python -m pip install --upgrade pip
+          python -m pip install meson-python ninja pybind11
           if [[ ${{ matrix.debug }} == 0 ]];
           then
             if [[ ${{ matrix.test-image }} == 1 ]];
             then
               echo "Install contourpy with standard test dependencies"
-              python -m pip install -v .[test]
+              python -m pip install --no-build-isolation -v .[test] --config-settings=builddir=build
             else
               echo "Install contourpy with non-image-generating test dependencies"
-              python -m pip install -v .[test-no-images]
+              python -m pip install --no-build-isolation -v .[test-no-images] --config-settings=builddir=build
             fi
           else
             chromium --version
             echo "Install contourpy in debug mode with test and bokeh dependencies"
             # Also -Ddebug=true?
-            python -m pip install -v .[bokeh,test] --config-settings=setup-args="-Db_ndebug=false"
+            python -m pip install --no-build-isolation -v .[bokeh,test] --config-settings=setup-args="-Db_ndebug=false" --config-settings=builddir=build
             #python -m pip install -v .[bokeh,test] --config-settings=setup-args="-Db_ndebug=false" --config-settings setup-args="-Dcpp_std=c++11"
-            #python -m pip install build
-            #python -m build -Csetup-args="-Db_ndebug=false" -Csetup-args="-Dcpp_std=c++11"
           fi
           python -m pip list
           python -c "import contourpy._contourpy as c; print('CONTOURPY_DEBUG', c.CONTOURPY_DEBUG)"
           #python -c "import contourpy._contourpy as c; print('CONTOURPY_CXX11', c.CONTOURPY_CXX11)"
+          meson introspect --targets build
 
       - name: Install cppcheck
         if: runner.os == 'Linux'
