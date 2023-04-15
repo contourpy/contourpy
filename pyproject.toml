@@ -7,8 +7,7 @@ requires = [
 
 [project]
 authors = [
-    {name = "Ian Thomas"},
-    {email = "ianthomas23@gmail.com"},
+    {name = "Ian Thomas", email = "ianthomas23@gmail.com"},
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
