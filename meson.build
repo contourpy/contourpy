@@ -2,9 +2,8 @@ project(
   'contourpy',
   'cpp',
   default_options: [
-    'b_ndebug=true',   # true disables asserts, false keeps them.
-    'buildtype=debugoptimized',
-    'cpp_std=c++11',   # none, c++14, c++17 are other options.
+    # meson-python options are set in pyproject.toml
+    'cpp_std=c++17',
     'werror=true',
   ],
   license: 'BSD-3-Clause',

@@ -114,8 +114,7 @@ jobs:
             chromium --version
             echo "Install contourpy in debug mode with test and bokeh dependencies"
             # Also -Ddebug=true?
-            python -m pip install --no-build-isolation -v .[bokeh,test] --config-settings=setup-args="-Db_ndebug=false" --config-settings=builddir=build
-            #python -m pip install -v .[bokeh,test] --config-settings=setup-args="-Db_ndebug=false" --config-settings setup-args="-Dcpp_std=c++11"
+            python -m pip install --no-build-isolation -v .[bokeh,test] --config-settings=setup-args="-Dbuildtype=debug" --config-settings=builddir=build
           fi
           python -m pip list
           python -c "import contourpy._contourpy as c; print('CONTOURPY_DEBUG', c.CONTOURPY_DEBUG)"
