@@ -71,7 +71,9 @@ repository = "https://github.com/contourpy/contourpy"
 
 
 [tool.meson-python.args]
-compile = []
+compile = [
+    "-v",
+]
 dist = []
 install = []
 setup = [
@@ -84,11 +86,14 @@ setup = [
 
 [tool.cibuildwheel]
 build-frontend = "build"
-build-verbosity = "2"
+#build-verbosity = "2"
 build = "cp38-* cp39-* cp310-* cp311-* pp38-* pp39-*"
 test-command = 'python -c "import contourpy as c; c.contour_generator(z=[[0, 1], [2, 3]]).lines(0.9)"'
 # Only test combinations for which a numpy wheel exists, and macos universal unnecessary.
 test-skip = "pp38-*-aarch64 pp39-* *musllinux* *-macosx_arm64 *-macosx_universal2"
+
+[tool.cibuildwheel.config-settings]
+compile-args = "-v"
 
 [tool.cibuildwheel.linux]
 archs = "auto aarch64"

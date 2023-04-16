@@ -1,12 +1,3 @@
-message('----- CPP -----')
-cpp = meson.get_compiler('cpp')
-message(cpp.get_id())
-message(cpp.version())
-message(meson.project_source_root())
-message(py3.get_install_dir())
-message(py3.language_version())
-message('---------------')
-
 incdir_pybind11 = run_command(py3,
   ['-c', 'import pybind11; print(pybind11.get_include())'],
   check: true

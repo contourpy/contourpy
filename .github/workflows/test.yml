@@ -116,21 +116,20 @@ jobs:
             if [[ ${{ matrix.test-image }} == 1 ]];
             then
               echo "Install contourpy with standard test dependencies"
-              python -m pip install --no-build-isolation -v .[test] --config-settings=builddir=build
+              python -m pip install -v .[test]
             else
               echo "Install contourpy with non-image-generating test dependencies"
-              python -m pip install --no-build-isolation -v .[test-no-images] --config-settings=builddir=build
+              python -m pip install -v .[test-no-images]
             fi
           else
             chromium --version
             echo "Install contourpy in debug mode with test and bokeh dependencies"
             # Also -Ddebug=true?
-            python -m pip install --no-build-isolation -v .[bokeh,test] --config-settings=setup-args="-Dbuildtype=debug" --config-settings=builddir=build
+            python -m pip install -v .[bokeh,test] --config-settings=setup-args="-Dbuildtype=debug" --config-settings=builddir=build
           fi
           python -m pip list
           python -c "import contourpy._contourpy as c; print('CONTOURPY_DEBUG', c.CONTOURPY_DEBUG)"
           #python -c "import contourpy._contourpy as c; print('CONTOURPY_CXX11', c.CONTOURPY_CXX11)"
-          meson introspect --targets build
 
       - name: Install cppcheck
         if: runner.os == 'Linux'
