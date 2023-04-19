@@ -77,8 +77,6 @@ compile = [
 dist = []
 install = []
 setup = [
-    "-Dbuildtype=release",
-    "-Db_ndebug=if-release",
     "-Doptimization=3",
     "--vsenv",  # Force use of MSVC on Windows, ignored on other platforms
 ]
@@ -86,7 +84,6 @@ setup = [
 
 [tool.cibuildwheel]
 build-frontend = "build"
-#build-verbosity = "2"
 build = "cp38-* cp39-* cp310-* cp311-* pp38-* pp39-*"
 test-command = 'python -c "import contourpy as c; c.contour_generator(z=[[0, 1], [2, 3]]).lines(0.9)"'
 # Only test combinations for which a numpy wheel exists, and macos universal unnecessary.
