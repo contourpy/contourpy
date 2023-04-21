@@ -19,12 +19,12 @@ linux_aarch64_test_task:
     which python
     python --version
     python -m pip install --upgrade pip
-    python -m pip install meson-python ninja pybind11
+    python -m pip install meson-python>=0.13.0 ninja pybind11>=2.10.4
     python -m venv venv
     source venv/bin/activate
 
   install_contourpy_script: |
-    python -m pip install --no-build-isolation -v .[test] --config-settings=builddir=build
+    python -m pip install --no-build-isolation -v .[test] -C builddir=build
     python -m pip list
     meson introspect --targets build
 
@@ -52,12 +52,12 @@ macos_arm64_test_task:
     which python
     python --version
     python -m pip install --upgrade pip
-    python -m pip install meson-python ninja pybind11
+    python -m pip install meson-python>=0.13.0 ninja pybind11>=2.10.4
     python -m venv venv
     source venv/bin/activate
 
   install_contourpy_script: |
-    python -m pip install --no-build-isolation -v .[test] --config-settings=builddir=build
+    python -m pip install --no-build-isolation -v .[test] -C builddir=build
     python -m pip list
     meson introspect --targets build
 

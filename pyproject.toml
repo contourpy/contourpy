@@ -1,8 +1,9 @@
 [build-system]
 build-backend = "mesonpy"
 requires = [
-    "meson-python>=0.13.0",
-    "pybind11>=2.6",
+    "meson-python >= 0.13.0",
+    "meson >= 1.1.0",
+    "pybind11 >= 2.10.4",
 ]
 
 [project]
@@ -33,7 +34,7 @@ dynamic = ["version"]
 license = {text = "BSD-3-Clause"}
 name = "contourpy"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">= 3.8"
 
 [project.optional-dependencies]
 docs = [

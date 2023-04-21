@@ -21,6 +21,21 @@ endif
 py_mod = import('python')
 py3 = py_mod.find_installation(pure: false)
 
+#pybind11_dep = dependency('pybind11', version: '>=2.10.4')
+
+incdir_pybind11 = run_command(py3,
+  ['-c', 'import pybind11; print(pybind11.get_include())'],
+  check: true
+).stdout().strip()
+
+inc_pybind11 = include_directories(incdir_pybind11)
+
+pybind11_config = find_program('pybind11-config')
+pybind11_config_ret = run_command(pybind11_config, ['--includes'], check: true)
+pybind11_dep = declare_dependency(
+  include_directories: [pybind11_config_ret.stdout().split('-I')[-1].strip()],
+)
+
 message('----- INFO -----')
 message(meson.backend())
 message(meson.version())
@@ -35,6 +50,9 @@ message(host_machine.system())
 message(meson.project_source_root())
 message(py3.get_install_dir())
 message(py3.language_version())
+message('----------------')
+message(pybind11_dep.version())
+message(pybind11_dep.type_name())
 message('----------------')
 
 subdir('lib/contourpy')
