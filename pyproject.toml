@@ -1,8 +1,8 @@
 [build-system]
 build-backend = "mesonpy"
 requires = [
-    "meson-python >= 0.13.0",
     "meson >= 1.1.0",
+    "meson-python >= 0.13.0",
     "pybind11 >= 2.10.4",
 ]
 
@@ -98,9 +98,6 @@ archs = "auto aarch64"
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64 universal2"
-
-[tool.cibuildwheel.windows]
-archs = "AMD64"
 
 
 [tool.isort]

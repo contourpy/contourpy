@@ -21,8 +21,6 @@ endif
 py_mod = import('python')
 py3 = py_mod.find_installation(pure: false)
 
-#pybind11_dep = dependency('pybind11', version: '>=2.10.4')
-
 incdir_pybind11 = run_command(py3,
   ['-c', 'import pybind11; print(pybind11.get_include())'],
   check: true
@@ -43,7 +41,7 @@ cpp = meson.get_compiler('cpp')
 message(cpp.get_id())
 message(cpp.version())
 message(cpp.get_linker_id())
-#message(cpp.cmd_array())
+message(cpp.cmd_array())
 message(host_machine.cpu())
 message(host_machine.cpu_family())
 message(host_machine.system())

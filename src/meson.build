@@ -22,10 +22,8 @@ ext = py3.extension_module(
     'z_interp.cpp',
   ],
   cpp_args: [cpp_args],
-  #link_args: version_link_args,
   dependencies : [pybind11_dep],
   gnu_symbol_visibility: 'hidden',
   install: true,
-  #override_options: [],   # Can override options from project
   subdir: 'contourpy',
 )

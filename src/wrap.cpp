@@ -34,7 +34,7 @@ PYBIND11_MODULE(_contourpy, m) {
 #else
         1;
 #endif
-    m.attr("CONTOURPY_CXX11") = CONTOURPY_CXX11;
+    m.attr("CONTOURPY_CXX11") = CONTOURPY_CXX11;  // Currently ignored
     m.attr("__version__") = MACRO_STRINGIFY(CONTOURPY_VERSION);
 
     py::enum_<contourpy::FillType>(m, "FillType",
