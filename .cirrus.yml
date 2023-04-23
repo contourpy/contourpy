@@ -18,12 +18,12 @@ linux_aarch64_test_task:
   python_venv_script: |
     which python
     python --version
-    python -m pip install --upgrade pip setuptools
+    python -m pip install --upgrade pip
     python -m venv venv
     source venv/bin/activate
 
   install_contourpy_script: |
-    python -m pip install -v .[test]
+    python -m pip install -v .[test] -C builddir=build
     python -m pip list
 
   run_tests_script: |
@@ -49,12 +49,12 @@ macos_arm64_test_task:
     env | grep PATH
     which python
     python --version
-    python -m pip install --upgrade pip setuptools
+    python -m pip install --upgrade pip
     python -m venv venv
     source venv/bin/activate
 
   install_contourpy_script: |
-    python -m pip install -v .[test]
+    python -m pip install -v .[test] -C builddir=build
     python -m pip list
 
   run_tests_script: |

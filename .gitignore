@@ -11,7 +11,7 @@ wheelhouse/
 *.pyd
 .vscode/
 .asv/
-_build/
+.mesonpy-native-file.ini
 generated/
 benchmarks/*.png
 benchmarks/*.svg
