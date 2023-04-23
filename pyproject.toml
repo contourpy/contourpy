@@ -86,8 +86,8 @@ setup = [
 build-frontend = "build"
 build = "cp38-* cp39-* cp310-* cp311-* pp38-* pp39-*"
 test-command = 'python -c "import contourpy as c; c.contour_generator(z=[[0, 1], [2, 3]]).lines(0.9)"'
-# Only test combinations for which a numpy wheel exists, and macos universal unnecessary.
-test-skip = "pp38-*-aarch64 pp39-* *musllinux* *-macosx_arm64 *-macosx_universal2"
+# Only test combinations for which a numpy wheel exists
+test-skip = "pp38-*-aarch64 pp39-* *musllinux* *-macosx_arm64"
 
 [tool.cibuildwheel.config-settings]
 compile-args = "-v"
@@ -96,7 +96,7 @@ compile-args = "-v"
 archs = "auto aarch64"
 
 [tool.cibuildwheel.macos]
-archs = "x86_64 arm64 universal2"
+archs = "x86_64 arm64"
 
 
 [tool.isort]
