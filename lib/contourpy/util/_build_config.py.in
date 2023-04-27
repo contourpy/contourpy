@@ -24,12 +24,12 @@ def build_config() -> dict[str, str]:
 
         # Misc meson settings
         meson_backend="@meson_backend@",
-        build_dir="@build_dir@",
-        source_dir="@source_dir@",
+        build_dir=r"@build_dir@",
+        source_dir=r"@source_dir@",
         cross_build="@cross_build@",
 
         # Build options
-        build_options="@build_options@",
+        build_options=r"@build_options@",
         buildtype="@buildtype@",
         cpp_std="@cpp_std@",
         debug="@debug@",
