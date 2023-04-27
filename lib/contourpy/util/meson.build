@@ -19,8 +19,8 @@ conf_data = configuration_data()
 
 # Python settings
 conf_data.set('python_version', py3.language_version())
-conf_data.set('python_install_dir', py3.get_install_dir())
-conf_data.set('python_path', py3.full_path())
+conf_data.set('python_install_dir', py3.get_install_dir().replace('\\', '/'))
+conf_data.set('python_path', py3.full_path().replace('\\', '/'))
 
 # package versions
 conf_data.set('contourpy_version', meson.project_version())
@@ -36,12 +36,12 @@ conf_data.set('pybind11_version', pybind11_dep.version())
 
 # Misc meson settings
 conf_data.set('meson_backend', meson.backend())
-conf_data.set('build_dir', meson.current_build_dir())
-conf_data.set('source_dir', meson.current_source_dir())
+conf_data.set('build_dir', meson.current_build_dir().replace('\\', '/'))
+conf_data.set('source_dir', meson.current_source_dir().replace('\\', '/'))
 conf_data.set('cross_build', meson.is_cross_build())
 
 # Build options
-conf_data.set('build_options', meson.build_options())
+conf_data.set('build_options', meson.build_options().replace('\\', '/'))
 options = [
   'b_ndebug',
   'b_vscrt',
