@@ -103,10 +103,11 @@ jobs:
             chromium --version
             echo "Install contourpy in debug mode with test and bokeh dependencies"
             # Also -Ddebug=true?
-            python -m pip install -v .[bokeh,test] -C setup-args=-Dbuildtype=debug -C builddir=build
+            python -m pip install -v .[bokeh,test] -C setup-args=-Dbuildtype=debug -C setup-args=-Dcpp_std=c++11 -C builddir=build
           fi
           python -m pip list
-          python -c "import contourpy._contourpy as c; print('CONTOURPY_DEBUG', c.CONTOURPY_DEBUG)"
+          python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
+          python -c "import contourpy as c; print('NDEBUG', c._contourpy.NDEBUG)"
 
       - name: Install cppcheck
         if: runner.os == 'Linux'

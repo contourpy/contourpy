@@ -28,14 +28,15 @@ PYBIND11_MODULE(_contourpy, m) {
         ":class:`~contourpy.ZInterp`) and :func:`contourpy.max_threads` function are all available "
         "in the :mod:`contourpy` module.";
 
-    m.attr("CONTOURPY_DEBUG") =
-#ifdef NDEBUG
-        0;
-#else
-        1;
-#endif
-    m.attr("CONTOURPY_CXX11") = CONTOURPY_CXX11;  // Currently ignored
     m.attr("__version__") = MACRO_STRINGIFY(CONTOURPY_VERSION);
+
+    // asserts are enabled if NDEBUG is 0.
+    m.attr("NDEBUG") =
+#ifdef NDEBUG
+        1;
+#else
+        0;
+#endif
 
     py::enum_<contourpy::FillType>(m, "FillType",
         "Enum used for ``fill_type`` keyword argument in :func:`~contourpy.contour_generator`.\n\n"
