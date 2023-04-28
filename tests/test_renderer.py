@@ -19,7 +19,7 @@ def test_renderer_filled(show_text: bool, fill_type: FillType, renderer_type: st
         except ImportError:
             pytest.skip("Optional bokeh dependencies not installed")
     elif renderer_type == "mpl":
-        from contourpy.util.mpl_renderer import MplRenderer as Renderer  # type: ignore[no-redef]
+        from contourpy.util.mpl_renderer import MplRenderer as Renderer  # type: ignore
     else:
         raise ValueError(f"Unrecognised renderer type {renderer_type}")
 
@@ -67,7 +67,7 @@ def test_renderer_lines(show_text: bool, line_type: LineType, renderer_type: str
         except ImportError:
             pytest.skip("Optional bokeh dependencies not installed")
     elif renderer_type == "mpl":
-        from contourpy.util.mpl_renderer import MplRenderer as Renderer  # type: ignore[no-redef]
+        from contourpy.util.mpl_renderer import MplRenderer as Renderer  # type: ignore
     else:
         raise ValueError(f"Unrecognised renderer type {renderer_type}")
 
