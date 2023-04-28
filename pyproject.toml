@@ -49,7 +49,7 @@ bokeh = [
 ]
 mypy = [
     # Requirements to run mypy to check type annotations.
-    "contourpy[bokeh]",
+    "contourpy[bokeh,docs]",
     "docutils-stubs",
     "mypy == 1.2.0",
     "types-Pillow",
