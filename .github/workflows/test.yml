@@ -101,9 +101,9 @@ jobs:
             fi
           else
             chromium --version
-            echo "Install contourpy in debug mode with test and bokeh dependencies"
+            echo "Install contourpy in debug mode with test, bokeh and mypy dependencies"
             # Also -Ddebug=true?
-            python -m pip install -v .[bokeh,test] -C setup-args=-Dbuildtype=debug -C setup-args=-Dcpp_std=c++11 -C builddir=build
+            python -m pip install -v .[bokeh,mypy,test] -C setup-args=-Dbuildtype=debug -C setup-args=-Dcpp_std=c++11 -C builddir=build
           fi
           python -m pip list
           python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"

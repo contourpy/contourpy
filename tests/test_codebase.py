@@ -38,6 +38,19 @@ def test_cppcheck() -> None:
     assert proc.returncode == 0, f"cppcheck issues:\n{proc.stderr.decode('utf-8')}"
 
 
+def test_mypy() -> None:
+    # Skip test if mypy is not installed.
+    cmd = ["mypy", "--version"]
+    try:
+        proc = run(cmd, capture_output=True)
+    except FileNotFoundError:
+        pytest.skip()
+
+    cmd = ["mypy"]
+    proc = run(cmd, capture_output=True)
+    assert proc.returncode == 0, print(f"mypy issues:\n{proc.stdout.decode('utf-8')}")
+
+
 def test_version() -> None:
     version_python = contourpy.__version__
     assert version_is_canonical(version_python)
