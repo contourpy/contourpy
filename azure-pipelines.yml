@@ -1,0 +1,49 @@
+trigger:
+  batch: False
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+    - '*'
+
+stages:
+- stage: Test
+  jobs:
+  - job: Win32
+    timeoutInMinutes: 60
+    pool:
+      vmImage: 'windows-2019'
+    strategy:
+      maxParallel: 4
+      matrix:
+        Python38-32bit:
+          PYTHON_VERSION: '3.9'
+        Python310-32bit:
+          PYTHON_VERSION: '3.10'
+
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(PYTHON_VERSION)'
+        addToPath: true
+        architecture: x86
+      displayName: 'Python $(PYTHON_VERSION)'
+
+    - script: |
+        python -m pip install --upgrade pip
+        python -m pip list
+      displayName: 'Upgrade pip'
+
+    - script: |
+        python -m pip install -v .[test]
+        python -m pip list
+        python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
+        python -c "import contourpy as c; print('NDEBUG', c._contourpy.NDEBUG)"
+      displayName: 'Install contourpy'
+
+    - script: |
+        python -m pytest -v tests/
+      displayName: 'Run tests'
