@@ -77,7 +77,6 @@ compile = [
 dist = []
 install = []
 setup = [
-    "-Doptimization=3",
     "--vsenv",  # Force use of MSVC on Windows, ignored on other platforms
 ]
 
@@ -97,6 +96,9 @@ archs = "auto aarch64"
 
 [tool.cibuildwheel.macos]
 archs = "x86_64 arm64"
+
+[tool.cibuildwheel.windows]
+archs = "AMD64"  # Temporarily exclude x86
 
 
 [tool.isort]
