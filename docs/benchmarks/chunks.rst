@@ -16,7 +16,7 @@ increased from 1 to 120.
 .. image:: ../_static/chunk_filled_simple_dark.svg
    :class: only-dark
 
-The performance of the  ``simple`` dataset varies by only a small amount (3.5%) for a
+The performance of the  ``simple`` dataset varies by only a small amount (4%) for a
 ``total_chunk_count`` of up to 120.
 
 .. image:: ../_static/chunk_lines_random_light.svg
