@@ -1,5 +1,5 @@
 cpp_args = [
-  '-DCONTOURPY_VERSION=@0@'.format(version),
+  '-DCONTOURPY_VERSION=' + version
 ]
 
 ext = py3.extension_module(
@@ -19,8 +19,8 @@ ext = py3.extension_module(
     'wrap.cpp',
     'z_interp.cpp',
   ],
-  cpp_args: [cpp_args],
-  dependencies : [pybind11_dep],
+  cpp_args: cpp_args,
+  dependencies: [pybind11_dep],
   gnu_symbol_visibility: 'hidden',
   install: true,
   subdir: 'contourpy',
