@@ -17,8 +17,8 @@ of 1000 and a ``total_chunk_count`` of 40 for up to 6 threads.
    :class: only-dark
 
 For the ``simple`` dataset contour calculations are faster with more threads but it does not scale
-particulary well.  The speedup with 6 threads is about 2.7 for :func:`~contourpy.ContourGenerator.lines`
-and about 2.8 for :func:`~contourpy.ContourGenerator.filled`.  This problem dataset is perhaps not
+particulary well.  The speedup with 6 threads is about 2.6 for :func:`~contourpy.ContourGenerator.lines`
+and about 2.5 for :func:`~contourpy.ContourGenerator.filled`.  This problem dataset is perhaps not
 computationally expensive enough to justify the use of multiple threads.
 
 .. image:: ../_static/threaded_lines_random_light.svg
