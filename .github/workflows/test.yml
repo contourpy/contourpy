@@ -109,7 +109,7 @@ jobs:
             chromium --version
             echo "Install contourpy in debug mode with test, bokeh and mypy dependencies"
             # For python coverage need editable install
-            python -m pip install "meson >= 1.1.0" "meson-python >= 0.13.1" "pybind11 >= 2.10.4"
+            python -m pip install "meson[ninja] >= 1.1.0" "meson-python >= 0.13.1" "pybind11 >= 2.10.4"
             python -m pip install -ve .[bokeh,mypy,test] --no-build-isolation -C setup-args=-Dbuildtype=debug -C setup-args=-Db_coverage=true -C setup-args=-Dcpp_std=c++11 -C builddir=build
           fi
           python -m pip list
