@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "mesonpy"
 requires = [
-    "meson >= 1.1.0",
+    "meson[ninja] >= 1.1.0",
     "meson-python >= 0.13.1",
     "pybind11 >= 2.10.4",
 ]
@@ -56,13 +56,14 @@ mypy = [
 ]
 test = [
     # Standard test dependencies.
+    "contourpy[test-no-images]",
     "matplotlib",
     "Pillow",
-    "pytest",
 ]
 test-no-images = [
     # Dependencies to run tests excluding image-generating tests.
     "pytest",
+    "pytest-cov",
 ]
 
 [project.urls]

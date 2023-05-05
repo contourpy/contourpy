@@ -34,7 +34,7 @@ jobs:
         build-numpy-debug: [0]
         test-image: [1]
         include:
-          # Debug build including bokeh tests.
+          # Debug build including bokeh tests and code coverage.
           - os: ubuntu-latest
             python-version: '3.10'
             debug: 1
@@ -73,6 +73,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install OS dependencies
+        if: matrix.debug == '1'
+        run: |
+          sudo apt update -yy
+          sudo apt install -yy lcov
+
       - name: Build and install numpy from sdist
         if: matrix.build-numpy == '1'
         shell: bash
@@ -102,8 +108,9 @@ jobs:
           else
             chromium --version
             echo "Install contourpy in debug mode with test, bokeh and mypy dependencies"
-            # Also -Ddebug=true?
-            python -m pip install -v .[bokeh,mypy,test] -C setup-args=-Dbuildtype=debug -C setup-args=-Dcpp_std=c++11 -C builddir=build
+            # For python coverage need editable install
+            python -m pip install "meson[ninja] >= 1.1.0" "meson-python >= 0.13.1" "pybind11 >= 2.10.4"
+            python -m pip install -ve .[bokeh,mypy,test] --no-build-isolation -C setup-args=-Dbuildtype=debug -C setup-args=-Db_coverage=true -C setup-args=-Dcpp_std=c++11 -C builddir=build
           fi
           python -m pip list
           python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
@@ -125,12 +132,31 @@ jobs:
         run: |
           if [[ ${{ matrix.test-image }} == 1 ]];
           then
-            echo "Run all tests"
-            python -m pytest -v tests/
+            if [[ ${{ matrix.debug }} == 1 ]];
+            then
+              echo "Run all tests with coverage"
+              python -m pytest -v tests/ --cov=lib --cov-report=lcov
+            else
+              echo "Run all tests"
+              python -m pytest -v tests/
+            fi
           else
             echo "Run only tests that do not generate images"
             python -m pytest -v tests/ -k "not image"
           fi
+
+      - name: Collect C++ coverage
+        if: matrix.debug == '1'
+        run: |
+          lcov --output-file coverage.cpp --capture --directory build
+          lcov --output-file coverage.cpp --extract coverage.cpp $PWD/src/'*'
+
+      - name: Upload coverage
+        if: matrix.debug == '1'
+        uses: codecov/codecov-action@v3
+        with:
+          files: coverage.lcov,coverage.cpp
+          verbose: true
 
       - name: Collect test image failures
         if: always()
