@@ -1,0 +1,15 @@
+codecov:
+  notify:
+    wait_for_ci: no
+
+comment: false
+
+coverage:
+  range: 85..95
+  status:
+    patch:
+      default:
+        target: 50%
+
+github_checks:
+    annotations: false
