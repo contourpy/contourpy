@@ -83,30 +83,13 @@ namespace mpl2014 {
 
 
 
-QuadEdge::QuadEdge()
-    : quad(-1), edge(Edge_None)
-{}
-
 QuadEdge::QuadEdge(index_t quad_, Edge edge_)
     : quad(quad_), edge(edge_)
 {}
 
-bool QuadEdge::operator<(const QuadEdge& other) const
-{
-    if (quad != other.quad)
-        return quad < other.quad;
-    else
-        return edge < other.edge;
-}
-
 bool QuadEdge::operator==(const QuadEdge& other) const
 {
     return quad == other.quad && edge == other.edge;
-}
-
-bool QuadEdge::operator!=(const QuadEdge& other) const
-{
-    return !operator==(other);
 }
 
 std::ostream& operator<<(std::ostream& os, const QuadEdge& quad_edge)
@@ -116,9 +99,6 @@ std::ostream& operator<<(std::ostream& os, const QuadEdge& quad_edge)
 
 
 
-XY::XY()
-{}
-
 XY::XY(const double& x_, const double& y_)
     : x(x_), y(y_)
 {}
@@ -126,40 +106,6 @@ XY::XY(const double& x_, const double& y_)
 bool XY::operator==(const XY& other) const
 {
     return x == other.x && y == other.y;
-}
-
-bool XY::operator!=(const XY& other) const
-{
-    return x != other.x || y != other.y;
-}
-
-XY XY::operator*(const double& multiplier) const
-{
-    return XY(x*multiplier, y*multiplier);
-}
-
-const XY& XY::operator+=(const XY& other)
-{
-    x += other.x;
-    y += other.y;
-    return *this;
-}
-
-const XY& XY::operator-=(const XY& other)
-{
-    x -= other.x;
-    y -= other.y;
-    return *this;
-}
-
-XY XY::operator+(const XY& other) const
-{
-    return XY(x + other.x, y + other.y);
-}
-
-XY XY::operator-(const XY& other) const
-{
-    return XY(x - other.x, y - other.y);
 }
 
 std::ostream& operator<<(std::ostream& os, const XY& xy)
