@@ -281,8 +281,8 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(
       _ny(_z.ndim() > 0 ? _z.shape(0) : 0),
       _n(_nx*_ny),
       _corner_mask(corner_mask),
-      _x_chunk_size(x_chunk_size > 0 ? std::min(x_chunk_size, _nx-1) : _nx-1),
-      _y_chunk_size(y_chunk_size > 0 ? std::min(y_chunk_size, _ny-1) : _ny-1),
+      _x_chunk_size(calc_chunk_size(_nx, x_chunk_size)),
+      _y_chunk_size(calc_chunk_size(_ny, y_chunk_size)),
       _nxchunk(calc_chunk_count(_nx, _x_chunk_size)),
       _nychunk(calc_chunk_count(_ny, _y_chunk_size)),
       _chunk_count(_nxchunk*_nychunk),
@@ -446,13 +446,11 @@ void Mpl2014ContourGenerator::append_contour_to_vertices_and_codes(
     contour.delete_contour_lines();
 }
 
-index_t Mpl2014ContourGenerator::calc_chunk_count(
-    index_t point_count, index_t chunk_size) const
+index_t Mpl2014ContourGenerator::calc_chunk_count(index_t point_count, index_t chunk_size)
 {
-    assert(point_count > 0 && "point count must be positive");
-    assert(chunk_size > 0 && "Chunk size must be positive");
+    // Accepts any values for point_count and chunk_size.
 
-    if (chunk_size > 0) {
+    if (chunk_size > 0 && point_count > 1) {
         index_t count = (point_count-1) / chunk_size;
         if (count*chunk_size < point_count-1)
             ++count;
@@ -462,6 +460,16 @@ index_t Mpl2014ContourGenerator::calc_chunk_count(
     }
     else
         return 1;
+}
+
+index_t Mpl2014ContourGenerator::calc_chunk_size(index_t point_count, index_t chunk_size)
+{
+    // Accepts any values for point_count and chunk_size.
+    index_t ret = point_count - 1;
+    if (chunk_size > 0)
+        ret = std::min(chunk_size, ret);
+
+    return std::max<index_t>(ret, 1);
 }
 
 void Mpl2014ContourGenerator::edge_interp(
