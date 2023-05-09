@@ -327,7 +327,10 @@ private:
         Contour& contour, py::list& vertices_list, py::list& codes_list) const;
 
     // Return number of chunks that fit in the specified point_count.
-    index_t calc_chunk_count(index_t point_count, index_t chunk_size) const;
+    static index_t calc_chunk_count(index_t point_count, index_t chunk_size);
+
+    // Return actual chunk_size from specified point_count and requested chunk_size.
+    static index_t calc_chunk_size(index_t point_count, index_t chunk_size);
 
     // Append the point on the specified QuadEdge that intersects the specified
     // level to the specified ContourLine.
