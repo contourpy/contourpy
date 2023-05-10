@@ -311,7 +311,7 @@ Mpl2014ContourGenerator::Mpl2014ContourGenerator(
     }
 
     if (x_chunk_size < 0 || y_chunk_size < 0)
-        throw std::invalid_argument("chunk_size cannot be negative");
+        throw std::invalid_argument("x_chunk_size and y_chunk_size cannot be negative");
 
     init_cache_grid(mask);
 }

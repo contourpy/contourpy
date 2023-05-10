@@ -149,7 +149,7 @@ BaseContourGenerator<Derived>::BaseContourGenerator(
         throw std::invalid_argument("Unsupported FillType");
 
     if (x_chunk_size < 0 || y_chunk_size < 0)
-        throw std::invalid_argument("chunk_sizes cannot be negative");
+        throw std::invalid_argument("x_chunk_size and y_chunk_size cannot be negative");
 
     if (_z_interp == ZInterp::Log) {
         const bool* mask_ptr = (mask.ndim() == 0 ? nullptr : mask.data());
