@@ -11,14 +11,56 @@ on:
   schedule:
     - cron: '42 01 * * SUN'
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   pre-commit:
     name: pre-commit
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v3
-    - uses: pre-commit/action@v3.0.0
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - uses: pre-commit/action@v3.0.0
+
+  codebase:
+    name: codebase
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install contourpy
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -v .[mypy,test]
+
+      - name: Install cppcheck
+        run: |
+          CPPCHECK_VERSION=2.9
+          CPPCHECK_TGZ=$CPPCHECK_VERSION.tar.gz
+          cd $RUNNER_TEMP
+          wget --no-verbose https://github.com/danmar/cppcheck/archive/refs/tags/$CPPCHECK_TGZ
+          tar xzf $CPPCHECK_TGZ
+          cd cppcheck-$CPPCHECK_VERSION
+          sudo make install MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck CXXFLAGS="-O2 -DNDEBUG" -j 2
+
+      - name: Run tests
+        run: |
+          python -m pytest -v --color=yes tests/test_codebase.py
 
   test:
     name: Test ${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.numpy-debug == 1 && 'numpy-debug' || '' }} ${{ matrix.debug == 1 && 'debug' || '' }}
@@ -81,18 +123,15 @@ jobs:
 
       - name: Build and install numpy from sdist
         if: matrix.build-numpy == '1'
-        shell: bash
         run: |
           pip install -v --no-binary=numpy numpy
 
       - name: Build and install numpy from sdist with debug asserts enabled
         if: matrix.build-numpy-debug == '1'
-        shell: bash
         run: |
           CFLAGS=-UNDEBUG pip install -v --no-binary=numpy numpy
 
       - name: Install contourpy
-        shell: bash
         run: |
           python -m pip install --upgrade pip
           if [[ ${{ matrix.debug }} == 0 ]];
@@ -110,25 +149,13 @@ jobs:
             echo "Install contourpy in debug mode with test, bokeh and mypy dependencies"
             # For python coverage need editable install
             python -m pip install "meson[ninja] >= 1.1.0" "meson-python >= 0.13.1" "pybind11 >= 2.10.4"
-            python -m pip install -ve .[bokeh,mypy,test] --no-build-isolation -C setup-args=-Dbuildtype=debug -C setup-args=-Db_coverage=true -C setup-args=-Dcpp_std=c++11 -C builddir=build
+            python -m pip install -ve .[bokeh,test] --no-build-isolation -C setup-args=-Dbuildtype=debug -C setup-args=-Db_coverage=true -C setup-args=-Dcpp_std=c++11 -C builddir=build
           fi
           python -m pip list
           python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
           python -c "import contourpy as c; print('NDEBUG', c._contourpy.NDEBUG)"
 
-      - name: Install cppcheck
-        if: runner.os == 'Linux'
-        run: |
-          CPPCHECK_VERSION=2.9
-          CPPCHECK_TGZ=$CPPCHECK_VERSION.tar.gz
-          cd $RUNNER_TEMP
-          wget --no-verbose https://github.com/danmar/cppcheck/archive/refs/tags/$CPPCHECK_TGZ
-          tar xzf $CPPCHECK_TGZ
-          cd cppcheck-$CPPCHECK_VERSION
-          sudo make install MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck CXXFLAGS="-O2 -DNDEBUG" -j 2
-
       - name: Run tests
-        shell: bash
         run: |
           if [[ ${{ matrix.test-image }} == 1 ]];
           then
@@ -160,7 +187,6 @@ jobs:
 
       - name: Collect test image failures
         if: always()
-        shell: bash
         run: |
           if [[ -e result_images ]];
           then
