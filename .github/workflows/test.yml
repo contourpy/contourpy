@@ -202,7 +202,7 @@ jobs:
         run: |
           if [[ -e result_images ]]
           then
-            DIR="test-artifacts/${{ matrix.name }}"
+            DIR="test-artifacts/${{ matrix.os }}_${{ matrix.python-version }}_${{ github.run_id }}"
             mkdir -p ${DIR}
             mv result_images/* ${DIR}/
           fi
