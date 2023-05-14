@@ -9,58 +9,101 @@ on:
       - main
   workflow_dispatch:
   schedule:
-    - cron: '42 01 * * SUN'
+    - cron: "42 01 * * SUN"
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   pre-commit:
     name: pre-commit
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v3
-    - uses: pre-commit/action@v3.0.0
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - uses: pre-commit/action@v3.0.0
+
+  codebase:
+    name: codebase
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install contourpy
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -v .[mypy,test]
+
+      - name: Install cppcheck
+        run: |
+          CPPCHECK_VERSION=2.9
+          CPPCHECK_TGZ=$CPPCHECK_VERSION.tar.gz
+          cd $RUNNER_TEMP
+          wget --no-verbose https://github.com/danmar/cppcheck/archive/refs/tags/$CPPCHECK_TGZ
+          tar xzf $CPPCHECK_TGZ
+          cd cppcheck-$CPPCHECK_VERSION
+          sudo make install MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck CXXFLAGS="-O2 -DNDEBUG" -j 2
+
+      - name: Run tests
+        run: |
+          python -m pytest -v --color=yes tests/test_codebase.py
 
   test:
-    name: Test ${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.numpy-debug == 1 && 'numpy-debug' || '' }} ${{ matrix.debug == 1 && 'debug' || '' }}
+    name: "${{ matrix.name }} ${{ matrix.python-version }} ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-        debug: [0]
-        build-numpy: [0]
-        build-numpy-debug: [0]
-        test-image: [1]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        name: ["Test"]
         include:
-          # Debug build including bokeh tests and code coverage.
+          # Debug build including Python and C++ coverage.
           - os: ubuntu-latest
-            python-version: '3.10'
-            debug: 1
-            build-numpy: 0
-            build-numpy-debug: 0
-            test-image: 1
+            python-version: "3.11"
+            name: "Test debug with coverage"
+            coverage-files: "coverage.lcov,coverage.cpp"
+            debug: true
+          # Bokeh and text tests with Python (not C++) coverage.
+          - os: ubuntu-latest
+            python-version: "3.11"
+            name: "Test bokeh and text tests with coverage"
+            coverage-files: "coverage.lcov"
+            test-text: true
           # Test against numpy debug build.
           - os: ubuntu-latest
-            python-version: '3.10'
-            debug: 0
-            build-numpy: 0
-            build-numpy-debug: 1
-            test-image: 1
+            python-version: "3.11"
+            name: "Test numpy debug"
+            build-numpy-debug: true
+          # Compile using C++11.
+          - os: ubuntu-latest
+            python-version: "3.11"
+            name: "Test C++11"
+            extra-install-args: "-C setup-args=-Dcpp_std=c++11"
           # PyPy only tested on ubuntu for speed, without image tests.
           - os: ubuntu-latest
-            python-version: 'pypy3.8'
-            debug: 0
-            build-numpy: 0
-            build-numpy-debug: 0
-            test-image: 0
+            python-version: "pypy3.8"
+            name: "Test"
+            test-no-images: true
           - os: ubuntu-latest
-            python-version: 'pypy3.9'
-            debug: 0
-            build-numpy: 1
-            build=numpy-debug: 0
-            test-image: 0
+            python-version: "pypy3.9"
+            name: "Test"
+            build-numpy: true
+            test-no-images: true
 
     steps:
       - name: Checkout source
@@ -74,97 +117,93 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install OS dependencies
-        if: matrix.debug == '1'
+        if: matrix.debug
         run: |
           sudo apt update -yy
           sudo apt install -yy lcov
 
       - name: Build and install numpy from sdist
-        if: matrix.build-numpy == '1'
-        shell: bash
+        if: matrix.build-numpy
         run: |
           pip install -v --no-binary=numpy numpy
 
       - name: Build and install numpy from sdist with debug asserts enabled
-        if: matrix.build-numpy-debug == '1'
-        shell: bash
+        if: matrix.build-numpy-debug
         run: |
           CFLAGS=-UNDEBUG pip install -v --no-binary=numpy numpy
 
-      - name: Install contourpy
-        shell: bash
+      - name: Pre-install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          if [[ ${{ matrix.debug }} == 0 ]];
+          if [[ "${{ matrix.debug }}" != "" ]] || [[ "${{ matrix.coverage-files }}" != "" ]]
           then
-            if [[ ${{ matrix.test-image }} == 1 ]];
-            then
-              echo "Install contourpy with standard test dependencies"
-              python -m pip install -v .[test]
-            else
-              echo "Install contourpy with non-image-generating test dependencies"
-              python -m pip install -v .[test-no-images]
-            fi
-          else
-            chromium --version
-            echo "Install contourpy in debug mode with test, bokeh and mypy dependencies"
-            # For python coverage need editable install
+            # Install requirements when not using build isolation.
             python -m pip install "meson[ninja] >= 1.1.0" "meson-python >= 0.13.1" "pybind11 >= 2.10.4"
-            python -m pip install -ve .[bokeh,mypy,test] --no-build-isolation -C setup-args=-Dbuildtype=debug -C setup-args=-Db_coverage=true -C setup-args=-Dcpp_std=c++11 -C builddir=build
+          fi
+          python -m pip list
+
+      - name: Install contourpy
+        run: |
+          if [[ "${{ matrix.debug }}" != "" ]]
+          then
+            echo "Install contourpy in debug editable mode with coverage"
+            python -m pip install -ve .[test] --no-build-isolation -C setup-args=-Dbuildtype=debug -C setup-args=-Db_coverage=true -C builddir=build
+          elif [[ "${{ matrix.coverage-files }}" != "" ]]
+          then
+            echo "Install contourpy in editable mode with bokeh dependencies"
+            python -m pip install -ve .[bokeh,test] --no-build-isolation -C builddir=build
+          elif [[ "${{ matrix.test-no-images }}" != "" ]]
+          then
+            echo "Install contourpy with non-image-generating test dependencies"
+            python -m pip install -v .[test-no-images]
+          else
+            echo "Install contourpy with standard test dependencies"
+            python -m pip install -v .[test] ${{ matrix.extra-install-args }}
           fi
           python -m pip list
           python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
           python -c "import contourpy as c; print('NDEBUG', c._contourpy.NDEBUG)"
 
-      - name: Install cppcheck
-        if: runner.os == 'Linux'
-        run: |
-          CPPCHECK_VERSION=2.9
-          CPPCHECK_TGZ=$CPPCHECK_VERSION.tar.gz
-          cd $RUNNER_TEMP
-          wget --no-verbose https://github.com/danmar/cppcheck/archive/refs/tags/$CPPCHECK_TGZ
-          tar xzf $CPPCHECK_TGZ
-          cd cppcheck-$CPPCHECK_VERSION
-          sudo make install MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck CXXFLAGS="-O2 -DNDEBUG" -j 2
-
       - name: Run tests
-        shell: bash
         run: |
-          if [[ ${{ matrix.test-image }} == 1 ]];
+          if [[ "${{ matrix.debug }}" != "" ]]
           then
-            if [[ ${{ matrix.debug }} == 1 ]];
-            then
-              echo "Run all tests with coverage"
-              python -m pytest -v tests/ --cov=lib --cov-report=lcov
-            else
-              echo "Run all tests"
-              python -m pytest -v tests/
-            fi
-          else
+            echo "Run normal tests with coverage"
+            python -m pytest -v --color=yes tests/ --cov=lib --cov-report=lcov
+          elif [[ "${{ matrix.test-text }}" != "" ]]
+          then
+            echo "Run normal and text tests with coverage"
+            chromium --version
+            #python -m pytest -v --color=yes tests/ --runtext --cov=lib --cov-report=lcov
+            python -m pytest -v --color=yes tests/ --cov=lib --cov-report=lcov
+          elif [[ "${{ matrix.test-no-images }}" != "" ]]
+          then
             echo "Run only tests that do not generate images"
-            python -m pytest -v tests/ -k "not image"
+            python -m pytest -v --color=yes tests/ -k "not image"
+          else
+            echo "Run all tests"
+            python -m pytest -v --color=yes tests/
           fi
 
       - name: Collect C++ coverage
-        if: matrix.debug == '1'
+        if: matrix.debug
         run: |
           lcov --output-file coverage.cpp --capture --directory build
-          lcov --output-file coverage.cpp --extract coverage.cpp $PWD/src/'*'
+          lcov --output-file coverage.cpp --extract coverage.cpp $PWD/src/"*"
 
       - name: Upload coverage
-        if: matrix.debug == '1'
+        if: matrix.coverage-files
         uses: codecov/codecov-action@v3
         with:
-          files: coverage.lcov,coverage.cpp
+          files: ${{ matrix.coverage-files }}
           verbose: true
 
       - name: Collect test image failures
         if: always()
-        shell: bash
         run: |
-          if [[ -e result_images ]];
+          if [[ -e result_images ]]
           then
-            DIR="test-artifacts/${{ matrix.os }}_${{ matrix.python-version }}_${{ matrix.debug == 1 && 'debug' || '' }}"
+            DIR="test-artifacts/${{ matrix.os }}_${{ matrix.python-version }}_${{ github.run_id }}"
             mkdir -p ${DIR}
             mv result_images/* ${DIR}/
           fi
