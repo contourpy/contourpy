@@ -174,7 +174,8 @@ jobs:
           then
             echo "Run normal and text tests with coverage"
             chromium --version
-            python -m pytest -v --color=yes tests/ --runtext --cov=lib --cov-report=lcov
+            #python -m pytest -v --color=yes tests/ --runtext --cov=lib --cov-report=lcov
+            python -m pytest -v --color=yes tests/ --cov=lib --cov-report=lcov
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Run only tests that do not generate images"
