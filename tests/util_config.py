@@ -197,7 +197,7 @@ class Config:
                     raise RuntimeError(
                         f"Inconsistent zupper {zupper} for config {config}{suffix} with middle_z "
                         f"{zmean}")
-            elif suffix != "":
+            else:
                 raise RuntimeError(f"Unexpected suffix {suffix} for config {config}")
 
         self._quad_lines(ax, z_masked, zlower, zupper, corner)

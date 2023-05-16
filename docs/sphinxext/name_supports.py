@@ -8,7 +8,7 @@ from docutils.parsers.rst.directives import unchanged
 
 import contourpy
 
-sys.path.insert(0, '.')
+sys.path.insert(0, ".")
 from table import Table
 
 
@@ -37,7 +37,7 @@ class NameSupports(Directive):
             function_names = [function_name]
 
         table = Table(1 + len(names))
-        table.add_header([""] + names)
+        table.add_header(["", *names])
 
         for function_name in function_names:
             row = [function_name]
@@ -54,4 +54,4 @@ class NameSupports(Directive):
 
 def setup(app: Any) -> dict[str, bool]:
     app.add_directive("name_supports", NameSupports)
-    return {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return {"parallel_read_safe": True, "parallel_write_safe": True}

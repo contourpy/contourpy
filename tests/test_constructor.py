@@ -138,7 +138,7 @@ def test_corner_mask_not_supported(xyz_3x3_as_lists: tuple[list[list[int]], ...]
         contour_generator(x, y, z, name=name, corner_mask=True)
 
 
-@pytest.mark.parametrize('name', util_test.all_names())
+@pytest.mark.parametrize("name", util_test.all_names())
 def test_chunk_size_negative(xyz_3x3_as_lists: tuple[list[list[int]], ...], name: str) -> None:
     x, y, z = xyz_3x3_as_lists
     msg = "chunk_size cannot be negative"

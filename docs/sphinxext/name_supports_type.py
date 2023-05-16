@@ -7,7 +7,7 @@ from docutils.parsers.rst import Directive
 
 import contourpy
 
-sys.path.insert(0, '.')
+sys.path.insert(0, ".")
 from table import Table
 
 
@@ -29,7 +29,7 @@ class NameSupportsType(Directive):
         default_types = [getattr(cls, default_func_name).name for cls in classes]
 
         table = Table(1 + len(names))
-        table.add_header([type_name] + names)
+        table.add_header([type_name, *names])
         for name, enum in dict(type_enum.__members__).items():
             row = [name]
             for cls, default_type in zip(classes, default_types):
@@ -48,4 +48,4 @@ class NameSupportsType(Directive):
 
 def setup(app: Any) -> dict[str, bool]:
     app.add_directive("name_supports_type", NameSupportsType)
-    return {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return {"parallel_read_safe": True, "parallel_write_safe": True}

@@ -24,7 +24,7 @@ def test_cppcheck() -> None:
     except FileNotFoundError:
         pytest.skip()
 
-    cpp_version = Version(proc.stdout.decode('utf-8').strip().split()[-1])
+    cpp_version = Version(proc.stdout.decode("utf-8").strip().split()[-1])
 
     # Note excluding mpl2005 code.
     cmd = [

@@ -46,9 +46,9 @@ def test_build_config(all_keys: list[str]) -> None:
     config = build_config()
 
     for key in all_keys:
-        # key exists and its value is a non-empty string
+        # key exists and its value is a non-empty string
         value = config.pop(key)
         assert isinstance(value, str) and len(value) > 0
 
-    # assert no keys left
+    # assert no keys left
     assert len(config) == 0

@@ -167,7 +167,7 @@ def comparison_two_benchmarks(
     show_error = False
     show_speedups = (varying == "thread_count")
     n = 1000
-    corner_mask = 'no mask'
+    corner_mask = "no mask"
 
     filled_str = "filled" if filled else "lines"
     kwargs = dict(dataset=dataset, corner_mask=corner_mask, n=n)
