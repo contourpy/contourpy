@@ -416,7 +416,7 @@ def test_lines_random_chunk(name: str, line_type: LineType) -> None:
 
     max_threshold = None
     mean_threshold = None
-    if name == 'mpl2005':
+    if name == "mpl2005":
         max_threshold = 126
         mean_threshold = 0.11
 

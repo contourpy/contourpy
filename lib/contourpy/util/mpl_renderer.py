@@ -155,7 +155,7 @@ class MplRenderer(Renderer):
                 np.stack((y[1:, :-1], ymid, y[:-1, 1:])).reshape((3, -1)),
                 **kwargs)
         if point_color is not None:
-            ax.plot(x, y, color=point_color, alpha=alpha, marker='o', lw=0)
+            ax.plot(x, y, color=point_color, alpha=alpha, marker="o", lw=0)
         ax._need_autoscale = True
 
     def lines(
@@ -210,7 +210,7 @@ class MplRenderer(Renderer):
             return
         ax = self._get_ax(ax)
         x, y = self._grid_as_2d(x, y)
-        ax.plot(x[mask], y[mask], 'o', c=color)
+        ax.plot(x[mask], y[mask], "o", c=color)
 
     def save(self, filename: str, transparent: bool = False) -> None:
         """Save plots to SVG or PNG file.

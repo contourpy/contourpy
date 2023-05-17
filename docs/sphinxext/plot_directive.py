@@ -88,4 +88,4 @@ class PlotDirective(CodeBlock):
 
 def setup(app: Any) -> dict[str, bool]:
     app.add_directive("plot", PlotDirective)
-    return {'parallel_read_safe': True, 'parallel_write_safe': True}
+    return {"parallel_read_safe": True, "parallel_write_safe": True}
