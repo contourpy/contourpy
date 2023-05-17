@@ -42,9 +42,8 @@ docs = [
 ]
 bokeh = [
     # Optional dependencies to support use of bokeh renderer.
-    # Also needs chrome/chromium for export to PNG/SVG/buffer.
+    # Also needs chrome/chromium and chromedriver for export to PNG/SVG/buffer.
     "bokeh",
-    "chromedriver",
     "selenium",
 ]
 mypy = [

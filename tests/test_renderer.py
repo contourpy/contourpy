@@ -7,6 +7,22 @@ from contourpy import FillType, LineType, contour_generator
 from contourpy.util.data import random
 
 
+def test_chrome_version() -> None:
+    # Print version of chrome used for export to PNG by Bokeh as test images, particularly those
+    # containing text, are sensitive to chrome version.
+    try:
+        import contourpy.util.bokeh_renderer  # noqa: F401
+    except ImportError:
+        pytest.skip("Optional bokeh dependencies not installed")
+
+    from bokeh.io.webdriver import webdriver_control
+    driver = webdriver_control.get()
+    capabilities = driver.capabilities
+    print("chrome version used by Bokeh:", capabilities["browserVersion"])
+    if "chrome" in capabilities:
+        print("chromedriver version used by Bokeh:", capabilities["chrome"]["chromedriverVersion"])
+
+
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
@@ -99,4 +115,7 @@ def test_renderer_lines(show_text: bool, line_type: LineType, renderer_type: str
 
     image_buffer = renderer.save_to_buffer()
     suffix = "" if show_text else "_no_text"
-    compare_images(image_buffer, f"renderer_lines_{renderer_type}{suffix}.png", f"{line_type}")
+    compare_images(
+        image_buffer, f"renderer_lines_{renderer_type}{suffix}.png", f"{line_type}",
+        mean_threshold=0.03 if renderer_type == "bokeh" else None,
+    )
