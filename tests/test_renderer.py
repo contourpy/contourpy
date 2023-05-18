@@ -26,11 +26,12 @@ def test_chrome_version() -> None:
 
 @pytest.mark.image
 @pytest.mark.text
+@pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
-def test_debug_renderer_filled(fill_type: FillType) -> None:
+def test_debug_renderer_filled(show_text: bool, fill_type: FillType) -> None:
     from .image_comparison import compare_images
 
-    renderer = MplDebugRenderer(figsize=(4.5, 3))
+    renderer = MplDebugRenderer(figsize=(4.5, 3), show_frame=show_text)
     x, y, z = simple((3, 4))
     cont_gen = contour_generator(x, y, z, fill_type=fill_type)
     levels = [0.25, 0.6]
@@ -39,20 +40,23 @@ def test_debug_renderer_filled(fill_type: FillType) -> None:
     renderer.filled(filled, fill_type, color="C1")
 
     renderer.grid(x, y)
-    renderer.quad_numbers(x, y, z)
-    renderer.z_levels(x, y, z, lower_level=levels[0], upper_level=levels[1])
+    if show_text:
+        renderer.quad_numbers(x, y, z)
+        renderer.z_levels(x, y, z, lower_level=levels[0], upper_level=levels[1])
 
     image_buffer = renderer.save_to_buffer()
-    compare_images(image_buffer, "debug_renderer_filled.png", f"{fill_type}")
+    suffix = "" if show_text else "_no_text"
+    compare_images(image_buffer, f"debug_renderer_filled{suffix}.png", f"{fill_type}")
 
 
 @pytest.mark.image
 @pytest.mark.text
+@pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
-def test_debug_renderer_lines(line_type: LineType) -> None:
+def test_debug_renderer_lines(show_text: bool, line_type: LineType) -> None:
     from .image_comparison import compare_images
 
-    renderer = MplDebugRenderer(figsize=(4.5, 3))
+    renderer = MplDebugRenderer(figsize=(4.5, 3), show_frame=show_text)
     x, y, z = simple((3, 4))
     cont_gen = contour_generator(x, y, z, line_type=line_type)
     levels = [0.25, 0.6]
@@ -62,11 +66,13 @@ def test_debug_renderer_lines(line_type: LineType) -> None:
         renderer.lines(lines, line_type, color=f"C{i}", linewidth=2)
 
     renderer.grid(x, y)
-    renderer.quad_numbers(x, y, z)
-    renderer.point_numbers(x, y, z)
+    if show_text:
+        renderer.quad_numbers(x, y, z)
+        renderer.point_numbers(x, y, z)
 
     image_buffer = renderer.save_to_buffer()
-    compare_images(image_buffer, "debug_renderer_lines.png", f"{line_type}")
+    suffix = "" if show_text else "_no_text"
+    compare_images(image_buffer, f"debug_renderer_lines{suffix}.png", f"{line_type}")
 
 
 @pytest.mark.image

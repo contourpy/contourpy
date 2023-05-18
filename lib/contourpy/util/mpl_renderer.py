@@ -40,7 +40,7 @@ class MplRenderer(Renderer):
         self,
         nrows: int = 1,
         ncols: int = 1,
-        figsize: tuple[int, int] = (9, 9),
+        figsize: tuple[float, float] = (9, 9),
         show_frame: bool = True,
         backend: str | None = None,
         gridspec_kw: dict[str, Any] | None = None,
@@ -308,7 +308,12 @@ class MplTestRenderer(MplRenderer):
     No whitespace around plots and no spines/ticks displayed.
     Uses Agg backend, so can only save to file/buffer, cannot call ``show()``.
     """
-    def __init__(self, nrows: int = 1, ncols: int = 1, figsize: tuple[int, int] = (9, 9)) -> None:
+    def __init__(
+        self,
+        nrows: int = 1,
+        ncols: int = 1,
+        figsize: tuple[float, float] = (9, 9),
+    ) -> None:
         gridspec = {
             "left": 0.01,
             "right": 0.99,
@@ -340,7 +345,7 @@ class MplDebugRenderer(MplRenderer):
         self,
         nrows: int = 1,
         ncols: int = 1,
-        figsize: tuple[int, int] = (9, 9),
+        figsize: tuple[float, float] = (9, 9),
         show_frame: bool = True,
     ) -> None:
         super().__init__(nrows, ncols, figsize, show_frame)
