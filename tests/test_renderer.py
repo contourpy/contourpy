@@ -87,7 +87,7 @@ def test_renderer_filled(show_text: bool, fill_type: FillType, renderer_type: st
 
     from .image_comparison import compare_images
 
-    x, y, z = random((3, 4))
+    x, y, z = random((3, 4), mask_fraction=0.35)
     renderer = Renderer(ncols=2, figsize=(8, 3), show_frame=False)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, fill_type=fill_type)
@@ -102,6 +102,7 @@ def test_renderer_filled(show_text: bool, fill_type: FillType, renderer_type: st
 
         if quad_as_tri:
             renderer.grid(x, y, ax=ax, alpha=0.5, quad_as_tri_alpha=0.5)
+            renderer.mask(x, y, z, ax=ax, color="red")
             if show_text:
                 renderer.title("Title", ax=ax)
         else:
@@ -135,7 +136,7 @@ def test_renderer_lines(show_text: bool, line_type: LineType, renderer_type: str
 
     from .image_comparison import compare_images
 
-    x, y, z = random((3, 4))
+    x, y, z = random((3, 4), mask_fraction=0.35)
     renderer = Renderer(ncols=2, figsize=(8, 3), show_frame=show_text)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, line_type=line_type)
@@ -150,6 +151,7 @@ def test_renderer_lines(show_text: bool, line_type: LineType, renderer_type: str
 
         if quad_as_tri:
             renderer.grid(x, y, ax=ax, alpha=0.2, quad_as_tri_alpha=0.2)
+            renderer.mask(x, y, z, ax=ax, color="red")
             if show_text:
                 renderer.z_values(x, y, z, ax=ax, fmt=".2f", quad_as_tri=True)
                 renderer.title("Title", ax=ax)
