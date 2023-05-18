@@ -4,7 +4,8 @@ import numpy as np
 import pytest
 
 from contourpy import FillType, LineType, contour_generator
-from contourpy.util.data import random
+from contourpy.util.data import random, simple
+from contourpy.util.mpl_renderer import MplDebugRenderer
 
 
 def test_chrome_version() -> None:
@@ -21,6 +22,51 @@ def test_chrome_version() -> None:
     print("chrome version used by Bokeh:", capabilities["browserVersion"])
     if "chrome" in capabilities:
         print("chromedriver version used by Bokeh:", capabilities["chrome"]["chromedriverVersion"])
+
+
+@pytest.mark.image
+@pytest.mark.text
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+def test_debug_renderer_filled(fill_type: FillType) -> None:
+    from .image_comparison import compare_images
+
+    renderer = MplDebugRenderer(figsize=(4.5, 3))
+    x, y, z = simple((3, 4))
+    cont_gen = contour_generator(x, y, z, fill_type=fill_type)
+    levels = [0.25, 0.6]
+
+    filled = cont_gen.filled(levels[0], levels[1])
+    renderer.filled(filled, fill_type, color="C1")
+
+    renderer.grid(x, y)
+    renderer.quad_numbers(x, y, z)
+    renderer.z_levels(x, y, z, lower_level=levels[0], upper_level=levels[1])
+
+    image_buffer = renderer.save_to_buffer()
+    compare_images(image_buffer, "debug_renderer_filled.png", f"{fill_type}")
+
+
+@pytest.mark.image
+@pytest.mark.text
+@pytest.mark.parametrize("line_type", LineType.__members__.values())
+def test_debug_renderer_lines(line_type: LineType) -> None:
+    from .image_comparison import compare_images
+
+    renderer = MplDebugRenderer(figsize=(4.5, 3))
+    x, y, z = simple((3, 4))
+    cont_gen = contour_generator(x, y, z, line_type=line_type)
+    levels = [0.25, 0.6]
+
+    for i, level in enumerate(levels):
+        lines = cont_gen.lines(level)
+        renderer.lines(lines, line_type, color=f"C{i}", linewidth=2)
+
+    renderer.grid(x, y)
+    renderer.quad_numbers(x, y, z)
+    renderer.point_numbers(x, y, z)
+
+    image_buffer = renderer.save_to_buffer()
+    compare_images(image_buffer, "debug_renderer_lines.png", f"{line_type}")
 
 
 @pytest.mark.image
