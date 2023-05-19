@@ -5,7 +5,6 @@ import pytest
 
 from contourpy import FillType, LineType, contour_generator
 from contourpy.util.data import random, simple
-from contourpy.util.mpl_renderer import MplDebugRenderer
 
 
 def test_chrome_version() -> None:
@@ -29,6 +28,8 @@ def test_chrome_version() -> None:
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
 def test_debug_renderer_filled(show_text: bool, fill_type: FillType) -> None:
+    from contourpy.util.mpl_renderer import MplDebugRenderer
+
     from .image_comparison import compare_images
 
     renderer = MplDebugRenderer(figsize=(4.5, 3), show_frame=show_text)
@@ -54,6 +55,8 @@ def test_debug_renderer_filled(show_text: bool, fill_type: FillType) -> None:
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
 def test_debug_renderer_lines(show_text: bool, line_type: LineType) -> None:
+    from contourpy.util.mpl_renderer import MplDebugRenderer
+
     from .image_comparison import compare_images
 
     renderer = MplDebugRenderer(figsize=(4.5, 3), show_frame=show_text)
