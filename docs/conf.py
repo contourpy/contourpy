@@ -78,11 +78,16 @@ rst_epilog = """
 .. _Matplotlib: https://matplotlib.org/
 .. _NumPy: https://numpy.org/
 .. _PyPI: https://pypi.org/project/contourpy/
+.. _conda: https://conda.io/
 .. _conda-forge: https://anaconda.org/conda-forge/contourpy/
 .. _default: https://anaconda.org/anaconda/contourpy/
 .. _github: https://www.github.com/contourpy/contourpy/
+.. _meson: https://mesonbuild.com/
+.. _meson-python: https://meson-python.readthedocs.io/
 .. _pre-commit: https://pre-commit.com/
 .. _pybind11: https://pybind11.readthedocs.io/
+.. _pyenv: https://github.com/pyenv/pyenv/
+.. _virtualenv: https://virtualenv.pypa.io/en/latest/
 """
 
 extlinks = {

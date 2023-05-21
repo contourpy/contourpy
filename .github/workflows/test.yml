@@ -178,7 +178,7 @@ jobs:
           if [[ "${{ matrix.debug }}" != "" ]] || [[ "${{ matrix.coverage-files }}" != "" ]]
           then
             # Install requirements when not using build isolation.
-            python -m pip install "meson[ninja] >= 1.1.0" "meson-python >= 0.13.1" "pybind11 >= 2.10.4"
+            python -m pip install -r build_requirements.txt
           fi
           python -m pip list
 
