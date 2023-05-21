@@ -1,7 +1,7 @@
 Usage
 =====
 
-The standard approach to use ``contourpy`` is to:
+The standard approach to use ContourPy is to:
 
 #. Call :func:`~contourpy.contour_generator` passing your 2D ``z`` array and optional ``x`` and ``y``
    arrays as arguments to return a :class:`~contourpy.ContourGenerator` object, such as the default

@@ -3,7 +3,7 @@
 Benchmarks
 ==========
 
-``contourpy`` uses ``asv`` (`airspeed velocity <https://asv.readthedocs.io>`_) for benchmarking.
+ContourPy uses ``asv`` (`airspeed velocity <https://asv.readthedocs.io>`_) for benchmarking.
 
 To run the entire benchmarking suite:
 

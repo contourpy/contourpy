@@ -22,7 +22,7 @@ respectively.
 mpl2005
 ^^^^^^^
 
-The original 2005 Matplotlib algorithm, modified to conform to the ``contourpy`` API and so that it
+The original 2005 Matplotlib algorithm, modified to conform to the ContourPy API and so that it
 can be wrapped using `pybind11`_. Does not support any of ``corner_mask``, ``quad_as_tri``,
 ``threads`` or ``z_interp``.
 
@@ -35,7 +35,7 @@ mpl2014
 ^^^^^^^
 
 The 2014 Matplotlib algorithm, a replacement of the original 2005 algorithm that added
-``corner_mask`` and made the code easier to understand.  Modified to conform to the ``contourpy``
+``corner_mask`` and made the code easier to understand.  Modified to conform to the ContourPy
 API and so that it can be wrapped using `pybind11`_.  Does not support ``quad_as_tri``, ``threads``
 or ``z_interp``.
 
@@ -47,7 +47,7 @@ or ``z_interp``.
 serial
 ^^^^^^
 
-The default algorithm for ``contourpy``, released in 2022, which supports all of the optional
+The default algorithm for ContourPy, released in 2022, which supports all of the optional
 features except for ``threads``. It combines lessons learnt from both of the previous algorithms as
 well as adding new features and performance improvements.
 

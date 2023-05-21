@@ -40,6 +40,7 @@ Advantages of the new algorithm compared to Matplotlib's default algorithm of 20
    :maxdepth: 1
    :caption: Extra Information
 
+   developer_guide
    benchmarks/index
    description
    config

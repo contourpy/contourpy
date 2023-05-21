@@ -17,3 +17,4 @@ benchmarks/*.png
 benchmarks/*.svg
 build_config.py
 .coverage
+docs/_build/
