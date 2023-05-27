@@ -252,3 +252,114 @@ jobs:
         with:
           name: test-artifacts
           path: test-artifacts/
+
+  test-in-docker:
+    # In-docker tests are either emulated hardware or musllinux
+    name: In docker ${{ matrix.arch }} ${{ matrix.manylinux_version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # musllinux: build numpy from source, run non-image tests only
+          - arch: x86_64
+            manylinux_version: musllinux
+            image: musllinux_1_1_x86_64
+            venv: venv
+            test: test-no-images
+          # ppc64le and s390x: dependencies are conda packages, run standard tests.
+          - arch: ppc64le
+            manylinux_version: manylinux2014
+            image: manylinux2014_ppc64le
+            venv: conda
+            test: test
+          - arch: s390x
+            manylinux_version: manylinux2014
+            image: manylinux2014_s390x
+            venv: conda
+            test: test
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up QEMU
+        if: ${{ matrix.arch }} != "x86_64"
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: all
+
+      - name: Run inside docker
+        uses: addnab/docker-run-action@v3
+        with:
+          image: quay.io/pypa/${{ matrix.image }}:latest
+          options: -v ${{ github.workspace }}:/work -e ARCH=${{ matrix.arch }} -e VENV=${{ matrix.venv}} -e TEST=${{ matrix.test }}
+          shell: bash
+          run: |
+            echo "-------------------- start --------------------"
+            set -eu
+            uname -a
+            cd /work
+
+            if [[ $VENV == "venv" ]]
+            then
+              echo "==> Create virtual environment"
+              /opt/python/cp311-cp311/bin/python -m venv venv
+              . venv/bin/activate
+              which python
+              python --version
+            else
+              echo "==> Install conda"
+              cd /tmp
+              curl -LO "http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-$ARCH.sh"
+              bash Miniconda3-latest-Linux-$ARCH.sh -p /work/venv -b
+              rm Miniconda3-latest-Linux-$ARCH.sh
+              cd /work
+
+              echo "==> Activate conda in this shell"
+              . /work/venv/etc/profile.d/conda.sh
+
+              echo "==> Create and activate conda environment"
+              conda create -n my_env -q python=3.11
+              conda activate my_env
+
+              echo "==> Install conda dependencies"
+              conda install -q numpy matplotlib Pillow
+              conda list
+            fi
+
+            echo "==> Install contourpy with test dependencies"
+            python -m pip install --upgrade pip
+            python -m pip install -v .[$TEST]
+            python -m pip list
+            python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
+
+            if [[ $TEST == "test-no-images" ]]
+            then
+              echo "==> Run non-image tests"
+              python -m pytest -v --color=yes tests/ -k "not image"
+            else
+              echo "==> Run tests except 'big' ones as on emulated hardware"
+              python -m pytest -v --color=yes tests/ -k "not big"
+            fi
+            echo "-------------------- end --------------------"
+
+      - name: Collect test image failures
+        if: always()
+        run: |
+          if [[ -e result_images ]]
+          then
+            DIR="test-artifacts/docker_${{ matrix.arch }}_${{ matrix.manylinux_version }}"
+            mkdir -p ${DIR}
+            mv result_images/* ${DIR}/
+          fi
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-artifacts
+          path: test-artifacts/
