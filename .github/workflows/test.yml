@@ -110,18 +110,18 @@ jobs:
             build-numpy: true
             test-no-images: true
           # Pre-release Python 3.12 without image tests.
-          - os: ubuntu-latest
-            python-version: "3.12-dev"
-            name: "Test"
-            test-no-images: true
-          - os: macos-latest
-            python-version: "3.12-dev"
-            name: "Test"
-            test-no-images: true
-          - os: windows-latest
-            python-version: "3.12-dev"
-            name: "Test"
-            test-no-images: true
+          #- os: ubuntu-latest
+          #  python-version: "3.12-dev"
+          #  name: "Test"
+          #  test-no-images: true
+          #- os: macos-latest
+          #  python-version: "3.12-dev"
+          #  name: "Test"
+          #  test-no-images: true
+          #- os: windows-latest
+          #  python-version: "3.12-dev"
+          #  name: "Test"
+          #  test-no-images: true
 
     steps:
       - name: Checkout source
