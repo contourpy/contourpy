@@ -32,7 +32,7 @@ description = "Python library for calculating contours of 2D quadrilateral grids
 dynamic = ["version"]
 license = {text = "BSD-3-Clause"}
 name = "contourpy"
-readme = "README.md"
+readme = "README_simple.md"
 requires-python = ">= 3.8"
 
 [project.optional-dependencies]
@@ -67,8 +67,10 @@ test-no-images = [
 ]
 
 [project.urls]
-documentation = "https://contourpy.readthedocs.io"
-repository = "https://github.com/contourpy/contourpy"
+Homepage = "https://github.com/contourpy/contourpy"
+Changelog = "https://contourpy.readthedocs.io/en/latest/changelog.html"
+Documentation = "https://contourpy.readthedocs.io"
+Repository = "https://github.com/contourpy/contourpy"
 
 
 [tool.meson-python.args]
