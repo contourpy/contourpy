@@ -30,7 +30,7 @@ dependencies = [
 ]
 description = "Python library for calculating contours of 2D quadrilateral grids"
 dynamic = ["version"]
-license = {text = "BSD-3-Clause"}
+license = {file = "LICENSE"}
 name = "contourpy"
 readme = "README_simple.md"
 requires-python = ">= 3.8"
