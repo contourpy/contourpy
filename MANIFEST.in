@@ -1,4 +1,0 @@
-recursive-include src *.h
-recursive-include tests *.png *.py
-recursive-include docs Makefile make.bat *.ico *.rst *.png *.py *.svg
-include lib/contourpy/py.typed
