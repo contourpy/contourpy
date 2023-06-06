@@ -30,7 +30,7 @@ dependencies = [
 ]
 description = "Python library for calculating contours of 2D quadrilateral grids"
 dynamic = ["version"]
-license = {text = "BSD-3-Clause"}
+license = {file = "LICENSE"}
 name = "contourpy"
 readme = "README_simple.md"
 requires-python = ">= 3.8"
@@ -86,22 +86,14 @@ setup = [
 
 [tool.cibuildwheel]
 build-frontend = "build"
-build = "cp38-* cp39-* cp310-* cp311-* pp38-* pp39-*"
-test-command = 'python -c "import contourpy as c; c.contour_generator(z=[[0, 1], [2, 3]]).lines(0.9)"'
-# Only test combinations for which a numpy wheel exists
-test-skip = "pp38-*-aarch64 pp39-* *musllinux* *-macosx_arm64"
-
-[tool.cibuildwheel.config-settings]
-compile-args = "-v"
-
-[tool.cibuildwheel.linux]
-archs = "auto aarch64"
-
-[tool.cibuildwheel.macos]
-archs = "x86_64 arm64"
-
-[tool.cibuildwheel.windows]
-archs = "AMD64"  # Temporarily exclude x86
+build = "cp38-* cp39-* cp310-* cp311-* pp38-*_x86_64 pp38-* pp39-*"
+skip = "*-musllinux_aarch64 *-musllinux_ppc64le *-musllinux_s390x pp*_aarch64 pp*_ppc64le pp*_s390x"
+test-command = [
+    'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
+    'python -c "import contourpy as c; c.contour_generator(z=[[0, 1], [2, 3]]).lines(0.9)"',
+]
+# Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
+test-skip = "pp38-*_aarch64 pp39-* *-musllinux_* *_ppc64le *_s390x"
 
 
 [tool.coverage.report]

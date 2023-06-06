@@ -8,12 +8,33 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: ${{ matrix.arch }} wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    #env:
+      #MACOSX_DEPLOYMENT_TARGET: "10.9"
 
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-2019, macOS-11]
+        include:
+          - os: ubuntu-20.04
+            arch: aarch64
+          - os: ubuntu-20.04
+            arch: ppc64le
+          - os: ubuntu-20.04
+            arch: s390x
+          - os: ubuntu-20.04
+            arch: x86_64
+
+          - os: macOS-11
+            arch: arm64
+            # Temporary fix for cross-compiling on macos until meson 1.2.0 is released.
+            config-settings: setup-args=--cross-file="$PWD/meson-cross.ini"
+          - os: macOS-11
+            arch: x86_64
+
+          - os: windows-2019
+            arch: AMD64
 
     steps:
       - name: Checkout source
@@ -28,7 +49,10 @@ jobs:
           platforms: all
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.12.3
+        uses: pypa/cibuildwheel@v2.13.0
+        env:
+          CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_CONFIG_SETTINGS: ${{ matrix.config-settings }}
 
       - uses: actions/upload-artifact@v3
         with:
