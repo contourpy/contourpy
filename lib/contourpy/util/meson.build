@@ -81,3 +81,8 @@ configure_file(
   configuration: conf_data,
   install_dir: py3.get_install_dir() / 'contourpy' / 'util',
 )
+
+# Print summary of important build config
+foreach key : ['host_cpu', 'build_cpu', 'cross_build', 'optimization']
+  summary({key: conf_data.get(key)}, section: 'Build config')
+endforeach
