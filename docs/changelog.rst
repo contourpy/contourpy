@@ -3,6 +3,48 @@
 Changelog
 #########
 
+v1.1.0 (2023-06-13)
+-------------------
+
+This release features a change in the build system from ``distutils``, which
+is scheduled for removal in Python 3.12, to `meson`_ and `meson-python`_.
+It includes the building of wheels for ppc64le and s390x (on x86_64 only) and
+removes building of all 32-bit wheels and macOS universal2 wheels.
+
+This release supports Python 3.8 to 3.11.
+
+Thanks to new contributor :user:`eli-schwartz`.
+
+Build system improvements:
+
+* New meson build system (:pr:`183`, :pr:`226`, :pr:`232`, :pr:`249`, :pr:`250`)
+* Drop building universal2 wheels (:pr:`225`)
+* Add build_config to store and show build configuration info (:pr:`227`)
+* Build ppc64le and s390x wheels (:pr:`246`)
+
+Code improvements:
+
+* Rearrange functions alphabetically (:pr:`219`)
+* Remove unused mpl2005 and mpl2014 code (:pr:`234`, :pr:`237`)
+* Improve mpl2014 chunk count error handling (:pr:`238`)
+
+Documentation improvements:
+
+* Improve API docs (:pr:`220`, :pr:`221`, :pr:`222`)
+* Update benchmarks (:pr:`233`)
+* Add meson-specific build docs (:pr:`245`)
+* Add simpler README for PyPI (:pr:`247`)
+
+CI improvements:
+
+* Replace flake8 with ruff (:pr:`211`)
+* Building and testing on cirrus CI (:pr:`213`)
+* Run mypy in CI (:pr:`230`)
+* Set up code coverage in CI (:pr:`235`, :pr:`236`, :pr:`183`)
+* New internal API, codebase and debug renderer tests (:pr:`239`, :pr:`241`, :pr:`244`)
+* Use correct version of chromium for Bokeh image tests (:pr:`243`)
+* Add tests for musllinux (on x86_64), ppc64le and s390x (:pr:`246`)
+
 v1.0.7 (2023-01-13)
 -------------------
 
