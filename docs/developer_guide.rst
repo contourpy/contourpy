@@ -30,6 +30,18 @@ This is the simplest approach and uses a temporarily isolated environment to bui
 and then installs the built package into the current environment. If you make any changes to the
 source code (Python or C++) you will need to rerun this command to rebuild and reinstall.
 
+.. warning::
+
+   Compiling from source using ``pip install`` within a conda environment can cause problems if
+   your system compiler is significantly different from the one used to compile your ``conda``
+   packages. A typical problem on Linux is incompatible versions of ``GLIBCXX``. If problems occur
+   using system compilers, install ``conda`` compilers using
+
+   .. code-block:: console
+
+      $ conda install -c conda-forge gcc_linux-64
+
+   or similar.
 
 Installing using editable mode
 ------------------------------
