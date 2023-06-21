@@ -110,18 +110,21 @@ jobs:
             build-numpy: true
             test-no-images: true
           # Pre-release Python 3.12 without image tests.
-          #- os: ubuntu-latest
-          #  python-version: "3.12-dev"
-          #  name: "Test"
-          #  test-no-images: true
-          #- os: macos-latest
-          #  python-version: "3.12-dev"
-          #  name: "Test"
-          #  test-no-images: true
-          #- os: windows-latest
-          #  python-version: "3.12-dev"
-          #  name: "Test"
-          #  test-no-images: true
+          - os: ubuntu-latest
+            python-version: "3.12-dev"
+            name: "Test"
+            build-numpy-no-isolation: true
+            test-no-images: true
+          - os: macos-latest
+            python-version: "3.12-dev"
+            name: "Test"
+            build-numpy-no-isolation: true
+            test-no-images: true
+          - os: windows-latest
+            python-version: "3.12-dev"
+            name: "Test"
+            build-numpy-no-isolation: true
+            test-no-images: true
 
     steps:
       - name: Checkout source
@@ -161,6 +164,13 @@ jobs:
           chromium --version
           which chromedriver
           chromedriver --version
+
+      - name: Build and install numpy from sdist without build isolation
+        if: matrix.build-numpy-no-isolation
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -v cython
+          pip install -v --no-binary=numpy numpy --no-build-isolation
 
       - name: Build and install numpy from sdist
         if: matrix.build-numpy
