@@ -14,7 +14,7 @@ class PlotDirective(CodeBlock):
     has_content = True
     optional_arguments = 2
 
-    option_spec: ClassVar[dict[str, Any]] = {
+    option_spec: ClassVar[dict[str, Any]] = {  # type: ignore[misc]
         "separate-modes": flag,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
     }

@@ -15,7 +15,7 @@ from table import Table
 class NameSupports(Directive):
     optional_arguments = 1
 
-    option_spec: ClassVar[dict[str, Any]] = {
+    option_spec: ClassVar[dict[str, Any]] = {  # type: ignore[misc]
         "filter": unchanged,
     }
 
