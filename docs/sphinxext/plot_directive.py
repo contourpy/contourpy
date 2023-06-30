@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import Any, ClassVar
 
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag
@@ -14,12 +14,13 @@ class PlotDirective(CodeBlock):
     has_content = True
     optional_arguments = 2
 
-    option_spec = {
+    option_spec: ClassVar[dict[str, Any]] = {
         "separate-modes": flag,
         "source-position": lambda x: choice(x, ("below", "above", "none")),
     }
 
-    latest_image_index: dict[str, int] = {}  # dict of string docname -> latest image index used.
+    # dict of string docname -> latest image index used.
+    latest_image_index: ClassVar[dict[str, int]] = {}
 
     def _mpl_mode_header(self, mode: str) -> str:
         if mode == "light":
