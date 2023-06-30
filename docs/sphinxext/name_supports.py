@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import sys
-from typing import Any
+from typing import Any, ClassVar
 
 from docutils.parsers.rst import Directive
 from docutils.parsers.rst.directives import unchanged
@@ -15,7 +15,7 @@ from table import Table
 class NameSupports(Directive):
     optional_arguments = 1
 
-    option_spec = {
+    option_spec: ClassVar[dict[str, Any]] = {  # type: ignore[misc]
         "filter": unchanged,
     }
 
