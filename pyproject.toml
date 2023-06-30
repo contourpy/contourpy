@@ -96,6 +96,10 @@ test-command = [
 test-skip = "pp38-*_aarch64 pp39-* *-musllinux_* *_ppc64le *_s390x"
 
 
+[tool.codespell]
+ignore-words-list = "nd"
+
+
 [tool.coverage.report]
 exclude_lines = [
     "if TYPE_CHECKING:",
