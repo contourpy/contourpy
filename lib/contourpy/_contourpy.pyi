@@ -34,7 +34,7 @@ LineReturn_ChunkCombinedOffset: TypeAlias = tuple[list[PointArray | None], list[
 LineReturn: TypeAlias = LineReturn_Separate | LineReturn_SeparateCode | LineReturn_ChunkCombinedCode | LineReturn_ChunkCombinedOffset
 
 
-CONTOURPY_NDEBUG: int
+NDEBUG: int
 __version__: str
 
 class FillType:
