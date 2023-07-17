@@ -7,7 +7,7 @@ project(
     'werror=true',
   ],
   license: 'BSD-3-Clause',
-  meson_version: '>= 1.1.0',
+  meson_version: '>= 1.2.0',
   version: '1.1.1.dev1',
 )
 

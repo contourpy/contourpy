@@ -28,8 +28,6 @@ jobs:
 
           - os: macOS-11
             arch: arm64
-            # Temporary fix for cross-compiling on macos until meson 1.2.0 is released.
-            config-settings: setup-args=--cross-file="$PWD/meson-cross.ini"
           - os: macOS-11
             arch: x86_64
 
