@@ -19,11 +19,15 @@ def driver() -> Iterator[WebDriver]:
     # Based on Bokeh's tests/support/plugins/selenium.py
     def chrome() -> WebDriver:
         from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.chrome.service import Service
         from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
+
         options = Options()
         options.add_argument("--headless")  # type: ignore[no-untyped-call]
         options.add_argument("--no-sandbox")  # type: ignore[no-untyped-call]
-        return Chrome(options=options)
+
+        service = Service(executable_path="/snap/bin/chromium.chromedriver")
+        return Chrome(options=options, service=service)
 
     driver = chrome()
     driver.implicitly_wait(10)

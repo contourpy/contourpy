@@ -158,8 +158,6 @@ jobs:
             snap list chromium
             snap info chromium
           fi
-          # Creating symlink here isn't ideal :)
-          cd /snap/bin && sudo ln -s chromium.chromedriver chromedriver
           which chromium
           chromium --version
           which chromedriver
@@ -223,7 +221,7 @@ jobs:
           elif [[ "${{ matrix.test-text }}" != "" ]]
           then
             echo "Run normal and text tests with coverage"
-            python -m pytest -v --color=yes -rP tests/test_renderer.py --runtext --cov=lib --cov-report=lcov
+            python -m pytest -v --color=yes -rP tests/test_bokeh_renderer.py tests/test_renderer.py --runtext --cov=lib --cov-report=lcov
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Run only tests that do not generate images"
