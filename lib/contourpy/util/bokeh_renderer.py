@@ -234,7 +234,7 @@ class BokehRenderer(Renderer):
             filename (str): Filename to save to.
             transparent (bool, optional): Whether background should be transparent, default
                 ``False``.
-            webdriver (WebDriver, optional): Selenium WebDriver instance to use to export the image.
+            webdriver (WebDriver, optional): Selenium WebDriver instance to use to create the image.
 
         Warning:
             To output to SVG file, ``want_svg=True`` must have been passed to the constructor.
@@ -253,7 +253,7 @@ class BokehRenderer(Renderer):
         """Save plots to an ``io.BytesIO`` buffer.
 
         Args:
-            webdriver (WebDriver, optional): Selenium WebDriver instance to use to export the image.
+            webdriver (WebDriver, optional): Selenium WebDriver instance to use to create the image.
 
         Return:
             BytesIO: PNG image buffer.
