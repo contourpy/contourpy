@@ -1,77 +1,53 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING, Iterator
+
 import numpy as np
 import pytest
 
 from contourpy import FillType, LineType, contour_generator
-from contourpy.util.data import random, simple
+from contourpy.util.data import random
+
+if TYPE_CHECKING:
+    from selenium.webdriver.remote.webdriver import WebDriver
+
+bokeh_renderer = pytest.importorskip("contourpy.util.bokeh_renderer")
+
+
+@pytest.fixture(scope="session")
+def driver() -> Iterator[WebDriver]:
+    # Based on Bokeh's tests/support/plugins/selenium.py
+    def chrome() -> WebDriver:
+        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
+        options = Options()
+        options.add_argument("--headless")  # type: ignore[no-untyped-call]
+        options.add_argument("--no-sandbox")  # type: ignore[no-untyped-call]
+        return Chrome(options=options)
+
+    driver = chrome()
+    driver.implicitly_wait(10)
+    yield driver
+    driver.quit()
+
+
+def test_chrome_version(driver: WebDriver) -> None:
+    # Print version of chrome used for export to PNG by Bokeh as test images, particularly those
+    # containing text, are sensitive to chrome version.
+    capabilities = driver.capabilities
+    print("Browser used by Bokeh:", capabilities["browserName"], capabilities["browserVersion"])
+    if "chrome" in capabilities:
+        print("Chromedriver:", capabilities["chrome"]["chromedriverVersion"])
 
 
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
-def test_debug_renderer_filled(show_text: bool, fill_type: FillType) -> None:
-    from contourpy.util.mpl_renderer import MplDebugRenderer
-
+def test_renderer_filled_bokeh(show_text: bool, fill_type: FillType, driver: WebDriver) -> None:
     from .image_comparison import compare_images
 
-    renderer = MplDebugRenderer(figsize=(4.5, 3), show_frame=show_text)
-    x, y, z = simple((3, 4))
-    cont_gen = contour_generator(x, y, z, fill_type=fill_type)
-    levels = [0.25, 0.6]
-
-    filled = cont_gen.filled(levels[0], levels[1])
-    renderer.filled(filled, fill_type, color="C1")
-
-    renderer.grid(x, y)
-    if show_text:
-        renderer.quad_numbers(x, y, z)
-        renderer.z_levels(x, y, z, lower_level=levels[0], upper_level=levels[1])
-
-    image_buffer = renderer.save_to_buffer()
-    suffix = "" if show_text else "_no_text"
-    compare_images(image_buffer, f"debug_renderer_filled{suffix}.png", f"{fill_type}")
-
-
-@pytest.mark.image
-@pytest.mark.text
-@pytest.mark.parametrize("show_text", [False, True])
-@pytest.mark.parametrize("line_type", LineType.__members__.values())
-def test_debug_renderer_lines(show_text: bool, line_type: LineType) -> None:
-    from contourpy.util.mpl_renderer import MplDebugRenderer
-
-    from .image_comparison import compare_images
-
-    renderer = MplDebugRenderer(figsize=(4.5, 3), show_frame=show_text)
-    x, y, z = simple((3, 4))
-    cont_gen = contour_generator(x, y, z, line_type=line_type)
-    levels = [0.25, 0.6]
-
-    for i, level in enumerate(levels):
-        lines = cont_gen.lines(level)
-        renderer.lines(lines, line_type, color=f"C{i}", linewidth=2)
-
-    renderer.grid(x, y)
-    if show_text:
-        renderer.quad_numbers(x, y, z)
-        renderer.point_numbers(x, y, z)
-
-    image_buffer = renderer.save_to_buffer()
-    suffix = "" if show_text else "_no_text"
-    compare_images(image_buffer, f"debug_renderer_lines{suffix}.png", f"{line_type}")
-
-
-@pytest.mark.image
-@pytest.mark.text
-@pytest.mark.parametrize("show_text", [False, True])
-@pytest.mark.parametrize("fill_type", FillType.__members__.values())
-def test_renderer_filled(show_text: bool, fill_type: FillType) -> None:
-    from contourpy.util.mpl_renderer import MplRenderer
-
-    from .image_comparison import compare_images
-
-    renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=False)
+    renderer = bokeh_renderer.BokehRenderer(ncols=2, figsize=(8, 3), show_frame=False)
     x, y, z = random((3, 4), mask_fraction=0.35)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, fill_type=fill_type)
@@ -94,21 +70,21 @@ def test_renderer_filled(show_text: bool, fill_type: FillType) -> None:
             if show_text:
                 renderer.title("Colored title", ax=ax, color="red")
 
-    image_buffer = renderer.save_to_buffer()
+    image_buffer = renderer.save_to_buffer(webdriver=driver)
     suffix = "" if show_text else "_no_text"
-    compare_images(image_buffer, f"renderer_filled{suffix}.png", f"{fill_type}")
+    compare_images(
+        image_buffer, f"bokeh_renderer_filled{suffix}.png", f"{fill_type}", mean_threshold=0.03,
+    )
 
 
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
-def test_renderer_lines(show_text: bool, line_type: LineType) -> None:
-    from contourpy.util.mpl_renderer import MplRenderer
-
+def test_renderer_lines_bokeh(show_text: bool, line_type: LineType, driver: WebDriver) -> None:
     from .image_comparison import compare_images
 
-    renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)
+    renderer = bokeh_renderer.BokehRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)
     x, y, z = random((3, 4), mask_fraction=0.35)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, line_type=line_type)
@@ -133,8 +109,8 @@ def test_renderer_lines(show_text: bool, line_type: LineType) -> None:
                 renderer.z_values(x, y, z, ax=ax, fmt=".2f", color="blue")
                 renderer.title("Colored title", ax=ax, color="red")
 
-    image_buffer = renderer.save_to_buffer()
+    image_buffer = renderer.save_to_buffer(webdriver=driver)
     suffix = "" if show_text else "_no_text"
     compare_images(
-        image_buffer, f"renderer_lines{suffix}.png", f"{line_type}",
+        image_buffer, f"bokeh_renderer_lines{suffix}.png", f"{line_type}", mean_threshold=0.03,
     )
