@@ -38,6 +38,7 @@ requires-python = ">= 3.8"
 [project.optional-dependencies]
 docs = [
     "furo",
+    "sphinx >= 7.2",
     "sphinx-copybutton",
 ]
 bokeh = [
