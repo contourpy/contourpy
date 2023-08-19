@@ -15,19 +15,22 @@ bokeh_renderer = pytest.importorskip("contourpy.util.bokeh_renderer")
 
 
 @pytest.fixture(scope="session")
-def driver() -> Iterator[WebDriver]:
+def driver(driver_path: str) -> Iterator[WebDriver]:
     # Based on Bokeh's tests/support/plugins/selenium.py
     def chrome() -> WebDriver:
         from selenium.webdriver.chrome.options import Options
-        from selenium.webdriver.chrome.service import Service
         from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
 
         options = Options()
         options.add_argument("--headless")  # type: ignore[no-untyped-call]
         options.add_argument("--no-sandbox")  # type: ignore[no-untyped-call]
 
-        service = Service(executable_path="/snap/bin/chromium.chromedriver")
-        return Chrome(options=options, service=service)
+        if driver_path:
+            from selenium.webdriver.chrome.service import Service
+            service = Service(executable_path=driver_path)
+            return Chrome(options=options, service=service)
+        else:
+            return Chrome(options=options)
 
     driver = chrome()
     driver.implicitly_wait(10)

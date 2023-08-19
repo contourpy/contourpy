@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 import pytest
+
+if TYPE_CHECKING:
+    from _pytest.fixtures import SubRequest
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -11,6 +14,9 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     )
     parser.addoption(
         "--runtext", action="store_true", default=False, help="run tests with text output",
+    )
+    parser.addoption(
+        "--driver-path", type=str, action="store", default="", help="path to chrome driver",
     )
 
 
@@ -33,3 +39,8 @@ def pytest_collection_modifyitems(config: pytest.Config, items: Sequence[Any]) -
         for item in items:
             if "text" in item.keywords and item.callspec.getparam("show_text"):
                 item.add_marker(skip_text)
+
+
+@pytest.fixture(scope="session")
+def driver_path(request: SubRequest) -> Any:
+    return request.config.getoption("--driver-path")
