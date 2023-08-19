@@ -221,7 +221,7 @@ jobs:
           elif [[ "${{ matrix.test-text }}" != "" ]]
           then
             echo "Run normal and text tests with coverage"
-            python -m pytest -v --color=yes -rP tests/test_bokeh_renderer.py tests/test_renderer.py --runtext --cov=lib --cov-report=lcov
+            python -m pytest -v --color=yes -rP tests/test_bokeh_renderer.py tests/test_renderer.py --runtext --driver-path=/snap/bin/chromium.chromedriver --cov=lib --cov-report=lcov
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Run only tests that do not generate images"
