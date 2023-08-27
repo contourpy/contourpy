@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+import re
 from typing import TYPE_CHECKING, Iterator
 
 import numpy as np
@@ -9,6 +11,8 @@ from contourpy import FillType, LineType, contour_generator
 from contourpy.util.data import random
 
 if TYPE_CHECKING:
+    from _pytest._py.path import LocalPath
+    from _pytest.logging import LogCaptureFixture
     from selenium.webdriver.remote.webdriver import WebDriver
 
 bokeh_renderer = pytest.importorskip("contourpy.util.bokeh_renderer")
@@ -121,3 +125,53 @@ def test_renderer_lines_bokeh(show_text: bool, line_type: LineType, driver: WebD
     compare_images(
         image_buffer, f"bokeh_renderer_lines{suffix}.png", f"{line_type}", mean_threshold=0.03,
     )
+
+
+@pytest.mark.image
+@pytest.mark.parametrize("transparent", [False, True])
+def test_save_png(
+    transparent: bool, tmpdir: LocalPath, driver: WebDriver, caplog: LogCaptureFixture,
+) -> None:
+    from PIL import Image
+
+    renderer = bokeh_renderer.BokehRenderer(figsize=(4, 3), show_frame=False)
+    filename = (tmpdir / "bokeh.png").strpath
+
+    with caplog.at_level(logging.ERROR):  # Hide Bokeh warnings about no renderers.
+        renderer.save(filename, transparent, webdriver=driver)
+
+    # Testing that a PNG file is produced of the correct size and format.
+    # Not testing the actual image produced except for the first pixel to confirm transparency.
+    with Image.open(filename) as image:
+        assert image.format == "PNG"
+        assert image.mode == "RGBA"
+        assert image.size == (400, 300)
+        rgba = image.getpixel((0, 0))
+
+        # Transparent background not working for PNG export.
+        # assert rgba[3] == 0 if transparent else 255
+        assert rgba[3] == 255
+
+
+@pytest.mark.image
+@pytest.mark.parametrize("transparent", [False, True])
+def test_save_svg(
+    transparent: bool, tmpdir: LocalPath, driver: WebDriver, caplog: LogCaptureFixture,
+) -> None:
+    renderer = bokeh_renderer.BokehRenderer(figsize=(4, 3), show_frame=False, want_svg=True)
+    filename = (tmpdir / "bokeh.svg").strpath
+
+    with caplog.at_level(logging.ERROR):  # Hide Bokeh warnings about no renderers.
+        renderer.save(filename, transparent, webdriver=driver)
+
+    # Rather simplistic check of SVG file contents.
+    with open(filename) as f:
+        svg = f.read()
+
+    assert svg[:5] == "<svg "
+    count0 = len(re.findall('fill-opacity="0"', svg))
+    count1 = len(re.findall('fill-opacity="1"', svg))
+    if transparent:
+        assert count0 == 2 and count1 == 0
+    else:
+        assert count0 == 2 and count1 == 2

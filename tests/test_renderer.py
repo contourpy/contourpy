@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import re
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pytest
 
 from contourpy import FillType, LineType, contour_generator
 from contourpy.util.data import random, simple
+
+if TYPE_CHECKING:
+    from _pytest._py.path import LocalPath
 
 
 @pytest.mark.image
@@ -138,3 +144,47 @@ def test_renderer_lines(show_text: bool, line_type: LineType) -> None:
     compare_images(
         image_buffer, f"renderer_lines{suffix}.png", f"{line_type}",
     )
+
+
+@pytest.mark.image
+@pytest.mark.parametrize("transparent", [False, True])
+def test_save_png(transparent: bool, tmpdir: LocalPath) -> None:
+    from PIL import Image
+
+    from contourpy.util.mpl_renderer import MplRenderer
+
+    renderer = MplRenderer(figsize=(4, 3))
+    filename = (tmpdir / "mpl.png").strpath
+    renderer.save(filename, transparent)
+
+    # Testing that a PNG file is produced of the correct size and format.
+    # Not testing the actual image produced except for the first pixel to confirm transparency.
+    with Image.open(filename) as image:
+        assert image.format == "PNG"
+        assert image.mode == "RGBA"
+        assert image.size == (400, 300)
+        rgba = image.getpixel((0, 0))
+        assert rgba[:3] == (255, 255, 255)
+        assert rgba[3] == 0 if transparent else 255
+
+
+@pytest.mark.image
+@pytest.mark.parametrize("transparent", [False, True])
+def test_save_svg(transparent: bool, tmpdir: LocalPath) -> None:
+    from contourpy.util.mpl_renderer import MplRenderer
+
+    renderer = MplRenderer(figsize=(4, 3))
+    filename = (tmpdir / "mpl.svg").strpath
+    renderer.save(filename, transparent)
+
+    # Rather simplistic check of SVG file contents.
+    with open(filename) as f:
+        svg = f.read()
+
+    assert len(re.findall("<svg ", svg)) == 1
+    count0 = len(re.findall("fill: none", svg))
+    count1 = len(re.findall("fill: #ffffff", svg))
+    if transparent:
+        assert count0 == 6 and count1 == 0
+    else:
+        assert count0 == 4 and count1 == 2
