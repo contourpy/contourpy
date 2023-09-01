@@ -3,6 +3,12 @@
 Developer guide
 ===============
 
+C++ compiler
+------------
+
+To build ContourPy you will need a C++ compiler. This is usually `GCC`_ on Linux, `Clang`_ on
+macOS, or `MSVC`_ on Windows. You will also need `ninja`_ installed.
+
 Installing from source
 ----------------------
 
