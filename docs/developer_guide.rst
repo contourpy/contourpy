@@ -7,7 +7,8 @@ C++ compiler
 ------------
 
 To build ContourPy you will need a C++ compiler. This is usually `GCC`_ on Linux, `Clang`_ on
-macOS, or `MSVC`_ on Windows. You will also need `ninja`_ installed.
+macOS, or `MSVC`_ on Windows. You will also need `ninja`_, binary wheels are available for many
+platforms that can be installed using ``pip``.
 
 Installing from source
 ----------------------
