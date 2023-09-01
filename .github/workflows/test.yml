@@ -186,7 +186,7 @@ jobs:
           if [[ "${{ matrix.debug }}" != "" ]] || [[ "${{ matrix.coverage-files }}" != "" ]]
           then
             # Install requirements when not using build isolation.
-            python -m pip install -r build_requirements.txt
+            python -m pip install -r build_requirements.txt ninja
           fi
           python -m pip list
 
