@@ -38,10 +38,5 @@ repos:
     hooks:
       - id: pyupgrade
 
-  - repo: https://github.com/abravalheri/validate-pyproject
-    rev: v0.13
-    hooks:
-      - id: validate-pyproject
-
 ci:
   autofix_prs: false
