@@ -122,6 +122,12 @@ jobs:
             python-version: "3.12-dev"
             name: "Test"
             test-no-images: true
+          # Win32 test.
+          - os: windows-latest
+            python-version: "3.11"
+            name: "Win32"
+            win32: true
+            extra-install-args: "--only-binary Pillow"
 
     steps:
       - name: Checkout source
@@ -129,10 +135,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Python ${{ matrix.python-version }}
+      - name: Setup Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          architecture: ${{ matrix.win32 && 'x86' || 'x64' }}
+
+      - name: Setup MSVC (32-bit)
+        if: matrix.win32
+        uses: bus1/cabuild/action/msdevshell@v1
+        with:
+          architecture: 'x86'
+
+      - name: Fix PATH on win32
+        # Avoid this in GHA: "ERROR: Found GNU link.exe instead of MSVC link.exe"
+        if: matrix.win32
+        run: |
+          rm /c/Program\ Files/Git/usr/bin/link.EXE
 
       - name: Install OS dependencies
         if: matrix.debug
