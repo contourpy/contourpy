@@ -6,6 +6,10 @@ on:
       - v*
   workflow_dispatch:
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build_wheels:
     name: ${{ matrix.arch }} wheels on ${{ matrix.os }}
@@ -33,6 +37,8 @@ jobs:
 
           - os: windows-2019
             arch: AMD64
+          - os: windows-2019
+            arch: x86
 
     steps:
       - name: Checkout source
@@ -46,11 +52,22 @@ jobs:
         with:
           platforms: all
 
+      - name: Setup MSVC (32-bit)
+        if: ${{ matrix.arch == 'x86' }}
+        uses: bus1/cabuild/action/msdevshell@v1
+        with:
+          architecture: 'x86'
+
+      - name: Fix PATH on win32
+        # Avoid this in GHA: "ERROR: Found GNU link.exe instead of MSVC link.exe"
+        if: ${{ matrix.arch == 'x86' }}
+        run: |
+          rm /c/Program\ Files/Git/usr/bin/link.EXE
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.15.0
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
-          CIBW_CONFIG_SETTINGS: ${{ matrix.config-settings }}
 
       - uses: actions/upload-artifact@v3
         with:
