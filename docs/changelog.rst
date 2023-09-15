@@ -3,6 +3,44 @@
 Changelog
 #########
 
+v1.1.1 (2023-09-16)
+-------------------
+
+This release adds support for CPython 3.12 and reinstates the release of
+Windows 32-bit wheels following NumPy's intention to continue doing so.
+There is a new keyword argument ``webdriver`` to the ``BokehRenderer`` save
+functions to reuse the same Selenium WebDriver instance across multiple calls.
+
+This release supports Python 3.8 to 3.12.
+
+Thanks to new contributor :user:`shadchin` and existing contributors
+:user:`eli-schwartz` and :user:`ianthomas23`.
+
+Enhancements:
+
+- Add ``webdriver`` kwarg to Bokeh export functions (:pr:`261`)
+- Add ``--driver-path`` pytest option to specify chrome driver path (:pr:`264`)
+
+Code improvements:
+
+- Sync constant name with C++ code (:pr:`258`)
+- Improved validation in internal chunk functions (:pr:`266`)
+
+Documentation improvements:
+
+- Exclude prompts when using sphinx copybutton (:pr:`269`)
+
+Build system and CI improvements:
+
+- Support CPython 3.12 (:pr:`254`, :pr:`272`)
+- Reinstate Windows 32-bit testing and wheels (:pr:`274`, :pr:`275`)
+- Update build and CI dependencies (:pr:`256`, :pr:`257`, :pr:`259`)
+- Don't require `ninja`_ to come from PyPI (:pr:`260`)
+- Re-enable bokeh tests in CI (:pr:`263`)
+- Add tests for saving to PNG and SVG using Matplotlib and Bokeh renderers (:pr:`267`)
+- Pin numpy to less than 2.0 (:pr:`268`)
+- Remove `ninja`_ build requirements (:pr:`270`)
+
 v1.1.0 (2023-06-13)
 -------------------
 
@@ -10,6 +48,11 @@ This release features a change in the build system from ``distutils``, which
 is scheduled for removal in Python 3.12, to `meson`_ and `meson-python`_.
 It includes the building of wheels for ppc64le and s390x (on x86_64 only) and
 removes building of all 32-bit wheels and macOS universal2 wheels.
+
+.. note::
+
+   Windows 32-bit wheels were retroactively released for v1.1.0 on 2023-09-15
+   following NumPy's decision to keep releasing Win32 wheels.
 
 This release supports Python 3.8 to 3.11.
 
