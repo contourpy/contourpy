@@ -125,6 +125,11 @@ jobs:
             name: "Win32"
             win32: true
             extra-install-args: "--only-binary Pillow"
+          # Test against numpy nightly wheels.
+          - os: ubuntu-latest
+            python-version: "3.12-dev"
+            name: "Nightly wheels"
+            nightly-wheels: true
 
     steps:
       - name: Checkout source
@@ -176,13 +181,6 @@ jobs:
           which chromedriver
           chromedriver --version
 
-      - name: Build and install numpy from sdist without build isolation
-        if: matrix.build-numpy-no-isolation
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install -v cython
-          pip install -v --no-binary=numpy numpy --no-build-isolation
-
       - name: Build and install numpy from sdist
         if: matrix.build-numpy
         run: |
@@ -221,6 +219,14 @@ jobs:
             echo "Install contourpy with standard test dependencies"
             python -m pip install -v .[test] ${{ matrix.extra-install-args }}
           fi
+
+      - name: Install nightly wheels
+        if: matrix.nightly-wheels
+        run: |
+          python -m pip install --pre --upgrade --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy
+
+      - name: Smoke test
+        run: |
           python -m pip list
           python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
           python -c "import contourpy as c; print('NDEBUG', c._contourpy.NDEBUG)"
