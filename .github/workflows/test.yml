@@ -100,12 +100,10 @@ jobs:
             python-version: "3.11"
             name: "Test C++11"
             extra-install-args: "-C setup-args=-Dcpp_std=c++11"
-          # PyPy only tested on ubuntu for speed, without image tests.
+          # PyPy only tested on ubuntu for speed.
           - os: ubuntu-latest
             python-version: "pypy3.9"
             name: "Test"
-            build-numpy: true
-            test-no-images: true
           # Pre-release Python 3.12 without image tests.
           - os: ubuntu-latest
             python-version: "3.12-dev"
