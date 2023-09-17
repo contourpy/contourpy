@@ -287,12 +287,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # musllinux: build numpy from source, run non-image tests only
+          # musllinux: run standard tests.
           - arch: x86_64
             manylinux_version: musllinux
             image: musllinux_1_1_x86_64
             venv: venv
-            test: test-no-images
+            test: test
           # ppc64le and s390x: dependencies are conda packages, run standard tests.
           - arch: ppc64le
             manylinux_version: manylinux2014
