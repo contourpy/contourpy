@@ -182,12 +182,12 @@ jobs:
       - name: Build and install numpy from sdist
         if: matrix.build-numpy
         run: |
-          pip install -v --no-binary=numpy numpy -C setup-args="-Dallow-noblas=true"
+          python -m pip install -v --no-binary=numpy numpy -C setup-args="-Dallow-noblas=true"
 
       - name: Build and install numpy from sdist with debug asserts enabled
         if: matrix.build-numpy-debug
         run: |
-          CFLAGS=-UNDEBUG pip install -v --no-binary=numpy numpy -C setup-args="-Dallow-noblas=true"
+          python -m pip install -v --no-binary=numpy numpy -C setup-args="-Dallow-noblas=true" -C setup-args=-Dbuildtype=debug
 
       - name: Pre-install Python dependencies
         run: |
