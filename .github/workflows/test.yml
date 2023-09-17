@@ -75,7 +75,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12-dev"]
         name: ["Test"]
         include:
           # Debug build including Python and C++ coverage.
@@ -99,26 +99,11 @@ jobs:
           - os: ubuntu-latest
             python-version: "3.11"
             name: "Test C++11"
-            extra-install-args: "-C setup-args=-Dcpp_std=c++11"
-          # PyPy only tested on ubuntu for speed, without image tests.
+            extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
+          # PyPy only tested on ubuntu for speed.
           - os: ubuntu-latest
             python-version: "pypy3.9"
             name: "Test"
-            build-numpy: true
-            test-no-images: true
-          # Pre-release Python 3.12 without image tests.
-          - os: ubuntu-latest
-            python-version: "3.12-dev"
-            name: "Test"
-            test-no-images: true
-          - os: macos-latest
-            python-version: "3.12-dev"
-            name: "Test"
-            test-no-images: true
-          - os: windows-latest
-            python-version: "3.12-dev"
-            name: "Test"
-            test-no-images: true
           # Win32 test.
           - os: windows-latest
             python-version: "3.11"
@@ -184,12 +169,12 @@ jobs:
       - name: Build and install numpy from sdist
         if: matrix.build-numpy
         run: |
-          pip install -v --no-binary=numpy numpy
+          python -m pip install -v --no-binary=numpy numpy -Csetup-args="-Dallow-noblas=true"
 
       - name: Build and install numpy from sdist with debug asserts enabled
         if: matrix.build-numpy-debug
         run: |
-          CFLAGS=-UNDEBUG pip install -v --no-binary=numpy numpy
+          python -m pip install -v --no-binary=numpy numpy -Csetup-args="-Dallow-noblas=true" -Csetup-args=-Dbuildtype=debug
 
       - name: Pre-install Python dependencies
         run: |
@@ -206,11 +191,11 @@ jobs:
           if [[ "${{ matrix.debug }}" != "" ]]
           then
             echo "Install contourpy in debug editable mode with coverage"
-            python -m pip install -ve .[test] --no-build-isolation -C setup-args=-Dbuildtype=debug -C setup-args=-Db_coverage=true -C builddir=build
+            python -m pip install -ve .[test] --no-build-isolation -Csetup-args=-Dbuildtype=debug -Csetup-args=-Db_coverage=true -Cbuilddir=build
           elif [[ "${{ matrix.coverage-files }}" != "" ]]
           then
             echo "Install contourpy in editable mode with bokeh dependencies"
-            python -m pip install -ve .[bokeh,test] --no-build-isolation -C builddir=build
+            python -m pip install -ve .[bokeh,test] --no-build-isolation -Cbuilddir=build
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Install contourpy with non-image-generating test dependencies"
@@ -289,12 +274,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # musllinux: build numpy from source, run non-image tests only
+          # musllinux: run standard tests.
           - arch: x86_64
             manylinux_version: musllinux
             image: musllinux_1_1_x86_64
             venv: venv
-            test: test-no-images
+            test: test
           # ppc64le and s390x: dependencies are conda packages, run standard tests.
           - arch: ppc64le
             manylinux_version: manylinux2014

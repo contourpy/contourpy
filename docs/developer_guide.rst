@@ -77,7 +77,7 @@ as follows:
 
 .. code-block:: console
 
-   $ python -m pip install -ve . --no-build-isolation -C editable-verbose=true
+   $ python -m pip install -ve . --no-build-isolation -Ceditable-verbose=true
 
 
 Install configuration options
@@ -100,7 +100,7 @@ use:
 
 .. code-block:: console
 
-   $ python -m pip install -v .  -C setup-args=-Dbuildtype=debug -C builddir=build
+   $ python -m pip install -v . -Csetup-args=-Dbuildtype=debug -Cbuilddir=build
 
 or the editable mode equivalent.
 
@@ -108,12 +108,12 @@ C++ standard
 ^^^^^^^^^^^^
 
 Although ContourPy is C++11 compliant the default C++ standard used to build is C++17.
-To change the C++ standard to, for example C++14, append ``-C setup-args=-Dcpp_std=c++14`` to the
+To change the C++ standard to, for example C++14, append ``-Csetup-args=-Dcpp_std=c++14`` to the
 ``pip install`` command. For example:
 
 .. code-block:: console
 
-   $ python -m pip install -v . -C setup-args=-Dcpp_std=c++14
+   $ python -m pip install -v . -Csetup-args=-Dcpp_std=c++14
 
 
 Running tests

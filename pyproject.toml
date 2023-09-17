@@ -26,8 +26,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
-    "numpy >= 1.16, < 2.0; python_version <= '3.11'",
-    "numpy >= 1.26.0rc1, < 2.0; python_version >= '3.12'",
+    "numpy >= 1.16, < 2.0",
 ]
 description = "Python library for calculating contours of 2D quadrilateral grids"
 dynamic = ["version"]

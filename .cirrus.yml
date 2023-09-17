@@ -23,7 +23,7 @@ linux_aarch64_test_task:
     source venv/bin/activate
 
   install_contourpy_script: |
-    python -m pip install -v .[test] -C builddir=build
+    python -m pip install -v .[test] -Cbuilddir=build
     python -m pip list
     python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
 
@@ -55,7 +55,7 @@ macos_arm64_test_task:
     source venv/bin/activate
 
   install_contourpy_script: |
-    python -m pip install -v .[test] -C builddir=build
+    python -m pip install -v .[test] -Cbuilddir=build
     python -m pip list
     python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
 
