@@ -99,7 +99,7 @@ jobs:
           - os: ubuntu-latest
             python-version: "3.11"
             name: "Test C++11"
-            extra-install-args: "-C setup-args=-Dcpp_std=c++11"
+            extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
           # PyPy only tested on ubuntu for speed.
           - os: ubuntu-latest
             python-version: "pypy3.9"
@@ -182,12 +182,12 @@ jobs:
       - name: Build and install numpy from sdist
         if: matrix.build-numpy
         run: |
-          python -m pip install -v --no-binary=numpy numpy -C setup-args="-Dallow-noblas=true"
+          python -m pip install -v --no-binary=numpy numpy -Csetup-args="-Dallow-noblas=true"
 
       - name: Build and install numpy from sdist with debug asserts enabled
         if: matrix.build-numpy-debug
         run: |
-          python -m pip install -v --no-binary=numpy numpy -C setup-args="-Dallow-noblas=true" -C setup-args=-Dbuildtype=debug
+          python -m pip install -v --no-binary=numpy numpy -Csetup-args="-Dallow-noblas=true" -Csetup-args=-Dbuildtype=debug
 
       - name: Pre-install Python dependencies
         run: |
@@ -204,11 +204,11 @@ jobs:
           if [[ "${{ matrix.debug }}" != "" ]]
           then
             echo "Install contourpy in debug editable mode with coverage"
-            python -m pip install -ve .[test] --no-build-isolation -C setup-args=-Dbuildtype=debug -C setup-args=-Db_coverage=true -C builddir=build
+            python -m pip install -ve .[test] --no-build-isolation -Csetup-args=-Dbuildtype=debug -Csetup-args=-Db_coverage=true -Cbuilddir=build
           elif [[ "${{ matrix.coverage-files }}" != "" ]]
           then
             echo "Install contourpy in editable mode with bokeh dependencies"
-            python -m pip install -ve .[bokeh,test] --no-build-isolation -C builddir=build
+            python -m pip install -ve .[bokeh,test] --no-build-isolation -Cbuilddir=build
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Install contourpy with non-image-generating test dependencies"
