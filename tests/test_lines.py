@@ -799,3 +799,11 @@ def test_lines_z_nonfinite(name: str, z: float, zlevel: float) -> None:
     cont_gen = contour_generator(z=[[z, z], [z, z]], name=name, line_type=LineType.SeparateCode)
     lines = cont_gen.lines(zlevel)
     assert lines == ([], [])
+
+
+@pytest.mark.parametrize("name", util_test.all_names())
+def test_lines_infinite_level(name: str) -> None:
+    cont_gen = contour_generator(z=[[0, 0], [1, 1]], name=name, line_type=LineType.SeparateCode)
+    for level in (-np.inf, np.inf):
+        lines = cont_gen.lines(level)
+        assert len(lines[0]) == 0  # No lines
