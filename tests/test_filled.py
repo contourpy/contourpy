@@ -914,3 +914,28 @@ def test_filled_z_nonfinite(name: str, z: float, zlevel: float) -> None:
     cont_gen = contour_generator(z=[[z, z], [z, z]], name=name, fill_type=FillType.OuterCode)
     filled = cont_gen.filled(zlevel, zlevel)
     assert filled == ([], [])
+
+
+@pytest.mark.parametrize("name", util_test.all_names())
+def test_filled_infinite_level(name: str) -> None:
+    levels_all = [(0.5, np.inf), (-np.inf, 0.5), (-np.inf, np.inf)]
+    if name == "mpl2014":
+        expected_all = [
+            np.array([[1, 0.5], [1, 1], [0, 1], [0, 0.5], [1, 0.5]]),
+            np.array([[1, 0], [1, 0.5], [0, 0.5], [0, 0], [1, 0]]),
+            np.array([[1, 0], [1, 1], [0, 1], [0, 0], [1, 0]]),
+        ]
+    else:
+        expected_all = [
+            np.array([[0, 1], [0, 0.5], [1, 0.5], [1, 1], [0, 1]]),
+            np.array([[0, 0], [1, 0], [1, 0.5], [0, 0.5], [0, 0]]),
+            np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]),
+        ]
+
+    cont_gen = contour_generator(z=[[0, 0], [1, 1]], name=name, fill_type=FillType.OuterCode)
+    for (lower_level, upper_level), expected in zip(levels_all, expected_all):
+        filled = cont_gen.filled(lower_level, upper_level)
+        assert len(filled[0]) == 1  # Single polygon
+        points = filled[0][0]
+        assert isinstance(points, np.ndarray)
+        assert_allclose(points, expected)
