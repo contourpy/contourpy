@@ -12,6 +12,7 @@ from bokeh.plotting import figure
 import numpy as np
 
 from contourpy import FillType, LineType
+from contourpy.enum_util import as_fill_type, as_line_type
 from contourpy.util.bokeh_util import filled_to_bokeh, lines_to_bokeh
 from contourpy.util.renderer import Renderer
 
@@ -89,7 +90,7 @@ class BokehRenderer(Renderer):
     def filled(
         self,
         filled: FillReturn,
-        fill_type: FillType,
+        fill_type: FillType | str,
         ax: figure | int = 0,
         color: str = "C0",
         alpha: float = 0.7,
@@ -99,14 +100,15 @@ class BokehRenderer(Renderer):
         Args:
             filled (sequence of arrays): Filled contour data as returned by
                 :func:`~contourpy.ContourGenerator.filled`.
-            fill_type (FillType): Type of ``filled`` data, as returned by
-                :attr:`~contourpy.ContourGenerator.fill_type`.
+            fill_type (FillType or str): Type of ``filled`` data as returned by
+                :attr:`~contourpy.ContourGenerator.fill_type`, or a string equivalent.
             ax (int or Bokeh Figure, optional): Which plot to use, default ``0``.
             color (str, optional): Color to plot with. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``Category10`` palette. Default ``"C0"``.
             alpha (float, optional): Opacity to plot with, default ``0.7``.
         """
+        fill_type = as_fill_type(fill_type)
         fig = self._get_figure(ax)
         color = self._convert_color(color)
         xs, ys = filled_to_bokeh(filled, fill_type)
@@ -167,7 +169,7 @@ class BokehRenderer(Renderer):
     def lines(
         self,
         lines: LineReturn,
-        line_type: LineType,
+        line_type: LineType | str,
         ax: figure | int = 0,
         color: str = "C0",
         alpha: float = 1.0,
@@ -178,8 +180,8 @@ class BokehRenderer(Renderer):
         Args:
             lines (sequence of arrays): Contour line data as returned by
                 :func:`~contourpy.ContourGenerator.lines`.
-            line_type (LineType): Type of ``lines`` data, as returned by
-                :attr:`~contourpy.ContourGenerator.line_type`.
+            line_type (LineType or str): Type of ``lines`` data as returned by
+                :attr:`~contourpy.ContourGenerator.line_type`, or a string equivalent.
             ax (int or Bokeh Figure, optional): Which plot to use, default ``0``.
             color (str, optional): Color to plot lines. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
@@ -190,6 +192,7 @@ class BokehRenderer(Renderer):
         Note:
             Assumes all lines are open line strips not closed line loops.
         """
+        line_type = as_line_type(line_type)
         fig = self._get_figure(ax)
         color = self._convert_color(color)
         xs, ys = lines_to_bokeh(lines, line_type)

@@ -54,7 +54,7 @@ def test_chrome_version(driver: WebDriver) -> None:
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
-@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("fill_type", [*FillType.__members__.values(), "OuterCode"])
 def test_renderer_filled_bokeh(show_text: bool, fill_type: FillType, driver: WebDriver) -> None:
     from .image_comparison import compare_images
 
@@ -91,7 +91,7 @@ def test_renderer_filled_bokeh(show_text: bool, fill_type: FillType, driver: Web
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
-@pytest.mark.parametrize("line_type", LineType.__members__.values())
+@pytest.mark.parametrize("line_type", [*LineType.__members__.values(), "Separate"])
 def test_renderer_lines_bokeh(show_text: bool, line_type: LineType, driver: WebDriver) -> None:
     from .image_comparison import compare_images
 
