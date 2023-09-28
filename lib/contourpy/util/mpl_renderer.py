@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from contourpy import FillType, LineType
+from contourpy.enum_util import as_fill_type, as_line_type
 from contourpy.util.mpl_util import filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offsets
 from contourpy.util.renderer import Renderer
 
@@ -86,7 +87,7 @@ class MplRenderer(Renderer):
     def filled(
         self,
         filled: cpy.FillReturn,
-        fill_type: FillType,
+        fill_type: FillType | str,
         ax: Axes | int = 0,
         color: str = "C0",
         alpha: float = 0.7,
@@ -96,14 +97,15 @@ class MplRenderer(Renderer):
         Args:
             filled (sequence of arrays): Filled contour data as returned by
                 :func:`~contourpy.ContourGenerator.filled`.
-            fill_type (FillType): Type of ``filled`` data, as returned by
-                :attr:`~contourpy.ContourGenerator.fill_type`.
+            fill_type (FillType or str): Type of ``filled`` data as returned by
+                :attr:`~contourpy.ContourGenerator.fill_type`, or a string equivalent
             ax (int or Maplotlib Axes, optional): Which axes to plot on, default ``0``.
             color (str, optional): Color to plot with. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
                 ``tab10`` colormap. Default ``"C0"``.
             alpha (float, optional): Opacity to plot with, default ``0.7``.
         """
+        fill_type = as_fill_type(fill_type)
         ax = self._get_ax(ax)
         paths = filled_to_mpl_paths(filled, fill_type)
         collection = mcollections.PathCollection(
@@ -161,7 +163,7 @@ class MplRenderer(Renderer):
     def lines(
         self,
         lines: cpy.LineReturn,
-        line_type: LineType,
+        line_type: LineType | str,
         ax: Axes | int = 0,
         color: str = "C0",
         alpha: float = 1.0,
@@ -172,8 +174,8 @@ class MplRenderer(Renderer):
         Args:
             lines (sequence of arrays): Contour line data as returned by
                 :func:`~contourpy.ContourGenerator.lines`.
-            line_type (LineType): Type of ``lines`` data, as returned by
-                :attr:`~contourpy.ContourGenerator.line_type`.
+            line_type (LineType or str): Type of ``lines`` data as returned by
+                :attr:`~contourpy.ContourGenerator.line_type`, or a strin equivalent.
             ax (int or Matplotlib Axes, optional): Which Axes to plot on, default ``0``.
             color (str, optional): Color to plot lines. May be a string color or the letter ``"C"``
                 followed by an integer in the range ``"C0"`` to ``"C9"`` to use a color from the
@@ -181,6 +183,7 @@ class MplRenderer(Renderer):
             alpha (float, optional): Opacity to plot lines with, default ``1.0``.
             linewidth (float, optional): Width of lines, default ``1``.
         """
+        line_type = as_line_type(line_type)
         ax = self._get_ax(ax)
         paths = lines_to_mpl_paths(lines, line_type)
         collection = mcollections.PathCollection(
@@ -467,7 +470,7 @@ class MplDebugRenderer(MplRenderer):
     def filled(
         self,
         filled: cpy.FillReturn,
-        fill_type: FillType,
+        fill_type: FillType | str,
         ax: Axes | int = 0,
         color: str = "C1",
         alpha: float = 0.7,
@@ -477,6 +480,7 @@ class MplDebugRenderer(MplRenderer):
         start_point_color: str = "red",
         arrow_size: float = 0.1,
     ) -> None:
+        fill_type = as_fill_type(fill_type)
         super().filled(filled, fill_type, ax, color, alpha)
 
         if line_color is None and point_color is None:
@@ -515,7 +519,7 @@ class MplDebugRenderer(MplRenderer):
     def lines(
         self,
         lines: cpy.LineReturn,
-        line_type: LineType,
+        line_type: LineType | str,
         ax: Axes | int = 0,
         color: str = "C0",
         alpha: float = 1.0,
@@ -524,6 +528,7 @@ class MplDebugRenderer(MplRenderer):
         start_point_color: str = "red",
         arrow_size: float = 0.1,
     ) -> None:
+        line_type = as_line_type(line_type)
         super().lines(lines, line_type, ax, color, alpha, linewidth)
 
         if arrow_size == 0.0 and point_color is None:

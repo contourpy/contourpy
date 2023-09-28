@@ -60,6 +60,6 @@ def test_string_to_enum(
         line_type = from_string_function(name)
         assert line_type == enum
 
-    msg = "'unknown'"
-    with pytest.raises(KeyError, match=msg):
+    msg = "'unknown' is not a valid"
+    with pytest.raises(ValueError, match=msg):
         _ = from_string_function("unknown")

@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
-@pytest.mark.parametrize("fill_type", FillType.__members__.values())
-def test_debug_renderer_filled(show_text: bool, fill_type: FillType) -> None:
+@pytest.mark.parametrize("fill_type", [*FillType.__members__.values(), "OuterCode"])
+def test_debug_renderer_filled(show_text: bool, fill_type: FillType | str) -> None:
     from contourpy.util.mpl_renderer import MplDebugRenderer
 
     from .image_comparison import compare_images
@@ -43,7 +43,7 @@ def test_debug_renderer_filled(show_text: bool, fill_type: FillType) -> None:
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
-@pytest.mark.parametrize("line_type", LineType.__members__.values())
+@pytest.mark.parametrize("line_type", [*LineType.__members__.values(), "Separate"])
 def test_debug_renderer_lines(show_text: bool, line_type: LineType) -> None:
     from contourpy.util.mpl_renderer import MplDebugRenderer
 
@@ -71,7 +71,7 @@ def test_debug_renderer_lines(show_text: bool, line_type: LineType) -> None:
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
-@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("fill_type", [*FillType.__members__.values(), "OuterCode"])
 def test_renderer_filled(show_text: bool, fill_type: FillType) -> None:
     from contourpy.util.mpl_renderer import MplRenderer
 
@@ -108,7 +108,7 @@ def test_renderer_filled(show_text: bool, fill_type: FillType) -> None:
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
-@pytest.mark.parametrize("line_type", LineType.__members__.values())
+@pytest.mark.parametrize("line_type", [*LineType.__members__.values(), "Separate"])
 def test_renderer_lines(show_text: bool, line_type: LineType) -> None:
     from contourpy.util.mpl_renderer import MplRenderer
 
