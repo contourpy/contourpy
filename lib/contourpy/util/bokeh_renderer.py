@@ -239,6 +239,8 @@ class BokehRenderer(Renderer):
                 ``False``.
             webdriver (WebDriver, optional): Selenium WebDriver instance to use to create the image.
 
+                .. versionadded:: 1.1.1
+
         Warning:
             To output to SVG file, ``want_svg=True`` must have been passed to the constructor.
         """
@@ -257,6 +259,8 @@ class BokehRenderer(Renderer):
 
         Args:
             webdriver (WebDriver, optional): Selenium WebDriver instance to use to create the image.
+
+                .. versionadded:: 1.1.1
 
         Return:
             BytesIO: PNG image buffer.
