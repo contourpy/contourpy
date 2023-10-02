@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import abstractmethod
 from enum import Enum
 import io
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, Sequence, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +13,6 @@ from contourpy import FillType, LineType, contour_generator
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
-    import numpy.typing as npt
 
     from contourpy._contourpy import (
         CoordinateArray, FillReturn_OuterCode, LineReturn_SeparateCode, MaskArray,
@@ -40,10 +39,10 @@ class Config:
     show_text: bool
 
     arrowsize: float
-    axes: npt.NDArray[Axes]  # Set in derived classes.
+    axes: Sequence[Axes]  # Set in derived classes.
     axes_index: int
     fill_alpha: float
-    fig: Figure  # Set in derived classes.
+    fig: Figure | None  # Set in derived classes.
     fontsize: float
     gap: float
     grid_kwargs: dict[str, str | float]
@@ -78,8 +77,7 @@ class Config:
         matplotlib.use("Agg")
 
     def __del__(self) -> None:
-        if self.fig:
-            plt.close(self.fig)
+        self.clear()
 
     def _arrow(
         self, ax: Axes, line_start: CoordinateArray, line_end: CoordinateArray, color: str,
@@ -211,13 +209,23 @@ class Config:
             self.mask[corner.value] = True
             self.mask.shape = (2, 2)
 
+    def clear(self) -> None:
+        if self.fig:
+            self.axes = []
+            plt.close(self.fig)
+            self.fig = None
+
     def save_to_buffer(self) -> io.BytesIO:
+        if not self.fig:
+            raise RuntimeError("self.fig not set")
         buf = io.BytesIO()
         self.fig.savefig(buf, format="png")
         buf.seek(0)
         return buf
 
     def save_to_file(self, filename: str) -> None:
+        if not self.fig:
+            raise RuntimeError("self.fig not set")
         self.fig.savefig(filename)
 
 

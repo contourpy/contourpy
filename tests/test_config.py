@@ -1,8 +1,21 @@
 from __future__ import annotations
 
+import gc
+import platform
+from typing import TYPE_CHECKING
+
 import pytest
 
 from . import util_test
+
+if TYPE_CHECKING:
+    from .util_config import Config
+
+
+def cleanup(config: Config) -> None:
+    if platform.python_implementation() == "PyPy":
+        config.clear()
+        gc.collect()
 
 
 @pytest.mark.image
@@ -17,6 +30,7 @@ def test_config_filled(show_text: bool, name: str) -> None:
     image_buffer = config.save_to_buffer()
     suffix = "" if show_text else "_no_text"
     compare_images(image_buffer, f"config_filled{suffix}.png", name)
+    cleanup(config)
 
 
 @pytest.mark.image
@@ -31,6 +45,7 @@ def test_config_filled_quad_as_tri(show_text: bool, name: str) -> None:
     image_buffer = config.save_to_buffer()
     suffix = "" if show_text else "_no_text"
     compare_images(image_buffer, f"config_filled_quad_as_tri{suffix}.png", name)
+    cleanup(config)
 
 
 @pytest.mark.image
@@ -45,6 +60,7 @@ def test_config_filled_corner(show_text: bool, name: str) -> None:
     image_buffer = config.save_to_buffer()
     suffix = "" if show_text else "_no_text"
     compare_images(image_buffer, f"config_filled_corner{suffix}.png", name)
+    cleanup(config)
 
 
 @pytest.mark.image
@@ -61,6 +77,7 @@ def test_config_lines(show_text: bool, name: str) -> None:
     image_buffer = config.save_to_buffer()
     suffix = "" if show_text else "_no_text"
     compare_images(image_buffer, f"config_lines{suffix}.png", name)
+    cleanup(config)
 
 
 @pytest.mark.image
@@ -75,6 +92,7 @@ def test_config_lines_quad_as_tri(show_text: bool, name: str) -> None:
     image_buffer = config.save_to_buffer()
     suffix = "" if show_text else "_no_text"
     compare_images(image_buffer, f"config_lines_quad_as_tri{suffix}.png", name)
+    cleanup(config)
 
 
 @pytest.mark.image
@@ -89,3 +107,4 @@ def test_config_lines_corner(show_text: bool, name: str) -> None:
     image_buffer = config.save_to_buffer()
     suffix = "" if show_text else "_no_text"
     compare_images(image_buffer, f"config_lines_corner{suffix}.png", name)
+    cleanup(config)
