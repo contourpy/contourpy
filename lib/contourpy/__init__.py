@@ -10,6 +10,7 @@ from contourpy._contourpy import (
 )
 from contourpy._version import __version__
 from contourpy.chunk import calc_chunk_sizes
+from contourpy.dechunk import dechunk_filled, dechunk_lines
 from contourpy.enum_util import as_fill_type, as_line_type, as_z_interp
 
 if TYPE_CHECKING:
@@ -22,6 +23,8 @@ if TYPE_CHECKING:
 __all__ = [
     "__version__",
     "contour_generator",
+    "dechunk_filled",
+    "dechunk_lines",
     "max_threads",
     "FillType",
     "LineType",

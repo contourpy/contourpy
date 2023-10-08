@@ -24,14 +24,16 @@ FillReturn_ChunkCombinedCode: TypeAlias = tuple[list[PointArray | None], list[Co
 FillReturn_ChunkCombinedOffset: TypeAlias = tuple[list[PointArray | None], list[OffsetArray | None]]
 FillReturn_ChunkCombinedCodeOffset: TypeAlias = tuple[list[PointArray | None], list[CodeArray | None], list[OffsetArray | None]]
 FillReturn_ChunkCombinedOffsetOffset: TypeAlias = tuple[list[PointArray | None], list[OffsetArray | None], list[OffsetArray | None]]
-FillReturn: TypeAlias = FillReturn_OuterCode | FillReturn_OuterOffset | FillReturn_ChunkCombinedCode | FillReturn_ChunkCombinedOffset | FillReturn_ChunkCombinedCodeOffset | FillReturn_ChunkCombinedOffsetOffset
+FillReturn_Chunk: TypeAlias = FillReturn_ChunkCombinedCode | FillReturn_ChunkCombinedOffset | FillReturn_ChunkCombinedCodeOffset | FillReturn_ChunkCombinedOffsetOffset
+FillReturn: TypeAlias = FillReturn_OuterCode | FillReturn_OuterOffset | FillReturn_Chunk
 
 # Types returned from lines()
 LineReturn_Separate: TypeAlias = list[PointArray]
 LineReturn_SeparateCode: TypeAlias = tuple[list[PointArray], list[CodeArray]]
 LineReturn_ChunkCombinedCode: TypeAlias = tuple[list[PointArray | None], list[CodeArray | None]]
 LineReturn_ChunkCombinedOffset: TypeAlias = tuple[list[PointArray | None], list[OffsetArray | None]]
-LineReturn: TypeAlias = LineReturn_Separate | LineReturn_SeparateCode | LineReturn_ChunkCombinedCode | LineReturn_ChunkCombinedOffset
+LineReturn_Chunk: TypeAlias = LineReturn_ChunkCombinedCode | LineReturn_ChunkCombinedOffset
+LineReturn: TypeAlias = LineReturn_Separate | LineReturn_SeparateCode | LineReturn_Chunk
 
 
 NDEBUG: int
