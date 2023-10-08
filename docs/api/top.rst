@@ -12,6 +12,10 @@ contourpy
 
 .. autofunction:: contour_generator
 
+.. autofunction:: dechunk_filled
+
+.. autofunction:: dechunk_lines
+
 .. autofunction:: max_threads
 
 
