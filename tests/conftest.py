@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, Any, Sequence
 
 import pytest
 
+from contourpy import FillType, LineType, ZInterp
+
 if TYPE_CHECKING:
     from _pytest.fixtures import SubRequest
 
@@ -39,6 +41,13 @@ def pytest_collection_modifyitems(config: pytest.Config, items: Sequence[Any]) -
         for item in items:
             if "text" in item.keywords and item.callspec.getparam("show_text"):
                 item.add_marker(skip_text)
+
+
+def pytest_make_parametrize_id(config: pytest.Config, val: Any, argname: str) -> str | None:
+    # Override names used for enums in tests.
+    if isinstance(val, (FillType, LineType, ZInterp)):
+        return val.name
+    return None
 
 
 @pytest.fixture(scope="session")
