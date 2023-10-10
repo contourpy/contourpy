@@ -12,6 +12,8 @@ contourpy
 
 .. autofunction:: contour_generator
 
+.. autofunction:: convert_line_type
+
 .. autofunction:: dechunk_filled
 
 .. autofunction:: dechunk_lines
