@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
-from contourpy import FillType, LineType
+from contourpy._contourpy import FillType, LineType
 from contourpy.enum_util import as_fill_type, as_line_type
 
 if TYPE_CHECKING:

@@ -3,18 +3,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, cast, overload
 
 import numpy as np
+from numpy.testing import assert_allclose, assert_array_equal
 
 from contourpy import FillType, LineType, max_threads
+from contourpy.types import code_dtype, offset_dtype, point_dtype
 
 if TYPE_CHECKING:
     import numpy.typing as npt
 
     import contourpy._contourpy as cpy
-
-
-point_dtype = np.float64
-code_dtype = np.uint8
-offset_dtype = np.uint32
 
 
 def all_class_names() -> list[str]:
@@ -285,6 +282,24 @@ def assert_lines(lines: cpy.LineReturn, line_type: LineType) -> None:
                 assert_offset_array(offsets_or_none, npoints)
     else:
         raise RuntimeError(f"Unexpected line_type {line_type}")
+
+
+def assert_equal_recursive(any1: Any, any2: Any) -> None:
+    assert type(any1) == type(any2)
+    if any1 is None:
+        assert any2 is None
+    elif isinstance(any1, (list, tuple)):
+        assert len(any1) == len(any2)
+        for item1, item2 in zip(any1, any2):
+            assert_equal_recursive(item1, item2)
+    elif isinstance(any1, np.ndarray):
+        assert any1.dtype == any2.dtype
+        if any1.dtype == np.float64:
+            assert_allclose(any1, any2)
+        else:
+            assert_array_equal(any1, any2)
+    else:
+        raise NotImplementedError()
 
 
 @overload

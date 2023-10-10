@@ -2,8 +2,10 @@ python_sources = [
   '__init__.py',
   '_version.py',
   'chunk.py',
+  'convert.py',
   'dechunk.py',
   'enum_util.py',
+  'types.py',
   '_contourpy.pyi',
   'py.typed',
 ]
