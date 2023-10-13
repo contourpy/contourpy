@@ -53,6 +53,7 @@ def test_convert_fill_type(
             convert_fill_type(filled, fill_type_from, fill_type_to)
     else:
         converted = convert_fill_type(filled, fill_type_from, fill_type_to)
+        util_test.assert_filled(converted, fill_type_to)
 
         compare = contour_generator(z=z, fill_type=fill_type_to, chunk_size=chunk_size).filled(
             lower_level, upper_level)
@@ -88,6 +89,7 @@ def test_convert_line_type(
     converted = convert_line_type(lines, line_type_from, line_type_to)
 
     compare = contour_generator(z=z, line_type=line_type_to, chunk_size=chunk_size).lines(level)
+    util_test.assert_lines(converted, line_type_to)
 
     # Converting Separate or SeparateCode to any ChunkCombined* returns all lines in a single chunk,
     # so need to compare to dechunked_lines(compare).
