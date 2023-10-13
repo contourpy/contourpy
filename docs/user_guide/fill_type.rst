@@ -175,7 +175,7 @@ ChunkCombinedCodeOffset
             [0., 0.], [1., 0.44], [0.58, 1.], [1., 1.36], [1.38, 1.], [1., 0.44], [2.2 , 2.],
             [3., 1.13], [3., 1.57], [2.6, 2.], [2.2, 2.]])],
     [array([1, 2, 2, 2, 2, 2, 2, 79, 1, 2, 2, 2, 79, 1, 2, 2, 2, 79], dtype=uint8)],
-    [array([ 0, 13, 18], dtype=uint32)])
+    [array([0, 13, 18], dtype=uint32)])
 
 This returns a tuple of three lists, each list has a length equal to the number of chunks used
 which is one here. The first two lists are the same as for ``ChunkCombinedCode`` except that each
@@ -199,7 +199,7 @@ ChunkCombinedOffsetOffset
    ([array([[0., 0.], [1., 0.], [1.67, 0.], [1.77, 1.], [1., 1.71], [0.17, 1.], [0., 0.5],
             [0., 0.], [1., 0.44], [0.58, 1.], [1., 1.36], [1.38, 1.], [1., 0.44], [2.2 , 2.],
             [3., 1.13], [3., 1.57], [2.6, 2.], [2.2, 2.]])],
-    [array([ 0,  8, 13, 18], dtype=uint32)],
+    [array([0, 8, 13, 18], dtype=uint32)],
     [array([0, 2, 3], dtype=uint32)])
 
 This returns a tuple of three lists, each list has a length equal to the number of chunks used

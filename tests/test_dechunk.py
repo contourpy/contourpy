@@ -124,7 +124,7 @@ def test_dechunk_lines(z: cpy.CoordinateArray, line_type: LineType, chunk_size: 
             [1.5, 0], [1.5, 1], [1.5, 2], [0.5, 2], [0.5, 1], [0.5, 0], [1.5, 2], [1.75, 3],
             [1, 3.75], [0.25, 3], [0.5, 2], [2.5, 3], [3, 2.5], [3.5, 3], [3, 3.5], [2.5, 3]])
         expected_codes = np.array([1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 79])
-        expected_offsets = np.array([ 0, 3, 6, 11, 16])
+        expected_offsets = np.array([0, 3, 6, 11, 16])
 
         assert dechunked[0][0] is not None
         assert_allclose(dechunked[0][0], expected_points)
