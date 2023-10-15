@@ -399,6 +399,8 @@ class MplDebugRenderer(MplRenderer):
         # Lines.
         if line_color is not None:
             for points, offsets in zip(*filled):
+                if points is None:
+                    continue
                 for start, end in zip(offsets[:-1], offsets[1:]):
                     xys = points[start:end]
                     ax.plot(xys[:, 0], xys[:, 1], c=line_color, alpha=line_alpha)
@@ -411,6 +413,8 @@ class MplDebugRenderer(MplRenderer):
         # Points.
         if point_color is not None:
             for points, offsets in zip(*filled):
+                if points is None:
+                    continue
                 mask = np.ones(offsets[-1], dtype=bool)
                 mask[offsets[1:]-1] = False  # Exclude end points.
                 if start_point_color is not None:
