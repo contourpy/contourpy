@@ -8,8 +8,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from contourpy import FillType, LineType
+from contourpy.convert import convert_fill_type, convert_line_type
 from contourpy.enum_util import as_fill_type, as_line_type
-from contourpy.util.mpl_util import filled_to_mpl_paths, lines_to_mpl_paths, mpl_codes_to_offsets
+from contourpy.util.mpl_util import filled_to_mpl_paths, lines_to_mpl_paths
 from contourpy.util.renderer import Renderer
 
 if TYPE_CHECKING:
@@ -373,100 +374,6 @@ class MplDebugRenderer(MplRenderer):
         ))
         ax.plot(arrow[:, 0], arrow[:, 1], "-", c=color, alpha=alpha)
 
-    def _filled_to_lists_of_points_and_offsets(
-        self,
-        filled: cpy.FillReturn,
-        fill_type: FillType,
-    ) -> tuple[list[cpy.PointArray], list[cpy.OffsetArray]]:
-        if fill_type == FillType.OuterCode:
-            if TYPE_CHECKING:
-                filled = cast(cpy.FillReturn_OuterCode, filled)
-            all_points = filled[0]
-            all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1]]
-        elif fill_type == FillType.ChunkCombinedCode:
-            if TYPE_CHECKING:
-                filled = cast(cpy.FillReturn_ChunkCombinedCode, filled)
-            all_points = [points for points in filled[0] if points is not None]
-            all_offsets = [mpl_codes_to_offsets(codes) for codes in filled[1] if codes is not None]
-        elif fill_type == FillType.OuterOffset:
-            if TYPE_CHECKING:
-                filled = cast(cpy.FillReturn_OuterOffset, filled)
-            all_points = filled[0]
-            all_offsets = filled[1]
-        elif fill_type == FillType.ChunkCombinedOffset:
-            if TYPE_CHECKING:
-                filled = cast(cpy.FillReturn_ChunkCombinedOffset, filled)
-            all_points = [points for points in filled[0] if points is not None]
-            all_offsets = [offsets for offsets in filled[1] if offsets is not None]
-        elif fill_type == FillType.ChunkCombinedCodeOffset:
-            if TYPE_CHECKING:
-                filled = cast(cpy.FillReturn_ChunkCombinedCodeOffset, filled)
-            all_points = []
-            all_offsets = []
-            for points, codes, outer_offsets in zip(*filled):
-                if points is None:
-                    continue
-                if TYPE_CHECKING:
-                    assert codes is not None and outer_offsets is not None
-                all_points += np.split(points, outer_offsets[1:-1])
-                all_codes = np.split(codes, outer_offsets[1:-1])
-                all_offsets += [mpl_codes_to_offsets(codes) for codes in all_codes]
-        elif fill_type == FillType.ChunkCombinedOffsetOffset:
-            if TYPE_CHECKING:
-                filled = cast(cpy.FillReturn_ChunkCombinedOffsetOffset, filled)
-            all_points = []
-            all_offsets = []
-            for points, offsets, outer_offsets in zip(*filled):
-                if points is None:
-                    continue
-                if TYPE_CHECKING:
-                    assert offsets is not None and outer_offsets is not None
-                for i in range(len(outer_offsets)-1):
-                    offs = offsets[outer_offsets[i]:outer_offsets[i+1]+1]
-                    all_points.append(points[offs[0]:offs[-1]])
-                    all_offsets.append(offs - offs[0])
-        else:
-            raise RuntimeError(f"Rendering FillType {fill_type} not implemented")
-
-        return all_points, all_offsets
-
-    def _lines_to_list_of_points(
-        self, lines: cpy.LineReturn, line_type: LineType,
-    ) -> list[cpy.PointArray]:
-        if line_type == LineType.Separate:
-            if TYPE_CHECKING:
-                lines = cast(cpy.LineReturn_Separate, lines)
-            all_lines = lines
-        elif line_type == LineType.SeparateCode:
-            if TYPE_CHECKING:
-                lines = cast(cpy.LineReturn_SeparateCode, lines)
-            all_lines = lines[0]
-        elif line_type == LineType.ChunkCombinedCode:
-            if TYPE_CHECKING:
-                lines = cast(cpy.LineReturn_ChunkCombinedCode, lines)
-            all_lines = []
-            for points, codes in zip(*lines):
-                if points is not None:
-                    if TYPE_CHECKING:
-                        assert codes is not None
-                    offsets = mpl_codes_to_offsets(codes)
-                    for i in range(len(offsets)-1):
-                        all_lines.append(points[offsets[i]:offsets[i+1]])
-        elif line_type == LineType.ChunkCombinedOffset:
-            if TYPE_CHECKING:
-                lines = cast(cpy.LineReturn_ChunkCombinedOffset, lines)
-            all_lines = []
-            for points, all_offsets in zip(*lines):
-                if points is not None:
-                    if TYPE_CHECKING:
-                        assert all_offsets is not None
-                    for i in range(len(all_offsets)-1):
-                        all_lines.append(points[all_offsets[i]:all_offsets[i+1]])
-        else:
-            raise RuntimeError(f"Rendering LineType {line_type} not implemented")
-
-        return all_lines
-
     def filled(
         self,
         filled: cpy.FillReturn,
@@ -487,11 +394,13 @@ class MplDebugRenderer(MplRenderer):
             return
 
         ax = self._get_ax(ax)
-        all_points, all_offsets = self._filled_to_lists_of_points_and_offsets(filled, fill_type)
+        filled = convert_fill_type(filled, fill_type, FillType.ChunkCombinedOffset)
 
         # Lines.
         if line_color is not None:
-            for points, offsets in zip(all_points, all_offsets):
+            for points, offsets in zip(*filled):
+                if points is None:
+                    continue
                 for start, end in zip(offsets[:-1], offsets[1:]):
                     xys = points[start:end]
                     ax.plot(xys[:, 0], xys[:, 1], c=line_color, alpha=line_alpha)
@@ -503,7 +412,9 @@ class MplDebugRenderer(MplRenderer):
 
         # Points.
         if point_color is not None:
-            for points, offsets in zip(all_points, all_offsets):
+            for points, offsets in zip(*filled):
+                if points is None:
+                    continue
                 mask = np.ones(offsets[-1], dtype=bool)
                 mask[offsets[1:]-1] = False  # Exclude end points.
                 if start_point_color is not None:
@@ -535,15 +446,17 @@ class MplDebugRenderer(MplRenderer):
             return
 
         ax = self._get_ax(ax)
-        all_lines = self._lines_to_list_of_points(lines, line_type)
+        separate_lines = convert_line_type(lines, line_type, LineType.Separate)
+        if TYPE_CHECKING:
+            separate_lines = cast(cpy.LineReturn_Separate, separate_lines)
 
         if arrow_size > 0.0:
-            for line in all_lines:
+            for line in separate_lines:
                 for i in range(len(line)-1):
                     self._arrow(ax, line[i], line[i+1], color, alpha, arrow_size)
 
         if point_color is not None:
-            for line in all_lines:
+            for line in separate_lines:
                 start_index = 0
                 end_index = len(line)
                 if start_point_color is not None:
