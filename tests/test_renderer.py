@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pytest
@@ -24,7 +24,8 @@ def test_debug_renderer_filled(show_text: bool, fill_type: FillType | str) -> No
 
     renderer = MplDebugRenderer(figsize=(4.5, 3), show_frame=show_text)
     x, y, z = simple((3, 4))
-    cont_gen = contour_generator(x, y, z, fill_type=fill_type)
+    z[0, 2] = 0  # Ensure empty chunk
+    cont_gen = contour_generator(x, y, z, fill_type=fill_type, chunk_size=2)
     levels = [0.25, 0.6]
 
     filled = cont_gen.filled(levels[0], levels[1])
@@ -71,13 +72,21 @@ def test_debug_renderer_lines(show_text: bool, line_type: LineType) -> None:
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
+@pytest.mark.parametrize("debug", [False, True])
 @pytest.mark.parametrize("fill_type", [*FillType.__members__.values(), "OuterCode"])
-def test_renderer_filled(show_text: bool, fill_type: FillType) -> None:
-    from contourpy.util.mpl_renderer import MplRenderer
+def test_renderer_filled(show_text: bool, debug: bool, fill_type: FillType) -> None:
+    from contourpy.util.mpl_renderer import MplDebugRenderer, MplRenderer
 
     from .image_comparison import compare_images
 
-    renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=False)
+    # Same results from MplDebugRenderer if extra kwargs supplied to renderer.Filled() call.
+    filled_kw: dict[str, Any] = dict(line_color=None, point_color=None) if debug else {}
+
+    if not debug:
+        renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=False)
+    else:
+        renderer = MplDebugRenderer(ncols=2, figsize=(8, 3), show_frame=False)
+
     x, y, z = random((3, 4), mask_fraction=0.35)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, fill_type=fill_type)
@@ -86,9 +95,9 @@ def test_renderer_filled(show_text: bool, fill_type: FillType) -> None:
         for i in range(len(levels)-1):
             filled = cont_gen.filled(levels[i], levels[i+1])
             if quad_as_tri:
-                renderer.filled(filled, fill_type, ax=ax, color=f"C{i}", alpha=0.4)
+                renderer.filled(filled, fill_type, ax=ax, color=f"C{i}", alpha=0.4, **filled_kw)
             else:
-                renderer.filled(filled, fill_type, ax=ax, color=f"C{i}")
+                renderer.filled(filled, fill_type, ax=ax, color=f"C{i}", **filled_kw)
 
         if quad_as_tri:
             renderer.grid(x, y, ax=ax, alpha=0.5, quad_as_tri_alpha=0.5)
@@ -102,19 +111,28 @@ def test_renderer_filled(show_text: bool, fill_type: FillType) -> None:
 
     image_buffer = renderer.save_to_buffer()
     suffix = "" if show_text else "_no_text"
-    compare_images(image_buffer, f"renderer_filled{suffix}.png", f"{fill_type}")
+    debug_suffix = "_debug" if debug else ""
+    compare_images(image_buffer, f"renderer_filled{suffix}.png", f"{fill_type}{debug_suffix}")
 
 
 @pytest.mark.image
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
+@pytest.mark.parametrize("debug", [False, True])
 @pytest.mark.parametrize("line_type", [*LineType.__members__.values(), "Separate"])
-def test_renderer_lines(show_text: bool, line_type: LineType) -> None:
-    from contourpy.util.mpl_renderer import MplRenderer
+def test_renderer_lines(show_text: bool, debug: bool, line_type: LineType) -> None:
+    from contourpy.util.mpl_renderer import MplDebugRenderer, MplRenderer
 
     from .image_comparison import compare_images
 
-    renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)
+    # Same results from MplDebugRenderer if extra kwargs supplied to renderer.lines() call.
+    lines_kw: dict[str, Any] = dict(arrow_size=0, point_color=None) if debug else {}
+
+    if not debug:
+        renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)
+    else:
+        renderer = MplDebugRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)
+
     x, y, z = random((3, 4), mask_fraction=0.35)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, line_type=line_type)
@@ -123,9 +141,10 @@ def test_renderer_lines(show_text: bool, line_type: LineType) -> None:
         for i in range(len(levels)):
             lines = cont_gen.lines(levels[i])
             if quad_as_tri:
-                renderer.lines(lines, line_type, ax=ax, color=f"C{i}", alpha=0.5, linewidth=3)
+                renderer.lines(lines, line_type, ax=ax, color=f"C{i}", alpha=0.5, linewidth=3,
+                               **lines_kw)
             else:
-                renderer.lines(lines, line_type, ax=ax, color=f"C{i}")
+                renderer.lines(lines, line_type, ax=ax, color=f"C{i}", **lines_kw)
 
         if quad_as_tri:
             renderer.grid(x, y, ax=ax, alpha=0.2, quad_as_tri_alpha=0.2)
@@ -141,8 +160,9 @@ def test_renderer_lines(show_text: bool, line_type: LineType) -> None:
 
     image_buffer = renderer.save_to_buffer()
     suffix = "" if show_text else "_no_text"
+    debug_suffix = "_debug" if debug else ""
     compare_images(
-        image_buffer, f"renderer_lines{suffix}.png", f"{line_type}",
+        image_buffer, f"renderer_lines{suffix}.png", f"{line_type}{debug_suffix}",
     )
 
 
