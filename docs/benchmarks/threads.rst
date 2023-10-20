@@ -51,10 +51,3 @@ before they can allocate arrays.
    only needed for rendering using the `Matplotlib`_ Agg renderer, then for complicated problems the
    rendering time usually far exceeds the calculation time so a reduction in calculation time may
    not be of much real-world benefit.
-
-.. warning::
-
-   The threaded algorithm is work in progress and should be considered experimental.  It works fine
-   in an isolated environment using the ``contourpy`` tests and benchmarks, but needs to be
-   rigorously tested in real-world environments that that include mixed Python/C++ code and multiple
-   threads before it can be considered production quality.
