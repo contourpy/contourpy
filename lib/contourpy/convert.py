@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from itertools import chain
 from typing import TYPE_CHECKING, TypeVar, cast
 
 import numpy as np
 
 from contourpy._contourpy import FillType, LineType
 from contourpy.enum_util import as_fill_type, as_line_type
-from contourpy.types import CLOSEPOLY, LINETO, MOVETO, code_dtype, offset_dtype
+from contourpy.types import CLOSEPOLY, LINETO, MOVETO, code_dtype, offset_dtype, point_dtype
 
 if TYPE_CHECKING:
     import numpy.typing as npt
@@ -60,6 +61,23 @@ def _concat_offsets(list_of_offsets: list[cpy.OffsetArray]) -> cpy.OffsetArray:
     return ret
 
 
+def _concat_points_with_nan(points: list[cpy.PointArray],) -> cpy.PointArray:
+    if len(points) == 1:
+        return points[0]
+    else:
+        nan_spacer = np.full((1, 2), np.nan, dtype=point_dtype)
+        points = [points[0], *list(chain(*((nan_spacer, x) for x in points[1:])))]
+        return np.concatenate(points)
+
+
+def _insert_nan_at_offsets(points: cpy.PointArray, offsets: cpy.OffsetArray) -> cpy.PointArray:
+    if len(offsets) <= 2:
+        return points
+    else:
+        nan_spacer = np.array([np.nan, np.nan], dtype=point_dtype)
+        return np.insert(points, offsets[1:-1], nan_spacer, axis=0)
+
+
 def _offsets_from_codes(codes: cpy.CodeArray) -> cpy.OffsetArray:
     return np.append(np.nonzero(codes == MOVETO)[0], len(codes)).astype(offset_dtype)
 
@@ -76,11 +94,33 @@ def _outer_offsets_from_list_of_offsets(seq: list[cpy.OffsetArray]) -> cpy.Offse
     return np.cumsum([0] + [len(offsets)-1 for offsets in seq], dtype=offset_dtype)
 
 
+def _remove_nan(points: cpy.PointArray) -> tuple[cpy.PointArray, cpy.OffsetArray]:
+    nan_offsets = np.nonzero(np.isnan(points[:, 0]))[0]
+    if len(nan_offsets) == 0:
+        return points, np.array([0, len(points)], dtype=offset_dtype)
+    else:
+        points = np.delete(points, nan_offsets, axis=0)
+        nan_offsets -= np.arange(len(nan_offsets))
+        offsets = np.concatenate(
+            ([0], nan_offsets, [len(points)])).astype(offset_dtype)  # type: ignore[arg-type]
+        return points, offsets
+
+
 def _split_by_offsets(array: npt.NDArray[T], offsets: cpy.OffsetArray) -> list[npt.NDArray[T]]:
     if len(offsets) > 2:
         return np.split(array, offsets[1:-1])
     else:
         return [array]
+
+
+def _split_points_at_nan(points: cpy.PointArray) -> list[cpy.PointArray]:
+    nan_offsets = np.nonzero(np.isnan(points[:, 0]))[0]
+    if len(nan_offsets) == 0:
+        return [points]
+    else:
+        nan_offsets = \
+            np.concatenate(([-1], nan_offsets, [len(points)]))  # type: ignore[arg-type]
+        return [points[s+1:e] for s, e in zip(nan_offsets[:-1], nan_offsets[1:])]
 
 
 def _convert_filled_from_OuterCode(
@@ -396,6 +436,12 @@ def _convert_lines_from_Separate(
             offsets = _offsets_from_lengths(lines)
             ret2 = ([np.concatenate(lines)], [offsets])
         return ret2
+    elif line_type_to == LineType.ChunkCombinedNan:
+        if not lines:
+            ret3: cpy.LineReturn_ChunkCombinedNan = ([None],)
+        else:
+            ret3 = ([_concat_points_with_nan(lines)],)
+        return ret3
     else:
         raise ValueError(f"Invalid LineType {line_type_to}")
 
@@ -422,13 +468,19 @@ def _convert_lines_from_SeparateCode(
             offsets = _offsets_from_lengths(lines[0])
             ret2 = ([np.concatenate(lines[0])], [offsets])
         return ret2
+    elif line_type_to == LineType.ChunkCombinedNan:
+        if not lines[0]:
+            ret3: cpy.LineReturn_ChunkCombinedNan = ([None],)
+        else:
+            ret3 = ([_concat_points_with_nan(lines[0])],)
+        return ret3
     else:
         raise ValueError(f"Invalid LineType {line_type_to}")
 
 
 def _convert_lines_from_ChunkCombinedCode(
-        lines: cpy.LineReturn_ChunkCombinedCode,
-        line_type_to: LineType,
+    lines: cpy.LineReturn_ChunkCombinedCode,
+    line_type_to: LineType,
 ) -> cpy.LineReturn:
     if line_type_to == LineType.Separate:
         separate_lines = []
@@ -463,13 +515,24 @@ def _convert_lines_from_ChunkCombinedCode(
         chunk_offsets = [None if codes is None else _offsets_from_codes(codes)
                          for codes in lines[1]]
         return (lines[0], chunk_offsets)
+    elif line_type_to == LineType.ChunkCombinedNan:
+        points_nan: list[cpy.PointArray | None] = []
+        for points, codes in zip(*lines):
+            if points is None:
+                points_nan.append(None)
+            else:
+                if TYPE_CHECKING:
+                    assert codes is not None
+                offsets = _offsets_from_codes(codes)
+                points_nan.append(_insert_nan_at_offsets(points, offsets))
+        return (points_nan,)
     else:
         raise ValueError(f"Invalid LineType {line_type_to}")
 
 
 def _convert_lines_from_ChunkCombinedOffset(
-        lines: cpy.LineReturn_ChunkCombinedOffset,
-        line_type_to: LineType,
+    lines: cpy.LineReturn_ChunkCombinedOffset,
+    line_type_to: LineType,
 ) -> cpy.LineReturn:
     if line_type_to in (LineType.Separate, LineType.SeparateCode):
         separate_lines = []
@@ -494,6 +557,63 @@ def _convert_lines_from_ChunkCombinedOffset(
                 chunk_codes.append(_codes_from_offsets_and_points(offsets, points))
         return (lines[0], chunk_codes)
     elif line_type_to == LineType.ChunkCombinedOffset:
+        return lines
+    elif line_type_to == LineType.ChunkCombinedNan:
+        points_nan: list[cpy.PointArray | None] = []
+        for points, offsets in zip(*lines):
+            if points is None:
+                points_nan.append(None)
+            else:
+                if TYPE_CHECKING:
+                    assert offsets is not None
+                points_nan.append(_insert_nan_at_offsets(points, offsets))
+        return (points_nan,)
+    else:
+        raise ValueError(f"Invalid LineType {line_type_to}")
+
+
+def _convert_lines_from_ChunkCombinedNan(
+    lines: cpy.LineReturn_ChunkCombinedNan,
+    line_type_to: LineType,
+) -> cpy.LineReturn:
+    if line_type_to == LineType.Separate:
+        separate_lines = []
+        for points in lines[0]:
+            if points is not None:
+                separate_lines += _split_points_at_nan(points)
+        return separate_lines
+    elif line_type_to == LineType.SeparateCode:
+        separate_lines = []
+        for points in lines[0]:
+            if points is not None:
+                separate_lines += _split_points_at_nan(points)
+        separate_codes = [_codes_from_points(points) for points in separate_lines]
+        return (separate_lines, separate_codes)
+    elif line_type_to == LineType.ChunkCombinedCode:
+        chunk_points: list[cpy.PointArray | None] = []
+        chunk_codes: list[cpy.CodeArray | None] = []
+        for points in lines[0]:
+            if points is None:
+                chunk_points.append(None)
+                chunk_codes.append(None)
+            else:
+                points, offsets = _remove_nan(points)
+                chunk_points.append(points)
+                chunk_codes.append(_codes_from_offsets_and_points(offsets, points))
+        return (chunk_points, chunk_codes)
+    elif line_type_to == LineType.ChunkCombinedOffset:
+        chunk_points = []
+        chunk_offsets: list[cpy.OffsetArray | None] = []
+        for points in lines[0]:
+            if points is None:
+                chunk_points.append(None)
+                chunk_offsets.append(None)
+            else:
+                points, offsets = _remove_nan(points)
+                chunk_points.append(points)
+                chunk_offsets.append(offsets)
+        return (chunk_points, chunk_offsets)
+    elif line_type_to == LineType.ChunkCombinedNan:
         return lines
     else:
         raise ValueError(f"Invalid LineType {line_type_to}")
@@ -540,5 +660,9 @@ def convert_line_type(
         if TYPE_CHECKING:
             lines = cast(cpy.LineReturn_ChunkCombinedOffset, lines)
         return _convert_lines_from_ChunkCombinedOffset(lines, line_type_to)
+    elif line_type_from == LineType.ChunkCombinedNan:
+        if TYPE_CHECKING:
+            lines = cast(cpy.LineReturn_ChunkCombinedNan, lines)
+        return _convert_lines_from_ChunkCombinedNan(lines, line_type_to)
     else:
         raise ValueError(f"Invalid LineType {line_type_from}")

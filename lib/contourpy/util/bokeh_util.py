@@ -84,6 +84,12 @@ def lines_to_bokeh(
                 line = points[offsets[i]:offsets[i+1]]
                 xs.append(line[:, 0])
                 ys.append(line[:, 1])
+    elif line_type == LineType.ChunkCombinedNan:
+        for points in lines[0]:
+            if points is None:
+                continue
+            xs.append(points[:, 0])
+            ys.append(points[:, 1])
     else:
         raise RuntimeError(f"Conversion of LineType {line_type} to Bokeh is not implemented")
 

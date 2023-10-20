@@ -32,7 +32,8 @@ LineReturn_Separate: TypeAlias = list[PointArray]
 LineReturn_SeparateCode: TypeAlias = tuple[list[PointArray], list[CodeArray]]
 LineReturn_ChunkCombinedCode: TypeAlias = tuple[list[PointArray | None], list[CodeArray | None]]
 LineReturn_ChunkCombinedOffset: TypeAlias = tuple[list[PointArray | None], list[OffsetArray | None]]
-LineReturn_Chunk: TypeAlias = LineReturn_ChunkCombinedCode | LineReturn_ChunkCombinedOffset
+LineReturn_ChunkCombinedNan: TypeAlias = tuple[list[PointArray | None]]
+LineReturn_Chunk: TypeAlias = LineReturn_ChunkCombinedCode | LineReturn_ChunkCombinedOffset | LineReturn_ChunkCombinedNan
 LineReturn: TypeAlias = LineReturn_Separate | LineReturn_SeparateCode | LineReturn_Chunk
 
 
@@ -63,6 +64,7 @@ class FillType:
 
 class LineType:
     ChunkCombinedCode: ClassVar[cpy.LineType]
+    ChunkCombinedNan: ClassVar[cpy.LineType]
     ChunkCombinedOffset: ClassVar[cpy.LineType]
     Separate: ClassVar[cpy.LineType]
     SeparateCode: ClassVar[cpy.LineType]

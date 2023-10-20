@@ -80,6 +80,7 @@ rst_epilog = """
 .. _Bokeh: https://bokeh.org/
 .. _Clang: https://clang.llvm.org/
 .. _GCC: https://gcc.gnu.org/
+.. _HoloViews: https://holoviews.org/
 .. _Matplotlib: https://matplotlib.org/
 .. _MSVC: https://visualstudio.microsoft.com/
 .. _NumPy: https://numpy.org/

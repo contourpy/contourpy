@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from itertools import chain
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
 from contourpy._contourpy import FillType, LineType
 from contourpy.enum_util import as_fill_type, as_line_type
+from contourpy.types import point_dtype
 
 if TYPE_CHECKING:
     import contourpy._contourpy as cpy
@@ -36,6 +38,21 @@ def _concat_points(chunk_points_or_none: list[cpy.PointArray | None]) -> cpy.Poi
     if not chunk_points:
         return None
     return np.concatenate(chunk_points)
+
+
+def _concat_points_with_nan(
+    chunk_points_or_none: list[cpy.PointArray | None],
+) -> cpy.PointArray | None:
+    chunk_points: list[cpy.PointArray] = \
+        [chunk for chunk in chunk_points_or_none if chunk is not None]
+    if not chunk_points:
+        return None
+    if len(chunk_points) == 1:
+        return chunk_points[0]
+    else:
+        nan_spacer = np.full((1, 2), np.nan, dtype=point_dtype)
+        chunk_points = [chunk_points[0], *list(chain(*((nan_spacer, x) for x in chunk_points[1:])))]
+        return np.concatenate(chunk_points)
 
 
 def dechunk_filled(filled: cpy.FillReturn, fill_type: FillType | str) -> cpy.FillReturn:
@@ -126,11 +143,11 @@ def dechunk_lines(lines: cpy.LineReturn, line_type: LineType | str) -> cpy.LineR
 
     if TYPE_CHECKING:
         lines = cast(cpy.LineReturn_Chunk, lines)
-    points = _concat_points(lines[0])
 
     if line_type == LineType.ChunkCombinedCode:
         if TYPE_CHECKING:
             lines = cast(cpy.LineReturn_ChunkCombinedCode, lines)
+        points = _concat_points(lines[0])
         if points is None:
             ret1: cpy.LineReturn_ChunkCombinedCode = ([None], [None])
         else:
@@ -139,10 +156,17 @@ def dechunk_lines(lines: cpy.LineReturn, line_type: LineType | str) -> cpy.LineR
     elif line_type == LineType.ChunkCombinedOffset:
         if TYPE_CHECKING:
             lines = cast(cpy.LineReturn_ChunkCombinedOffset, lines)
+        points = _concat_points(lines[0])
         if points is None:
             ret2: cpy.LineReturn_ChunkCombinedOffset = ([None], [None])
         else:
             ret2 = ([points], [_concat_offsets(lines[1])])
         return ret2
+    elif line_type == LineType.ChunkCombinedNan:
+        if TYPE_CHECKING:
+            lines = cast(cpy.LineReturn_ChunkCombinedNan, lines)
+        points = _concat_points_with_nan(lines[0])
+        ret3: cpy.LineReturn_ChunkCombinedNan = ([points],)
+        return ret3
     else:
         raise ValueError(f"Invalid LineType {line_type}")

@@ -57,10 +57,12 @@ def all_names_and_line_types() -> list[tuple[str, LineType]]:
         ("serial", LineType.SeparateCode),
         ("serial", LineType.ChunkCombinedCode),
         ("serial", LineType.ChunkCombinedOffset),
+        ("serial", LineType.ChunkCombinedNan),
         ("threaded", LineType.Separate),
         ("threaded", LineType.SeparateCode),
         ("threaded", LineType.ChunkCombinedCode),
         ("threaded", LineType.ChunkCombinedOffset),
+        ("threaded", LineType.ChunkCombinedNan),
     ]
 
 
@@ -89,6 +91,7 @@ def all_line_types_str_value() -> list[tuple[str, int]]:
         ("SeparateCode", 102),
         ("ChunkCombinedCode", 103),
         ("ChunkCombinedOffset", 104),
+        ("ChunkCombinedNan", 105),
     ]
 
 
@@ -104,13 +107,15 @@ def thread_counts() -> list[int]:
     return list(filter(lambda n: n <= max(max_threads(), 1), thread_counts))
 
 
-def assert_point_array(points: cpy.PointArray) -> int:
+def assert_point_array(points: cpy.PointArray, allow_nan: bool = False) -> int:
     assert isinstance(points, np.ndarray)
     assert points.dtype == point_dtype
     assert points.ndim == 2
     assert points.shape[1] == 2
     npoints = points.shape[0]
     assert npoints >= 1
+    if not allow_nan:
+        assert not np.any(np.isnan(points))
     return npoints
 
 
@@ -280,6 +285,14 @@ def assert_lines(lines: cpy.LineReturn, line_type: LineType) -> None:
                     assert offsets_or_none is not None
                 npoints = assert_point_array(lines_or_none)
                 assert_offset_array(offsets_or_none, npoints)
+    elif line_type == LineType.ChunkCombinedNan:
+        if TYPE_CHECKING:
+            lines = cast(cpy.LineReturn_ChunkCombinedNan, lines)
+        assert isinstance(lines, tuple) and len(lines) == 1
+        assert isinstance(lines[0], list)
+        for lines_or_none in lines[0]:
+            if lines_or_none is not None:
+                assert_point_array(lines_or_none, allow_nan=True)
     else:
         raise RuntimeError(f"Unexpected line_type {line_type}")
 

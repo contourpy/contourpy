@@ -126,15 +126,26 @@ def test_dechunk_lines(z: cpy.CoordinateArray, line_type: LineType, chunk_size: 
         expected_codes = np.array([1, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 1, 2, 2, 2, 79])
         expected_offsets = np.array([0, 3, 6, 11, 16])
 
-        assert dechunked[0][0] is not None
-        assert_allclose(dechunked[0][0], expected_points)
-
         if line_type == LineType.ChunkCombinedCode:
+            if TYPE_CHECKING:
+                dechunked = cast(cpy.LineReturn_ChunkCombinedCode, dechunked)
+            assert dechunked[0][0] is not None
+            assert_allclose(dechunked[0][0], expected_points)
             assert dechunked[1][0] is not None
             assert_array_equal(dechunked[1][0], expected_codes)
         elif line_type == LineType.ChunkCombinedOffset:
+            if TYPE_CHECKING:
+                dechunked = cast(cpy.LineReturn_ChunkCombinedOffset, dechunked)
+            assert dechunked[0][0] is not None
+            assert_allclose(dechunked[0][0], expected_points)
             assert dechunked[1][0] is not None
             assert_array_equal(dechunked[1][0], expected_offsets)
+        elif line_type == LineType.ChunkCombinedNan:
+            if TYPE_CHECKING:
+                dechunked = cast(cpy.LineReturn_ChunkCombinedNan, dechunked)
+            assert dechunked[0][0] is not None
+            expected = np.insert(expected_points, expected_offsets[1:-1], [np.nan, np.nan], axis=0)
+            assert_allclose(dechunked[0][0], expected)
         else:
             raise RuntimeError(f"Unexpected line_type {line_type}")
 
@@ -154,5 +165,7 @@ def test_dechunk_lines_empty(z: cpy.CoordinateArray, line_type: LineType, chunk_
         assert dechunked == ([], [])
     elif line_type in (LineType.ChunkCombinedCode, LineType.ChunkCombinedOffset):
         assert dechunked == ([None], [None])
+    elif line_type == LineType.ChunkCombinedNan:
+        assert dechunked == ([None],)
     else:
         raise RuntimeError(f"Unexpected line_type {line_type}")
