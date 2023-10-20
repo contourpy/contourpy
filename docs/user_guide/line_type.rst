@@ -24,6 +24,7 @@ Enum members are a combination of the following words:
 - **Chunk**: each chunk is separate, and is ``None`` if the chunk has no lines.
 - **Code**: includes `Matplotlib`_ kind codes for the previous line array.
 - **Offset**: individual lines are identified via offsets into the previous line array.
+- **Nan**: individual lines are separated by NaN (Not a Number).
 
 The format of data returned by :func:`~contourpy.ContourGenerator.lines` for each of the
 possible :class:`~contourpy.LineType` members is best illustrated through an example.
@@ -130,6 +131,23 @@ For chunk ``j`` the combined points are ``lines[0][j]`` and the combined offsets
 ``lines[1][j]``. An empty chunk has ``None`` for each. In this example the first line corresponds
 to point indices ``0:5`` and the second to ``5:7``. The length of the offset array is one more than
 the number of lines.
+
+ChunkCombinedNan
+^^^^^^^^^^^^^^^^^
+   >>> cont_gen = contour_generator(z=z, line_type=LineType.ChunkCombinedNan)
+   >>> lines = cont_gen.lines(2)
+   >>> lines
+   ([array([[0.58, 1.], [1., 0.44], [1.38, 1.], [1., 1.36], [0.58, 1.], [nan, nan], [2.6, 2.], [3., 1.57]])])
+
+This returns a tuple of a single list. The list contains a 2D ``np.float64`` array for each chunk
+containing the combined points for all lines in that chunk, with ``numpy.nan`` used as separators
+between adjacent lines. A tuple is used here for consistency with all of the other ``ChunkCombined``
+line types.
+
+For chunk ``j`` the combined nan-separated points are in ``lines[0][j]``. An empty chunk has
+``None`` instead.
+
+This is the line type used internally by `Bokeh`_ and `HoloViews`_.
 
 How to choose which line type to use
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

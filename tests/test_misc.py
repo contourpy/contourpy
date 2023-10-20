@@ -2,13 +2,21 @@ from __future__ import annotations
 
 import numpy as np
 
-from contourpy import _remove_z_mask, max_threads
+from contourpy import _remove_z_mask, contour_generator, max_threads
 
 
 def test_max_threads() -> None:
     n = max_threads()
     # Assume testing on machine with 2 or more cores.
     assert n > 1
+
+
+def test_nan() -> None:
+    # Test that the nan used by contourpy is numpy.nan.
+    cont_gen = contour_generator(z=[[0, 1], [1, 0]], line_type="ChunkCombinedNan")
+    lines = cont_gen.lines(0.5)
+    assert lines[0][0] is not None
+    assert np.all(np.isnan(lines[0][0][2, :]))
 
 
 def test_remove_z_mask() -> None:

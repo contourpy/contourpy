@@ -53,11 +53,13 @@ PYBIND11_MODULE(_contourpy, m) {
     py::enum_<contourpy::LineType>(m, "LineType",
         "Enum used for ``line_type`` keyword argument in :func:`~contourpy.contour_generator`.\n\n"
         "This controls the format of contour line data returned from "
-        ":meth:`~contourpy.ContourGenerator.lines`.")
+        ":meth:`~contourpy.ContourGenerator.lines`.\n\n"
+        "``LineType.ChunkCombinedNan`` added in version 1.2.0")
         .value("Separate", contourpy::LineType::Separate)
         .value("SeparateCode", contourpy::LineType::SeparateCode)
         .value("ChunkCombinedCode", contourpy::LineType::ChunkCombinedCode)
         .value("ChunkCombinedOffset", contourpy::LineType::ChunkCombinedOffset)
+        .value("ChunkCombinedNan", contourpy::LineType::ChunkCombinedNan)
         .export_values();
 
     py::enum_<contourpy::ZInterp>(m, "ZInterp",

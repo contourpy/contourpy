@@ -692,6 +692,14 @@ def test_return_by_line_type(
         assert offsets_or_none is not None
         assert points_or_none.shape == (7, 2)
         assert_array_equal(offsets_or_none, [0, 5, 7])
+    elif line_type == LineType.ChunkCombinedNan:
+        if TYPE_CHECKING:
+            lines = cast(cpy.LineReturn_ChunkCombinedNan, lines)
+        assert len(lines[0]) == 1  # Single chunk
+        points_or_none = lines[0][0]
+        assert points_or_none is not None
+        assert points_or_none.shape == (8, 2)
+        assert np.all(np.isnan(points_or_none[5, :]))
     else:
         raise RuntimeError(f"Unexpected line_type {line_type}")
 
@@ -769,6 +777,15 @@ def test_return_by_line_type_chunk(
             assert offsets_or_none is not None
             assert_allclose(points_or_none, expected[chunk])
             assert_array_equal(offsets_or_none, [0, len(expected[chunk])])
+    elif line_type == LineType.ChunkCombinedNan:
+        if TYPE_CHECKING:
+            lines = cast(cpy.LineReturn_ChunkCombinedNan, lines)
+        assert len(lines[0]) == 4
+        for chunk in range(4):
+            # Only a single line per chunk, so no nans here.
+            points_or_none = lines[0][chunk]
+            assert points_or_none is not None
+            assert_allclose(points_or_none, expected[chunk])
     else:
         raise RuntimeError(f"Unexpected line_type {line_type}")
 

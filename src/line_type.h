@@ -13,6 +13,7 @@ enum class LineType
     SeparateCode = 102,
     ChunkCombinedCode = 103,
     ChunkCombinedOffset = 104,
+    ChunkCombinedNan = 105,
 };
 
 std::ostream &operator<<(std::ostream &os, const LineType& line_type);

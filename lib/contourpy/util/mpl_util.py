@@ -60,6 +60,18 @@ def lines_to_mpl_paths(lines: LineReturn, line_type: LineType) -> list[mpath.Pat
                 line = points[offsets[i]:offsets[i+1]]
                 closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
                 paths.append(mpath.Path(line, closed=closed))
+    elif line_type == LineType.ChunkCombinedNan:
+        paths = []
+        for points in lines[0]:
+            if points is None:
+                continue
+            nan_offsets = np.nonzero(np.isnan(points[:, 0]))[0]
+            nan_offsets = \
+                np.concatenate(([-1], nan_offsets, [len(points)]))  # type: ignore[arg-type]
+            for s, e in zip(nan_offsets[:-1], nan_offsets[1:]):
+                line = points[s+1:e]
+                closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
+                paths.append(mpath.Path(line, closed=closed))
     else:
         raise RuntimeError(f"Conversion of LineType {line_type} to MPL Paths is not implemented")
     return paths
