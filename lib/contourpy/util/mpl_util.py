@@ -6,7 +6,7 @@ import matplotlib.path as mpath
 import numpy as np
 
 from contourpy import FillType, LineType
-from contourpy.convert import _codes_from_offsets
+from contourpy.array import codes_from_offsets
 
 if TYPE_CHECKING:
     from contourpy._contourpy import FillReturn, LineReturn, LineReturn_Separate
@@ -16,7 +16,7 @@ def filled_to_mpl_paths(filled: FillReturn, fill_type: FillType) -> list[mpath.P
     if fill_type in (FillType.OuterCode, FillType.ChunkCombinedCode):
         paths = [mpath.Path(points, codes) for points, codes in zip(*filled) if points is not None]
     elif fill_type in (FillType.OuterOffset, FillType.ChunkCombinedOffset):
-        paths = [mpath.Path(points, _codes_from_offsets(offsets))
+        paths = [mpath.Path(points, codes_from_offsets(offsets))
                  for points, offsets in zip(*filled) if points is not None]
     elif fill_type == FillType.ChunkCombinedCodeOffset:
         paths = []
@@ -34,7 +34,7 @@ def filled_to_mpl_paths(filled: FillReturn, fill_type: FillType) -> list[mpath.P
             for i in range(len(outer_offsets)-1):
                 offs = offsets[outer_offsets[i]:outer_offsets[i+1]+1]
                 pts = points[offs[0]:offs[-1]]
-                paths += [mpath.Path(pts, _codes_from_offsets(offs - offs[0]))]
+                paths += [mpath.Path(pts, codes_from_offsets(offs - offs[0]))]
     else:
         raise RuntimeError(f"Conversion of FillType {fill_type} to MPL Paths is not implemented")
     return paths
