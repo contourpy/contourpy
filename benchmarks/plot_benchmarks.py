@@ -67,6 +67,7 @@ def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n
     nbars = 3
     width = 1.0 / (nbars + 1)
     ntypes = len(FillType.__members__) if filled else len(LineType.__members__)
+    cache = {}  # Results cache
 
     for mode in ["light", "dark"]:
         plt.style.use("default" if mode == "light" else "dark_background")
@@ -97,17 +98,21 @@ def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n
                 name = results["name"]
                 mean = results["mean"]
                 error = results["error"]
-                if corner_mask == "no mask":
-                    types = results["fill_type" if filled else "line_type"]
-                    if not isinstance(types, list):
-                        types = [types]
-                    xticklabels += [name + str(t).split(".")[1] for t in types]
+                types = results["fill_type" if filled else "line_type"]
+                if not isinstance(types, list):
+                    types = [types]
+
+                if mode == "light":
+                    for m, t in zip(mean, types):
+                        cache[(name, t, corner_mask)] = m
 
                 color, edge_color, hatch, line_width = get_style(name, corner_mask)
                 offset = width*(i - 0.5*(nbars - 1))
                 label = f"{name} {get_corner_mask_label(corner_mask)}"
                 yerr = error if show_error else None
                 mean = np.asarray(mean, dtype=np.float64)  # None -> nan.
+                if corner_mask == "no mask":
+                    xticklabels += [name + str(t).split(".")[1] for t in types]
 
                 rects = ax.bar(
                     xs + offset, mean, width, yerr=yerr, color=color, edgecolor=edge_color,
@@ -150,8 +155,32 @@ def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n
         fig.tight_layout()
 
         filename = f"{filled_str}_{dataset}_{n}{'_render' if render else ''}_{mode}.svg"
-        print(f"Saving {filename}")
+        #print(f"Saving {filename}")
         fig.savefig(filename, transparent=True)
+
+    # Print comparison of different algorithms using mpl default type.
+    print(f"Times and speedups: {filled_str} dataset={dataset} render={render}")
+    default_type = FillType.OuterCode if filled else LineType.SeparateCode
+    for target in ["mpl2005", "mpl2014"]:
+        names = ["serial", target]
+        for m in ("no mask", False, True):
+            if names[1] == "mpl2005" and m is True:
+                continue
+            times = [cache[(name, default_type, m)] for name in names]
+            ratio = times[0]/times[1]
+            print(f"  {ratio:.3f}, {1.0/ratio:.3f}, {names[0]}:{names[1]}, {default_type}, {m}")
+        print()
+
+    # Print comparison of different line/fill types for serial algorithm.
+    name = "serial"
+    for t in (FillType.__members__.values() if filled else LineType.__members__.values()):
+        if t == default_type:
+            continue
+        for m in ("no mask", False, True):
+            times = [cache[(name, t, m)], cache[(name, default_type, m)]]
+            ratio = times[0]/times[1]
+            print(f"  {ratio:.3f}, {1.0/ratio:.3f}, {name}, {t}:{default_type}, {m}")
+    print()
 
 
 def comparison_two_benchmarks(
@@ -203,7 +232,7 @@ def comparison_two_benchmarks(
     xs.shape = (ntype, varying_count+2)
 
     speedups = np.expand_dims(mean0, axis=1) / np.reshape(mean1, (ntype, varying_count))
-    speedups = speedups.ravel()
+    speedups_flat = speedups.ravel()
 
     def in_bar_label(ax: Axes, rect: Annotation, value: str) -> None:
         kwargs = dict(fontsize="medium", ha="center", va="bottom", color="k")
@@ -239,7 +268,7 @@ def comparison_two_benchmarks(
         rects = ax.bar(xs[:, 1:-1].ravel(), mean1, width=1, color=color, edgecolor=edge_color,
                        hatch=hatch, linewidth=line_width, label=label, zorder=3)
         labels = []
-        for i, (mean, error, speedup) in enumerate(zip(mean1, error1, speedups)):
+        for i, (mean, error, speedup) in enumerate(zip(mean1, error1, speedups_flat)):
             if show_error:
                 label = with_time_units(mean, error)
             else:
@@ -271,8 +300,16 @@ def comparison_two_benchmarks(
         fig.tight_layout()
 
         filename = f"{file_prefix}_{filled_str}_{dataset}_{mode}.svg"
-        print(f"Saving {filename}")
+        #print(f"Saving {filename}")
         fig.savefig(filename, transparent=True)
+
+    if varying == "total_chunk_count":
+        # Print comparison of different algorithms using mpl default type.
+        print(f"Times and speedups: varying={varying} {filled_str} dataset={dataset}")
+        for i, t in enumerate(fill_or_line_type):
+            min_, max_ = speedups[i].min(), speedups[i].max()
+            print(f"  {1.0/max_:.3f}-{1.0/min_:.3f}, {min_:.3f}-{max_:.3f}, {t}")
+        print()
 
 
 def main() -> None:
@@ -280,18 +317,18 @@ def main() -> None:
 
     print(f"Saving benchmark plots for machine={loader.machine} commit={loader.commit[:7]}")
 
-    for filled in [False, True]:
-        for dataset in ["random", "simple"]:
-            for render in [False, True]:
+    for render in [False, True]:
+        for filled in [False, True]:
+            for dataset in ["simple", "random"]:
                 by_name_and_type(loader, filled, dataset, render, 1000)
 
     for filled in [False, True]:
-        for dataset in ["random", "simple"]:
+        for dataset in ["simple", "random"]:
             comparison_two_benchmarks(loader, filled, dataset, "total_chunk_count",
                                       [4, 12, 40, 120])
 
     for filled in [False, True]:
-        for dataset in ["random", "simple"]:
+        for dataset in ["simple", "random"]:
             comparison_two_benchmarks(loader, filled, dataset, "thread_count", [1, 2, 4, 6])
 
 
