@@ -196,8 +196,8 @@ class BokehRenderer(Renderer):
         fig = self._get_figure(ax)
         color = self._convert_color(color)
         xs, ys = lines_to_bokeh(lines, line_type)
-        if len(xs) > 0:
-            fig.multi_line(xs, ys, line_color=color, line_alpha=alpha, line_width=linewidth)
+        if xs is not None:
+            fig.line(xs, ys, line_color=color, line_alpha=alpha, line_width=linewidth)
 
     def mask(
         self,

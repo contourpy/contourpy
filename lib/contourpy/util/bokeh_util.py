@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING, cast
 
 from contourpy import FillType, LineType
 from contourpy.array import offsets_from_codes
+from contourpy.convert import convert_line_type
+from contourpy.dechunk import dechunk_lines
 
 if TYPE_CHECKING:
     from contourpy._contourpy import (
-        CoordinateArray, FillReturn, LineReturn, LineReturn_Separate, LineReturn_SeparateCode,
+        CoordinateArray, FillReturn, LineReturn, LineReturn_ChunkCombinedNan,
     )
 
 
@@ -57,40 +59,13 @@ def filled_to_bokeh(
 def lines_to_bokeh(
     lines: LineReturn,
     line_type: LineType,
-) -> tuple[list[CoordinateArray], list[CoordinateArray]]:
-    xs: list[CoordinateArray] = []
-    ys: list[CoordinateArray] = []
-
-    if line_type == LineType.Separate:
-        if TYPE_CHECKING:
-            lines = cast(LineReturn_Separate, lines)
-        for line in lines:
-            xs.append(line[:, 0])
-            ys.append(line[:, 1])
-    elif line_type == LineType.SeparateCode:
-        if TYPE_CHECKING:
-            lines = cast(LineReturn_SeparateCode, lines)
-        for line in lines[0]:
-            xs.append(line[:, 0])
-            ys.append(line[:, 1])
-    elif line_type in (LineType.ChunkCombinedCode, LineType.ChunkCombinedOffset):
-        for points, offsets in zip(*lines):
-            if points is None:
-                continue
-            if line_type == LineType.ChunkCombinedCode:
-                offsets = offsets_from_codes(offsets)
-
-            for i in range(len(offsets)-1):
-                line = points[offsets[i]:offsets[i+1]]
-                xs.append(line[:, 0])
-                ys.append(line[:, 1])
-    elif line_type == LineType.ChunkCombinedNan:
-        for points in lines[0]:
-            if points is None:
-                continue
-            xs.append(points[:, 0])
-            ys.append(points[:, 1])
+) -> tuple[CoordinateArray | None, CoordinateArray | None]:
+    lines = convert_line_type(lines, line_type, LineType.ChunkCombinedNan)
+    lines = dechunk_lines(lines, LineType.ChunkCombinedNan)
+    if TYPE_CHECKING:
+        lines = cast(LineReturn_ChunkCombinedNan, lines)
+    points = lines[0][0]
+    if points is None:
+        return None, None
     else:
-        raise RuntimeError(f"Conversion of LineType {line_type} to Bokeh is not implemented")
-
-    return xs, ys
+        return points[:, 0], points[:, 1]
