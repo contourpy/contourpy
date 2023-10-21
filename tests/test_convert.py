@@ -18,16 +18,26 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def z() -> cpy.CoordinateArray:
-    return np.array([[0, 1, 0, 0, 0],
-                     [0, 1, 0, 0, 0],
-                     [0, 1, 0, 0, 0],
-                     [0, 2, 0, 1, 0],
-                     [0, 0, 0, 0, 0]], dtype=np.float64)
+    # Care needed with test data as although arbitrary z produces identical results for lines
+    # regardless of line_type, this is not the case for filled as the order that polygons are
+    # produced is different depending on whether the relationship between outer and inner
+    # boundaries is calculated. If it is then inner boundaries directly follow their outer boundary,
+    # if not then the boundaries are returned in the order they are found.
+    # This test data is chosen so that filled results are always the same.
+    return np.array([
+        [1, 0, 0, 0, 0, 0, 0],
+        [0, 0, 2, 0, 0, 0, 0],
+        [0, 2, 0, 0, 0, 0, 0],
+        [0, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1],
+        [0, 2, 2, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 1],
+    ], dtype=np.float64)
 
 
 @pytest.mark.parametrize("fill_type_to", FillType.__members__.values())
 @pytest.mark.parametrize("fill_type_from", FillType.__members__.values())
-@pytest.mark.parametrize("chunk_size", (0, 2))
+@pytest.mark.parametrize("chunk_size", (0, 3))
 @pytest.mark.parametrize("empty", (False, True))
 def test_convert_fill_type(
     z: cpy.CoordinateArray,
@@ -69,7 +79,7 @@ def test_convert_fill_type(
 
 @pytest.mark.parametrize("line_type_to", LineType.__members__.values())
 @pytest.mark.parametrize("line_type_from", LineType.__members__.values())
-@pytest.mark.parametrize("chunk_size", (0, 2))
+@pytest.mark.parametrize("chunk_size", (0, 3))
 @pytest.mark.parametrize("empty", (False, True))
 def test_convert_line_type(
     z: cpy.CoordinateArray,
