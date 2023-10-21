@@ -131,7 +131,8 @@ def insert_nan_at_offsets(points: cpy.PointArray, offsets: cpy.OffsetArray) -> c
         return points
     else:
         nan_spacer = np.array([np.nan, np.nan], dtype=point_dtype)
-        return np.insert(points, offsets[1:-1], nan_spacer, axis=0)
+        # Convert offsets to int64 to avoid numpy error when mixing signed and unsigned ints.
+        return np.insert(points, offsets[1:-1].astype(np.int64), nan_spacer, axis=0)
 
 
 def offsets_from_codes(codes: cpy.CodeArray) -> cpy.OffsetArray:

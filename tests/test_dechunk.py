@@ -144,7 +144,9 @@ def test_dechunk_lines(z: cpy.CoordinateArray, line_type: LineType, chunk_size: 
             if TYPE_CHECKING:
                 dechunked = cast(cpy.LineReturn_ChunkCombinedNan, dechunked)
             assert dechunked[0][0] is not None
-            expected = np.insert(expected_points, expected_offsets[1:-1], [np.nan, np.nan], axis=0)
+            # Convert offsets to int64 to avoid numpy error when mixing signed and unsigned ints.
+            expected = np.insert(expected_points, expected_offsets[1:-1].astype(np.int64),
+                                 [np.nan, np.nan], axis=0)
             assert_allclose(dechunked[0][0], expected)
         else:
             raise RuntimeError(f"Unexpected line_type {line_type}")
