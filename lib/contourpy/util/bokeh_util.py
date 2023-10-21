@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 from contourpy import FillType, LineType
-from contourpy.convert import _offsets_from_codes
+from contourpy.array import offsets_from_codes
 
 if TYPE_CHECKING:
     from contourpy._contourpy import (
@@ -25,7 +25,7 @@ def filled_to_bokeh(
             if points is None:
                 continue
             if have_codes:
-                offsets = _offsets_from_codes(offsets)
+                offsets = offsets_from_codes(offsets)
             xs.append([])  # New outer with zero or more holes.
             ys.append([])
             for i in range(len(offsets)-1):
@@ -39,7 +39,7 @@ def filled_to_bokeh(
             for j in range(len(outer_offsets)-1):
                 if fill_type == FillType.ChunkCombinedCodeOffset:
                     codes = codes_or_offsets[outer_offsets[j]:outer_offsets[j+1]]
-                    offsets = _offsets_from_codes(codes) + outer_offsets[j]
+                    offsets = offsets_from_codes(codes) + outer_offsets[j]
                 else:
                     offsets = codes_or_offsets[outer_offsets[j]:outer_offsets[j+1]+1]
                 xs.append([])  # New outer with zero or more holes.
@@ -78,7 +78,7 @@ def lines_to_bokeh(
             if points is None:
                 continue
             if line_type == LineType.ChunkCombinedCode:
-                offsets = _offsets_from_codes(offsets)
+                offsets = offsets_from_codes(offsets)
 
             for i in range(len(offsets)-1):
                 line = points[offsets[i]:offsets[i+1]]
