@@ -45,7 +45,7 @@ class Config:
     fig: Figure | None  # Set in derived classes.
     fontsize: float
     gap: float
-    grid_kwargs: dict[str, str | float]
+    grid_kwargs: dict[str, Any]
     mask: MaskArray | Literal[False]
     marker_size: float
     text_gap: float
@@ -155,13 +155,13 @@ class Config:
             # Text for corner and optional middle z-levels.
             fontsize = self.fontsize
             if corner != Corner.NW:
-                ax.text(1+self.text_gap, 0, se, va="center", size=fontsize, ha="left")
+                ax.text(1+self.text_gap, 0, str(se), va="center", size=fontsize, ha="left")
             if corner != Corner.SW:
-                ax.text(1+self.text_gap, 1, ne, va="center", size=fontsize, ha="left")
+                ax.text(1+self.text_gap, 1, str(ne), va="center", size=fontsize, ha="left")
             if corner != Corner.NE:
-                ax.text(-self.text_gap, 0, sw, va="center", size=fontsize, ha="right")
+                ax.text(-self.text_gap, 0, str(sw), va="center", size=fontsize, ha="right")
             if corner != Corner.SE:
-                ax.text(-self.text_gap, 1, nw, va="center", size=fontsize, ha="right")
+                ax.text(-self.text_gap, 1, str(nw), va="center", size=fontsize, ha="right")
             if suffix:  # Suffix (without brackets) is the z-level of quad middle.
                 ax.text(0.5, 0.5, suffix[1:-1], va="center", size=fontsize, ha="center")
 
