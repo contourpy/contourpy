@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import io
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Sequence, cast
 
 import matplotlib.collections as mcollections
 import matplotlib.pyplot as plt
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 
 class MplRenderer(Renderer):
-    _axes: Axes
+    _axes: Sequence[Axes]
     _fig: Figure
     _want_tight: bool
 
@@ -51,7 +51,7 @@ class MplRenderer(Renderer):
             import matplotlib
             matplotlib.use(backend)
 
-        kwargs = dict(figsize=figsize, squeeze=False, sharex=True, sharey=True)
+        kwargs: dict[str, Any] = dict(figsize=figsize, squeeze=False, sharex=True, sharey=True)
         if gridspec_kw is not None:
             kwargs["gridspec_kw"] = gridspec_kw
         else:
@@ -76,7 +76,7 @@ class MplRenderer(Renderer):
         for ax in self._axes:
             if getattr(ax, "_need_autoscale", False):
                 ax.autoscale_view(tight=True)
-                ax._need_autoscale = False
+                ax._need_autoscale = False  # type: ignore[attr-defined]
         if self._want_tight and len(self._axes) > 1:
             self._fig.tight_layout()
 
@@ -112,7 +112,7 @@ class MplRenderer(Renderer):
         collection = mcollections.PathCollection(
             paths, facecolors=color, edgecolors="none", lw=0, alpha=alpha)
         ax.add_collection(collection)
-        ax._need_autoscale = True
+        ax._need_autoscale = True  # type: ignore[attr-defined]
 
     def grid(
         self,
@@ -144,7 +144,7 @@ class MplRenderer(Renderer):
         """
         ax = self._get_ax(ax)
         x, y = self._grid_as_2d(x, y)
-        kwargs = dict(color=color, alpha=alpha)
+        kwargs: dict[str, Any] = dict(color=color, alpha=alpha)
         ax.plot(x, y, x.T, y.T, **kwargs)
         if quad_as_tri_alpha > 0:
             # Assumes no quad mask.
@@ -159,7 +159,7 @@ class MplRenderer(Renderer):
                 **kwargs)
         if point_color is not None:
             ax.plot(x, y, color=point_color, alpha=alpha, marker="o", lw=0)
-        ax._need_autoscale = True
+        ax._need_autoscale = True  # type: ignore[attr-defined]
 
     def lines(
         self,
@@ -190,7 +190,7 @@ class MplRenderer(Renderer):
         collection = mcollections.PathCollection(
             paths, facecolors="none", edgecolors=color, lw=linewidth, alpha=alpha)
         ax.add_collection(collection)
-        ax._need_autoscale = True
+        ax._need_autoscale = True  # type: ignore[attr-defined]
 
     def mask(
         self,
@@ -243,7 +243,7 @@ class MplRenderer(Renderer):
         """Show plots in an interactive window, in the usual Matplotlib manner.
         """
         self._autoscale()
-        plt.show()
+        plt.show()  # type: ignore[no-untyped-call]
 
     def title(self, title: str, ax: Axes | int = 0, color: str | None = None) -> None:
         """Set the title of a single Axes.
@@ -527,5 +527,5 @@ class MplDebugRenderer(MplRenderer):
                     z_level = 1
                 else:
                     z_level = 0
-                ax.text(x[j, i], y[j, i], z_level, ha="left", va="bottom", color=color,
+                ax.text(x[j, i], y[j, i], str(z_level), ha="left", va="bottom", color=color,
                         clip_on=True)

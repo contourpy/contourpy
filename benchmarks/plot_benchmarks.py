@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from asv.util import human_value
 from loader import Loader
@@ -12,7 +12,7 @@ from contourpy import FillType, LineType
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
-    from matplotlib.text import Annotation
+    from matplotlib.patches import Rectangle
 
 
 # Default fill/line types that exist in all algorithms.
@@ -199,7 +199,7 @@ def comparison_two_benchmarks(
     corner_mask = "no mask"
 
     filled_str = "filled" if filled else "lines"
-    kwargs = dict(dataset=dataset, corner_mask=corner_mask, n=n)
+    kwargs: dict[str, Any] = dict(dataset=dataset, corner_mask=corner_mask, n=n)
     if varying == "thread_count":
         kwargs["total_chunk_count"] = 40
 
@@ -234,8 +234,8 @@ def comparison_two_benchmarks(
     speedups = np.expand_dims(mean0, axis=1) / np.reshape(mean1, (ntype, varying_count))
     speedups_flat = speedups.ravel()
 
-    def in_bar_label(ax: Axes, rect: Annotation, value: str) -> None:
-        kwargs = dict(fontsize="medium", ha="center", va="bottom", color="k")
+    def in_bar_label(ax: Axes, rect: Rectangle, value: str) -> None:
+        kwargs: dict[str, Any] = dict(fontsize="medium", ha="center", va="bottom", color="k")
         if varying != "thread_count":
             kwargs["rotation"] = "vertical"
         ax.annotate(value, (rect.xy[0] + 0.5*rect.get_width(), rect.xy[1]), **kwargs)
