@@ -127,9 +127,11 @@ def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n
 
         if filled and not render:
             if dataset == "random":
-                ax.set_ylim(0, 2.6)
+                ax.set_ylim(0, 2.65)
             else:
                 ax.set_ylim(0, 0.3)
+        elif filled and render and dataset == "simple":
+            ax.set_ylim(0, 0.425)
         elif not filled and render and dataset == "simple":
             ax.set_ylim(0, 0.4)
         else:
@@ -281,7 +283,7 @@ def comparison_two_benchmarks(
             in_bar_label(ax, rect, f" {value}")
 
         if dataset == "random":
-            ymax = 2.0 if filled else 1.4
+            ymax = 2.0 if filled else 1.43
         elif varying == "thread_count":
             ymax = ax.get_ylim()[1]*1.32
         else:

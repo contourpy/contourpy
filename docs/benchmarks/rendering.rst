@@ -52,8 +52,8 @@ Filled contours
    :class: only-dark
 
 As usual, for the ``simple`` dataset above the performance of ``serial`` for filled contours is the
-same regardless of ``FillType``.  It is slightly faster than ``mpl2005`` and significantly faster
-than ``mpl2014`` with a speedup of 1.4-1.5.  As with ``lines`` the rendering time here is only
+same regardless of ``FillType``.  It is 10% faster than ``mpl2005`` and significantly faster
+than ``mpl2014`` with a speedup of 1.3-1.4.  As with ``lines`` the rendering time here is only
 about 125 ms so there is a fairly even split between calculation and rendering time for ``serial``.
 
 .. image:: ../_static/filled_random_1000_render_light.svg
@@ -72,7 +72,7 @@ C++, or in the case of ``FillType.ChunkCombinedCodeOffset`` by breaking up the l
 codes arrays into many smaller arrays, one per polygon (outer plus holes).
 
 ``FillType.ChunkCombinedCode`` and ``FillType.ChunkCombinedOffset`` are significantly faster than
-``FillType.OuterCode`` with a speedup of 2.7-3.1 compared to ``serial`` and 3-3.4 compared to
+``FillType.OuterCode`` with a speedup of 2.8-3.2 compared to ``serial`` and 3-3.4 compared to
 ``mpl2014``.  Again this only has to send two `NumPy`_ arrays to `Matplotlib`_ for rendering rather
 than 850 thousand pairs of them.
 
