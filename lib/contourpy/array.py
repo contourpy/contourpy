@@ -54,23 +54,30 @@ def codes_from_points(points: cpy.PointArray) -> cpy.CodeArray:
     return codes
 
 
+def concat_codes(list_of_codes: list[cpy.CodeArray]) -> cpy.CodeArray:
+    """Concatenate a list of codes arrays into a single code array.
+    """
+    return np.concatenate(list_of_codes, dtype=code_dtype)
+
+
 def concat_codes_or_none(list_of_codes_or_none: list[cpy.CodeArray | None]) -> cpy.CodeArray | None:
-    """Concatenate a list of codes or None into a single code array or None.
+    """Concatenate a list of codes arrays or None into a single code array or None.
     """
     list_of_codes = [codes for codes in list_of_codes_or_none if codes is not None]
     if list_of_codes:
-        return np.concatenate(list_of_codes)
+        return concat_codes(list_of_codes)
     else:
         return None
 
 
 def concat_offsets(list_of_offsets: list[cpy.OffsetArray]) -> cpy.OffsetArray:
-    """Concatenate a list of offsets into a single offset array.
+    """Concatenate a list of offsets arrays into a single offset array.
     """
     n = len(list_of_offsets)
-    cumulative = np.cumsum([offsets[-1] for offsets in list_of_offsets])
+    cumulative = np.cumsum([offsets[-1] for offsets in list_of_offsets], dtype=offset_dtype)
     ret: cpy.OffsetArray = np.concatenate(
-        (list_of_offsets[0], *(list_of_offsets[i+1][1:] + cumulative[i] for i in range(n-1)))
+        (list_of_offsets[0], *(list_of_offsets[i+1][1:] + cumulative[i] for i in range(n-1))),
+        dtype=offset_dtype,
     )
     return ret
 
@@ -78,7 +85,7 @@ def concat_offsets(list_of_offsets: list[cpy.OffsetArray]) -> cpy.OffsetArray:
 def concat_offsets_or_none(
     list_of_offsets_or_none: list[cpy.OffsetArray | None],
 ) -> cpy.OffsetArray | None:
-    """Concatenate a list of offsets or None into a single offset array or None.
+    """Concatenate a list of offsets arrays or None into a single offset array or None.
     """
     list_of_offsets = [offsets for offsets in list_of_offsets_or_none if offsets is not None]
     if list_of_offsets:
@@ -87,14 +94,20 @@ def concat_offsets_or_none(
         return None
 
 
+def concat_points(list_of_points: list[cpy.PointArray]) -> cpy.PointArray:
+    """Concatenate a list of point arrays into a single point array.
+    """
+    return np.concatenate(list_of_points, dtype=point_dtype)
+
+
 def concat_points_or_none(
     list_of_points_or_none: list[cpy.PointArray | None],
 ) -> cpy.PointArray | None:
-    """Concatenate a list of points or None into a single point array or None.
+    """Concatenate a list of point arrays or None into a single point array or None.
     """
     list_of_points = [points for points in list_of_points_or_none if points is not None]
     if list_of_points:
-        return np.concatenate(list_of_points)
+        return concat_points(list_of_points)
     else:
         return None
 
@@ -121,7 +134,7 @@ def concat_points_with_nan(list_of_points: list[cpy.PointArray],) -> cpy.PointAr
         nan_spacer = np.full((1, 2), np.nan, dtype=point_dtype)
         list_of_points = [list_of_points[0],
                           *list(chain(*((nan_spacer, x) for x in list_of_points[1:])))]
-        return np.concatenate(list_of_points)
+        return concat_points(list_of_points)
 
 
 def insert_nan_at_offsets(points: cpy.PointArray, offsets: cpy.OffsetArray) -> cpy.PointArray:
@@ -168,8 +181,10 @@ def remove_nan(points: cpy.PointArray) -> tuple[cpy.PointArray, cpy.OffsetArray]
     else:
         points = np.delete(points, nan_offsets, axis=0)
         nan_offsets -= np.arange(len(nan_offsets))
-        offsets = np.concatenate(
-            ([0], nan_offsets, [len(points)])).astype(offset_dtype)  # type: ignore[arg-type]
+        offsets: cpy.OffsetArray = np.empty(len(nan_offsets)+2, dtype=offset_dtype)
+        offsets[0] = 0
+        offsets[1:-1] = nan_offsets
+        offsets[-1] = len(points)
         return points, offsets
 
 

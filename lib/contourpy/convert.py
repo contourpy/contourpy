@@ -23,8 +23,8 @@ def _convert_filled_from_OuterCode(
         return (filled[0], [arr.offsets_from_codes(codes) for codes in filled[1]])
 
     if len(filled[0]) > 0:
-        points = np.concatenate(filled[0])
-        codes = np.concatenate(filled[1])
+        points = arr.concat_points(filled[0])
+        codes = arr.concat_codes(filled[1])
     else:
         points = None
         codes = None
@@ -60,7 +60,7 @@ def _convert_filled_from_OuterOffset(
         return filled
 
     if len(filled[0]) > 0:
-        points = np.concatenate(filled[0])
+        points = arr.concat_points(filled[0])
         offsets = arr.concat_offsets(filled[1])
     else:
         points = None
@@ -318,7 +318,7 @@ def _convert_lines_from_Separate(
         if not lines:
             ret1: cpy.LineReturn_ChunkCombinedCode = ([None], [None])
         else:
-            points = np.concatenate(lines)
+            points = arr.concat_points(lines)
             offsets = arr.offsets_from_lengths(lines)
             codes = arr.codes_from_offsets_and_points(offsets, points)
             ret1 = ([points], [codes])
@@ -327,7 +327,7 @@ def _convert_lines_from_Separate(
         if not lines:
             ret2: cpy.LineReturn_ChunkCombinedOffset = ([None], [None])
         else:
-            ret2 = ([np.concatenate(lines)], [arr.offsets_from_lengths(lines)])
+            ret2 = ([arr.concat_points(lines)], [arr.offsets_from_lengths(lines)])
         return ret2
     elif line_type_to == LineType.ChunkCombinedNan:
         if not lines:
@@ -352,13 +352,13 @@ def _convert_lines_from_SeparateCode(
         if not lines[0]:
             ret1: cpy.LineReturn_ChunkCombinedCode = ([None], [None])
         else:
-            ret1 = ([np.concatenate(lines[0])], [np.concatenate(lines[1])])
+            ret1 = ([arr.concat_points(lines[0])], [arr.concat_codes(lines[1])])
         return ret1
     elif line_type_to == LineType.ChunkCombinedOffset:
         if not lines[0]:
             ret2: cpy.LineReturn_ChunkCombinedOffset = ([None], [None])
         else:
-            ret2 = ([np.concatenate(lines[0])], [arr.offsets_from_lengths(lines[0])])
+            ret2 = ([arr.concat_points(lines[0])], [arr.offsets_from_lengths(lines[0])])
         return ret2
     elif line_type_to == LineType.ChunkCombinedNan:
         if not lines[0]:

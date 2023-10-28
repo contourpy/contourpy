@@ -66,8 +66,7 @@ def lines_to_mpl_paths(lines: LineReturn, line_type: LineType) -> list[mpath.Pat
             if points is None:
                 continue
             nan_offsets = np.nonzero(np.isnan(points[:, 0]))[0]
-            nan_offsets = \
-                np.concatenate(([-1], nan_offsets, [len(points)]))  # type: ignore[arg-type]
+            nan_offsets = np.concatenate([[-1], nan_offsets, [len(points)]])
             for s, e in zip(nan_offsets[:-1], nan_offsets[1:]):
                 line = points[s+1:e]
                 closed = line[0, 0] == line[-1, 0] and line[0, 1] == line[-1, 1]
