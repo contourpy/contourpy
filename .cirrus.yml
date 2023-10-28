@@ -1,19 +1,31 @@
 linux_aarch64_test_task:
-  name: "Cirrus linux aarch64 ${PYTHON_VERSION}"
+  name: "Cirrus linux aarch64 ${PYTHON_VERSION} ${IMAGE_SUFFIX}"
 
   arm_container:
     # https://hub.docker.com/_/python/
-    image: python:${PYTHON_VERSION}-slim
+    image: python:${PYTHON_VERSION}-${IMAGE_SUFFIX}
 
   matrix:
     - env:
-        PYTHON_VERSION: "3.9"
+        PYTHON_VERSION: "3.11"
+        IMAGE_SUFFIX: slim
+        BUILD_NUMPY: 0
+        TEST_NO_IMAGES: 0
     - env:
         PYTHON_VERSION: "3.11"
+        IMAGE_SUFFIX: alpine
+        BUILD_NUMPY: 1
+        TEST_NO_IMAGES: 1
 
   os_dependencies_script: |
-    apt update
-    apt install -yy g++
+    if [[ "$IMAGE_SUFFIX" != "alpine" ]];
+    then
+      apt update;
+      apt install -yy g++;
+    else
+      apk update;
+      apk add build-base;
+    fi
 
   python_venv_script: |
     which python
@@ -22,13 +34,29 @@ linux_aarch64_test_task:
     python -m venv venv
     source venv/bin/activate
 
+  install_numpy_from_source_script:
+    if [[ "$BUILD_NUMPY" == "1" ]];
+    then
+      python -m pip install -v --no-binary=numpy numpy -Csetup-args="-Dallow-noblas=true";
+    fi
+
   install_contourpy_script: |
-    python -m pip install -v .[test] -Cbuilddir=build
+    if [[ "$TEST_NO_IMAGES" ]];
+    then
+        python -m pip install -v .[test-no-images] -Cbuilddir=build;
+    else
+        python -m pip install -v .[test] -Cbuilddir=build;
+    fi
     python -m pip list
     python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
 
   run_tests_script: |
-    python -m pytest -v tests/
+    if [[ "$TEST_NO_IMAGES" ]];
+    then
+      python -m pytest -v tests/ -k "not image";
+    else
+      python -m pytest -v tests/;
+    fi
 
 
 macos_arm64_test_task:

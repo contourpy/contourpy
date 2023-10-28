@@ -88,7 +88,7 @@ setup = [
 [tool.cibuildwheel]
 build-frontend = "build"
 build = "cp39-* cp310-* cp311-* cp312-* pp39-*"
-skip = "*-musllinux_aarch64 *-musllinux_ppc64le *-musllinux_s390x pp*_aarch64 pp*_ppc64le pp*_s390x"
+skip = "*-musllinux_ppc64le *-musllinux_s390x pp*_aarch64 pp*_ppc64le pp*_s390x"
 test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
     'python -c "import contourpy as c; print(c.contour_generator(z=[[0, 1], [2, 3]]).lines(0.9))"',
