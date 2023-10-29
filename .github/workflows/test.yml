@@ -106,10 +106,11 @@ jobs:
             python-version: "3.11"
             name: "Test C++11"
             extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
-          # PyPy only tested on ubuntu for speed.
+          # PyPy only tested on ubuntu for speed, exclude big tests.
           - os: ubuntu-latest
             python-version: "pypy3.9"
             name: "Test"
+            test-no-big: true
           # Win32 test.
           - os: windows-latest
             python-version: "3.11"
@@ -236,6 +237,10 @@ jobs:
           then
             echo "Run only tests that do not generate images"
             python -m pytest -v --color=yes tests/ -k "not image"
+          elif [[ "${{ matrix.test-no-big }}" != "" ]]
+          then
+            echo "Run all tests except big ones"
+            python -m pytest -v --color=yes tests/ -k "not big"
           else
             echo "Run all tests"
             python -m pytest -v --color=yes tests/
