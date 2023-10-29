@@ -280,13 +280,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # musllinux: run standard tests.
+          # musllinux x86_64.
           - arch: x86_64
             manylinux_version: musllinux
             image: musllinux_1_1_x86_64
             venv: venv
             test: test
-          # ppc64le and s390x: dependencies are conda packages, run standard tests.
+          # ppc64le and s390x: dependencies are conda packages.
           - arch: ppc64le
             manylinux_version: manylinux2014
             image: manylinux2014_ppc64le
@@ -349,8 +349,10 @@ jobs:
               conda list
             fi
 
-            echo "==> Install contourpy with test dependencies"
+            echo "==> Upgrade pip"
             python -m pip install --upgrade pip
+
+            echo "==> Install contourpy with test dependencies"
             python -m pip install -v .[$TEST]
             python -m pip list
             python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
