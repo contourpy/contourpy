@@ -108,8 +108,11 @@ ignore-words-list = "nd"
 
 
 [tool.coverage.report]
-exclude_lines = [
+exclude_also = [
     "if TYPE_CHECKING:",
+    "\\s+pass",
+    "raise.*Invalid FillType",
+    "raise.*Invalid LineType",
 ]
 
 
