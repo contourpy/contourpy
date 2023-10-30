@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 import io
-from typing import TYPE_CHECKING, Any, Sequence, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import matplotlib.collections as mcollections
 import matplotlib.pyplot as plt

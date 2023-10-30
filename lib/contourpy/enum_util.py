@@ -15,8 +15,8 @@ def as_fill_type(fill_type: FillType | str) -> FillType:
     if isinstance(fill_type, str):
         try:
             return FillType.__members__[fill_type]
-        except KeyError:
-            raise ValueError(f"'{fill_type}' is not a valid FillType")
+        except KeyError as e:
+            raise ValueError(f"'{fill_type}' is not a valid FillType") from e
     else:
         return fill_type
 
@@ -33,8 +33,8 @@ def as_line_type(line_type: LineType | str) -> LineType:
     if isinstance(line_type, str):
         try:
             return LineType.__members__[line_type]
-        except KeyError:
-            raise ValueError(f"'{line_type}' is not a valid LineType")
+        except KeyError as e:
+            raise ValueError(f"'{line_type}' is not a valid LineType") from e
     else:
         return line_type
 
@@ -51,7 +51,7 @@ def as_z_interp(z_interp: ZInterp | str) -> ZInterp:
     if isinstance(z_interp, str):
         try:
             return ZInterp.__members__[z_interp]
-        except KeyError:
-            raise ValueError(f"'{z_interp}' is not a valid ZInterp")
+        except KeyError as e:
+            raise ValueError(f"'{z_interp}' is not a valid ZInterp") from e
     else:
         return z_interp

@@ -11,7 +11,7 @@ from contourpy.chunk import calc_chunk_sizes, two_factors
     "n, factors",
     [[1, (1, 1)], [2, (2, 1)], [3, (3, 1)], [4, (2, 2)], [5, (5, 1)], [6, (3, 2)], [7, (7, 1)],
      [8, (4, 2)], [9, (3, 3)], [10, (5, 2)], [11, (11, 1)], [12, (4, 3)], [20, (5, 4)],
-     [24, (6, 4)], [30, (6, 5)], [99, (11, 9)], [100, (10, 10)], [101, (101, 1)]]
+     [24, (6, 4)], [30, (6, 5)], [99, (11, 9)], [100, (10, 10)], [101, (101, 1)]],
 )
 def test_two_factors(n: int, factors: tuple[int, int]) -> None:
     assert two_factors(n) == factors
@@ -55,7 +55,7 @@ def test_chunk_count_1d(chunk_count: int, res: tuple[int, int]) -> None:
 
 @pytest.mark.parametrize(
     "chunk_count, res",
-    [[(0, 0), (4, 6)], [(1, 1), (4, 6)], [(2, 2), (2, 3)], [(2, 3), (2, 2)], [(9, 9), (1, 1)]  ]
+    [[(0, 0), (4, 6)], [(1, 1), (4, 6)], [(2, 2), (2, 3)], [(2, 3), (2, 2)], [(9, 9), (1, 1)]],
 )
 def test_chunk_count_2d(chunk_count: tuple[int, int], res: tuple[int, int]) -> None:
     assert calc_chunk_sizes(
