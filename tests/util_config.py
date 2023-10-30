@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from abc import abstractmethod
+from collections.abc import Sequence
 from enum import Enum
 import io
-from typing import TYPE_CHECKING, Any, Literal, Sequence, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 import matplotlib.pyplot as plt
 import numpy as np

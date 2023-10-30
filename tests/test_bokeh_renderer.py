@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Iterator
 import logging
 import re
-from typing import TYPE_CHECKING, Iterator
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest

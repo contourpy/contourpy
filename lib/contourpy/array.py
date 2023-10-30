@@ -170,7 +170,7 @@ def concat_points_or_none_with_nan(
         return None
 
 
-def concat_points_with_nan(list_of_points: list[cpy.PointArray],) -> cpy.PointArray:
+def concat_points_with_nan(list_of_points: list[cpy.PointArray]) -> cpy.PointArray:
     """Concatenate a list of points into a single point array with NaNs used to separate each line.
     """
     if not list_of_points:
