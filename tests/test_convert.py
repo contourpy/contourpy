@@ -37,7 +37,7 @@ def z() -> cpy.CoordinateArray:
 
 @pytest.mark.parametrize("fill_type_to", FillType.__members__.values())
 @pytest.mark.parametrize("fill_type_from", FillType.__members__.values())
-@pytest.mark.parametrize("chunk_size", (0, 3))
+@pytest.mark.parametrize("chunk_size", (0, 2, 3))
 @pytest.mark.parametrize("empty", (False, True))
 def test_convert_fill_type(
     z: cpy.CoordinateArray,
@@ -50,7 +50,7 @@ def test_convert_fill_type(
         # Levels outside of z bounds so no polygons produced.
         lower_level, upper_level = 3.0, 4.0
     else:
-        # Using chunk_size=2 there is an empty chunk.
+        # Using chunk_size=2 or 3 there is an empty chunk.
         lower_level, upper_level = 0.5, 1.5
 
     filled = contour_generator(z=z, fill_type=fill_type_from, chunk_size=chunk_size).filled(
@@ -79,7 +79,7 @@ def test_convert_fill_type(
 
 @pytest.mark.parametrize("line_type_to", LineType.__members__.values())
 @pytest.mark.parametrize("line_type_from", LineType.__members__.values())
-@pytest.mark.parametrize("chunk_size", (0, 3))
+@pytest.mark.parametrize("chunk_size", (0, 2, 3))
 @pytest.mark.parametrize("empty", (False, True))
 def test_convert_line_type(
     z: cpy.CoordinateArray,
@@ -93,7 +93,7 @@ def test_convert_line_type(
         level = 4.0
     else:
         # Lines includes a closed line loop as well as open line strips,
-        # and using chunk_size=2 there is an empty chunk.
+        # and using chunk_size=2 or 3 there is an empty chunk.
         level = 0.5
     lines = contour_generator(z=z, line_type=line_type_from, chunk_size=chunk_size).lines(level)
     converted = convert_line_type(lines, line_type_from, line_type_to)
