@@ -67,7 +67,7 @@ jobs:
 
       - name: Run tests
         run: |
-          python -m pytest -v --color=yes tests/test_codebase.py
+          python -m pytest -v -n auto --color=yes tests/test_codebase.py
 
   test:
     name: "${{ matrix.name }} ${{ matrix.python-version }} ${{ matrix.os }}"
@@ -228,22 +228,22 @@ jobs:
           if [[ "${{ matrix.debug }}" != "" ]]
           then
             echo "Run normal tests with coverage"
-            python -m pytest -v --color=yes tests/ --cov=lib --cov-report=lcov
+            python -m pytest -v -n auto --color=yes tests/ --cov=lib --cov-report=lcov
           elif [[ "${{ matrix.test-text }}" != "" ]]
           then
             echo "Run normal and text tests with coverage"
-            python -m pytest -v --color=yes -rP tests/test_bokeh_renderer.py tests/test_renderer.py --runtext --driver-path=/snap/bin/chromium.chromedriver --cov=lib --cov-report=lcov
+            python -m pytest -v -n auto --color=yes -rP tests/test_bokeh_renderer.py tests/test_renderer.py --runtext --driver-path=/snap/bin/chromium.chromedriver --cov=lib --cov-report=lcov
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Run only tests that do not generate images"
-            python -m pytest -v --color=yes tests/ -k "not image"
+            python -m pytest -v -n auto --color=yes tests/ -k "not image"
           elif [[ "${{ matrix.test-no-big }}" != "" ]]
           then
             echo "Run all tests except big ones"
-            python -m pytest -v --color=yes tests/ -k "not big"
+            python -m pytest -v -n auto --color=yes tests/ -k "not big"
           else
             echo "Run all tests"
-            python -m pytest -v --color=yes tests/
+            python -m pytest -v -n auto --color=yes tests/
           fi
 
       - name: Collect C++ coverage
@@ -365,10 +365,10 @@ jobs:
             if [[ $TEST == "test-no-images" ]]
             then
               echo "==> Run non-image tests"
-              python -m pytest -v --color=yes tests/ -k "not image"
+              python -m pytest -v -n auto --color=yes tests/ -k "not image"
             else
               echo "==> Run tests except 'big' ones as on emulated hardware"
-              python -m pytest -v --color=yes tests/ -k "not big"
+              python -m pytest -v -n auto --color=yes tests/ -k "not big"
             fi
             echo "-------------------- end --------------------"
 
