@@ -64,6 +64,7 @@ test-no-images = [
     # Dependencies to run tests excluding image-generating tests.
     "pytest",
     "pytest-cov",
+    "pytest-xdist",
     "wurlitzer",
 ]
 
@@ -143,6 +144,10 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "tests.test_internal"
 disable_error_code = "call-arg"
+
+
+[tool.pytest.ini_options]
+addopts = "-n auto"
 
 
 [tool.ruff]
