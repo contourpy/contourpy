@@ -53,9 +53,9 @@ linux_aarch64_test_task:
   run_tests_script: |
     if [[ "$TEST_NO_IMAGES" ]];
     then
-      python -m pytest -v tests/ -k "not image";
+      python -m pytest -v tests/ -n 2 -k "not image";
     else
-      python -m pytest -v tests/;
+      python -m pytest -v tests/ -n 2;
     fi
 
 
@@ -88,4 +88,4 @@ macos_arm64_test_task:
     python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
 
   run_tests_script: |
-    python -m pytest -v tests/
+    python -m pytest -v tests/ -n 4

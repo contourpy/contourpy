@@ -161,6 +161,12 @@ To include tests that take a long time to run:
 
   $ pytest --runslow
 
+To run tests in parallel on all of your available CPUs:
+
+.. code-block:: console
+
+  $ pytest -n auto
+
 .. note::
 
    :class:`~contourpy.util.bokeh_renderer.BokehRenderer` tests will be run if Bokeh is installed,
