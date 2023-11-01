@@ -6,6 +6,7 @@ python_sources = [
   'convert.py',
   'dechunk.py',
   'enum_util.py',
+  'typecheck.py',
   'types.py',
   '_contourpy.pyi',
   'py.typed',
