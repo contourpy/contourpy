@@ -28,6 +28,9 @@ def test_codes_from_offsets() -> None:
     with pytest.raises(ValueError, match=r"Expected numpy array of shape"):
         arr.codes_from_offsets(np.array([[0, 3], [7, 10]], dtype=offset_dtype))
 
+    with pytest.raises(ValueError, match=r"First element of offset array must be 0"):
+        arr.codes_from_offsets(np.array([1, 2], dtype=offset_dtype))
+
 
 def test_codes_from_offsets_and_points() -> None:
     codes = arr.codes_from_offsets_and_points(
@@ -66,6 +69,12 @@ def test_codes_from_offsets_and_points() -> None:
     with pytest.raises(ValueError, match=r"Expected numpy array of shape"):
         arr.codes_from_offsets_and_points(
             np.array([[0], [2]], dtype=offset_dtype),
+            np.array([[0, 1], [2, 3]], dtype=point_dtype),
+        )
+
+    with pytest.raises(ValueError, match=r"First element of offset array must be 0"):
+        arr.codes_from_offsets_and_points(
+            np.array([1, 2], dtype=offset_dtype),
             np.array([[0, 1], [2, 3]], dtype=point_dtype),
         )
 
@@ -357,6 +366,12 @@ def test_insert_nan_at_offsets() -> None:
             np.array([[0, 3]], dtype=offset_dtype),
         )
 
+    with pytest.raises(ValueError, match=r"First element of offset array must be 0"):
+        arr.insert_nan_at_offsets(
+            np.array([[0, 1], [2, 3], [4, 5]], dtype=point_dtype),
+            np.array([1, 3], dtype=offset_dtype),
+        )
+
 
 def test_offsets_from_codes() -> None:
     offsets = arr.offsets_from_codes(np.array([1, 2, 79], dtype=code_dtype))
@@ -375,6 +390,9 @@ def test_offsets_from_codes() -> None:
 
     with pytest.raises(ValueError, match=r"Expected numpy array of shape"):
         arr.offsets_from_codes(np.array([[1, 2], [2, 79]], dtype=code_dtype))
+
+    with pytest.raises(ValueError, match=r"First element of code array must be 1"):
+        arr.offsets_from_codes(np.array([2, 79], dtype=code_dtype))
 
 
 def test_offsets_from_lengths() -> None:
@@ -466,16 +484,16 @@ def test_remove_nan() -> None:
     assert_array_equal(offsets, [0, 3, 5, 8])
 
 
-def split_codes_by_offsets() -> None:
+def test_split_codes_by_offsets() -> None:
     codes = np.array([1, 2, 1, 2, 79], dtype=code_dtype)
 
-    list_of_codes = arr.split_by_offsets(codes, np.array([0, 5], dtype=offset_dtype))
+    list_of_codes = arr.split_codes_by_offsets(codes, np.array([0, 5], dtype=offset_dtype))
     assert isinstance(list_of_codes, list)
     assert len(list_of_codes) == 1
     util_test.assert_code_array(list_of_codes[0], 5)
     assert_array_equal(list_of_codes[0], codes)
 
-    list_of_codes = arr.split_by_offsets(codes, np.array([0, 2, 5], dtype=offset_dtype))
+    list_of_codes = arr.split_codes_by_offsets(codes, np.array([0, 2, 5], dtype=offset_dtype))
     assert isinstance(list_of_codes, list)
     assert len(list_of_codes) == 2
     util_test.assert_code_array(list_of_codes[0], 2)
@@ -483,23 +501,17 @@ def split_codes_by_offsets() -> None:
     assert_array_equal(list_of_codes[0], [1, 2])
     assert_array_equal(list_of_codes[1], [1, 2, 79])
 
+    with pytest.raises(TypeError, match=r"Expected numpy array not <class 'list'>"):
+       arr.split_codes_by_offsets(codes, [0, 5])  # type: ignore[arg-type]
 
-def split_points_by_offsets() -> None:
-    points = np.array([[0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11]], dtype=point_dtype)
+    with pytest.raises(ValueError, match=r"Expected numpy array of dtype <class 'numpy.uint32'>"):
+        arr.codes_from_offsets(np.array([0, 5], dtype=np.int64))
 
-    list_of_points = arr.split_by_offsets(points, np.array([0, 6], dtype=offset_dtype))
-    assert isinstance(list_of_points, list)
-    assert len(list_of_points) == 1
-    util_test.assert_point_array(list_of_points[0])
-    assert_array_almost_equal(list_of_points[0], points)
+    with pytest.raises(ValueError, match=r"Expected numpy array of shape"):
+        arr.codes_from_offsets(np.array([[0, 5]], dtype=offset_dtype))
 
-    list_of_points = arr.split_by_offsets(points, np.array([0, 2, 6], dtype=offset_dtype))
-    assert isinstance(list_of_points, list)
-    assert len(list_of_points) == 2
-    util_test.assert_point_array(list_of_points[0])
-    util_test.assert_point_array(list_of_points[1])
-    assert_array_almost_equal(list_of_points[0], [[0, 1], [2, 3]])
-    assert_array_almost_equal(list_of_points[0], [[4, 5], [6, 7], [8, 9], [10, 11]])
+    with pytest.raises(ValueError, match=r"First element of offset array must be 0"):
+        arr.codes_from_offsets(np.array([1, 2], dtype=offset_dtype))
 
 
 def test_split_points_at_nan() -> None:
@@ -530,3 +542,33 @@ def test_split_points_at_nan() -> None:
 
     with pytest.raises(ValueError, match=r"Expected numpy array of shape"):
         arr.split_points_at_nan(np.array([[0, 1, 2, 3]], dtype=point_dtype))
+
+
+def test_split_points_by_offsets() -> None:
+    points = np.array([[0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11]], dtype=point_dtype)
+
+    list_of_points = arr.split_points_by_offsets(points, np.array([0, 6], dtype=offset_dtype))
+    assert isinstance(list_of_points, list)
+    assert len(list_of_points) == 1
+    util_test.assert_point_array(list_of_points[0])
+    assert_array_almost_equal(list_of_points[0], points)
+
+    list_of_points = arr.split_points_by_offsets(points, np.array([0, 2, 6], dtype=offset_dtype))
+    assert isinstance(list_of_points, list)
+    assert len(list_of_points) == 2
+    util_test.assert_point_array(list_of_points[0])
+    util_test.assert_point_array(list_of_points[1])
+    assert_array_almost_equal(list_of_points[0], [[0, 1], [2, 3]])
+    assert_array_almost_equal(list_of_points[1], [[4, 5], [6, 7], [8, 9], [10, 11]])
+
+    with pytest.raises(TypeError, match=r"Expected numpy array not <class 'list'>"):
+       arr.split_points_by_offsets(points, [0, 6])  # type: ignore[arg-type]
+
+    with pytest.raises(ValueError, match=r"Expected numpy array of dtype <class 'numpy.uint32'>"):
+       arr.split_points_by_offsets(points, np.array([0, 6], dtype=np.int64))
+
+    with pytest.raises(ValueError, match=r"Expected numpy array of shape"):
+       arr.split_points_by_offsets(points, np.array([[0, 6]], dtype=offset_dtype))
+
+    with pytest.raises(ValueError, match=r"First element of offset array must be 0"):
+       arr.split_points_by_offsets(points, np.array([1, 6], dtype=offset_dtype))

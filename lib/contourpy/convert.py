@@ -136,8 +136,8 @@ def _convert_filled_from_ChunkCombinedCodeOffset(
                 if TYPE_CHECKING:
                     assert codes is not None
                     assert outer_offsets is not None
-                separate_points += arr.split_by_offsets(points, outer_offsets)
-                separate_codes += arr.split_by_offsets(codes, outer_offsets)
+                separate_points += arr.split_points_by_offsets(points, outer_offsets)
+                separate_codes += arr.split_codes_by_offsets(codes, outer_offsets)
         return (separate_points, separate_codes)
     elif fill_type_to == FillType.OuterOffset:
         separate_points = []
@@ -147,8 +147,8 @@ def _convert_filled_from_ChunkCombinedCodeOffset(
                 if TYPE_CHECKING:
                     assert codes is not None
                     assert outer_offsets is not None
-                separate_points += arr.split_by_offsets(points, outer_offsets)
-                separate_codes = arr.split_by_offsets(codes, outer_offsets)
+                separate_points += arr.split_points_by_offsets(points, outer_offsets)
+                separate_codes = arr.split_codes_by_offsets(codes, outer_offsets)
                 separate_offsets += [arr.offsets_from_codes(codes) for codes in separate_codes]
         return (separate_points, separate_offsets)
     elif fill_type_to == FillType.ChunkCombinedCode:
@@ -198,8 +198,8 @@ def _convert_filled_from_ChunkCombinedOffsetOffset(
                     assert outer_offsets is not None
                 codes = arr.codes_from_offsets_and_points(offsets, points)
                 outer_offsets = offsets[outer_offsets]
-                separate_points += arr.split_by_offsets(points, outer_offsets)
-                separate_codes += arr.split_by_offsets(codes, outer_offsets)
+                separate_points += arr.split_points_by_offsets(points, outer_offsets)
+                separate_codes += arr.split_codes_by_offsets(codes, outer_offsets)
         return (separate_points, separate_codes)
     elif fill_type_to == FillType.OuterOffset:
         separate_points = []
@@ -214,7 +214,7 @@ def _convert_filled_from_ChunkCombinedOffsetOffset(
                                          zip(outer_offsets[:-1], outer_offsets[1:])]
                 else:
                     separate_offsets.append(offsets)
-                separate_points += arr.split_by_offsets(points, offsets[outer_offsets])
+                separate_points += arr.split_points_by_offsets(points, offsets[outer_offsets])
         return (separate_points, separate_offsets)
     elif fill_type_to == FillType.ChunkCombinedCode:
         chunk_codes: list[cpy.CodeArray | None] = []
@@ -421,7 +421,7 @@ def _convert_lines_from_ChunkCombinedOffset(
             if points is not None:
                 if TYPE_CHECKING:
                     assert offsets is not None
-                separate_lines += arr.split_by_offsets(points, offsets)
+                separate_lines += arr.split_points_by_offsets(points, offsets)
         if line_type_to == LineType.Separate:
             return separate_lines
         else:

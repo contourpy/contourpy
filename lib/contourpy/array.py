@@ -1,53 +1,21 @@
 from __future__ import annotations
 
 from itertools import chain
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING
 
 import numpy as np
 
+from contourpy.typecheck import check_code_array, check_offset_array, check_point_array
 from contourpy.types import CLOSEPOLY, LINETO, MOVETO, code_dtype, offset_dtype, point_dtype
 
 if TYPE_CHECKING:
-    import numpy.typing as npt
-
     import contourpy._contourpy as cpy
-
-    T = TypeVar("T", bound=np.generic)  # Type for generic np.ndarray
-
-
-# Minimalist array-checking functions that check dtype, ndims and shape only.
-# They do not walk the arrays to check the contents for performance reasons.
-def _check_code_array(codes: Any) -> None:
-    if not isinstance(codes, np.ndarray):
-        raise TypeError(f"Expected numpy array not {type(codes)}")
-    if codes.dtype != code_dtype:
-        raise ValueError(f"Expected numpy array of dtype {code_dtype} not {codes.dtype}")
-    if not (codes.ndim == 1 and len(codes) > 1):
-        raise ValueError(f"Expected numpy array of shape (?,) not {codes.shape}")
-
-
-def _check_offset_array(offsets: Any) -> None:
-    if not isinstance(offsets, np.ndarray):
-        raise TypeError(f"Expected numpy array not {type(offsets)}")
-    if offsets.dtype != offset_dtype:
-        raise ValueError(f"Expected numpy array of dtype {offset_dtype} not {offsets.dtype}")
-    if not (offsets.ndim == 1 and len(offsets) > 1):
-        raise ValueError(f"Expected numpy array of shape (?,) not {offsets.shape}")
-
-
-def _check_point_array(points: Any) -> None:
-    if not isinstance(points, np.ndarray):
-        raise TypeError(f"Expected numpy array not {type(points)}")
-    if points.dtype != point_dtype:
-        raise ValueError(f"Expected numpy array of dtype {point_dtype} not {points.dtype}")
-    if not (points.ndim == 2 and points.shape[1] ==2 and points.shape[0] > 1):
-        raise ValueError(f"Expected numpy array of shape (?, 2) not {points.shape}")
 
 
 def codes_from_offsets(offsets: cpy.OffsetArray) -> cpy.CodeArray:
     """Determine codes from offsets, assuming they all correspond to closed polygons.
     """
-    _check_offset_array(offsets)
+    check_offset_array(offsets)
 
     n = offsets[-1]
     codes = np.full(n, LINETO, dtype=code_dtype)
@@ -63,8 +31,8 @@ def codes_from_offsets_and_points(
     """Determine codes from offsets and points, using the equality of the start and end points of
     each line to determine if lines are closed or not.
     """
-    _check_offset_array(offsets)
-    _check_point_array(points)
+    check_offset_array(offsets)
+    check_point_array(points)
 
     codes = np.full(len(points), LINETO, dtype=code_dtype)
     codes[offsets[:-1]] = MOVETO
@@ -80,7 +48,7 @@ def codes_from_points(points: cpy.PointArray) -> cpy.CodeArray:
     """Determine codes for a single line, using the equality of the start and end points to
     determine if the line is closed or not.
     """
-    _check_point_array(points)
+    check_point_array(points)
 
     n = len(points)
     codes = np.full(n, LINETO, dtype=code_dtype)
@@ -188,8 +156,8 @@ def concat_points_with_nan(list_of_points: list[cpy.PointArray]) -> cpy.PointArr
 def insert_nan_at_offsets(points: cpy.PointArray, offsets: cpy.OffsetArray) -> cpy.PointArray:
     """Insert NaNs into a point array at locations specified by an offset array.
     """
-    _check_point_array(points)
-    _check_offset_array(offsets)
+    check_point_array(points)
+    check_offset_array(offsets)
 
     if len(offsets) <= 2:
         return points
@@ -202,7 +170,7 @@ def insert_nan_at_offsets(points: cpy.PointArray, offsets: cpy.OffsetArray) -> c
 def offsets_from_codes(codes: cpy.CodeArray) -> cpy.OffsetArray:
     """Determine offsets from codes using locations of MOVETO codes.
     """
-    _check_code_array(codes)
+    check_code_array(codes)
 
     return np.append(np.nonzero(codes == MOVETO)[0], len(codes)).astype(offset_dtype)
 
@@ -238,7 +206,7 @@ def outer_offsets_from_list_of_offsets(list_of_offsets: list[cpy.OffsetArray]) -
 def remove_nan(points: cpy.PointArray) -> tuple[cpy.PointArray, cpy.OffsetArray]:
     """Remove NaN from a points array, also return the offsets corresponding to the NaN removed.
     """
-    _check_point_array(points)
+    check_point_array(points)
 
     nan_offsets = np.nonzero(np.isnan(points[:, 0]))[0]
     if len(nan_offsets) == 0:
@@ -253,19 +221,37 @@ def remove_nan(points: cpy.PointArray) -> tuple[cpy.PointArray, cpy.OffsetArray]
         return points, offsets
 
 
-def split_by_offsets(array: npt.NDArray[T], offsets: cpy.OffsetArray) -> list[npt.NDArray[T]]:
-    """Split an array at locations specified by an offset array.
+def split_codes_by_offsets(codes: cpy.CodeArray, offsets: cpy.OffsetArray) -> list[cpy.CodeArray]:
+    """Split a code array at locations specified by an offset array into a list of code arrays.
     """
+    check_code_array(codes)
+    check_offset_array(offsets)
+
     if len(offsets) > 2:
-        return np.split(array, offsets[1:-1])
+        return np.split(codes, offsets[1:-1])
     else:
-        return [array]
+        return [codes]
+
+
+def split_points_by_offsets(
+    points: cpy.PointArray,
+    offsets: cpy.OffsetArray,
+) -> list[cpy.PointArray]:
+    """Split a point array at locations specified by an offset array into a list of point arrays.
+    """
+    check_point_array(points)
+    check_offset_array(offsets)
+
+    if len(offsets) > 2:
+        return np.split(points, offsets[1:-1])
+    else:
+        return [points]
 
 
 def split_points_at_nan(points: cpy.PointArray) -> list[cpy.PointArray]:
     """Split a points array at NaNs into a list of point arrays.
     """
-    _check_point_array(points)
+    check_point_array(points)
 
     nan_offsets = np.nonzero(np.isnan(points[:, 0]))[0]
     if len(nan_offsets) == 0:
