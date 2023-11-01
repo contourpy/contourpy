@@ -251,7 +251,7 @@ def _convert_filled_from_ChunkCombinedOffsetOffset(
         raise ValueError(f"Invalid FillType {fill_type_to}")
 
 
-def convert_fill_type(
+def convert_filled(
     filled: cpy.FillReturn,
     fill_type_from: FillType | str,
     fill_type_to:  FillType | str,
@@ -497,7 +497,7 @@ def _convert_lines_from_ChunkCombinedNan(
         raise ValueError(f"Invalid LineType {line_type_to}")
 
 
-def convert_line_type(
+def convert_lines(
     lines: cpy.LineReturn,
     line_type_from: LineType | str,
     line_type_to:  LineType | str,
