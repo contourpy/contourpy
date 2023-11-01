@@ -244,7 +244,7 @@ class MplRenderer(Renderer):
         """Show plots in an interactive window, in the usual Matplotlib manner.
         """
         self._autoscale()
-        plt.show()  # type: ignore[no-untyped-call]
+        plt.show()
 
     def title(self, title: str, ax: Axes | int = 0, color: str | None = None) -> None:
         """Set the title of a single Axes.
