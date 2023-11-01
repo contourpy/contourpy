@@ -7,6 +7,7 @@ import numpy as np
 from contourpy._contourpy import FillType, LineType
 import contourpy.array as arr
 from contourpy.enum_util import as_fill_type, as_line_type
+from contourpy.typecheck import check_filled, check_lines
 from contourpy.types import MOVETO, offset_dtype
 
 if TYPE_CHECKING:
@@ -277,6 +278,8 @@ def convert_filled(
     fill_type_from = as_fill_type(fill_type_from)
     fill_type_to = as_fill_type(fill_type_to)
 
+    check_filled(filled, fill_type_from)
+
     if fill_type_from == FillType.OuterCode:
         if TYPE_CHECKING:
             filled = cast(cpy.FillReturn_OuterCode, filled)
@@ -521,6 +524,8 @@ def convert_lines(
     """
     line_type_from = as_line_type(line_type_from)
     line_type_to = as_line_type(line_type_to)
+
+    check_lines(lines, line_type_from)
 
     if line_type_from == LineType.Separate:
         if TYPE_CHECKING:

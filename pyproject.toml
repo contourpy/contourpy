@@ -145,6 +145,10 @@ ignore_missing_imports = true
 module = "tests.test_internal"
 disable_error_code = "call-arg"
 
+[[tool.mypy.overrides]]
+module = "tests.test_typecheck"
+disable_error_code = ["arg-type", "list-item"]
+
 
 [tool.ruff]
 exclude = [

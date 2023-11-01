@@ -8,6 +8,7 @@ from contourpy.array import (
     concat_points_or_none_with_nan,
 )
 from contourpy.enum_util import as_fill_type, as_line_type
+from contourpy.typecheck import check_filled, check_lines
 
 if TYPE_CHECKING:
     import contourpy._contourpy as cpy
@@ -32,8 +33,13 @@ def dechunk_filled(filled: cpy.FillReturn, fill_type: FillType | str) -> cpy.Fil
     """
     fill_type = as_fill_type(fill_type)
 
-    if fill_type in (FillType.OuterCode, FillType.OuterOffset) or len(filled[0]) < 2:
-        # No-op if fill_type is not chunked or there is just one chunk.
+    if fill_type in (FillType.OuterCode, FillType.OuterOffset):
+        # No-op if fill_type is not chunked.
+        return filled
+
+    check_filled(filled, fill_type)
+    if len(filled[0]) < 2:
+        # No-op if just one chunk.
         return filled
 
     if TYPE_CHECKING:
@@ -96,9 +102,13 @@ def dechunk_lines(lines: cpy.LineReturn, line_type: LineType | str) -> cpy.LineR
     .. versionadded:: 1.1.2
     """
     line_type = as_line_type(line_type)
+    if line_type in (LineType.Separate, LineType.SeparateCode):
+        # No-op if line_type is not chunked.
+        return lines
 
-    if line_type in (LineType.Separate, LineType.SeparateCode) or len(lines[0]) < 2:
-        # No-op if line_type is not chunked or there is just one chunk.
+    check_lines(lines, line_type)
+    if len(lines[0]) < 2:
+        # No-op if just one chunk.
         return lines
 
     if TYPE_CHECKING:
