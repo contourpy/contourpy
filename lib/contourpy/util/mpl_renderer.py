@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from contourpy import FillType, LineType
-from contourpy.convert import convert_fill_type, convert_line_type
+from contourpy.convert import convert_filled, convert_lines
 from contourpy.enum_util import as_fill_type, as_line_type
 from contourpy.util.mpl_util import filled_to_mpl_paths, lines_to_mpl_paths
 from contourpy.util.renderer import Renderer
@@ -244,7 +244,7 @@ class MplRenderer(Renderer):
         """Show plots in an interactive window, in the usual Matplotlib manner.
         """
         self._autoscale()
-        plt.show()  # type: ignore[no-untyped-call]
+        plt.show()
 
     def title(self, title: str, ax: Axes | int = 0, color: str | None = None) -> None:
         """Set the title of a single Axes.
@@ -395,7 +395,7 @@ class MplDebugRenderer(MplRenderer):
             return
 
         ax = self._get_ax(ax)
-        filled = convert_fill_type(filled, fill_type, FillType.ChunkCombinedOffset)
+        filled = convert_filled(filled, fill_type, FillType.ChunkCombinedOffset)
 
         # Lines.
         if line_color is not None:
@@ -447,7 +447,7 @@ class MplDebugRenderer(MplRenderer):
             return
 
         ax = self._get_ax(ax)
-        separate_lines = convert_line_type(lines, line_type, LineType.Separate)
+        separate_lines = convert_lines(lines, line_type, LineType.Separate)
         if TYPE_CHECKING:
             separate_lines = cast(cpy.LineReturn_Separate, separate_lines)
 

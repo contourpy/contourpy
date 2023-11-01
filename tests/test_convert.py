@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from contourpy import (
-    FillType, LineType, contour_generator, convert_fill_type, convert_line_type, dechunk_filled,
+    FillType, LineType, contour_generator, convert_filled, convert_lines, dechunk_filled,
     dechunk_lines,
 )
 
@@ -39,7 +39,7 @@ def z() -> cpy.CoordinateArray:
 @pytest.mark.parametrize("fill_type_from", FillType.__members__.values())
 @pytest.mark.parametrize("chunk_size", (0, 2, 3))
 @pytest.mark.parametrize("empty", (False, True))
-def test_convert_fill_type(
+def test_convert_filled(
     z: cpy.CoordinateArray,
     fill_type_from: FillType,
     fill_type_to: FillType,
@@ -60,9 +60,9 @@ def test_convert_fill_type(
         fill_type_to not in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset)):
         msg = f"Conversion from {fill_type_from} to {fill_type_to} not supported"
         with pytest.raises(ValueError, match=msg):
-            convert_fill_type(filled, fill_type_from, fill_type_to)
+            convert_filled(filled, fill_type_from, fill_type_to)
     else:
-        converted = convert_fill_type(filled, fill_type_from, fill_type_to)
+        converted = convert_filled(filled, fill_type_from, fill_type_to)
         util_test.assert_filled(converted, fill_type_to)
 
         compare = contour_generator(z=z, fill_type=fill_type_to, chunk_size=chunk_size).filled(
@@ -81,7 +81,7 @@ def test_convert_fill_type(
 @pytest.mark.parametrize("line_type_from", LineType.__members__.values())
 @pytest.mark.parametrize("chunk_size", (0, 2, 3))
 @pytest.mark.parametrize("empty", (False, True))
-def test_convert_line_type(
+def test_convert_lines(
     z: cpy.CoordinateArray,
     line_type_from: LineType,
     line_type_to: LineType,
@@ -96,7 +96,7 @@ def test_convert_line_type(
         # and using chunk_size=2 or 3 there is an empty chunk.
         level = 0.5
     lines = contour_generator(z=z, line_type=line_type_from, chunk_size=chunk_size).lines(level)
-    converted = convert_line_type(lines, line_type_from, line_type_to)
+    converted = convert_lines(lines, line_type_from, line_type_to)
 
     compare = contour_generator(z=z, line_type=line_type_to, chunk_size=chunk_size).lines(level)
     util_test.assert_lines(converted, line_type_to)
