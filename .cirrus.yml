@@ -1,5 +1,6 @@
 linux_aarch64_test_task:
   name: "Cirrus linux aarch64 ${PYTHON_VERSION} ${IMAGE_SUFFIX}"
+  only_if: $CIRRUS_BRANCH != "main"
 
   arm_container:
     # https://hub.docker.com/_/python/
@@ -61,6 +62,7 @@ linux_aarch64_test_task:
 
 macos_arm64_test_task:
   name: "Cirrus macos arm64 ${PYTHON_VERSION}"
+  only_if: $CIRRUS_BRANCH != "main"
 
   macos_instance:
     # https://github.com/cirruslabs/macos-image-templates
