@@ -36,8 +36,15 @@ def xyz_chunk_test() -> tuple[cpy.CoordinateArray, ...]:
 @pytest.mark.parametrize("name", util_test.all_names())
 def test_filled_decreasing_levels(name: str) -> None:
     cont_gen = contour_generator(z=[[0, 1], [2, 3]], name=name, fill_type=FillType.OuterCode)
-    with pytest.raises(ValueError, match="upper and lower levels are the wrong way round"):
+    with pytest.raises(ValueError, match="upper_level must be larger than lower_level"):
         cont_gen.filled(2.0, 1.0)
+
+
+@pytest.mark.parametrize("name", util_test.all_names())
+def test_filled_identical_levels(name: str) -> None:
+    cont_gen = contour_generator(z=[[0, 1], [2, 3]], name=name, fill_type=FillType.OuterCode)
+    with pytest.raises(ValueError, match="upper_level must be larger than lower_level"):
+        cont_gen.filled(2.0, 2.0)
 
 
 @pytest.mark.image
@@ -909,11 +916,16 @@ def test_filled_compare_slow(seed: int) -> None:
 
 @pytest.mark.parametrize("name", util_test.all_names())
 @pytest.mark.parametrize("z", [np.nan, -np.nan, np.inf, -np.inf])
-@pytest.mark.parametrize("zlevel", [0.0, np.nan, -np.nan, np.inf, -np.inf])
-def test_filled_z_nonfinite(name: str, z: float, zlevel: float) -> None:
+@pytest.mark.parametrize("lower_level", [0.0, np.nan, -np.nan, np.inf, -np.inf])
+@pytest.mark.parametrize("upper_level", [0.0, np.nan, -np.nan, np.inf, -np.inf])
+def test_filled_z_nonfinite(name: str, z: float, lower_level: float, upper_level: float) -> None:
     cont_gen = contour_generator(z=[[z, z], [z, z]], name=name, fill_type=FillType.OuterCode)
-    filled = cont_gen.filled(zlevel, zlevel)
-    assert filled == ([], [])
+    if lower_level >= upper_level:
+        with pytest.raises(ValueError, match="upper_level must be larger than lower_level"):
+            cont_gen.filled(lower_level, upper_level)
+    else:
+        filled = cont_gen.filled(lower_level, upper_level)
+        assert filled == ([], [])
 
 
 @pytest.mark.parametrize("name", util_test.all_names())
