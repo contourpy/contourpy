@@ -26,11 +26,6 @@ if TYPE_CHECKING:
 
 
 class BokehRenderer(Renderer):
-    _figures: list[figure]
-    _layout: GridPlot
-    _palette: Palette
-    _want_svg: bool
-
     """Utility renderer using Bokeh to render a grid of plots over the same (x, y) range.
 
     Args:
@@ -47,6 +42,11 @@ class BokehRenderer(Renderer):
         :class:`~contourpy.util.mpl_renderer.MplRenderer`, needs to be told in advance if output to
         SVG format will be required later, otherwise it will assume PNG output.
     """
+    _figures: list[figure]
+    _layout: GridPlot
+    _palette: Palette
+    _want_svg: bool
+
     def __init__(
         self,
         nrows: int = 1,
