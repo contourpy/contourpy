@@ -85,6 +85,7 @@ rst_epilog = """
 .. _MSVC: https://visualstudio.microsoft.com/
 .. _NumPy: https://numpy.org/
 .. _PyPI: https://pypi.org/project/contourpy/
+.. _Shapely: https://shapely.readthedocs.io/
 .. _conda: https://conda.io/
 .. _conda-forge: https://anaconda.org/conda-forge/contourpy/
 .. _default: https://anaconda.org/anaconda/contourpy/
