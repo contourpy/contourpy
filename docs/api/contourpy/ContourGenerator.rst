@@ -1,27 +1,7 @@
-contourpy
----------
+ContourGenerator
+----------------
 
-.. automodule:: contourpy
-
-.. autoclass:: FillType
-
-.. autoclass:: LineType
-
-.. autoclass:: ZInterp
-
-
-.. autofunction:: contour_generator
-
-.. autofunction:: convert_filled
-
-.. autofunction:: convert_lines
-
-.. autofunction:: dechunk_filled
-
-.. autofunction:: dechunk_lines
-
-.. autofunction:: max_threads
-
+.. currentmodule:: contourpy
 
 .. autoclass:: ContourGenerator
    :members:

@@ -4,8 +4,8 @@ API
 ===
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
-   top
+   contourpy/index
    util
    _contourpy
