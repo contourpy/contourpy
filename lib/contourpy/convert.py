@@ -520,9 +520,9 @@ def convert_lines(
         Converted contour lines.
 
     When converting non-chunked line types (``LineType.Separate`` or ``LineType.SeparateCode``) to
-    chunked ones (``LineType.ChunkCombinedCode`` or ``LineType.ChunkCombinedOffset``), all lines are
-    placed in the first chunk. When converting in the other direction, all chunk information is
-    discarded.
+    chunked ones (``LineType.ChunkCombinedCode``, ``LineType.ChunkCombinedOffset`` or
+    ``LineType.ChunkCombinedNan``), all lines are placed in the first chunk. When converting in the
+    other direction, all chunk information is discarded.
 
     .. versionadded:: 1.1.2
     """
