@@ -6,6 +6,6 @@ API
 .. toctree::
    :maxdepth: 1
 
-   top
+   contourpy/index
    util
    _contourpy

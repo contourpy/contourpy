@@ -27,7 +27,14 @@ Advantages of the new algorithm compared to Matplotlib's default algorithm of 20
    installation
    usage
    quickstart
-   user_guide/index
+
+.. toctree::
+   :maxdepth: 1
+   :caption: User Guide
+
+   user_guide/calculate/index
+   user_guide/manipulate/index
+   user_guide/external/index
 
 .. toctree::
    :maxdepth: 1

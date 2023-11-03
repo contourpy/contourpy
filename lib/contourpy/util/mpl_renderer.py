@@ -23,10 +23,6 @@ if TYPE_CHECKING:
 
 
 class MplRenderer(Renderer):
-    _axes: Sequence[Axes]
-    _fig: Figure
-    _want_tight: bool
-
     """Utility renderer using Matplotlib to render a grid of plots over the same (x, y) range.
 
     Args:
@@ -39,6 +35,10 @@ class MplRenderer(Renderer):
         gridspec_kw (dict, optional): Gridspec keyword arguments to pass to ``plt.subplots``,
             default None.
     """
+    _axes: Sequence[Axes]
+    _fig: Figure
+    _want_tight: bool
+
     def __init__(
         self,
         nrows: int = 1,

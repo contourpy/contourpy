@@ -257,12 +257,14 @@ def convert_filled(
     fill_type_from: FillType | str,
     fill_type_to:  FillType | str,
 ) -> cpy.FillReturn:
-    """Return the specified filled contours converted to a different ``FillType``.
+    """Return the specified filled contours converted to a different :class:`~contourpy.FillType`.
 
     Args:
         filled (sequence of arrays): Filled contour polygons to convert.
-        fill_type_from (FillType or str): ``FillType`` to convert from.
-        fill_type_to (FillType or str): ``FillType`` to convert to.
+        fill_type_from (FillType or str): :class:`~contourpy.FillType` to convert from as enum or
+            string equivalent.
+        fill_type_to (FillType or str): :class:`~contourpy.FillType` to convert to as enum or string
+            equivalent.
 
     Return:
         Converted filled contour polygons.
@@ -505,20 +507,22 @@ def convert_lines(
     line_type_from: LineType | str,
     line_type_to:  LineType | str,
 ) -> cpy.LineReturn:
-    """Return the specified contour lines converted to a different ``LineType``.
+    """Return the specified contour lines converted to a different :class:`~contourpy.LineType`.
 
     Args:
         lines (sequence of arrays): Contour lines to convert.
-        line_type_from (LineType or str): ``LineType`` to convert from.
-        line_type_to (LineType or str): ``LineType`` to convert to.
+        line_type_from (LineType or str): :class:`~contourpy.LineType` to convert from as enum or
+            string equivalent.
+        line_type_to (LineType or str): :class:`~contourpy.LineType` to convert to as enum or string
+            equivalent.
 
     Return:
         Converted contour lines.
 
     When converting non-chunked line types (``LineType.Separate`` or ``LineType.SeparateCode``) to
-    chunked ones (``LineType.ChunkCombinedCode`` or ``LineType.ChunkCombinedOffset``), all lines are
-    placed in the first chunk. When converting in the other direction, all chunk information is
-    discarded.
+    chunked ones (``LineType.ChunkCombinedCode``, ``LineType.ChunkCombinedOffset`` or
+    ``LineType.ChunkCombinedNan``), all lines are placed in the first chunk. When converting in the
+    other direction, all chunk information is discarded.
 
     .. versionadded:: 1.1.2
     """
