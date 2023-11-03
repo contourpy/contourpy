@@ -97,12 +97,6 @@ test-command = [
 # Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
 test-skip = "*-musllinux_* *_ppc64le *_s390x"
 
-[tool.cibuildwheel.windows]
-before-build = [
-    # Pre-install numpy as no Python 3.12 win32 wheels exist at time of writing.
-    "python -m pip install numpy --pre --prefer-binary numpy -Csetup-args=-Dallow-noblas=true"
-]
-
 
 [tool.codespell]
 ignore-words-list = "nd"
