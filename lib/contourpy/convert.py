@@ -275,7 +275,7 @@ def convert_filled(
     relationship between outer boundaries and contained holes (``FillType.ChunkCombinedCode`` or)
     ``FillType.ChunkCombinedOffset``) to one that is will raise a ``ValueError``.
 
-    .. versionadded:: 1.1.2
+    .. versionadded:: 1.2.0
     """
     fill_type_from = as_fill_type(fill_type_from)
     fill_type_to = as_fill_type(fill_type_to)
@@ -524,7 +524,7 @@ def convert_lines(
     ``LineType.ChunkCombinedNan``), all lines are placed in the first chunk. When converting in the
     other direction, all chunk information is discarded.
 
-    .. versionadded:: 1.1.2
+    .. versionadded:: 1.2.0
     """
     line_type_from = as_line_type(line_type_from)
     line_type_to = as_line_type(line_type_to)

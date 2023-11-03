@@ -3,6 +3,53 @@
 Changelog
 #########
 
+v1.2.0 (2023-11-03)
+-------------------
+
+ContourPy 1.2.0 is a significant release with a number of new features. There is a new format for
+contour lines called ``LineType.ChunkCombinedNan`` that is designed to work directly with Bokeh and
+HoloViews. There are also new functions for manipulating contour lines and filled contours
+(``convert_filled``, ``convert_lines``, ``dechunk_filled`` and ``dechunk_lines``).
+
+Calling ``ContourGenerator.filled()`` with two identical levels now raises a ``ValueError`` whereas
+previously it gave different results depending on algorithm ``name``.
+
+This release supports Python 3.9 to 3.12, and is the first release to ship musllinux aarch64 wheels.
+
+Enhancements:
+
+- Support strings as well as enums in renderer functions (:pr:`284`)
+- Add new functions ``dechunk_filled`` and ``dechunk_lines`` (:pr:`290`)
+- Add new functions ``convert_filled`` and ``convert_lines`` (:pr:`291`, :pr:`293`, :pr:`294`, :pr:`312`, :pr:`313`)
+- Add new ``LineType.ChunkCombinedNan`` (:pr:`296`, :pr:`301`, :pr:`308`)
+- Raise if call ``filled()`` with ``lower_level==upper_level`` (:pr:`317`)
+
+Code improvements:
+
+- Code quality improvements (:pr:`282`, :pr:`310`)
+- Improvements to array checking functions (:pr:`298`)
+- Better use of dtypes and casting when calling numpy functions (:pr:`300`, :pr:`306`, :pr:`308`, :pr:`314`)
+- Update type annotations for matplotlib 3.8 (:pr:`303`)
+- Extra validation when dechunking and converting contour lines and filled contours (:pr:`316`)
+
+Documentation improvements:
+
+- Use ``versionadded`` sphinx directive (:pr:`285`)
+- Remove threaded experimental warnings (:pr:`297`)
+- Extract benchmark ratios when generating benchmark plots (:pr:`302`)
+- Document new functions and conversion to Shapely geometries (:pr:`318`)
+
+Build, testing and CI improvements:
+
+- Add new CI run using NumPy nightly wheels (:pr:`280`)
+- Test contour levels that are ``+/-np.inf`` (:pr:`283`)
+- Improved PyPy CI (:pr:`287`, :pr:`307`)
+- Use better names for enums when reporting parameterised tests (:pr:`292`)
+- Improved mpl debug renderer tests (:pr:`295`)
+- Support musllinux aarch64 (:pr:`305`)
+- Run test suite in parallel (:pr:`311`)
+- Miscellaneous build and CI improvements (:pr:`279`, :pr:`281`, :pr:`288`, :pr:`315`, :pr:`319`)
+
 v1.1.1 (2023-09-16)
 -------------------
 
