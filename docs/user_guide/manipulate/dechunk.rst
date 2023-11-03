@@ -39,4 +39,4 @@ This returns a single chunk containing all 4 lines.
 
 These functions are useful if you want to support the option to generate contours using multiple
 chunks, such as to support the ``"threaded"`` algorithm, but your code to process the contours
-produced only supports a single chunk.
+only supports a single chunk.

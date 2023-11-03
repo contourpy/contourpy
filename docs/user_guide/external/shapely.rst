@@ -3,7 +3,7 @@ Shapely
 
 `Shapely`_ is a Python package for manipulating and analysing two-dimensional geometric shapes.
 Since version 2.0 it has included the function ``from_ragged_array`` which is ideally suited to
-create Shapely geometries from contour lines and filled contours created by ContourPy.
+create Shapely geometries from contours created by ContourPy.
 
 Contour lines to Shapely
 ------------------------
@@ -32,7 +32,7 @@ Shapely ``LineString`` geometries for this single chunk:
     <LINESTRING (2 2, 2.333 1, 3 0.714)>]
 
 where ``linestrings`` is a NumPy array of two Shapely LineStrings. To create a Shapely
-``MultiLineString`` instead you can either use ``shapely.unary_union`` on the LineStrings:
+MultiLineString instead you can either use ``shapely.unary_union`` on the LineStrings:
 
    >>> multilinestring = unary_union(linestrings)
    >>> multilinestring
@@ -45,13 +45,15 @@ or create them directly from the ContourPy ``lines`` using:
    >>> multilinestrings
    [<MULTILINESTRING ((2.444 0, 2 0.8, 1.962 1, 1 1.893, 0 1.25), (2 2, 2.333 1,...>]
 
-This returns an array of MultiLineStrings whereas ``shapely.unary_union`` returns a single one.
+The ``shapely.unary_union`` approach returns a single MultiLineString whereas this approach returns
+a NumPy array containing the single MultiLineString.
 
 .. note::
 
    If your contour lines have a different line type then you can convert them using
-   :func:`~contourpy.convert_lines`, and if you have more than one chunk you can combine them using
-   :func:`~contourpy.dechunk_lines`.
+   :func:`~contourpy.convert_lines`. If you have more than one chunk you can combine them using
+   :func:`~contourpy.dechunk_lines` or iterate over the chunks, convert one chunk at a time and
+   then combine the geometries.
 
 Filled contours to Shapely
 --------------------------
@@ -72,9 +74,9 @@ Here is the same example from the :ref:`fill_type` section of the User Guide:
     [array([0, 8, 13, 18], dtype=uint32)],
     [array([0, 2, 3], dtype=uint32)])
 
-This has a single chunk containing one array of points and two arrays of offsets, the first array is
-the boundary offsets and the second the polygon (outer boundary) offsets. To create Shapely
-``Polygon`` geometries for this single chunk:
+This has a single chunk containing one array of points and two arrays of offsets which are the
+boundary offsets and the polygon (outer boundary) offsets. To create Shapely ``Polygon`` geometries
+for this single chunk:
 
    >>> from shapely import GeometryType, from_ragged_array, unary_union
    >>> points, offsets, outer_offsets = filled[0][0], filled[1][0], filled[2][0]
@@ -83,7 +85,7 @@ the boundary offsets and the second the polygon (outer boundary) offsets. To cre
     <POLYGON ((2.2 2, 3 1.13, 3 1.565, 2.6 2, 2.2 2))>]
 
 where ``polygons`` is a NumPy array of two Shapely Polygons. To create a Shapely
-``MultiPolygon`` instead you can either use ``shapely.unary_union`` on the Polygons:
+MultiPolygon instead you can either use ``shapely.unary_union`` on the Polygons:
 
    >>> multipolygon = unary_union(polygons)
    >>> multipolygon
@@ -97,13 +99,15 @@ or create them directly from the ContourPy ``filled`` using:
    >>> multipolygons
    [<MULTIPOLYGON (((0 0, 1 0, 1.667 0, 1.769 1, 1 1.714, 0.167 1, 0 0.5, 0 0), ...>]
 
-This returns an array of MultiPolygons whereas ``shapely.unary_union`` returns a single one.
+The ``shapely.unary_union`` approach returns a single MultiPolygon whereas this approach returns
+a NumPy array containing the single MultiPolygon.
 
 .. note::
 
    If your filled contours have a different line type then you can convert them using
-   :func:`~contourpy.convert_filled`, and if you have more than one chunk you can combine them using
-   :func:`~contourpy.dechunk_filled`.
+   :func:`~contourpy.convert_filled`. If you have more than one chunk you can combine them using
+   :func:`~contourpy.dechunk_filled` or iterate over the chunks, convert one chunk at a time and
+   then combine the geometries.
 
 Example use of Shapely geometries
 ---------------------------------
@@ -129,8 +133,8 @@ and whether it contains particular points or not
 
 .. note::
 
-   You can use the ``polygons`` instead of the ``multipolygon`` but first you will need to convert
-   the array to a ``shapely.GeometryCollection`` first using:
+   You can use the ``polygons`` instead of the ``multipolygon`` here but first you will need to
+   convert the array to a ``shapely.GeometryCollection`` first using:
 
    >>> from shapely import GeometryCollection
    >>> polygons = GeometryCollection(list(polygons))
