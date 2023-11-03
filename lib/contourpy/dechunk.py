@@ -29,7 +29,7 @@ def dechunk_filled(filled: cpy.FillReturn, fill_type: FillType | str) -> cpy.Fil
     Return:
         Filled contours in a single chunk.
 
-    .. versionadded:: 1.1.2
+    .. versionadded:: 1.2.0
     """
     fill_type = as_fill_type(fill_type)
 
@@ -99,7 +99,7 @@ def dechunk_lines(lines: cpy.LineReturn, line_type: LineType | str) -> cpy.LineR
     Return:
         Contour lines in a single chunk.
 
-    .. versionadded:: 1.1.2
+    .. versionadded:: 1.2.0
     """
     line_type = as_line_type(line_type)
     if line_type in (LineType.Separate, LineType.SeparateCode):
