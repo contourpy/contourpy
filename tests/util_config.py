@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Sequence
 from enum import Enum
 import io
 from typing import TYPE_CHECKING, Any, Literal, cast
@@ -12,6 +11,8 @@ import numpy as np
 from contourpy import FillType, LineType, contour_generator
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
 
@@ -74,8 +75,8 @@ class Config:
         self.x, self.y = np.meshgrid([0.0, 1.0], [0.0, 1.0])
         self.mask = False
 
-        import matplotlib
-        matplotlib.use("Agg")
+        import matplotlib as mpl
+        mpl.use("Agg")
 
     def __del__(self) -> None:
         self.clear()

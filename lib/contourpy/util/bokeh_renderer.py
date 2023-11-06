@@ -11,7 +11,6 @@ from bokeh.palettes import Category10
 from bokeh.plotting import figure
 import numpy as np
 
-from contourpy import FillType, LineType
 from contourpy.enum_util import as_fill_type, as_line_type
 from contourpy.util.bokeh_util import filled_to_bokeh, lines_to_bokeh
 from contourpy.util.renderer import Renderer
@@ -22,6 +21,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from selenium.webdriver.remote.webdriver import WebDriver
 
+    from contourpy import FillType, LineType
     from contourpy._contourpy import FillReturn, LineReturn
 
 

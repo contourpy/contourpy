@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -8,6 +7,8 @@ import pytest
 from contourpy import FillType, LineType, ZInterp
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from _pytest.fixtures import SubRequest
 
 

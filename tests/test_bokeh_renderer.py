@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
 import logging
 import re
 from typing import TYPE_CHECKING
@@ -12,6 +11,8 @@ from contourpy import FillType, LineType, contour_generator
 from contourpy.util.data import random
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from _pytest._py.path import LocalPath
     from _pytest.logging import LogCaptureFixture
     from selenium.webdriver.remote.webdriver import WebDriver

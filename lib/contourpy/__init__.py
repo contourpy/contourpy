@@ -257,6 +257,4 @@ def contour_generator(
         kwargs["thread_count"] = thread_count
 
     # Create contour generator.
-    cont_gen = cls(*args, **kwargs)
-
-    return cont_gen
+    return cls(*args, **kwargs)
