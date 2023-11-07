@@ -69,7 +69,7 @@ class Config:
         self.marker_size = 3.5
         self.gap = 0.1
         self.text_gap = self.gap/2
-        self.grid_kwargs = dict(color="gray", linewidth=0.35)
+        self.grid_kwargs = {"color": "gray", "linewidth": 0.35}
         self.fill_alpha = 0.2
 
         self.x, self.y = np.meshgrid([0.0, 1.0], [0.0, 1.0])
@@ -380,7 +380,7 @@ class ConfigFilled(ConfigFilledCommon):
     def __init__(self, name: str, quad_as_tri: bool = False, show_text: bool = True) -> None:
         super().__init__(name, False, quad_as_tri, show_text)
 
-        subplot_kw = dict(aspect="equal")
+        subplot_kw = {"aspect": "equal"}
         if self.quad_as_tri:
             self.fig, axes = plt.subplots(18, 12, figsize=(10.4, 17.1), subplot_kw=subplot_kw)
         else:
@@ -546,7 +546,7 @@ class ConfigLines(ConfigLinesCommon):
     def __init__(self, name: str, quad_as_tri: bool = False, show_text: bool = True) -> None:
         super().__init__(name, False, quad_as_tri, show_text)
 
-        subplot_kw = dict(aspect="equal")
+        subplot_kw = {"aspect": "equal"}
         if self.quad_as_tri:
             self.fig, axes = plt.subplots(5, 6, figsize=(5.2, 4.75), subplot_kw=subplot_kw)
         else:

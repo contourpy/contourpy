@@ -161,12 +161,12 @@ line-length = 100
 select = [
     "B",
     "BLE",
+    "C4",
     "COM",
     "E",
     "F",
     "FA",
     "FLY",
-    "FURB",
     "G",
     "ICN",
     "INT",
