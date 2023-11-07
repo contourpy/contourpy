@@ -2,15 +2,17 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from asv.benchmark import Benchmark
 from asv.benchmarks import Benchmarks
 from asv.config import Config
 from asv.results import Results, iter_results_for_machine
 from asv.statistics import get_err
 
 from contourpy import FillType, LineType
+
+if TYPE_CHECKING:
+    from asv.benchmark import Benchmark
 
 
 class Loader:

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from docutils import nodes
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class Table:
