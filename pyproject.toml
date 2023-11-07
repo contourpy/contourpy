@@ -159,17 +159,30 @@ ignore = [
 ]
 line-length = 100
 select = [
+    "B",
+    "BLE",
     "COM",
     "E",
     "F",
     "FA",
+    "FLY",
+    "FURB",
+    "G",
+    "ICN",
+    "INT",
     "NPY",
+    "PERF",
+    "PGH",
     "PIE",
     "PLC",
     "PLE",
     "PLW",
+    "PYI",
     "Q",
+    "RSE",
     "RUF",
+    "TCH",
+    "TID",
     "UP",
     "W",
     "YTT",
@@ -179,4 +192,5 @@ target-version = "py39"
 [tool.ruff.per-file-ignores]
 "docs/sphinxext/name_supports.py" = ["E402"]
 "docs/sphinxext/name_supports_type.py" = ["E402"]
+"docs/sphinxext/plot_directive.py" = ["B009", "B010"]
 "lib/contourpy/_contourpy.pyi" = ["E501", "PLW0406"]
