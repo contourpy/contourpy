@@ -41,12 +41,12 @@ __all__ = [
 
 
 # Simple mapping of algorithm name to class name.
-_class_lookup: dict[str, type[ContourGenerator]] = dict(
-    mpl2005=Mpl2005ContourGenerator,
-    mpl2014=Mpl2014ContourGenerator,
-    serial=SerialContourGenerator,
-    threaded=ThreadedContourGenerator,
-)
+_class_lookup: dict[str, type[ContourGenerator]] = {
+    "mpl2005": Mpl2005ContourGenerator,
+    "mpl2014": Mpl2014ContourGenerator,
+    "serial": SerialContourGenerator,
+    "threaded": ThreadedContourGenerator,
+}
 
 
 def _remove_z_mask(

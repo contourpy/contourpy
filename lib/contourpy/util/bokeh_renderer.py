@@ -146,21 +146,21 @@ class BokehRenderer(Renderer):
         """
         fig = self._get_figure(ax)
         x, y = self._grid_as_2d(x, y)
-        xs = [row for row in x] + [row for row in x.T]
-        ys = [row for row in y] + [row for row in y.T]
-        kwargs = dict(line_color=color, alpha=alpha)
+        xs = list(x) + list(x.T)
+        ys = list(y) + list(y.T)
+        kwargs = {"line_color": color, "alpha": alpha}
         fig.multi_line(xs, ys, **kwargs)
         if quad_as_tri_alpha > 0:
             # Assumes no quad mask.
             xmid = (0.25*(x[:-1, :-1] + x[1:, :-1] + x[:-1, 1:] + x[1:, 1:])).ravel()
             ymid = (0.25*(y[:-1, :-1] + y[1:, :-1] + y[:-1, 1:] + y[1:, 1:])).ravel()
             fig.multi_line(
-                [row for row in np.stack((x[:-1, :-1].ravel(), xmid, x[1:, 1:].ravel()), axis=1)],
-                [row for row in np.stack((y[:-1, :-1].ravel(), ymid, y[1:, 1:].ravel()), axis=1)],
+                list(np.stack((x[:-1, :-1].ravel(), xmid, x[1:, 1:].ravel()), axis=1)),
+                list(np.stack((y[:-1, :-1].ravel(), ymid, y[1:, 1:].ravel()), axis=1)),
                 **kwargs)
             fig.multi_line(
-                [row for row in np.stack((x[:-1, 1:].ravel(), xmid, x[1:, :-1].ravel()), axis=1)],
-                [row for row in np.stack((y[:-1, 1:].ravel(), ymid, y[1:, :-1].ravel()), axis=1)],
+                list(np.stack((x[:-1, 1:].ravel(), xmid, x[1:, :-1].ravel()), axis=1)),
+                list(np.stack((y[:-1, 1:].ravel(), ymid, y[1:, :-1].ravel()), axis=1)),
                 **kwargs)
         if point_color is not None:
             fig.circle(
@@ -323,7 +323,7 @@ class BokehRenderer(Renderer):
         x, y = self._grid_as_2d(x, y)
         z = np.asarray(z)
         ny, nx = z.shape
-        kwargs = dict(text_color=color, text_align="center", text_baseline="middle")
+        kwargs = {"text_color": color, "text_align": "center", "text_baseline": "middle"}
         for j in range(ny):
             for i in range(nx):
                 fig.add_layout(Label(x=x[j, i], y=y[j, i], text=f"{z[j, i]:{fmt}}", **kwargs))
