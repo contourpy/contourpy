@@ -53,11 +53,12 @@ class MplRenderer(Renderer):
             import matplotlib as mpl
             mpl.use(backend)
 
-        kwargs: dict[str, Any] = dict(figsize=figsize, squeeze=False, sharex=True, sharey=True)
+        kwargs: dict[str, Any] = {"figsize": figsize, "squeeze": False,
+                                  "sharex": True, "sharey": True}
         if gridspec_kw is not None:
             kwargs["gridspec_kw"] = gridspec_kw
         else:
-            kwargs["subplot_kw"] = dict(aspect="equal")
+            kwargs["subplot_kw"] = {"aspect": "equal"}
 
         self._fig, axes = plt.subplots(nrows, ncols, **kwargs)
         self._axes = axes.flatten()
@@ -146,7 +147,7 @@ class MplRenderer(Renderer):
         """
         ax = self._get_ax(ax)
         x, y = self._grid_as_2d(x, y)
-        kwargs: dict[str, Any] = dict(color=color, alpha=alpha)
+        kwargs: dict[str, Any] = {"color": color, "alpha": alpha}
         ax.plot(x, y, x.T, y.T, **kwargs)
         if quad_as_tri_alpha > 0:
             # Assumes no quad mask.

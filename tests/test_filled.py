@@ -902,7 +902,7 @@ def test_filled_compare_slow(seed: int) -> None:
         code_list = filled_mpl2014[1]
         n_points = reduce(add, map(len, code_list))
         n_outers = len(code_list)
-        n_lines = reduce(add, map(lambda c: np.count_nonzero(c == 1), code_list))
+        n_lines = reduce(add, (np.count_nonzero(c == 1) for c in code_list))
 
         assert filled_serial[0][0] is not None
         assert n_points == len(filled_serial[0][0])

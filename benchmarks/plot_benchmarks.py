@@ -86,7 +86,7 @@ def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n
 
             i = 0
             for corner_mask in corner_masks:
-                kwargs = dict(name=name, dataset=dataset, corner_mask=corner_mask, n=n)
+                kwargs = {"name": name, "dataset": dataset, "corner_mask": corner_mask, "n": n}
 
                 results = loader.get(benchmarks_name, **kwargs)
                 if results["name"] != name:
@@ -201,7 +201,7 @@ def comparison_two_benchmarks(
     corner_mask = "no mask"
 
     filled_str = "filled" if filled else "lines"
-    kwargs: dict[str, Any] = dict(dataset=dataset, corner_mask=corner_mask, n=n)
+    kwargs: dict[str, Any] = {"dataset":dataset, "corner_mask": corner_mask, "n": n}
     if varying == "thread_count":
         kwargs["total_chunk_count"] = 40
 
@@ -237,7 +237,8 @@ def comparison_two_benchmarks(
     speedups_flat = speedups.ravel()
 
     def in_bar_label(ax: Axes, rect: Rectangle, value: str) -> None:
-        kwargs: dict[str, Any] = dict(fontsize="medium", ha="center", va="bottom", color="k")
+        kwargs: dict[str, Any] = {"fontsize": "medium", "ha": "center", "va": "bottom",
+                                  "color": "k"}
         if varying != "thread_count":
             kwargs["rotation"] = "vertical"
         ax.annotate(value, (rect.xy[0] + 0.5*rect.get_width(), rect.xy[1]), **kwargs)
