@@ -291,6 +291,12 @@ jobs:
             image: musllinux_1_1_x86_64
             venv: venv
             test: test
+          # musllinux aarch64.
+          - arch: aarch64
+            manylinux_version: musllinux
+            image: musllinux_1_1_aarch64
+            venv: venv
+            test: test-no-images
           # ppc64le and s390x: dependencies are conda packages.
           - arch: ppc64le
             manylinux_version: manylinux2014
@@ -364,8 +370,8 @@ jobs:
 
             if [[ $TEST == "test-no-images" ]]
             then
-              echo "==> Run non-image tests"
-              python -m pytest -v -n auto --color=yes tests/ -k "not image"
+              echo "==> Run non-image and non-big tests"
+              python -m pytest -v -n auto --color=yes tests/ -k "not (big or image)"
             else
               echo "==> Run tests except 'big' ones as on emulated hardware"
               python -m pytest -v -n auto --color=yes tests/ -k "not big"
