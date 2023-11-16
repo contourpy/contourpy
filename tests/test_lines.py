@@ -6,7 +6,7 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 import pytest
 
-from contourpy import LineType, contour_generator
+from contourpy import LineType, contour_generator, max_threads
 from contourpy.util.data import random, simple
 
 from . import util_test
@@ -707,7 +707,10 @@ def test_return_by_line_type(
 @pytest.mark.threads
 @pytest.mark.parametrize("line_type", LineType.__members__.values())
 @pytest.mark.parametrize("name, thread_count",
-                         [("serial", 1), ("threaded", 1), ("threaded", 2)])
+                         [("serial", 1), ("threaded", 1),
+                         pytest.param("threaded", 2,
+                            marks = pytest.mark.skipif(
+                            max_threads() <= 1, reason = "executing on unicore host"))])
 def test_return_by_line_type_chunk(
     xyz_chunk_test: tuple[cpy.CoordinateArray, ...],
     name: str,
