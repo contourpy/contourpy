@@ -117,7 +117,7 @@ jobs:
             name: "Win32"
             win32: true
             extra-install-args: "--only-binary Pillow"
-          # Test against numpy nightly wheels.
+          # Test against matplotlib and numpy nightly wheels.
           - os: ubuntu-latest
             python-version: "3.12"
             name: "Nightly wheels"
@@ -215,7 +215,7 @@ jobs:
       - name: Install nightly wheels
         if: matrix.nightly-wheels
         run: |
-          python -m pip install --pre --upgrade --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy
+          python -m pip install --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib numpy
 
       - name: Smoke test
         run: |
