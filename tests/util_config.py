@@ -254,7 +254,7 @@ class ConfigFilledCommon(Config):
             else:  # Corner.SE
                 [nw, ne, sw, se] = [None, a, b, c]
         if nw == 3 or ne == 3 or sw == 3 or se == 3:
-            raise ValueError("Invalid config")
+            raise ValueError(f"Invalid config {config}")
         return nw, ne, sw, se
 
     def _quad_lines(

@@ -34,7 +34,7 @@ class Loader:
             if latest_results is None or results.date > latest_results.date:
                 latest_results = results
         if latest_results is None:
-            raise RuntimeError("No results found for machine {machine}")
+            raise RuntimeError(f"No results found for machine {machine}")
         print(latest_results.commit_hash, datetime.fromtimestamp(latest_results.date/1000.0))
 
         self._results = latest_results

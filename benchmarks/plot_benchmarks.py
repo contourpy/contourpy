@@ -90,7 +90,7 @@ def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n
 
                 results = loader.get(benchmarks_name, **kwargs)
                 if results["name"] != name:
-                    raise RuntimeError("Loader returning wrong name: {name} != {results['name']}")
+                    raise RuntimeError(f"Loader returning wrong name: {name} != {results['name']}")
 
                 if results["mean"] is None:
                     continue
