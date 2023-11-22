@@ -13,6 +13,7 @@
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
 namespace py = pybind11;
+using namespace pybind11::literals;
 
 static contourpy::LineType mpl20xx_line_type = contourpy::LineType::SeparateCode;
 static contourpy::FillType mpl20xx_fill_type = contourpy::FillType::OuterCode;
@@ -129,16 +130,16 @@ PYBIND11_MODULE(_contourpy, m) {
         "implement.")
         .def("create_contour",
             [](py::object /* self */, double level) {return py::make_tuple();},
-            py::arg("level"), create_contour_doc)
+            "level"_a, create_contour_doc)
         .def("create_filled_contour",
             [](py::object /* self */, double lower_level, double upper_level) {return py::make_tuple();},
-            py::arg("lower_level"), py::arg("upper_level"), create_filled_contour_doc)
+            "lower_level"_a, "upper_level"_a, create_filled_contour_doc)
         .def("filled",
             [](py::object /* self */, double lower_level, double upper_level) {return py::make_tuple();},
-            py::arg("lower_level"), py::arg("upper_level"), filled_doc)
+            "lower_level"_a, "upper_level"_a, filled_doc)
         .def("lines",
             [](py::object /* self */, double level) {return py::make_tuple();},
-            py::arg("level"), lines_doc)
+            "level"_a, lines_doc)
         .def_property_readonly(
             "chunk_count", [](py::object /* self */) {return py::make_tuple(1, 1);},
             chunk_count_doc)
@@ -169,10 +170,10 @@ PYBIND11_MODULE(_contourpy, m) {
         .def_static("supports_corner_mask", []() {return false;}, supports_corner_mask_doc)
         .def_static(
             "supports_fill_type", [](contourpy::FillType /* fill_type */) {return false;},
-            py::arg("fill_type"), supports_fill_type_doc)
+            "fill_type"_a, supports_fill_type_doc)
         .def_static(
             "supports_line_type", [](contourpy::LineType /* line_type */) {return false;},
-            py::arg("line_type"), supports_line_type_doc)
+            "line_type"_a, supports_line_type_doc)
         .def_static("supports_quad_as_tri", []() {return false;}, supports_quad_as_tri_doc)
         .def_static("supports_threads", []() {return false;}, supports_threads_doc)
         .def_static("supports_z_interp", []() {return false;}, supports_z_interp_doc);
@@ -193,13 +194,8 @@ PYBIND11_MODULE(_contourpy, m) {
                       const contourpy::MaskArray&,
                       contourpy::index_t,
                       contourpy::index_t>(),
-             py::arg("x"),
-             py::arg("y"),
-             py::arg("z"),
-             py::arg("mask"),
-             py::kw_only(),
-             py::arg("x_chunk_size") = 0,
-             py::arg("y_chunk_size") = 0)
+             "x"_a, "y"_a, "z"_a, "mask"_a, py::kw_only(), "x_chunk_size"_a = 0,
+             "y_chunk_size"_a = 0)
         .def("create_contour", &contourpy::Mpl2005ContourGenerator::lines, create_contour_doc)
         .def("create_filled_contour", &contourpy::Mpl2005ContourGenerator::filled,
             create_filled_contour_doc)
@@ -247,14 +243,8 @@ PYBIND11_MODULE(_contourpy, m) {
                       bool,
                       contourpy::index_t,
                       contourpy::index_t>(),
-             py::arg("x"),
-             py::arg("y"),
-             py::arg("z"),
-             py::arg("mask"),
-             py::kw_only(),
-             py::arg("corner_mask"),
-             py::arg("x_chunk_size") = 0,
-             py::arg("y_chunk_size") = 0)
+             "x"_a, "y"_a, "z"_a, "mask"_a, py::kw_only(), "corner_mask"_a, "x_chunk_size"_a = 0,
+             "y_chunk_size"_a = 0)
         .def("create_contour", &contourpy::mpl2014::Mpl2014ContourGenerator::lines,
             create_contour_doc)
         .def("create_filled_contour", &contourpy::mpl2014::Mpl2014ContourGenerator::filled,
@@ -307,18 +297,9 @@ PYBIND11_MODULE(_contourpy, m) {
                       contourpy::ZInterp,
                       contourpy::index_t,
                       contourpy::index_t>(),
-             py::arg("x"),
-             py::arg("y"),
-             py::arg("z"),
-             py::arg("mask"),
-             py::kw_only(),
-             py::arg("corner_mask"),
-             py::arg("line_type"),
-             py::arg("fill_type"),
-             py::arg("quad_as_tri"),
-             py::arg("z_interp"),
-             py::arg("x_chunk_size") = 0,
-             py::arg("y_chunk_size") = 0)
+             "x"_a, "y"_a, "z"_a, "mask"_a, py::kw_only(), "corner_mask"_a, "line_type"_a,
+             "fill_type"_a, "quad_as_tri"_a, "z_interp"_a, "x_chunk_size"_a = 0,
+             "y_chunk_size"_a = 0)
         .def("_write_cache", &contourpy::SerialContourGenerator::write_cache)
         .def("create_contour", &contourpy::SerialContourGenerator::lines, create_contour_doc)
         .def("create_filled_contour", &contourpy::SerialContourGenerator::filled,
@@ -374,19 +355,9 @@ PYBIND11_MODULE(_contourpy, m) {
                       contourpy::index_t,
                       contourpy::index_t,
                       contourpy::index_t>(),
-             py::arg("x"),
-             py::arg("y"),
-             py::arg("z"),
-             py::arg("mask"),
-             py::kw_only(),
-             py::arg("corner_mask"),
-             py::arg("line_type"),
-             py::arg("fill_type"),
-             py::arg("quad_as_tri"),
-             py::arg("z_interp"),
-             py::arg("x_chunk_size") = 0,
-             py::arg("y_chunk_size") = 0,
-             py::arg("thread_count") = 0)
+             "x"_a, "y"_a, "z"_a, "mask"_a, py::kw_only(), "corner_mask"_a, "line_type"_a,
+             "fill_type"_a, "quad_as_tri"_a, "z_interp"_a, "x_chunk_size"_a = 0,
+             "y_chunk_size"_a = 0, "thread_count"_a = 0)
         .def("_write_cache", &contourpy::ThreadedContourGenerator::write_cache)
         .def("create_contour", &contourpy::ThreadedContourGenerator::lines, create_contour_doc)
         .def("create_filled_contour", &contourpy::ThreadedContourGenerator::filled,
