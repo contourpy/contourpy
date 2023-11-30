@@ -4,7 +4,12 @@ from contourpy import FillType, contour_generator
 
 from .bench_base import BenchBase
 from .util_bench import (
-    corner_mask_to_bool, corner_masks, datasets, fill_types, problem_sizes, thread_counts,
+    corner_mask_to_bool,
+    corner_masks,
+    datasets,
+    fill_types,
+    problem_sizes,
+    thread_counts,
 )
 
 
