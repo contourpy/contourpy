@@ -6,7 +6,12 @@ import numpy as np
 import pytest
 
 from contourpy import (
-    FillType, LineType, contour_generator, convert_filled, convert_lines, dechunk_filled,
+    FillType,
+    LineType,
+    contour_generator,
+    convert_filled,
+    convert_lines,
+    dechunk_filled,
     dechunk_lines,
 )
 

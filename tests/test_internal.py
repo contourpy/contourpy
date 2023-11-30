@@ -10,8 +10,14 @@ from typing import TYPE_CHECKING
 import pytest
 
 from contourpy._contourpy import (
-    ContourGenerator, FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
-    SerialContourGenerator, ThreadedContourGenerator, ZInterp,
+    ContourGenerator,
+    FillType,
+    LineType,
+    Mpl2005ContourGenerator,
+    Mpl2014ContourGenerator,
+    SerialContourGenerator,
+    ThreadedContourGenerator,
+    ZInterp,
 )
 
 if TYPE_CHECKING:
