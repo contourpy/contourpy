@@ -5,7 +5,11 @@ import pytest
 
 from contourpy import FillType, LineType
 from contourpy.typecheck import (
-    check_code_array, check_filled, check_lines, check_offset_array, check_point_array,
+    check_code_array,
+    check_filled,
+    check_lines,
+    check_offset_array,
+    check_point_array,
 )
 from contourpy.types import code_dtype, offset_dtype, point_dtype
 

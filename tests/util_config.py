@@ -17,7 +17,10 @@ if TYPE_CHECKING:
     from matplotlib.figure import Figure
 
     from contourpy._contourpy import (
-        CoordinateArray, FillReturn_OuterCode, LineReturn_SeparateCode, MaskArray,
+        CoordinateArray,
+        FillReturn_OuterCode,
+        LineReturn_SeparateCode,
+        MaskArray,
     )
 
 

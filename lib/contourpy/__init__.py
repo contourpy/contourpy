@@ -5,8 +5,15 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from contourpy._contourpy import (
-    ContourGenerator, FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
-    SerialContourGenerator, ThreadedContourGenerator, ZInterp, max_threads,
+    ContourGenerator,
+    FillType,
+    LineType,
+    Mpl2005ContourGenerator,
+    Mpl2014ContourGenerator,
+    SerialContourGenerator,
+    ThreadedContourGenerator,
+    ZInterp,
+    max_threads,
 )
 from contourpy._version import __version__
 from contourpy.chunk import calc_chunk_sizes
