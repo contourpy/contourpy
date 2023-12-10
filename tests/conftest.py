@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -12,6 +13,23 @@ if TYPE_CHECKING:
     from _pytest.fixtures import SubRequest
 
 
+image_diffs_log: list[str] = []
+
+
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    if session.config.getoption("--log-image-diffs"):
+        result_directory = "result_images"
+        if not os.path.exists(result_directory):
+            os.makedirs(result_directory)
+
+        log_filename = os.path.join(result_directory, "image_diffs.log")
+        print(f"\nWriting to {log_filename}")
+
+        with open(log_filename, "w") as f:
+            for line in image_diffs_log:
+                f.write(f"{line}\n")
+
+
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--runslow", action="store_true", default=False, help="run slow tests",
@@ -21,6 +39,10 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     )
     parser.addoption(
         "--driver-path", type=str, action="store", default="", help="path to chrome driver",
+    )
+    parser.addoption(
+        "--log-image-diffs", action="store_true", default=False,
+        help="log image differences to result_images/image_diffs.log",
     )
 
 
