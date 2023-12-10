@@ -328,7 +328,7 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
           image: quay.io/pypa/${{ matrix.image }}:latest
-          options: -v ${{ github.workspace }}:/work -e ARCH=${{ matrix.arch }} -e VENV=${{ matrix.venv}} -e TEST=${{ matrix.test }}
+          options: -v ${{ github.workspace }}:/work -e ARCH=${{ matrix.arch }} -e VENV=${{ matrix.venv}} -e TEST=${{ matrix.test }} -e PYTEST=${PYTEST}
           shell: bash
           run: |
             echo "-------------------- start --------------------"
