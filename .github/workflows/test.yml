@@ -389,7 +389,7 @@ jobs:
           then
             DIR="test-artifacts/docker_${{ matrix.arch }}_${{ matrix.manylinux_version }}"
             mkdir -p ${DIR}
-            mv result_images/* ${DIR}/
+            sudo mv result_images/* ${DIR}/
           fi
 
       - name: Upload test artifacts
