@@ -15,6 +15,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  PYTEST: python -m pytest -v -n auto --color=yes --log-image-diffs
+
 jobs:
   pre-commit:
     name: pre-commit
@@ -67,7 +70,7 @@ jobs:
 
       - name: Run tests
         run: |
-          python -m pytest -v -n auto --color=yes tests/test_codebase.py
+          ${PYTEST} tests/test_codebase.py
 
   test:
     name: "${{ matrix.name }} ${{ matrix.python-version }} ${{ matrix.os }}"
@@ -228,22 +231,22 @@ jobs:
           if [[ "${{ matrix.debug }}" != "" ]]
           then
             echo "Run normal tests with coverage"
-            python -m pytest -v -n auto --color=yes tests/ --cov=lib --cov-report=lcov
+            ${PYTEST} tests/ --cov=lib --cov-report=lcov
           elif [[ "${{ matrix.test-text }}" != "" ]]
           then
             echo "Run normal and text tests with coverage"
-            python -m pytest -v -n auto --color=yes -rP tests/test_bokeh_renderer.py tests/test_renderer.py --runtext --driver-path=/snap/bin/chromium.chromedriver --cov=lib --cov-report=lcov
+            ${PYTEST} -rP tests/test_bokeh_renderer.py tests/test_renderer.py --runtext --driver-path=/snap/bin/chromium.chromedriver --cov=lib --cov-report=lcov
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Run only tests that do not generate images"
-            python -m pytest -v -n auto --color=yes tests/ -k "not image"
+            ${PYTEST} tests/ -k "not image"
           elif [[ "${{ matrix.test-no-big }}" != "" ]]
           then
             echo "Run all tests except big ones"
-            python -m pytest -v -n auto --color=yes tests/ -k "not big"
+            ${PYTEST} tests/ -k "not big"
           else
             echo "Run all tests"
-            python -m pytest -v -n auto --color=yes tests/
+            ${PYTEST} tests/
           fi
 
       - name: Collect C++ coverage
@@ -264,9 +267,9 @@ jobs:
         run: |
           if [[ -e result_images ]]
           then
-            DIR="test-artifacts/${{ matrix.os }}_${{ matrix.python-version }}_${{ github.run_id }}"
-            mkdir -p ${DIR}
-            mv result_images/* ${DIR}/
+            DIR="test-artifacts/${{ matrix.os }}_${{ matrix.python-version }}_${{ matrix.name }}"
+            mkdir -p "${DIR}"
+            mv result_images/* "${DIR}/"
           fi
 
       - name: Upload test artifacts
@@ -368,13 +371,14 @@ jobs:
             python -m pip list
             python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
 
+            PYTEST="python -m pytest -v -n auto --color=yes --log-image-diffs"
             if [[ $TEST == "test-no-images" ]]
             then
               echo "==> Run non-image and non-big tests"
-              python -m pytest -v -n auto --color=yes tests/ -k "not (big or image)"
+              ${PYTEST} tests/ -k "not (big or image)"
             else
               echo "==> Run tests except 'big' ones as on emulated hardware"
-              python -m pytest -v -n auto --color=yes tests/ -k "not big"
+              ${PYTEST} tests/ -k "not big"
             fi
             echo "-------------------- end --------------------"
 
@@ -385,7 +389,7 @@ jobs:
           then
             DIR="test-artifacts/docker_${{ matrix.arch }}_${{ matrix.manylinux_version }}"
             mkdir -p ${DIR}
-            mv result_images/* ${DIR}/
+            sudo mv result_images/* ${DIR}/
           fi
 
       - name: Upload test artifacts

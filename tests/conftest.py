@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import glob
+import os
+import shutil
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -12,6 +15,41 @@ if TYPE_CHECKING:
     from _pytest.fixtures import SubRequest
 
 
+image_diffs_log: list[str] = []
+
+
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    if not session.config.getoption("--log-image-diffs"):
+        return
+
+    result_directory = "result_images"
+    if not os.path.exists(result_directory):
+        os.makedirs(result_directory)
+
+    # Support running in series and parallel via pytest-xdist.
+    worker = os.environ.get("PYTEST_XDIST_WORKER", "")
+    if worker:
+        log_filename = f"image_diffs_{worker}.log"
+    else:
+        log_filename = "image_diffs.log"
+        print(f"\nWriting to {log_filename}")
+    log_filename = os.path.join(result_directory, log_filename)
+
+    with open(log_filename, "w") as f:
+        for line in image_diffs_log:
+            f.write(f"{line}\n")
+
+    if not worker:
+        worker_files = glob.glob(os.path.join(result_directory, "image_diffs_*.log"))
+        if worker_files:
+            # If running in parallel, combine output log files.
+            with open(log_filename, "w") as f:
+                for worker_file in worker_files:
+                    with open(worker_file) as src:
+                        shutil.copyfileobj(src, f)
+                    os.remove(worker_file)
+
+
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--runslow", action="store_true", default=False, help="run slow tests",
@@ -21,6 +59,10 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     )
     parser.addoption(
         "--driver-path", type=str, action="store", default="", help="path to chrome driver",
+    )
+    parser.addoption(
+        "--log-image-diffs", action="store_true", default=False,
+        help="log image differences to result_images/image_diffs.log",
     )
 
 

@@ -19,6 +19,8 @@ def compare_images(
 ) -> None:
     from PIL import Image
 
+    from .conftest import image_diffs_log
+
     if max_threshold is None:
         max_threshold = 100
     if mean_threshold is None:
@@ -50,6 +52,9 @@ def compare_images(
             diff[diff == 1] = 0
         max_diff = diff.max()
         mean_diff = diff.mean()
+
+        log = f"{max_diff},{max_threshold},{mean_diff:g},{mean_threshold},{test_filename}"
+        image_diffs_log.append(log)
 
         assert max_diff < max_threshold and mean_diff < mean_threshold
     except AssertionError:
