@@ -54,10 +54,24 @@ linux_aarch64_test_task:
   run_tests_script: |
     if [[ "$TEST_NO_IMAGES" ]];
     then
-      python -m pytest -v tests/ -n 2 -k "not image";
+      python -m pytest -v tests/ --log-image-diffs -k "not image";
+      #python -m pytest -v tests/ -n 2 --log-image-diffs -k "not image";
     else
-      python -m pytest -v tests/ -n 2;
+      python -m pytest -v tests/ --log-image-diffs;
+      #python -m pytest -v tests/ -n 2 --log-image-diffs;
     fi
+
+  always:
+    collect_test_image_failures_script: |
+      if [[ -e result_images ]]
+      then
+        DIR="test-artifacts/cirrus_linux_aarch64_${IMAGE_SUFFIX}_${PYTHON_VERSION}";
+        mkdir -p "${DIR}";
+        mv result_images/* "${DIR}/";
+      fi
+
+    upload_test_artifacts:
+      path: test-artifacts/**
 
 
 macos_arm64_test_task:
@@ -66,7 +80,7 @@ macos_arm64_test_task:
 
   macos_instance:
     # https://github.com/cirruslabs/macos-image-templates
-    image: ghcr.io/cirruslabs/macos-monterey-xcode:14
+    image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
 
   matrix:
     - env:
@@ -90,4 +104,16 @@ macos_arm64_test_task:
     python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
 
   run_tests_script: |
-    python -m pytest -v tests/ -n 4
+    python -m pytest -v tests/ -n 4 --log-image-diffs
+
+  always:
+    collect_test_image_failures_script: |
+      if [[ -e result_images ]]
+      then
+        DIR="test-artifacts/cirrus_macos_arm64_${PYTHON_VERSION}";
+        mkdir -p "${DIR}";
+        mv result_images/* "${DIR}/";
+      fi
+
+    upload_test_artifacts:
+      path: test-artifacts/**
