@@ -41,6 +41,21 @@ def test_filled_decreasing_levels(name: str) -> None:
 
 
 @pytest.mark.parametrize("name", util_test.all_names())
+def test_filled_nan_levels(name: str) -> None:
+    cont_gen = contour_generator(z=[[0, 1], [2, 3]], name=name, fill_type=FillType.OuterCode)
+
+    msg = r"lower_level and upper_level cannot be NaN"
+    with pytest.raises(ValueError, match=msg):
+        cont_gen.filled(0, np.nan)
+
+    with pytest.raises(ValueError, match=msg):
+        cont_gen.filled(np.nan, 0)
+
+    with pytest.raises(ValueError, match=msg):
+        cont_gen.filled(np.nan, np.nan)
+
+
+@pytest.mark.parametrize("name", util_test.all_names())
 def test_filled_identical_levels(name: str) -> None:
     cont_gen = contour_generator(z=[[0, 1], [2, 3]], name=name, fill_type=FillType.OuterCode)
     with pytest.raises(ValueError, match="upper_level must be larger than lower_level"):
@@ -919,8 +934,8 @@ def test_filled_compare_slow(seed: int) -> None:
 
 @pytest.mark.parametrize("name", util_test.all_names())
 @pytest.mark.parametrize("z", [np.nan, -np.nan, np.inf, -np.inf])
-@pytest.mark.parametrize("lower_level", [0.0, np.nan, -np.nan, np.inf, -np.inf])
-@pytest.mark.parametrize("upper_level", [0.0, np.nan, -np.nan, np.inf, -np.inf])
+@pytest.mark.parametrize("lower_level", [0.0, np.inf, -np.inf])
+@pytest.mark.parametrize("upper_level", [0.0, np.inf, -np.inf])
 def test_filled_z_nonfinite(name: str, z: float, lower_level: float, upper_level: float) -> None:
     cont_gen = contour_generator(z=[[z, z], [z, z]], name=name, fill_type=FillType.OuterCode)
     if lower_level >= upper_level:
