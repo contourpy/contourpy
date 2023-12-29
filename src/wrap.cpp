@@ -91,12 +91,13 @@ PYBIND11_MODULE(_contourpy, m) {
     const char* filled_doc =
         "Calculate and return filled contours between two levels.\n\n"
         "Args:\n"
-        "    lower_level (float): Lower z-level of the filled contours.\n"
-        "    upper_level (float): Upper z-level of the filled contours.\n"
+        "    lower_level (float): Lower z-level of the filled contours, cannot be ``np.nan``.\n"
+        "    upper_level (float): Upper z-level of the filled contours, cannot be ``np.nan``.\n"
         "Return:\n"
         "    Filled contour polygons as nested sequences of numpy arrays. The exact format is "
         "determined by the ``fill_type`` used by the ``ContourGenerator``.\n\n"
-        "Raises a ``ValueError`` if ``lower_level >= upper_level``.\n\n"
+        "Raises a ``ValueError`` if ``lower_level >= upper_level`` or if\n"
+        "``lower_level`` or ``upper_level`` are ``np.nan``.\n\n"
         "To return filled contours below a ``level`` use ``filled(-np.inf, level)``.\n"
         "To return filled contours above a ``level`` use ``filled(level, np.inf)``";
     const char* line_type_doc = "Return the ``LineType``.";
@@ -107,7 +108,9 @@ PYBIND11_MODULE(_contourpy, m) {
         "Return:\n"
         "    Contour lines (open line strips and closed line loops) as nested sequences of "
         "numpy arrays. The exact format is determined by the ``line_type`` used by the "
-        "``ContourGenerator``.";
+        "``ContourGenerator``.\n\n"
+        "``level`` may be ``np.nan``, ``np.inf`` or ``-np.inf``; they all return the same result "
+        "which is an empty line set.";
     const char* quad_as_tri_doc = "Return whether ``quad_as_tri`` is set or not.";
     const char* supports_corner_mask_doc =
         "Return whether this algorithm supports ``corner_mask``.";
