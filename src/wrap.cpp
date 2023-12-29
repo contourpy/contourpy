@@ -94,7 +94,7 @@ PYBIND11_MODULE(_contourpy, m) {
         "    lower_level (float): Lower z-level of the filled contours.\n"
         "    upper_level (float): Upper z-level of the filled contours.\n"
         "Return:\n"
-        "    Filled contour polygons as one or more sequences of numpy arrays. The exact format is "
+        "    Filled contour polygons as nested sequences of numpy arrays. The exact format is "
         "determined by the ``fill_type`` used by the ``ContourGenerator``.\n\n"
         "Raises a ``ValueError`` if ``lower_level >= upper_level``.\n\n"
         "To return filled contours below a ``level`` use ``filled(-np.inf, level)``.\n"
@@ -105,7 +105,7 @@ PYBIND11_MODULE(_contourpy, m) {
         "Args:\n"
         "    level (float): z-level to calculate contours at.\n\n"
         "Return:\n"
-        "    Contour lines (open line strips and closed line loops) as one or more sequences of "
+        "    Contour lines (open line strips and closed line loops) as nested sequences of "
         "numpy arrays. The exact format is determined by the ``line_type`` used by the "
         "``ContourGenerator``.";
     const char* quad_as_tri_doc = "Return whether ``quad_as_tri`` is set or not.";
@@ -128,18 +128,12 @@ PYBIND11_MODULE(_contourpy, m) {
     py::class_<contourpy::ContourGenerator>(m, "ContourGenerator",
         "Abstract base class for contour generator classes, defining the interface that they all "
         "implement.")
-        .def("create_contour",
-            [](py::object /* self */, double level) {return py::make_tuple();},
-            "level"_a, create_contour_doc)
-        .def("create_filled_contour",
-            [](py::object /* self */, double lower_level, double upper_level) {return py::make_tuple();},
-            "lower_level"_a, "upper_level"_a, create_filled_contour_doc)
-        .def("filled",
-            [](py::object /* self */, double lower_level, double upper_level) {return py::make_tuple();},
-            "lower_level"_a, "upper_level"_a, filled_doc)
-        .def("lines",
-            [](py::object /* self */, double level) {return py::make_tuple();},
-            "level"_a, lines_doc)
+        .def("create_contour", &contourpy::ContourGenerator::lines, create_contour_doc, "level"_a)
+        .def("create_filled_contour", &contourpy::ContourGenerator::filled,
+             create_filled_contour_doc, "lower_level"_a, "upper_level"_a)
+        .def("filled", &contourpy::ContourGenerator::filled, filled_doc,
+             "lower_level"_a, "upper_level"_a)
+        .def("lines", &contourpy::ContourGenerator::lines, lines_doc, "level"_a)
         .def_property_readonly(
             "chunk_count", [](py::object /* self */) {return py::make_tuple(1, 1);},
             chunk_count_doc)
@@ -196,11 +190,6 @@ PYBIND11_MODULE(_contourpy, m) {
                       contourpy::index_t>(),
              "x"_a, "y"_a, "z"_a, "mask"_a, py::kw_only(), "x_chunk_size"_a = 0,
              "y_chunk_size"_a = 0)
-        .def("create_contour", &contourpy::Mpl2005ContourGenerator::lines, create_contour_doc)
-        .def("create_filled_contour", &contourpy::Mpl2005ContourGenerator::filled,
-            create_filled_contour_doc)
-        .def("filled", &contourpy::Mpl2005ContourGenerator::filled, filled_doc)
-        .def("lines", &contourpy::Mpl2005ContourGenerator::lines, lines_doc)
         .def_property_readonly(
             "chunk_count", &contourpy::Mpl2005ContourGenerator::get_chunk_count, chunk_count_doc)
         .def_property_readonly(
@@ -245,12 +234,6 @@ PYBIND11_MODULE(_contourpy, m) {
                       contourpy::index_t>(),
              "x"_a, "y"_a, "z"_a, "mask"_a, py::kw_only(), "corner_mask"_a, "x_chunk_size"_a = 0,
              "y_chunk_size"_a = 0)
-        .def("create_contour", &contourpy::mpl2014::Mpl2014ContourGenerator::lines,
-            create_contour_doc)
-        .def("create_filled_contour", &contourpy::mpl2014::Mpl2014ContourGenerator::filled,
-            create_filled_contour_doc)
-        .def("filled", &contourpy::mpl2014::Mpl2014ContourGenerator::filled, filled_doc)
-        .def("lines", &contourpy::mpl2014::Mpl2014ContourGenerator::lines, lines_doc)
         .def_property_readonly(
             "chunk_count", &contourpy::mpl2014::Mpl2014ContourGenerator::get_chunk_count,
             chunk_count_doc)
@@ -301,11 +284,6 @@ PYBIND11_MODULE(_contourpy, m) {
              "fill_type"_a, "quad_as_tri"_a, "z_interp"_a, "x_chunk_size"_a = 0,
              "y_chunk_size"_a = 0)
         .def("_write_cache", &contourpy::SerialContourGenerator::write_cache)
-        .def("create_contour", &contourpy::SerialContourGenerator::lines, create_contour_doc)
-        .def("create_filled_contour", &contourpy::SerialContourGenerator::filled,
-            create_filled_contour_doc)
-        .def("filled", &contourpy::SerialContourGenerator::filled, filled_doc)
-        .def("lines", &contourpy::SerialContourGenerator::lines, lines_doc)
         .def_property_readonly(
             "chunk_count", &contourpy::SerialContourGenerator::get_chunk_count, chunk_count_doc)
         .def_property_readonly(
@@ -359,11 +337,6 @@ PYBIND11_MODULE(_contourpy, m) {
              "fill_type"_a, "quad_as_tri"_a, "z_interp"_a, "x_chunk_size"_a = 0,
              "y_chunk_size"_a = 0, "thread_count"_a = 0)
         .def("_write_cache", &contourpy::ThreadedContourGenerator::write_cache)
-        .def("create_contour", &contourpy::ThreadedContourGenerator::lines, create_contour_doc)
-        .def("create_filled_contour", &contourpy::ThreadedContourGenerator::filled,
-            create_filled_contour_doc)
-        .def("filled", &contourpy::ThreadedContourGenerator::filled, filled_doc)
-        .def("lines", &contourpy::ThreadedContourGenerator::lines, lines_doc)
         .def_property_readonly(
             "chunk_count", &contourpy::ThreadedContourGenerator::get_chunk_count, chunk_count_doc)
         .def_property_readonly(

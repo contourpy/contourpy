@@ -24,10 +24,12 @@ template <typename Derived>
 class BaseContourGenerator : public ContourGenerator
 {
 public:
-    ~BaseContourGenerator();
+    virtual ~BaseContourGenerator();
 
     static FillType default_fill_type();
     static LineType default_line_type();
+
+    py::tuple filled(double lower_level, double upper_level) override;
 
     py::tuple get_chunk_count() const;  // Return (y_chunk_count, x_chunk_count)
     py::tuple get_chunk_size() const;   // Return (y_chunk_size, x_chunk_size)
@@ -41,8 +43,7 @@ public:
 
     ZInterp get_z_interp() const;
 
-    py::sequence filled(double lower_level, double upper_level);
-    py::sequence lines(double level);
+    py::sequence lines(double level) override;
 
     static bool supports_fill_type(FillType fill_type);
     static bool supports_line_type(LineType line_type);

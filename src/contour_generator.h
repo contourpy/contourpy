@@ -14,6 +14,12 @@ public:
     ContourGenerator& operator=(const ContourGenerator& other) = delete;
     ContourGenerator& operator=(const ContourGenerator&& other) = delete;
 
+    virtual ~ContourGenerator() = default;
+
+    virtual py::tuple filled(double lower_level, double upper_level) = 0;
+
+    virtual py::sequence lines(double level) = 0;
+
 protected:
     ContourGenerator() = default;
 };

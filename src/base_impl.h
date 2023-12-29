@@ -351,7 +351,7 @@ LineType BaseContourGenerator<Derived>::default_line_type()
 }
 
 template <typename Derived>
-py::sequence BaseContourGenerator<Derived>::filled(double lower_level, double upper_level)
+py::tuple BaseContourGenerator<Derived>::filled(double lower_level, double upper_level)
 {
     if (lower_level >= upper_level)
         throw std::invalid_argument("upper_level must be larger than lower_level");
