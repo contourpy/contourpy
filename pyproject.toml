@@ -51,7 +51,7 @@ mypy = [
     # Requirements to run mypy to check type annotations.
     "contourpy[bokeh,docs]",
     "docutils-stubs",
-    "mypy == 1.6.1",
+    "mypy == 1.8.0",
     "types-Pillow",
 ]
 test = [
