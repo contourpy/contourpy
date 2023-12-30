@@ -81,8 +81,7 @@ def test_filled_simple(name: str, fill_type: FillType, multi: bool) -> None:
     renderer = MplTestRenderer()
     if multi:
         multi_filled = cont_gen.multi_filled(levels)
-        for i in range(len(levels)-1):
-            renderer.filled(multi_filled[i], fill_type, color=f"C{i}")
+        renderer.multi_filled(multi_filled, fill_type)
     else:
         for i in range(len(levels)-1):
             renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
@@ -357,8 +356,7 @@ def test_filled_random(name: str, fill_type: FillType, multi: bool) -> None:
     renderer = MplTestRenderer()
     if multi:
         multi_filled = cont_gen.multi_filled(levels)
-        for i in range(len(levels)-1):
-            renderer.filled(multi_filled[i], fill_type, color=f"C{i}")
+        renderer.multi_filled(multi_filled, fill_type)
     else:
         for i in range(len(levels)-1):
             renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
