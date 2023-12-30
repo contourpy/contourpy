@@ -1021,7 +1021,7 @@ def test_multi_filled_invalid_levels(name: str, fill_type: FillType) -> None:
 
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
 @pytest.mark.parametrize("corner_mask", [None, False, True])
-def test_multi_filled_levels_type(name: str, fill_type: FillType, corner_mask: bool) -> None:
+def test_multi_filled_levels_type(name: str, fill_type: FillType, corner_mask: bool | None) -> None:
     if corner_mask and name in ["mpl2005", "mpl2014"]:
         pytest.skip()
 

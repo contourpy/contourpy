@@ -809,7 +809,7 @@ def test_return_by_line_type_chunk(
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 @pytest.mark.parametrize("corner_mask", [None, False, True])
-def test_lines_random_big(name: str, line_type: LineType, corner_mask: bool) -> None:
+def test_lines_random_big(name: str, line_type: LineType, corner_mask: bool | None) -> None:
     if corner_mask and name in ["mpl2005", "mpl2014"]:
         pytest.skip()
 
@@ -857,7 +857,7 @@ def test_multi_lines_invalid_levels(name: str, line_type: LineType) -> None:
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 @pytest.mark.parametrize("corner_mask", [None, False, True])
-def test_multi_lines_levels_type(name: str, line_type: LineType, corner_mask: bool) -> None:
+def test_multi_lines_levels_type(name: str, line_type: LineType, corner_mask: bool | None) -> None:
     if corner_mask and name in ["mpl2005", "mpl2014"]:
         pytest.skip()
 
