@@ -113,8 +113,9 @@ def test_loop(xy_3x3: tuple[cpy.CoordinateArray, ...], name: str) -> None:
 
 
 @pytest.mark.image
+@pytest.mark.parametrize("multi", [False, True])
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
-def test_lines_simple(name: str, line_type: LineType) -> None:
+def test_lines_simple(name: str, line_type: LineType, multi: bool) -> None:
     from contourpy.util.mpl_renderer import MplTestRenderer
 
     from .image_comparison import compare_images
@@ -128,11 +129,16 @@ def test_lines_simple(name: str, line_type: LineType) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)):
-        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    if multi:
+        multi_lines = cont_gen.multi_lines(levels)
+        for i in range(len(levels)):
+            renderer.lines(multi_lines[i], line_type, color=f"C{i}")
+    else:
+        for i in range(len(levels)):
+            renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "lines_simple.png", f"{name}_{line_type}")
+    compare_images(image_buffer, "lines_simple.png", f"{name}_{line_type}_{multi}")
 
 
 @pytest.mark.image
@@ -370,8 +376,9 @@ def test_lines_simple_quad_as_tri(name: str) -> None:
 
 
 @pytest.mark.image
+@pytest.mark.parametrize("multi", [False, True])
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
-def test_lines_random(name: str, line_type: LineType) -> None:
+def test_lines_random(name: str, line_type: LineType, multi: bool) -> None:
     from contourpy.util.mpl_renderer import MplTestRenderer
 
     from .image_comparison import compare_images
@@ -385,11 +392,18 @@ def test_lines_random(name: str, line_type: LineType) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)):
-        renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
+    if multi:
+        multi_lines = cont_gen.multi_lines(levels)
+        for i in range(len(levels)):
+            renderer.lines(multi_lines[i], line_type, color=f"C{i}")
+    else:
+        for i in range(len(levels)):
+            renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "lines_random.png", f"{name}_{line_type}", max_threshold=103)
+    compare_images(
+        image_buffer, "lines_random.png", f"{name}_{line_type}_{multi}", max_threshold=103,
+    )
 
 
 @pytest.mark.image
@@ -795,7 +809,7 @@ def test_return_by_line_type_chunk(
 
 @pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
 @pytest.mark.parametrize("corner_mask", [None, False, True])
-def test_lines_random_big(name: str, line_type: LineType, corner_mask: bool) -> None:
+def test_lines_random_big(name: str, line_type: LineType, corner_mask: bool | None) -> None:
     if corner_mask and name in ["mpl2005", "mpl2014"]:
         pytest.skip()
 
@@ -827,3 +841,49 @@ def test_lines_infinite_level(name: str) -> None:
     for level in (-np.inf, np.inf):
         lines = cont_gen.lines(level)
         assert len(lines[0]) == 0  # No lines
+
+
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
+def test_multi_lines_invalid_levels(name: str, line_type: LineType) -> None:
+    z = [[1, 2], [3, 4]]
+    cont_gen = contour_generator(z=z, name=name, line_type=line_type)
+
+    with pytest.raises(ValueError, match=r"Levels array must be 1D not 2D"):
+        cont_gen.multi_lines([[1, 2]])
+
+    with pytest.raises(ValueError, match=r"Levels array must be 1D not 3D"):
+        cont_gen.multi_lines([[[1], [2]]])
+
+
+@pytest.mark.parametrize("name, line_type", util_test.all_names_and_line_types())
+@pytest.mark.parametrize("corner_mask", [None, False, True])
+def test_multi_lines_levels_type(name: str, line_type: LineType, corner_mask: bool | None) -> None:
+    if corner_mask and name in ["mpl2005", "mpl2014"]:
+        pytest.skip()
+
+    z = random((10, 10), mask_fraction=0.0 if corner_mask is None else 0.05)[2]*3
+    cont_gen = contour_generator(z=z, name=name, corner_mask=corner_mask, line_type=line_type)
+    levels = [2, 3]
+
+    # Reference result using lines() not multi_lines().
+    reference = [cont_gen.lines(level) for level in levels]
+
+    # List.
+    util_test.assert_equal_recursive(reference, cont_gen.multi_lines(list(levels)))
+
+    # Tuple.
+    util_test.assert_equal_recursive(reference, cont_gen.multi_lines(tuple(levels)))
+
+    # Numpy array of floats.
+    util_test.assert_equal_recursive(
+        reference, cont_gen.multi_lines(np.asarray(levels, dtype=np.float64)),
+    )
+
+    # Numpy array of ints.
+    util_test.assert_equal_recursive(
+        reference, cont_gen.multi_lines(np.asarray(levels, dtype=np.int64)),
+    )
+
+    # Slice of larger numpy array.
+    levels2 = np.array([1.5, 2, 2.5, 3, 3.5])
+    util_test.assert_equal_recursive(reference, cont_gen.multi_lines(levels2[1::2]))

@@ -353,10 +353,7 @@ LineType BaseContourGenerator<Derived>::default_line_type()
 template <typename Derived>
 py::tuple BaseContourGenerator<Derived>::filled(double lower_level, double upper_level)
 {
-    if (lower_level >= upper_level)
-        throw std::invalid_argument("upper_level must be larger than lower_level");
-    if (Util::is_nan(lower_level) || Util::is_nan(upper_level))
-        throw std::invalid_argument("lower_level and upper_level cannot be NaN");
+    check_levels(lower_level, upper_level);
 
     _filled = true;
     _lower_level = lower_level;
