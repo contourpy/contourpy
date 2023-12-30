@@ -20,8 +20,15 @@ public:
 
     virtual py::sequence lines(double level) = 0;
 
+    py::list multi_filled(const LevelArray levels);
+    py::list multi_lines(const LevelArray levels);
+
 protected:
     ContourGenerator() = default;
+
+    // Check levels are acceptable, throw exception if not.
+    void check_levels(const LevelArray& levels, bool filled) const;
+    void check_levels(double lower_level, double upper_level) const;
 };
 
 } // namespace contourpy

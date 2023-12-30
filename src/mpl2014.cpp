@@ -7,7 +7,6 @@
 
 #include "mpl2014.h"
 #include "mpl_kind_code.h"
-#include "util.h"
 #include <algorithm>
 
 namespace contourpy {
@@ -486,15 +485,11 @@ void Mpl2014ContourGenerator::edge_interp(
 
 py::tuple Mpl2014ContourGenerator::filled(double lower_level, double upper_level)
 {
-    if (lower_level >= upper_level)
-        throw std::invalid_argument("upper_level must be larger than lower_level");
-    if (Util::is_nan(lower_level) || Util::is_nan(upper_level))
-        throw std::invalid_argument("lower_level and upper_level cannot be NaN");
+    check_levels(lower_level, upper_level);
 
     init_cache_levels(lower_level, upper_level);
 
     Contour contour;
-
     py::list vertices, codes;
 
     index_t ichunk, jchunk, istart, iend, jstart, jend;

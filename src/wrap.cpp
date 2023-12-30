@@ -111,6 +111,37 @@ PYBIND11_MODULE(_contourpy, m) {
         "``ContourGenerator``.\n\n"
         "``level`` may be ``np.nan``, ``np.inf`` or ``-np.inf``; they all return the same result "
         "which is an empty line set.";
+    const char* multi_filled_doc =
+        "Calculate and return filled contours between multiple levels.\n\n"
+        "Args:\n"
+        "    levels (array-like of floats): z-levels to calculate filled contours between. "
+        "There must be at least 2 levels, they cannot be NaN, and each level must be larger than "
+        "the previous level.\n\n"
+        "Return:\n"
+        "    List of filled contours, one per pair of levels. The length of the returned list is "
+        "one less than ``len(levels)``. The format of returned contours is determined by the "
+        "``fill_type`` used by the ``ContourGenerator``.\n\n"
+        "Raises a ``ValueError`` if ``levels`` are not increasing, or contain a NaN, or there are "
+        "fewer than 2 ``levels``.\n\n"
+        "Calling:\n\n"
+        ".. code-block:: python\n\n"
+        "    ret = obj.multi_filled(levels)\n\n"
+        "is equivalent to:\n\n"
+        ".. code-block:: python\n\n"
+        "    ret = [obj.filled(lower, upper) for lower, upper in zip(levels[:-1], levels[1:])]";
+    const char* multi_lines_doc =
+        "Calculate and return contour lines at multiple levels.\n\n"
+        "Args:\n"
+        "    levels (array-like of floats): z-levels to calculate contours at.\n\n"
+        "Return:\n"
+        "    List of contour lines, one per level. The format of returned lines is determined by "
+        "the ``line_type`` used by the ``ContourGenerator``.\n\n"
+        "Calling:\n\n"
+        ".. code-block:: python\n\n"
+        "    ret = obj.multi_lines(levels)\n\n"
+        "is equivalent to:\n\n"
+        ".. code-block:: python\n\n"
+        "    ret = [obj.lines(level) for level in levels]";
     const char* quad_as_tri_doc = "Return whether ``quad_as_tri`` is set or not.";
     const char* supports_corner_mask_doc =
         "Return whether this algorithm supports ``corner_mask``.";
@@ -137,6 +168,9 @@ PYBIND11_MODULE(_contourpy, m) {
         .def("filled", &contourpy::ContourGenerator::filled, filled_doc,
              "lower_level"_a, "upper_level"_a)
         .def("lines", &contourpy::ContourGenerator::lines, lines_doc, "level"_a)
+        .def("multi_filled", &contourpy::ContourGenerator::multi_filled, multi_filled_doc,
+             "levels"_a)
+        .def("multi_lines", &contourpy::ContourGenerator::multi_lines, multi_lines_doc, "levels"_a)
         .def_property_readonly(
             "chunk_count", [](py::object /* self */) {return py::make_tuple(1, 1);},
             chunk_count_doc)

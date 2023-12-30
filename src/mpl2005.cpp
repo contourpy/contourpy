@@ -1,5 +1,4 @@
 #include "mpl2005.h"
-#include "util.h"
 
 namespace contourpy {
 
@@ -49,11 +48,7 @@ Mpl2005ContourGenerator::~Mpl2005ContourGenerator()
 
 py::tuple Mpl2005ContourGenerator::filled(double lower_level, double upper_level)
 {
-    if (lower_level >= upper_level)
-        throw std::invalid_argument("upper_level must be larger than lower_level");
-    if (Util::is_nan(lower_level) || Util::is_nan(upper_level))
-        throw std::invalid_argument("lower_level and upper_level cannot be NaN");
-
+    check_levels(lower_level, upper_level);
     double levels[2] = {lower_level, upper_level};
     return cntr_trace(_site, levels, 2);
 }

@@ -63,8 +63,9 @@ def test_filled_identical_levels(name: str) -> None:
 
 
 @pytest.mark.image
+@pytest.mark.parametrize("multi", [False, True])
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
-def test_filled_simple(name: str, fill_type: FillType) -> None:
+def test_filled_simple(name: str, fill_type: FillType, multi: bool) -> None:
     from contourpy.util.mpl_renderer import MplTestRenderer
 
     from .image_comparison import compare_images
@@ -78,11 +79,16 @@ def test_filled_simple(name: str, fill_type: FillType) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    if multi:
+        multi_filled = cont_gen.multi_filled(levels)
+        for i in range(len(levels)-1):
+            renderer.filled(multi_filled[i], fill_type, color=f"C{i}")
+    else:
+        for i in range(len(levels)-1):
+            renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "filled_simple.png", f"{name}_{fill_type}")
+    compare_images(image_buffer, "filled_simple.png", f"{name}_{fill_type}_{multi}")
 
 
 @pytest.mark.image
@@ -333,8 +339,9 @@ def test_filled_simple_quad_as_tri(name: str) -> None:
 
 
 @pytest.mark.image
+@pytest.mark.parametrize("multi", [False, True])
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
-def test_filled_random(name: str, fill_type: FillType) -> None:
+def test_filled_random(name: str, fill_type: FillType, multi: bool) -> None:
     from contourpy.util.mpl_renderer import MplTestRenderer
 
     from .image_comparison import compare_images
@@ -348,11 +355,16 @@ def test_filled_random(name: str, fill_type: FillType) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    if multi:
+        multi_filled = cont_gen.multi_filled(levels)
+        for i in range(len(levels)-1):
+            renderer.filled(multi_filled[i], fill_type, color=f"C{i}")
+    else:
+        for i in range(len(levels)-1):
+            renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    compare_images(image_buffer, "filled_random.png", f"{name}_{fill_type}")
+    compare_images(image_buffer, "filled_random.png", f"{name}_{fill_type}_{multi}")
 
 
 @pytest.mark.image
@@ -969,3 +981,73 @@ def test_filled_infinite_level(name: str) -> None:
         points = filled[0][0]
         assert isinstance(points, np.ndarray)
         assert_allclose(points, expected)
+
+
+@pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
+def test_multi_filled_invalid_levels(name: str, fill_type: FillType) -> None:
+    z = [[1, 2], [3, 4]]
+    cont_gen = contour_generator(z=z, name=name, fill_type=fill_type)
+
+    with pytest.raises(ValueError, match=r"Levels array must be 1D not 2D"):
+        cont_gen.multi_filled([[1, 2]])
+
+    with pytest.raises(ValueError, match=r"Levels array must be 1D not 3D"):
+        cont_gen.multi_filled([[[1], [2]]])
+
+    with pytest.raises(ValueError, match=r"Levels array must have at least 2 elements, not 1"):
+        cont_gen.multi_filled([1])
+
+    with pytest.raises(ValueError, match=r"Levels array must have at least 2 elements, not 0"):
+        cont_gen.multi_filled([])
+
+    for levels in (
+        [0, np.nan],
+        [np.nan, 0],
+        [np.nan, np.nan],
+    ):
+        with pytest.raises(ValueError, match=r"Levels must not contain any NaN"):
+            cont_gen.multi_filled(levels)
+
+    for levels in (
+        [1.0, 1],
+        [1, 0.99],
+        [0, -np.inf],
+        [np.inf, 0],
+        [np.inf, -np.inf],
+    ):
+        with pytest.raises(ValueError, match=r"Levels must be increasing"):
+            cont_gen.multi_filled(levels)
+
+
+@pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
+@pytest.mark.parametrize("corner_mask", [None, False, True])
+def test_multi_filled_levels_type(name: str, fill_type: FillType, corner_mask: bool) -> None:
+    if corner_mask and name in ["mpl2005", "mpl2014"]:
+        pytest.skip()
+
+    z = random((10, 10), mask_fraction=0.0 if corner_mask is None else 0.05)[2]*4
+    cont_gen = contour_generator(z=z, name=name, corner_mask=corner_mask, fill_type=fill_type)
+    levels = [2, 3, 4]
+
+    # Reference result using filled() not multi_filled().
+    reference = [cont_gen.filled(lower, upper) for lower, upper in zip(levels[:-1], levels[1:])]
+
+    # List.
+    util_test.assert_equal_recursive(reference, cont_gen.multi_filled(list(levels)))
+
+    # Tuple.
+    util_test.assert_equal_recursive(reference, cont_gen.multi_filled(tuple(levels)))
+
+    # Numpy array of floats.
+    util_test.assert_equal_recursive(
+        reference, cont_gen.multi_filled(np.asarray(levels, dtype=np.float64)),
+    )
+
+    # Numpy array of ints.
+    util_test.assert_equal_recursive(
+        reference, cont_gen.multi_filled(np.asarray(levels, dtype=np.int64)),
+    )
+
+    # Slice of larger numpy array.
+    levels2 = np.array([1.5, 2, 2.5, 3, 3.5, 4, 4.5])
+    util_test.assert_equal_recursive(reference, cont_gen.multi_filled(levels2[1::2]))

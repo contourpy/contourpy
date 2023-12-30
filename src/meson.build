@@ -6,6 +6,7 @@ ext = py3.extension_module(
   '_contourpy',
   [
     'chunk_local.cpp',
+    'contour_generator.cpp',
     'converter.cpp',
     'fill_type.cpp',
     'line_type.cpp',
