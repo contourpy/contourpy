@@ -57,21 +57,29 @@ def test_chrome_version(driver: WebDriver) -> None:
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("fill_type", [*FillType.__members__.values(), "OuterCode"])
-def test_renderer_filled_bokeh(show_text: bool, fill_type: FillType, driver: WebDriver) -> None:
+@pytest.mark.parametrize("multi", [False, True])
+def test_renderer_filled_bokeh(
+    show_text: bool,
+    fill_type: FillType,
+    multi: bool,
+    driver: WebDriver,
+) -> None:
     from .image_comparison import compare_images
 
     renderer = bokeh_renderer.BokehRenderer(ncols=2, figsize=(8, 3), show_frame=False)
     x, y, z = random((3, 4), mask_fraction=0.35)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, fill_type=fill_type)
+        kwargs = {"alpha": 0.4} if quad_as_tri else {}
 
         levels = np.linspace(0.0, 1.0, 11)
-        for i in range(len(levels)-1):
-            filled = cont_gen.filled(levels[i], levels[i+1])
-            if quad_as_tri:
-                renderer.filled(filled, fill_type, ax=ax, color=f"C{i}", alpha=0.4)
-            else:
-                renderer.filled(filled, fill_type, ax=ax, color=f"C{i}")
+        if multi:
+            multi_filled = cont_gen.multi_filled(levels)
+            renderer.multi_filled(multi_filled, fill_type, ax=ax, **kwargs)
+        else:
+            for i in range(len(levels)-1):
+                filled = cont_gen.filled(levels[i], levels[i+1])
+                renderer.filled(filled, fill_type, ax=ax, color=f"C{i}", **kwargs)
 
         if quad_as_tri:
             renderer.grid(x, y, ax=ax, alpha=0.5, quad_as_tri_alpha=0.5)
@@ -86,7 +94,8 @@ def test_renderer_filled_bokeh(show_text: bool, fill_type: FillType, driver: Web
     image_buffer = renderer.save_to_buffer(webdriver=driver)
     suffix = "" if show_text else "_no_text"
     compare_images(
-        image_buffer, f"bokeh_renderer_filled{suffix}.png", f"{fill_type}", mean_threshold=0.03,
+        image_buffer, f"bokeh_renderer_filled{suffix}.png", f"{fill_type}_{multi}",
+        mean_threshold=0.03,
     )
 
 
@@ -94,21 +103,29 @@ def test_renderer_filled_bokeh(show_text: bool, fill_type: FillType, driver: Web
 @pytest.mark.text
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("line_type", [*LineType.__members__.values(), "Separate"])
-def test_renderer_lines_bokeh(show_text: bool, line_type: LineType, driver: WebDriver) -> None:
+@pytest.mark.parametrize("multi", [False, True])
+def test_renderer_lines_bokeh(
+    show_text: bool,
+    line_type: LineType,
+    multi: bool,
+    driver: WebDriver,
+) -> None:
     from .image_comparison import compare_images
 
     renderer = bokeh_renderer.BokehRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)
     x, y, z = random((3, 4), mask_fraction=0.35)
     for ax, quad_as_tri in enumerate((False, True)):
         cont_gen = contour_generator(x, y, z, line_type=line_type)
+        kwargs = {"alpha": 0.5, "linewidth": 3} if quad_as_tri else {}
 
         levels = np.linspace(0.1, 0.9, 9)
-        for i in range(len(levels)):
-            lines = cont_gen.lines(levels[i])
-            if quad_as_tri:
-                renderer.lines(lines, line_type, ax=ax, color=f"C{i}", alpha=0.5, linewidth=3)
-            else:
-                renderer.lines(lines, line_type, ax=ax, color=f"C{i}")
+        if multi:
+            multi_lines = cont_gen.multi_lines(levels)
+            renderer.multi_lines(multi_lines, line_type, ax=ax, **kwargs)
+        else:
+            for i in range(len(levels)):
+                lines = cont_gen.lines(levels[i])
+                renderer.lines(lines, line_type, ax=ax, color=f"C{i}", **kwargs)
 
         if quad_as_tri:
             renderer.grid(x, y, ax=ax, alpha=0.2, quad_as_tri_alpha=0.2)
@@ -125,7 +142,8 @@ def test_renderer_lines_bokeh(show_text: bool, line_type: LineType, driver: WebD
     image_buffer = renderer.save_to_buffer(webdriver=driver)
     suffix = "" if show_text else "_no_text"
     compare_images(
-        image_buffer, f"bokeh_renderer_lines{suffix}.png", f"{line_type}", mean_threshold=0.03,
+        image_buffer, f"bokeh_renderer_lines{suffix}.png", f"{line_type}_{multi}",
+        mean_threshold=0.03,
     )
 
 

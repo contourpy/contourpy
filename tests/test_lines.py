@@ -131,8 +131,7 @@ def test_lines_simple(name: str, line_type: LineType, multi: bool) -> None:
     renderer = MplTestRenderer()
     if multi:
         multi_lines = cont_gen.multi_lines(levels)
-        for i in range(len(levels)):
-            renderer.lines(multi_lines[i], line_type, color=f"C{i}")
+        renderer.multi_lines(multi_lines, line_type)
     else:
         for i in range(len(levels)):
             renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
@@ -394,8 +393,7 @@ def test_lines_random(name: str, line_type: LineType, multi: bool) -> None:
     renderer = MplTestRenderer()
     if multi:
         multi_lines = cont_gen.multi_lines(levels)
-        for i in range(len(levels)):
-            renderer.lines(multi_lines[i], line_type, color=f"C{i}")
+        renderer.multi_lines(multi_lines, line_type)
     else:
         for i in range(len(levels)):
             renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
