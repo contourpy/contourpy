@@ -20,8 +20,8 @@ public:
 
     virtual py::sequence lines(double level) = 0;
 
-    py::list multi_filled(const LevelArray levels);
-    py::list multi_lines(const LevelArray levels);
+    virtual py::list multi_filled(const LevelArray levels);
+    virtual py::list multi_lines(const LevelArray levels);
 
 protected:
     ContourGenerator() = default;

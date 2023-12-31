@@ -45,6 +45,9 @@ public:
 
     py::sequence lines(double level) override;
 
+    py::list multi_filled(const LevelArray levels) override;
+    py::list multi_lines(const LevelArray levels) override;
+
     static bool supports_fill_type(FillType fill_type);
     static bool supports_line_type(LineType line_type);
 
@@ -166,6 +169,10 @@ protected:
     py::sequence march_wrapper();
 
     void move_to_next_boundary_edge(index_t& quad, index_t& forward, index_t& left) const;
+
+    // Common initialisation for filled/multi_filled and lines/multi_lines calls.
+    void pre_filled();
+    void pre_lines();
 
     void set_look_flags(index_t hole_start_quad);
 
