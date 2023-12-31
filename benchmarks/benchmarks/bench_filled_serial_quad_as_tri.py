@@ -24,5 +24,4 @@ class BenchFilledSerialQuadAsTri(BenchBase):
             self.x, self.y, self.z, name=name, fill_type=fill_type,
             corner_mask=corner_mask_to_bool(corner_mask), quad_as_tri=True,
         )
-        for i in range(len(self.levels)-1):
-            cont_gen.filled(self.levels[i], self.levels[i+1])
+        cont_gen.multi_filled(self.levels)

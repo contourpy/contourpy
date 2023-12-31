@@ -26,7 +26,5 @@ class BenchFilledSerialQuadAsTriRender(BenchBase):
             corner_mask=corner_mask_to_bool(corner_mask), quad_as_tri=True,
         )
         renderer = MplTestRenderer()
-        for i in range(len(self.levels)-1):
-            filled = cont_gen.filled(self.levels[i], self.levels[i+1])
-            renderer.filled(filled, fill_type, color=f"C{i}")
+        renderer.multi_filled(cont_gen.multi_filled(self.levels), fill_type)
         renderer.save(f"filled_{name}_{corner_mask}_{fill_type}_{n}.png")

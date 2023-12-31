@@ -38,5 +38,4 @@ class BenchFilledThreaded(BenchBase):
             corner_mask=corner_mask_to_bool(corner_mask), total_chunk_count=total_chunk_count,
             thread_count=thread_count,
         )
-        for i in range(len(self.levels)-1):
-            cont_gen.filled(self.levels[i], self.levels[i+1])
+        cont_gen.multi_filled(self.levels)
