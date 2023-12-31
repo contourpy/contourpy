@@ -91,8 +91,9 @@ def test_filled_simple(name: str, fill_type: FillType, multi: bool) -> None:
 
 
 @pytest.mark.image
+@pytest.mark.parametrize("multi", [False, True])
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
-def test_filled_simple_chunk(name: str, fill_type: FillType) -> None:
+def test_filled_simple_chunk(name: str, fill_type: FillType, multi: bool) -> None:
     from contourpy.util.mpl_renderer import MplTestRenderer
 
     from .image_comparison import compare_images
@@ -108,12 +109,15 @@ def test_filled_simple_chunk(name: str, fill_type: FillType) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    if multi:
+        renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
+    else:
+        for i in range(len(levels)-1):
+            renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
-        image_buffer, "filled_simple_chunk.png", f"{name}_{fill_type}", mean_threshold=0.12,
+        image_buffer, "filled_simple_chunk.png", f"{name}_{fill_type}_{multi}", mean_threshold=0.12,
     )
 
 
@@ -137,8 +141,7 @@ def test_filled_simple_chunk_threads(fill_type: FillType, thread_count: int) -> 
     assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
@@ -162,8 +165,7 @@ def test_filled_simple_no_corner_mask(name: str, fill_type: FillType) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, "filled_simple_no_corner_mask.png", f"{name}_{fill_type}")
@@ -187,8 +189,7 @@ def test_filled_simple_no_corner_mask_chunk(name: str, fill_type: FillType) -> N
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
@@ -218,8 +219,7 @@ def test_filled_simple_no_corner_mask_chunk_threads(fill_type: FillType, thread_
     assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
@@ -245,8 +245,7 @@ def test_filled_simple_corner_mask(name: str) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, "filled_simple_corner_mask.png", f"{name}_{fill_type}")
@@ -271,8 +270,7 @@ def test_filled_simple_corner_mask_chunk(name: str) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
@@ -303,8 +301,7 @@ def test_filled_simple_corner_mask_chunk_threads(fill_type: FillType, thread_cou
     assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
@@ -330,8 +327,7 @@ def test_filled_simple_quad_as_tri(name: str) -> None:
 
     fill_type = cont_gen.fill_type
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, "filled_simple_quad_as_tri.png", f"{name}")
@@ -366,8 +362,9 @@ def test_filled_random(name: str, fill_type: FillType, multi: bool) -> None:
 
 
 @pytest.mark.image
+@pytest.mark.parametrize("multi", [False, True])
 @pytest.mark.parametrize("name, fill_type", util_test.all_names_and_fill_types())
-def test_filled_random_chunk(name: str, fill_type: FillType) -> None:
+def test_filled_random_chunk(name: str, fill_type: FillType, multi: bool) -> None:
     from contourpy.util.mpl_renderer import MplTestRenderer
 
     from .image_comparison import compare_images
@@ -383,8 +380,11 @@ def test_filled_random_chunk(name: str, fill_type: FillType) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    if multi:
+        renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
+    else:
+        for i in range(len(levels)-1):
+            renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
     max_threshold = None
@@ -401,7 +401,7 @@ def test_filled_random_chunk(name: str, fill_type: FillType) -> None:
             mean_threshold = 0.19
 
     compare_images(
-        image_buffer, "filled_random_chunk.png", f"{name}_{fill_type}",
+        image_buffer, "filled_random_chunk.png", f"{name}_{fill_type}_{multi}",
         max_threshold=max_threshold, mean_threshold=mean_threshold,
     )
 
@@ -426,8 +426,7 @@ def test_filled_random_chunk_threads(fill_type: FillType, thread_count: int) -> 
     assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
@@ -459,8 +458,7 @@ def test_filled_random_no_corner_mask(name: str, fill_type: FillType) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, "filled_random_no_corner_mask.png", f"{name}_{fill_type}")
@@ -484,8 +482,7 @@ def test_filled_random_no_corner_mask_chunk(name: str, fill_type: FillType) -> N
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     max_threshold = None
@@ -528,8 +525,7 @@ def test_filled_random_no_corner_mask_chunk_threads(fill_type: FillType, thread_
     assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
@@ -562,8 +558,7 @@ def test_filled_random_corner_mask(name: str) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, "filled_random_corner_mask.png", f"{name}_{fill_type}")
@@ -588,8 +583,7 @@ def test_filled_random_corner_mask_chunk(name: str) -> None:
     assert cont_gen.thread_count == 1
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     max_threshold = None
@@ -626,8 +620,7 @@ def test_filled_random_corner_mask_chunk_threads(fill_type: FillType, thread_cou
     assert cont_gen.thread_count == thread_count
 
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
@@ -652,8 +645,7 @@ def test_filled_random_quad_as_tri(name: str) -> None:
 
     fill_type = cont_gen.fill_type
     renderer = MplTestRenderer()
-    for i in range(len(levels)-1):
-        renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
+    renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
     compare_images(image_buffer, "filled_random_quad_as_tri.png", f"{name}")

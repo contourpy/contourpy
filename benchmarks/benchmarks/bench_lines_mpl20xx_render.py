@@ -29,7 +29,5 @@ class BenchLinesMpl20xxRender(BenchBase):
             corner_mask=corner_mask_to_bool(corner_mask),
         )
         renderer = MplTestRenderer()
-        for i, level in enumerate(self.levels):
-            lines = cont_gen.lines(level)
-            renderer.lines(lines, line_type, color=f"C{i}")
+        renderer.multi_lines(cont_gen.multi_lines(self.levels), line_type)
         renderer.save(f"lines_{name}_{corner_mask}_{line_type}_{n}.png")

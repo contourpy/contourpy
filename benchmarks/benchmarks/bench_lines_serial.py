@@ -24,5 +24,4 @@ class BenchLinesSerial(BenchBase):
             self.x, self.y, self.z, name=name, line_type=line_type,
             corner_mask=corner_mask_to_bool(corner_mask),
         )
-        for level in self.levels:
-            cont_gen.lines(level)
+        cont_gen.multi_lines(self.levels)
