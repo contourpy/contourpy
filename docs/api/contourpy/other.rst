@@ -11,4 +11,8 @@ Other functions
 
 .. autofunction:: dechunk_lines
 
+.. autofunction:: dechunk_multi_filled
+
+.. autofunction:: dechunk_multi_lines
+
 .. autofunction:: max_threads

@@ -6,7 +6,15 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 import pytest
 
-from contourpy import FillType, LineType, contour_generator, dechunk_filled, dechunk_lines
+from contourpy import (
+    FillType,
+    LineType,
+    contour_generator,
+    dechunk_filled,
+    dechunk_lines,
+    dechunk_multi_filled,
+    dechunk_multi_lines,
+)
 
 from . import util_test
 
@@ -171,3 +179,47 @@ def test_dechunk_lines_empty(z: cpy.CoordinateArray, line_type: LineType, chunk_
         assert dechunked == ([None],)
     else:
         raise RuntimeError(f"Unexpected line_type {line_type}")
+
+
+@pytest.mark.parametrize("fill_type", FillType.__members__.values())
+@pytest.mark.parametrize("chunk_size", (0, 2))
+def test_dechunk_multi_filled(z: cpy.CoordinateArray, fill_type: FillType, chunk_size: int) -> None:
+    cont_gen = contour_generator(z=z, fill_type=fill_type, chunk_size=chunk_size)
+    assert cont_gen.chunk_count == ((2, 2) if chunk_size==2 else (1, 1))
+    levels = [0.5, 1.5, 2.5]
+    multi_filled = cont_gen.multi_filled(levels)
+
+    multi_dechunked = dechunk_multi_filled(multi_filled, fill_type)
+    individual_dechunked = [dechunk_filled(filled, fill_type) for filled in multi_filled]
+
+    assert isinstance(multi_dechunked, list)
+    assert isinstance(individual_dechunked, list)
+    assert len(multi_dechunked) == len(levels) - 1
+    assert len(individual_dechunked) == len(levels) - 1
+
+    for from_multi, from_individual in zip(multi_dechunked, individual_dechunked):
+        util_test.assert_filled(from_multi, fill_type)
+        util_test.assert_filled(from_individual, fill_type)
+        util_test.assert_equal_recursive(from_multi, from_individual)
+
+
+@pytest.mark.parametrize("line_type", LineType.__members__.values())
+@pytest.mark.parametrize("chunk_size", (0, 2))
+def test_dechunk_multi_lines(z: cpy.CoordinateArray, line_type: LineType, chunk_size: int) -> None:
+    cont_gen = contour_generator(z=z, line_type=line_type, chunk_size=chunk_size)
+    assert cont_gen.chunk_count == ((2, 2) if chunk_size==2 else (1, 1))
+    levels = [-0.5, 0.5, 1.5]
+    multi_lines = cont_gen.multi_lines(levels)
+
+    multi_dechunked = dechunk_multi_lines(multi_lines, line_type)
+    individual_dechunked = [dechunk_lines(lines, line_type) for lines in multi_lines]
+
+    assert isinstance(multi_dechunked, list)
+    assert isinstance(individual_dechunked, list)
+    assert len(multi_dechunked) == len(levels)
+    assert len(individual_dechunked) == len(levels)
+
+    for from_multi, from_individual in zip(multi_dechunked, individual_dechunked):
+        util_test.assert_lines(from_multi, line_type)
+        util_test.assert_lines(from_individual, line_type)
+        util_test.assert_equal_recursive(from_multi, from_individual)
