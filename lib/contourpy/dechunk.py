@@ -104,6 +104,7 @@ def dechunk_lines(lines: cpy.LineReturn, line_type: LineType | str) -> cpy.LineR
     .. versionadded:: 1.2.0
     """
     line_type = as_line_type(line_type)
+
     if line_type in (LineType.Separate, LineType.SeparateCode):
         # No-op if line_type is not chunked.
         return lines
@@ -142,3 +143,37 @@ def dechunk_lines(lines: cpy.LineReturn, line_type: LineType | str) -> cpy.LineR
         return ret3
     else:
         raise ValueError(f"Invalid LineType {line_type}")
+
+
+def dechunk_multi_filled(
+    multi_filled: list[cpy.FillReturn],
+    fill_type: FillType | str,
+) -> list[cpy.FillReturn]:
+    """
+
+    .. versionadded:: 1.3.0
+    """
+    fill_type = as_fill_type(fill_type)
+
+    if fill_type in (FillType.OuterCode, FillType.OuterOffset):
+        # No-op if fill_type is not chunked.
+        return multi_filled
+
+    return [dechunk_filled(filled, fill_type) for filled in multi_filled]
+
+
+def dechunk_multi_lines(
+    multi_lines: list[cpy.LineReturn],
+    line_type: LineType | str,
+) -> list[cpy.LineReturn]:
+    """
+
+    .. versionadded:: 1.3.0
+    """
+    line_type = as_line_type(line_type)
+
+    if line_type in (LineType.Separate, LineType.SeparateCode):
+        # No-op if line_type is not chunked.
+        return multi_lines
+
+    return [dechunk_lines(lines, line_type) for lines in multi_lines]

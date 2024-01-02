@@ -110,7 +110,8 @@ PYBIND11_MODULE(_contourpy, m) {
         "numpy arrays. The exact format is determined by the ``line_type`` used by the "
         "``ContourGenerator``.\n\n"
         "``level`` may be ``np.nan``, ``np.inf`` or ``-np.inf``; they all return the same result "
-        "which is an empty line set.";
+        "which is an empty line set.\n\n"
+        ".. versionadded:: 1.3.0";
     const char* multi_filled_doc =
         "Calculate and return filled contours between multiple levels.\n\n"
         "Args:\n"
@@ -128,7 +129,8 @@ PYBIND11_MODULE(_contourpy, m) {
         "    ret = obj.multi_filled(levels)\n\n"
         "is equivalent to:\n\n"
         ".. code-block:: python\n\n"
-        "    ret = [obj.filled(lower, upper) for lower, upper in zip(levels[:-1], levels[1:])]";
+        "    ret = [obj.filled(lower, upper) for lower, upper in zip(levels[:-1], levels[1:])]\n\n"
+        ".. versionadded:: 1.3.0";
     const char* multi_lines_doc =
         "Calculate and return contour lines at multiple levels.\n\n"
         "Args:\n"
