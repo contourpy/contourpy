@@ -101,6 +101,11 @@ jobs:
             python-version: "3.11"
             name: "Test numpy debug"
             build-numpy-debug: true
+          # Test against earliest supported numpy
+          - os: ubuntu-latest
+            python-version: "3.9"
+            name: "Test earliest numpy"
+            extra-install-args: "numpy==1.20"
           # Compile using C++11.
           - os: ubuntu-latest
             python-version: "3.11"
