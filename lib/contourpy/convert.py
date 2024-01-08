@@ -553,3 +553,33 @@ def convert_lines(
         return _convert_lines_from_ChunkCombinedNan(lines, line_type_to)
     else:
         raise ValueError(f"Invalid LineType {line_type_from}")
+
+
+def convert_multi_filled(
+    multi_filled: list[cpy.FillReturn],
+    fill_type_from: FillType | str,
+    fill_type_to:  FillType | str,
+) -> list[cpy.FillReturn]:
+    """
+
+    .. versionadded:: 1.3.0
+    """
+    fill_type_from = as_fill_type(fill_type_from)
+    fill_type_to = as_fill_type(fill_type_to)
+
+    return [convert_filled(filled, fill_type_from, fill_type_to) for filled in multi_filled]
+
+
+def convert_multi_lines(
+    multi_lines: list[cpy.LineReturn],
+    line_type_from: LineType | str,
+    line_type_to:  LineType | str,
+) -> list[cpy.LineReturn]:
+    """
+
+    .. versionadded:: 1.3.0
+    """
+    line_type_from = as_line_type(line_type_from)
+    line_type_to = as_line_type(line_type_to)
+
+    return [convert_lines(lines, line_type_from, line_type_to) for lines in multi_lines]

@@ -11,6 +11,8 @@ from contourpy import (
     contour_generator,
     convert_filled,
     convert_lines,
+    convert_multi_filled,
+    convert_multi_lines,
     dechunk_filled,
     dechunk_lines,
 )
@@ -113,3 +115,65 @@ def test_convert_lines(
        compare = dechunk_lines(compare, line_type_to)
 
     util_test.assert_equal_recursive(converted, compare)
+
+
+@pytest.mark.parametrize("fill_type_to", FillType.__members__.values())
+@pytest.mark.parametrize("fill_type_from", FillType.__members__.values())
+@pytest.mark.parametrize("chunk_size", (0, 2))
+def test_convert_multi_filled(
+    z: cpy.CoordinateArray,
+    fill_type_from: FillType,
+    fill_type_to: FillType,
+    chunk_size: int,
+) -> None:
+    levels = [0.5, 1.5, 2.5]
+    cont_gen = contour_generator(z=z, fill_type=fill_type_from, chunk_size=chunk_size)
+    multi_filled = cont_gen.multi_filled(levels)
+
+    if (fill_type_from in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset) and
+        fill_type_to not in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset)):
+        msg = f"Conversion from {fill_type_from} to {fill_type_to} not supported"
+        with pytest.raises(ValueError, match=msg):
+            convert_multi_filled(multi_filled, fill_type_from, fill_type_to)
+    else:
+        multi_converted = convert_multi_filled(multi_filled, fill_type_from, fill_type_to)
+        individual_converted = [convert_filled(filled, fill_type_from, fill_type_to)
+                                for filled in multi_filled]
+
+        assert isinstance(multi_converted, list)
+        assert isinstance(individual_converted, list)
+        assert len(multi_converted) == len(levels) - 1
+        assert len(individual_converted) == len(levels) - 1
+
+        for from_multi, from_individual in zip(multi_converted, individual_converted):
+            util_test.assert_filled(from_multi, fill_type_to)
+            util_test.assert_filled(from_individual, fill_type_to)
+            util_test.assert_equal_recursive(from_multi, from_individual)
+
+
+@pytest.mark.parametrize("line_type_to", LineType.__members__.values())
+@pytest.mark.parametrize("line_type_from", LineType.__members__.values())
+@pytest.mark.parametrize("chunk_size", (0, 2))
+def test_convert_multi_lines(
+    z: cpy.CoordinateArray,
+    line_type_from: LineType,
+    line_type_to: LineType,
+    chunk_size: int,
+) -> None:
+    levels = [-0.5, 0.5, 1.5]
+    cont_gen = contour_generator(z=z, line_type=line_type_from, chunk_size=chunk_size)
+    multi_lines = cont_gen.multi_lines(levels)
+
+    multi_converted = convert_multi_lines(multi_lines, line_type_from, line_type_to)
+    individual_converted = [convert_lines(lines, line_type_from, line_type_to)
+                            for lines in multi_lines]
+
+    assert isinstance(multi_converted, list)
+    assert isinstance(individual_converted, list)
+    assert len(multi_converted) == len(levels)
+    assert len(individual_converted) == len(levels)
+
+    for from_multi, from_individual in zip(multi_converted, individual_converted):
+        util_test.assert_lines(from_multi, line_type_to)
+        util_test.assert_lines(from_individual, line_type_to)
+        util_test.assert_equal_recursive(from_multi, from_individual)
