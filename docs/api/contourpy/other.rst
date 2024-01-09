@@ -7,6 +7,10 @@ Other functions
 
 .. autofunction:: convert_lines
 
+.. autofunction:: convert_multi_filled
+
+.. autofunction:: convert_multi_lines
+
 .. autofunction:: dechunk_filled
 
 .. autofunction:: dechunk_lines

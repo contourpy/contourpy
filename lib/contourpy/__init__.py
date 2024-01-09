@@ -17,7 +17,12 @@ from contourpy._contourpy import (
 )
 from contourpy._version import __version__
 from contourpy.chunk import calc_chunk_sizes
-from contourpy.convert import convert_filled, convert_lines
+from contourpy.convert import (
+    convert_filled,
+    convert_lines,
+    convert_multi_filled,
+    convert_multi_lines,
+)
 from contourpy.dechunk import (
     dechunk_filled,
     dechunk_lines,
@@ -38,6 +43,8 @@ __all__ = [
     "contour_generator",
     "convert_filled",
     "convert_lines",
+    "convert_multi_filled",
+    "convert_multi_lines",
     "dechunk_filled",
     "dechunk_lines",
     "dechunk_multi_filled",
