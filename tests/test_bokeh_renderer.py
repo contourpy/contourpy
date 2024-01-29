@@ -28,8 +28,8 @@ def driver(driver_path: str) -> Iterator[WebDriver]:
         from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
 
         options = Options()
-        options.add_argument("--headless")  # type: ignore[no-untyped-call]
-        options.add_argument("--no-sandbox")  # type: ignore[no-untyped-call]
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
 
         if driver_path:
             from selenium.webdriver.chrome.service import Service

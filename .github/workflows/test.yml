@@ -68,6 +68,12 @@ jobs:
           cd cppcheck-$CPPCHECK_VERSION
           sudo make install MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck CXXFLAGS="-O2 -DNDEBUG" -j 2
 
+      - name: Smoke test
+        run: |
+          python -m pip list
+          python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
+          python -c "import contourpy as c; print('NDEBUG', c._contourpy.NDEBUG)"
+
       - name: Run tests
         run: |
           ${PYTEST} tests/test_codebase.py
