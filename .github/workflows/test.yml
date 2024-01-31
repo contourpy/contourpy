@@ -89,9 +89,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-14, windows-latest]  # macos-14 is M1
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         name: ["Test"]
+        exclude:
+          # M1 mac setup-python doesn't yet have python 3.9
+          # https://github.com/actions/setup-python/issues/808
+          - os: macos-14
+            python-version: "3.9"
         include:
           # Debug build including Python and C++ coverage.
           - os: ubuntu-latest
@@ -144,10 +149,17 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Python ${{ matrix.python-version }}
+        if: ${{ !matrix.win32 }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.win32 && 'x86' || 'x64' }}
+
+      - name: Setup Python ${{ matrix.python-version }} win32
+        if: matrix.win32
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x86
 
       - name: Setup MSVC (32-bit)
         if: matrix.win32
