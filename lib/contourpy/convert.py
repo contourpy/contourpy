@@ -387,7 +387,7 @@ def _convert_lines_from_ChunkCombinedCode(
                     assert codes is not None
                 split_at = np.nonzero(codes == MOVETO)[0]
                 if len(split_at) > 1:
-                    separate_lines += list(np.split(points, split_at[1:]))
+                    separate_lines += np.split(points, split_at[1:])
                 else:
                     separate_lines.append(points)
         if line_type_to == LineType.Separate:

@@ -23,8 +23,8 @@ def filled_to_mpl_paths(filled: FillReturn, fill_type: FillType) -> list[mpath.P
         for points, codes, outer_offsets in zip(*filled):
             if points is None:
                 continue
-            points = list(np.split(points, outer_offsets[1:-1]))
-            codes = list(np.split(codes, outer_offsets[1:-1]))
+            points = np.split(points, outer_offsets[1:-1])
+            codes = np.split(codes, outer_offsets[1:-1])
             paths += [mpath.Path(p, c) for p, c in zip(points, codes)]
     elif fill_type == FillType.ChunkCombinedOffsetOffset:
         paths = []

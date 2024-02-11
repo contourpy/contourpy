@@ -228,7 +228,7 @@ def split_codes_by_offsets(codes: cpy.CodeArray, offsets: cpy.OffsetArray) -> li
     check_offset_array(offsets)
 
     if len(offsets) > 2:
-        return list(np.split(codes, offsets[1:-1]))
+        return np.split(codes, offsets[1:-1])
     else:
         return [codes]
 
@@ -243,7 +243,7 @@ def split_points_by_offsets(
     check_offset_array(offsets)
 
     if len(offsets) > 2:
-        return list(np.split(points, offsets[1:-1]))
+        return np.split(points, offsets[1:-1])
     else:
         return [points]
 
