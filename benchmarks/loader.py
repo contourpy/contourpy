@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING, Any
 from asv.benchmarks import Benchmarks
 from asv.config import Config
 from asv.results import Results, iter_results_for_machine
-from asv.statistics import get_err
+from asv_runner.statistics import get_err
+import numpy as np
 
 from contourpy import FillType, LineType
 
@@ -87,7 +88,7 @@ class Loader:
                     param[i] = item
             ret[name] = param[0] if len(param) == 1 else param
 
-        if values[0] is None:
+        if values[0] is None or np.isnan(values[0]):
             ret["mean"] = ret["error"] = None
         else:
             ret["mean"] = values
