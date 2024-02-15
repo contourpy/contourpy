@@ -55,15 +55,15 @@ contour generators.
 
 Each contour generator stores a cache of flags for each quad that is used for fast lookup. Some of
 the flags refer to the grid and are constant for the lifetime of the contour generator, some of them
-change during each call to :func:`~contourpy.SerialContourGenerator.lines` and
-:func:`~contourpy.SerialContourGenerator.filled`.
+change during each call to :meth:`~.ContourGenerator.lines` and
+:meth:`~.ContourGenerator.filled`.
 
 When created, a contour generator initialises the cache with information about the grid including
 which quads are masked out or corner-masked, and which edges are boundaries of either the domain,
 masked regions, or the edges of chunks.
 
-At the start of each call to :func:`~contourpy.SerialContourGenerator.lines` or
-:func:`~contourpy.SerialContourGenerator.filled`, the non-grid cache flags are set. These are the
+At the start of each call to :meth:`~.ContourGenerator.lines` or
+:meth:`~.ContourGenerator.filled`, the non-grid cache flags are set. These are the
 z-levels, i.e. whether the ``z`` values are above or below the contour levels, and also flags that
 indicate possible starting points for contour lines or filled contours.  Each contour line and
 filled contour will have at least one starting flag set in the cache, many will have more than one.

@@ -1,7 +1,7 @@
 x and y grid
 ============
 
-``x`` and ``y`` are optional keyword arguments to :func:`~contourpy.contour_generator` that are
+``x`` and ``y`` are optional keyword arguments to :func:`~.contour_generator` that are
 used to specify the (x, y) grid that the ``z`` values are located on. They may be 1D or 2D `NumPy`_
 arrays of ``np.float64`` or convertible to such. If one is specified then so should the other, and
 they must both have the same number of dimensions.
@@ -11,9 +11,9 @@ If the ``z`` array has shape ``(ny, nx)`` then the options available for ``x`` a
 #. Both 2D of shape ``(ny, nx)``.
 
 #. Both 1D with ``x.shape = (nx,)`` and ``y.shape = (ny,)``.  These are broadcast from 1D to 2D in
-   :func:`~contourpy.contour_generator` using ``x, y = np.meshgrid(x, y)``.
+   :func:`~.contour_generator` using ``x, y = np.meshgrid(x, y)``.
 
-#. Both ``None``, in which case :func:`~contourpy.contour_generator` uses
+#. Both ``None``, in which case :func:`~.contour_generator` uses
    ``x = np.arange(nx, dtype=np.float64)`` and ``y = np.arange(ny, dtype=np.float64)`` and then
    broadcasts them to 2D as above.
 
@@ -89,5 +89,5 @@ examples of curved and polar grids:
 .. warning::
 
    If ``x`` or ``y`` are 2D contiguous C-ordered ``np.float64`` arrays then they are not copied by
-   :func:`~contourpy.contour_generator` and they can be altered in your client code after the
-   :class:`~contourpy.ContourGenerator` has been created.  See :ref:`z_array` for more details.
+   :func:`~.contour_generator` and they can be altered in your client code after the
+   :class:`~.ContourGenerator` has been created.  See :ref:`z_array` for more details.

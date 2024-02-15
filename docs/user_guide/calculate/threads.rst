@@ -16,8 +16,8 @@ a single thread at a time.
 
    The domain must be divided into chunks for multithreaded contouring.
 
-Create a :class:`~contourpy.ThreadedContourGenerator` by calling
-:func:`~contourpy.contour_generator` in the usual way, ensuring that the domain is chunked:
+Create a :class:`~.ThreadedContourGenerator` by calling
+:func:`~.contour_generator` in the usual way, ensuring that the domain is chunked:
 
    >>> from contourpy import contour_generator
    >>> import numpy as np
@@ -38,7 +38,7 @@ means it will use the maximum number of threads available. This number can be ch
 
 .. note::
 
-   :func:`contourpy.max_threads()` is implemented using the C++ function
+   :func:`.max_threads()` is implemented using the C++ function
    `std::thread::hardware_concurrency
    <https://en.cppreference.com/w/cpp/thread/thread/hardware_concurrency>`_.
 

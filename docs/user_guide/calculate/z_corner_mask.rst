@@ -8,7 +8,7 @@ z array
 ^^^^^^^
 
 The ``z`` array is the 2D array of values to calculate the contours of and is the only compulsory
-argument to :func:`~contourpy.contour_generator`. It can be specified in any form that is
+argument to :func:`~.contour_generator`. It can be specified in any form that is
 convertible to a 2D `NumPy`_ array of ``dtype=np.float64``, such as nested Python lists.
 
 Within the C++ code it is stored as a contiguous C-ordered ``np.float64`` array. If it is not
@@ -17,9 +17,9 @@ You can avoid this copy by passing it in the desired format.
 
 .. warning::
 
-   If the ``z`` array does not need to be copied then both the :class:`~contourpy.ContourGenerator`
+   If the ``z`` array does not need to be copied then both the :class:`~.ContourGenerator`
    and your client code have access to the same shared array. This means that you can purposefully
-   or accidentally alter the data that the :class:`~contourpy.ContourGenerator` is using, which is
+   or accidentally alter the data that the :class:`~.ContourGenerator` is using, which is
    almost certainly not a good idea! Here is an example of this:
 
    >>> from contourpy import contour_generator
@@ -33,14 +33,14 @@ You can avoid this copy by passing it in the desired format.
    3
 
    ``z`` is a contiguous C-ordered ``np.float64`` array and the change in reference counts shows
-   that the :class:`~contourpy.ContourGenerator` is using this ``z`` array.
+   that the :class:`~.ContourGenerator` is using this ``z`` array.
 
     >>> cont_gen.lines(0.5)
     [array([[0. , 0.5],
             [1. , 0.5]])]
 
-   Now change an element of the ``z`` array that is used by the :class:`~contourpy.ContourGenerator`
-   and repeat the same :func:`~contourpy.ContourGenerator.lines` call:
+   Now change an element of the ``z`` array that is used by the :class:`~.ContourGenerator`
+   and repeat the same :meth:`~.ContourGenerator.lines` call:
 
    >>> z[0, 0] = -1.
    >>> cont_gen.lines(0.5)
@@ -54,21 +54,21 @@ You can avoid this copy by passing it in the desired format.
 Mask
 ^^^^
 
-The ``z`` array passed to :func:`~contourpy.contour_generator` can be a
+The ``z`` array passed to :func:`~.contour_generator` can be a
 `NumPy masked array <https://numpy.org/doc/stable/reference/maskedarray.html>`_ to mask out specific
 grid points from contour calculations.  In addition, any ``z`` values which are non-finite
 (``np.inf`` or ``np.nan``) will also be masked out.
 
 .. note::
 
-   The mask of a ``z`` array is used only when constructing a :class:`~contourpy.ContourGenerator`
+   The mask of a ``z`` array is used only when constructing a :class:`~.ContourGenerator`
    object, so there is no danger that a mask shared with client code can subsequently be altered to
-   change the behaviour of the :class:`~contourpy.ContourGenerator`.
+   change the behaviour of the :class:`~.ContourGenerator`.
 
 Corner mask
 ^^^^^^^^^^^
 
-The boolean ``corner_mask`` keyword argument passed to :func:`~contourpy.contour_generator` is used
+The boolean ``corner_mask`` keyword argument passed to :func:`~.contour_generator` is used
 to control how much of the domain is masked out by masked ``z`` values.
 
 If ``corner_mask=False`` all quads that touch a masked out point are completely masked out.

@@ -177,7 +177,7 @@ To run tests in parallel on all of your available CPUs:
 
 .. note::
 
-   :class:`~contourpy.util.bokeh_renderer.BokehRenderer` tests will be run if Bokeh is installed,
+   :class:`~.BokehRenderer` tests will be run if Bokeh is installed,
    otherwise they will be skipped. The generated images for Bokeh tests are sensitive to the version
    of the browser and the Operating System used to generate them, so unless you have experience in
    this area you are advised to leave the generation and testing of Bokeh images to the ContourPy

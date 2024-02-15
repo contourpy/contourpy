@@ -2,7 +2,7 @@ Dechunking
 ----------
 
 Contour lines and filled contours that are split into multiple chunks can have their chunks combined
-using the functions :func:`~contourpy.dechunk_lines` and :func:`~contourpy.dechunk_filled`. Line and
+using the functions :func:`~.dechunk_lines` and :func:`~.dechunk_filled`. Line and
 fill types that are not split into chunks (``LineType.Separate``, ``LineType.SeparateCode``,
 ``FillType.OuterCode`` and ``FillType.OuterOffset``) and those that are but only have a single chunk
 are returned unmodified by the dechunk functions.
@@ -26,8 +26,7 @@ As an example, first generate some contour lines that are chunked:
      array([0, 2], dtype=uint32),
      array([0, 2], dtype=uint32)])
 
-There are 4 chunks and each contains a single 2-point line. Now call
-:func:`~contourpy.dechunk_lines`:
+There are 4 chunks and each contains a single 2-point line. Now call :func:`~.dechunk_lines`:
 
    >>> lines = dechunk_lines(lines, "ChunkCombinedOffset")
    >>> lines

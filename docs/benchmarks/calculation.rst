@@ -1,7 +1,7 @@
 Calculation
 -----------
 
-There are two different datasets used for benchmarking obtained from the ``util`` functions
+There are two different datasets used for benchmarking obtained from the :mod:`contourpy.util` functions
 :func:`~contourpy.util.data.simple` and :func:`~contourpy.util.data.random`.  The former is the sum
 of two gaussians that results in a small number of relatively short contours.  The latter is random
 data that results in a large number of small contours and a few large contours; this is an extreme

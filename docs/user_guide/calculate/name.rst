@@ -2,7 +2,7 @@ Algorithm name
 --------------
 
 There are four possible algorithms to use for contouring which are identified by the ``name``
-keyword argument passed to :func:`~contourpy.contour_generator`. For example:
+keyword argument passed to :func:`~.contour_generator`. For example:
 
   >>> cont_gen = contour_generator(name="serial", ...)
 
@@ -15,8 +15,8 @@ feature:
 
 .. name_supports::
 
-Also, some algorithms only support a subset of the possible :class:`~contourpy.LineType`
-and :class:`~contourpy.FillType` enums; these are discussed in :ref:`line_type` and :ref:`fill_type`
+Also, some algorithms only support a subset of the possible :class:`~.LineType`
+and :class:`~.FillType` enums; these are discussed in :ref:`line_type` and :ref:`fill_type`
 respectively.
 
 mpl2005
