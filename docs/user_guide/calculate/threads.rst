@@ -3,14 +3,14 @@
 Threads
 -------
 
-The ``threaded`` algorithm supports the use of multiple threads.
+The :ref:`threaded` algorithm supports the use of multiple threads.
 
 .. name_supports::
    :filter: threads
 
-``threaded`` shares most of its code with ``serial`` except for the high-level processing of chunks
-which it performs in parallel using a thread pool, and the creation of `NumPy`_ arrays is limited to
-a single thread at a time.
+:ref:`threaded` shares most of its code with :ref:`serial` except for the high-level processing of
+chunks which it performs in parallel using a thread pool, and the creation of `NumPy`_ arrays is
+limited to a single thread at a time.
 
 .. note::
 

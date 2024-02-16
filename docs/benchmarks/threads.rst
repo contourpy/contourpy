@@ -1,7 +1,7 @@
 Multithreaded calculation
 -------------------------
 
-Benchmarks for the ``threaded`` algorithm are shown here, for unmasked ``z``, a problem size ``n``
+Benchmarks for the :ref:`threaded` algorithm are shown here, for unmasked ``z``, a problem size ``n``
 of 1000 and a ``total_chunk_count`` of 40 for up to 6 threads.
 
 .. image:: ../_static/threaded_lines_simple_light.svg
@@ -46,8 +46,8 @@ before they can allocate arrays.
 
 .. note::
 
-   Whether it is worth using ``threaded`` rather than ``serial`` for a particular problem depends on
-   the complexity of the dataset and what the calculated contours are to be used for.  If they are
-   only needed for rendering using the `Matplotlib`_ Agg renderer, then for complicated problems the
-   rendering time usually far exceeds the calculation time so a reduction in calculation time may
-   not be of much real-world benefit.
+   Whether it is worth using :ref:`threaded` rather than :ref:`serial` for a particular problem
+   depends on the complexity of the dataset and what the calculated contours are to be used for.
+   If they are only needed for rendering using the `Matplotlib`_ Agg renderer, then for complicated
+   problems the rendering time usually far exceeds the calculation time so a reduction in
+   calculation time may not be of much real-world benefit.

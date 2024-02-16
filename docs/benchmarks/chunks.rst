@@ -1,7 +1,7 @@
 Calculation with chunks
 -----------------------
 
-This page shows the performance of the ``serial`` algorithm as the ``total_chunk_count`` is
+This page shows the performance of the :ref:`serial` algorithm as the ``total_chunk_count`` is
 increased from 1 to 120.
 
 .. image:: ../_static/chunk_lines_simple_light.svg

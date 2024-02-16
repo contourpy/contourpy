@@ -50,7 +50,7 @@ right.
 Detailed
 --------
 
-This section describes in more detail the algorithm used by the ``serial`` and ``threaded``
+This section describes in more detail the algorithm used by the :ref:`serial` and :ref:`threaded`
 contour generators.
 
 Each contour generator stores a cache of flags for each quad that is used for fast lookup. Some of

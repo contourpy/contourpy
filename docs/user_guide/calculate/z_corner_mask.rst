@@ -107,7 +107,7 @@ Here is an example of the difference, the red circles indicate masked out points
 
    renderer.show()
 
-All algorithms other than ``mpl2005`` support corner masking, and it is enabled by default on those
+All algorithms other than :ref:`mpl2005` support corner masking, and it is enabled by default on those
 algorithms that support it if you do not specifically request otherwise via ``corner_mask=False``.
 
 .. name_supports::
