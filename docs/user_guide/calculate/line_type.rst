@@ -3,9 +3,9 @@
 Line type
 ---------
 
-:class:`~contourpy.LineType` is an enum that is passed as the ``line_type`` keyword argument to
-:func:`~contourpy.contour_generator()` and is used to specify the format of data returned from calls
-to :func:`~contourpy.ContourGenerator.lines`. If not explicitly specified then the default is
+:class:`~.LineType` is an enum that is passed as the ``line_type`` keyword argument to
+:func:`~.contour_generator()` and is used to specify the format of data returned from calls
+to :meth:`~.ContourGenerator.lines`. If not explicitly specified then the default is
 used for the requested algorithm ``name``.
 
 Supported enum members and the default vary by algorithm:
@@ -26,8 +26,8 @@ Enum members are a combination of the following words:
 - **Offset**: individual lines are identified via offsets into the previous line array.
 - **Nan**: individual lines are separated by NaN (Not a Number).
 
-The format of data returned by :func:`~contourpy.ContourGenerator.lines` for each of the
-possible :class:`~contourpy.LineType` members is best illustrated through an example.
+The format of data returned by :meth:`~.ContourGenerator.lines` for each of the
+possible :class:`~.LineType` members is best illustrated through an example.
 
 .. plot::
    :separate-modes:
@@ -167,7 +167,7 @@ analysis.
 
 .. note::
 
-   The order of lines returned by a particular :func:`~contourpy.ContourGenerator.lines` call
+   The order of lines returned by a particular :meth:`~.ContourGenerator.lines` call
    is deterministic except for the combination of ``name="threaded"`` and either
    ``line_type=LineType.Separate`` or ``line_type=LineType.SeparateCode``. This is because the
    order that the chunks are processed in is not deterministic and lines are appended to the

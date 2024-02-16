@@ -50,20 +50,20 @@ right.
 Detailed
 --------
 
-This section describes in more detail the algorithm used by the ``serial`` and ``threaded``
+This section describes in more detail the algorithm used by the :ref:`serial` and :ref:`threaded`
 contour generators.
 
 Each contour generator stores a cache of flags for each quad that is used for fast lookup. Some of
 the flags refer to the grid and are constant for the lifetime of the contour generator, some of them
-change during each call to :func:`~contourpy.SerialContourGenerator.lines` and
-:func:`~contourpy.SerialContourGenerator.filled`.
+change during each call to :meth:`~.ContourGenerator.lines` and
+:meth:`~.ContourGenerator.filled`.
 
 When created, a contour generator initialises the cache with information about the grid including
 which quads are masked out or corner-masked, and which edges are boundaries of either the domain,
 masked regions, or the edges of chunks.
 
-At the start of each call to :func:`~contourpy.SerialContourGenerator.lines` or
-:func:`~contourpy.SerialContourGenerator.filled`, the non-grid cache flags are set. These are the
+At the start of each call to :meth:`~.ContourGenerator.lines` or
+:meth:`~.ContourGenerator.filled`, the non-grid cache flags are set. These are the
 z-levels, i.e. whether the ``z`` values are above or below the contour levels, and also flags that
 indicate possible starting points for contour lines or filled contours.  Each contour line and
 filled contour will have at least one starting flag set in the cache, many will have more than one.
@@ -77,13 +77,13 @@ The first pass does the following:
 
 #. Counts the total number of points and lines followed.
 #. Erases start flags that are no longer needed.
-#. If it is calculating filled contours and the ``fill_type`` requires the relationship between
-   outer boundary and their holes, flags are set in the cache for this.
+#. If it is calculating filled contours and the :class:`~.FillType` requires the relationship
+   between outer boundary and their holes, flags are set in the cache for this.
 #. Sets extra cache flags for rows in the domain that do not contain any start flags to speed up
    the second pass.
 
 At the end of the first pass a buffer is allocated to contain all of the contour points, and one or
-more offset buffers depending upon the ``line_type`` or ``fill_type``.
+more offset buffers depending upon the :class:`~.LineType` or :class:`~.FillType`.
 
 The second pass does the following:
 

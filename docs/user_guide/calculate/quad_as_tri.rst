@@ -15,8 +15,8 @@ Corner masked triangles are not affected by this setting, only full unmasked qua
 .. name_supports::
    :filter: quad_as_tri
 
-``quad_as_tri`` is available for the ``serial`` and ``threaded`` algorithms.  It is always disabled
-by default, so if required it must be explicitly requested:
+``quad_as_tri`` is available for the :ref:`serial` and :ref:`threaded` algorithms.  It is always
+disabled by default, so if required it must be explicitly requested:
 
   >>> cont_gen = contour_generator(quad_as_tri=True, ...)
 

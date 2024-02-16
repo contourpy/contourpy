@@ -13,11 +13,11 @@ Contour lines
 .. image:: ../_static/lines_simple_1000_render_dark.svg
    :class: only-dark
 
-For the ``simple`` dataset above the performance of ``serial`` for contour lines is the same
-regardless of ``LineType``. It is slightly faster than ``mpl2005`` and significantly faster than
-``mpl2014`` with a speedup of 1.3-1.4.  Comparing these times with the calculation-only times of
-the previous section shows that the rendering time here is only about 125 ms so there is a fairly
-even split between calculation and rendering time for ``serial``.
+For the ``simple`` dataset above the performance of :ref:`serial` for contour lines is the same
+regardless of :class:`~.LineType`. It is slightly faster than :ref:`mpl2005` and significantly faster
+than :ref:`mpl2014` with a speedup of 1.3-1.4.  Comparing these times with the calculation-only times
+of the previous section shows that the rendering time here is only about 125 ms so there is a fairly
+even split between calculation and rendering time for :ref:`serial`.
 
 .. image:: ../_static/lines_random_1000_render_light.svg
    :class: only-light
@@ -25,17 +25,17 @@ even split between calculation and rendering time for ``serial``.
 .. image:: ../_static/lines_random_1000_render_dark.svg
    :class: only-dark
 
-For the ``random`` dataset above the performance of ``serial`` varies significantly by ``LineType``.
+For the ``random`` dataset above the performance of :ref:`serial` varies significantly by :class:`~.LineType`.
 For ``LineType.SeparateCode`` all three algorithms take about the same time.  The calculation time
 for these is about 1.2 seconds, so here the rendering takes almost 90% of the total time.  This is
 much more than for ``simple`` as the rendering is much more complicated.
 
-The ``LineType`` that do not include `Matplotlib`_ kind codes are slower.  You must generate these
+The :class:`~.LineType` that do not include `Matplotlib`_ kind codes are slower.  You must generate these
 codes yourself or allow `Matplotlib`_ to generate them for you, either way is slower than asking
 ``contourpy`` to generate them for you in C++.
 
 ``LineType.ChunkCombinedCode`` is significantly faster than ``LineType.SeparateCode`` with a speedup
-of 2-2.4.  This means that use of the ``serial`` algorithm with ``LineType.ChunkCombinedCode``
+of 2-2.4.  This means that use of the :ref:`serial` algorithm with ``LineType.ChunkCombinedCode``
 could halve the calculation and rendering time in `Matplotlib`_ for such complicated datasets.
 The benefit here is in just having two `NumPy`_ arrays per chunk, one for points and one for codes,
 which are ultimately used by `Matplotlib`_'s Agg renderer.  Compare this with
@@ -51,10 +51,10 @@ Filled contours
 .. image:: ../_static/filled_simple_1000_render_dark.svg
    :class: only-dark
 
-As usual, for the ``simple`` dataset above the performance of ``serial`` for filled contours is the
-same regardless of ``FillType``.  It is 10% faster than ``mpl2005`` and significantly faster
-than ``mpl2014`` with a speedup of 1.3-1.4.  As with ``lines`` the rendering time here is only
-about 125 ms so there is a fairly even split between calculation and rendering time for ``serial``.
+As usual, for the ``simple`` dataset above the performance of :ref:`serial` for filled contours is the
+same regardless of :class:`~.FillType`.  It is 10% faster than :ref:`mpl2005` and significantly faster
+than :ref:`mpl2014` with a speedup of 1.3-1.4.  As with ``lines`` the rendering time here is only
+about 125 ms so there is a fairly even split between calculation and rendering time for :ref:`serial`.
 
 .. image:: ../_static/filled_random_1000_render_light.svg
    :class: only-light
@@ -62,18 +62,19 @@ about 125 ms so there is a fairly even split between calculation and rendering t
 .. image:: ../_static/filled_random_1000_render_dark.svg
    :class: only-dark
 
-For the ``random`` dataset above the performance of ``serial`` varies significantly by ``FillType``.
-For ``FillType.OuterCode`` it is faster than ``mpl2014`` by about 10-15%.  The calculation for
-``serial`` here was about 1.8 s so the rendering takes about four times as long as the calculation.
+For the ``random`` dataset above the performance of :ref:`serial` varies significantly by
+:class:`~.FillType`.  For ``FillType.OuterCode`` it is faster than :ref:`mpl2014` by about 10-15%.
+The calculation for :ref:`serial` here was about 1.8 s so the rendering takes about four times as
+long as the calculation.
 
-Three of the other ``serial`` ``FillType`` take longer because they either have to create
+Three of the other :ref:`serial` :class:`~.FillType` take longer because they either have to create
 `Matplotlib`_ kind codes anyway, in a less efficient way than allowing ``contourpy`` to do so in
 C++, or in the case of ``FillType.ChunkCombinedCodeOffset`` by breaking up the large points and
 codes arrays into many smaller arrays, one per polygon (outer plus holes).
 
 ``FillType.ChunkCombinedCode`` and ``FillType.ChunkCombinedOffset`` are significantly faster than
-``FillType.OuterCode`` with a speedup of 2.8-3.2 compared to ``serial`` and 3-3.4 compared to
-``mpl2014``.  Again this only has to send two `NumPy`_ arrays to `Matplotlib`_ for rendering rather
+``FillType.OuterCode`` with a speedup of 2.8-3.2 compared to :ref:`serial` and 3-3.4 compared to
+:ref:`mpl2014`.  Again this only has to send two `NumPy`_ arrays to `Matplotlib`_ for rendering rather
 than 850 thousand pairs of them.
 
 Care would be needed in switching to use ``FillType.ChunkCombinedCode`` in `Matplotlib`_.  Rendering

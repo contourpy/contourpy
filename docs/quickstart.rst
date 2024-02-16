@@ -10,8 +10,8 @@ Firstly create a simple 2x2 grid of ``z`` values using Python lists:
 
   >>> z = [[0.0, 0.1], [0.2, 0.3]]
 
-Import the :func:`~contourpy.contour_generator` function and call it to create and return the
-:class:`~contourpy.ContourGenerator` object that will be used to contour the ``z`` values:
+Import the :func:`~.contour_generator` function and call it to create and return the
+:class:`~.ContourGenerator` object that will be used to contour the ``z`` values:
 
   >>> from contourpy import contour_generator
   >>> cont_gen = contour_generator(z=z)
@@ -35,8 +35,8 @@ consisting of two ``(x, y)`` points from ``(0.5, 1)`` to ``(1, 0.75)``.
 
 .. note::
 
-   The format of data returned by :meth:`~contourpy.ContourGenerator.lines` is controlled by
-   the ``line_type`` argument passed to :func:`~contourpy.contour_generator`.
+   The format of data returned by :meth:`~.ContourGenerator.lines` is controlled by
+   the ``line_type`` argument passed to :func:`~.contour_generator`.
 
 Filled contours
 ---------------
@@ -62,8 +62,8 @@ explained further in :ref:`fill_type`.
 
 .. note::
 
-   The format of data returned by :meth:`~contourpy.ContourGenerator.filled` is controlled by
-   the ``filled_type`` argument passed to :func:`~contourpy.contour_generator`.
+   The format of data returned by :meth:`~.ContourGenerator.filled` is controlled by
+   the ``filled_type`` argument passed to :func:`~.contour_generator`.
 
 Graphical output
 ----------------
@@ -101,4 +101,4 @@ into
 
    from contourpy.util.bokeh_renderer import BokehRenderer as Renderer
 
-Output for the `Bokeh`_ renderer is sent to your web browser.
+Output for the :class:`.BokehRenderer` renderer is sent to your web browser.

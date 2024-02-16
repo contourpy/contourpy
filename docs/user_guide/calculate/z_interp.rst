@@ -12,19 +12,19 @@ Interpolation of ``z`` values occurs in two situations:
    ``quad_as_tri=True`` or just saddle quads if ``quad_as_tri=False`` (see
    :ref:`algorithm_description` about saddle quads).
 
-The default for all algorithms is linear z-interpolation, but ``serial`` and ``threaded`` support
-the use of a :class:`~contourpy.ZInterp` enum that contains other possibilities.
+The default for all algorithms is linear z-interpolation, but :ref:`serial` and :ref:`threaded`
+support the use of a :class:`~.ZInterp` enum that contains other possibilities.
 
 .. name_supports::
    :filter: z_interp
 
 .. note::
 
-   Currently the only members of :class:`~contourpy.ZInterp` are ``ZInterp.Linear`` and
+   Currently the only members of :class:`~.ZInterp` are ``ZInterp.Linear`` and
    ``ZInterp.Log``.
 
 To use alternative z-interpolation, pass the ``z_interp`` keyword argument to
-:func:`~contourpy.contour_generator`. A string name can be used instead of the enum member so the
+:func:`~.contour_generator`. A string name can be used instead of the enum member so the
 following are equivalent:
 
    >>> contour_generator(z_interp="Log", ...)

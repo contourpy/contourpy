@@ -51,8 +51,8 @@ a NumPy array containing the single MultiLineString.
 .. note::
 
    If your contour lines have a different line type then you can convert them using
-   :func:`~contourpy.convert_lines`. If you have more than one chunk you can combine them using
-   :func:`~contourpy.dechunk_lines` or iterate over the chunks, convert one chunk at a time and
+   :func:`~.convert_lines`. If you have more than one chunk you can combine them using
+   :func:`~.dechunk_lines` or iterate over the chunks, convert one chunk at a time and
    then combine the geometries.
 
 Filled contours to Shapely
@@ -105,8 +105,8 @@ a NumPy array containing the single MultiPolygon.
 .. note::
 
    If your filled contours have a different line type then you can convert them using
-   :func:`~contourpy.convert_filled`. If you have more than one chunk you can combine them using
-   :func:`~contourpy.dechunk_filled` or iterate over the chunks, convert one chunk at a time and
+   :func:`~.convert_filled`. If you have more than one chunk you can combine them using
+   :func:`~.dechunk_filled` or iterate over the chunks, convert one chunk at a time and
    then combine the geometries.
 
 Example use of Shapely geometries

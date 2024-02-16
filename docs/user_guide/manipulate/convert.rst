@@ -4,8 +4,8 @@ Convert line and fill types
 Convert contour lines to a different line type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:func:`~contourpy.convert_lines` is used to convert contour lines to a different
-:class:`~contourpy.LineType`.
+:func:`~.convert_lines` is used to convert contour lines to a different
+:class:`~.LineType`.
 
 The following example creates two contour lines in ``LineType.Separate`` format where each line's 2D
 points are in separate NumPy arrays:
@@ -25,7 +25,7 @@ This can be converted to ``LineType.ChunkCombinedOffset``:
 in which the lines are combined into a single array of 2D points and the offset array shows the
 start and end offsets of each line.
 
-Any :class:`~contourpy.LineType` can be converted to any other :class:`~contourpy.LineType`.
+Any :class:`~.LineType` can be converted to any other :class:`~.LineType`.
 When converting from a non-chunked line type (``LineType.Separate`` or ``LineType.SeparateCode``) to
 a chunked one (``LineType.ChunkCombinedCode``, ``LineType.ChunkCombinedOffset`` or
 ``LineType.ChunkCombinedNan``), all lines are placed together in the first chunk. When converting in
@@ -35,8 +35,8 @@ the other direction, all chunk information is discarded as all lines are appende
 Convert filled contours to a different fill type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:func:`~contourpy.convert_filled` is used to convert filled contours to a different
-:class:`~contourpy.FillType`.
+:func:`~.convert_filled` is used to convert filled contours to a different
+:class:`~.FillType`.
 
 The following example creates two filled polygons in ``FillType.OuterCode`` format where each of the
 polygons points and codes are in separate NumPy arrays:
@@ -62,10 +62,10 @@ This can be converted to ``FillType.ChunkCombinedOffsetOffset``:
 in which the points are combined into a single 2D array and there are two arrays of offsets, one
 for the boundary offsets and one for the polygon (outer boundary) offsets.
 
-Not all :class:`~contourpy.FillType` can be converted to any other :class:`~contourpy.FillType`.
-Two of the :class:`~contourpy.FillType` (``FillType.ChunkCombinedCode`` and
+Not all :class:`~.FillType` can be converted to any other :class:`~.FillType`.
+Two of the :class:`~.FillType` (``FillType.ChunkCombinedCode`` and
 ``FillType.ChunkCombinedOffset``) do not include information about the relationship between outer
-and inner boundaries so they cannot be converted to any of the :class:`~contourpy.FillType` that
+and inner boundaries so they cannot be converted to any of the :class:`~.FillType` that
 need this information (``FillType.OuterCode``, ``FillType.OuterOffset``,
 ``FillType.ChunkCombinedCodeOffset`` and ``FillType.ChunkCombinedOffsetOffset``).
 

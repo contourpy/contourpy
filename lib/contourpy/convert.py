@@ -257,13 +257,13 @@ def convert_filled(
     fill_type_from: FillType | str,
     fill_type_to:  FillType | str,
 ) -> cpy.FillReturn:
-    """Return the specified filled contours converted to a different :class:`~contourpy.FillType`.
+    """Return the specified filled contours converted to a different :class:`~.FillType`.
 
     Args:
         filled (sequence of arrays): Filled contour polygons to convert.
-        fill_type_from (FillType or str): :class:`~contourpy.FillType` to convert from as enum or
+        fill_type_from (FillType or str): :class:`~.FillType` to convert from as enum or
             string equivalent.
-        fill_type_to (FillType or str): :class:`~contourpy.FillType` to convert to as enum or string
+        fill_type_to (FillType or str): :class:`~.FillType` to convert to as enum or string
             equivalent.
 
     Return:
@@ -507,13 +507,13 @@ def convert_lines(
     line_type_from: LineType | str,
     line_type_to:  LineType | str,
 ) -> cpy.LineReturn:
-    """Return the specified contour lines converted to a different :class:`~contourpy.LineType`.
+    """Return the specified contour lines converted to a different :class:`~.LineType`.
 
     Args:
         lines (sequence of arrays): Contour lines to convert.
-        line_type_from (LineType or str): :class:`~contourpy.LineType` to convert from as enum or
+        line_type_from (LineType or str): :class:`~.LineType` to convert from as enum or
             string equivalent.
-        line_type_to (LineType or str): :class:`~contourpy.LineType` to convert to as enum or string
+        line_type_to (LineType or str): :class:`~.LineType` to convert to as enum or string
             equivalent.
 
     Return:

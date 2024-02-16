@@ -1,7 +1,7 @@
 Calculation
 -----------
 
-There are two different datasets used for benchmarking obtained from the ``util`` functions
+There are two different datasets used for benchmarking obtained from the :mod:`contourpy.util` functions
 :func:`~contourpy.util.data.simple` and :func:`~contourpy.util.data.random`.  The former is the sum
 of two gaussians that results in a small number of relatively short contours.  The latter is random
 data that results in a large number of small contours and a few large contours; this is an extreme
@@ -29,9 +29,9 @@ Contour lines
 .. image:: ../_static/lines_simple_1000_dark.svg
    :class: only-dark
 
-For the ``simple`` dataset above the performance of ``serial`` for contour lines is the same
-regardless of ``LineType``. It is about 20% faster than ``mpl2005`` and significantly faster than
-``mpl2014`` with a speedup of 1.7-1.8.
+For the ``simple`` dataset above the performance of :ref:`serial` for contour lines is the same
+regardless of :class:`~.LineType`. It is about 20% faster than :ref:`mpl2005` and significantly faster
+than :ref:`mpl2014` with a speedup of 1.7-1.8.
 
 .. image:: ../_static/lines_random_1000_light.svg
    :class: only-light
@@ -39,11 +39,11 @@ regardless of ``LineType``. It is about 20% faster than ``mpl2005`` and signific
 .. image:: ../_static/lines_random_1000_dark.svg
    :class: only-dark
 
-For the ``random`` dataset above the performance of ``serial`` varies significantly by ``LineType``.
-For ``LineType.SeparateCode`` ``serial`` is 10-20% faster than ``mpl2005``, and is about the same as
-``mpl2014`` if masked and 10% slower if not masked.
+For the ``random`` dataset above the performance of :ref:`serial` varies significantly by
+:class:`~.LineType`.  For ``LineType.SeparateCode`` :ref:`serial` is 10-20% faster than
+:ref:`mpl2005`, and is about the same as :ref:`mpl2014` if masked and 10% slower if not masked.
 
-Other ``LineType`` are faster.  ``LineType.Separate`` has a speedup of about 1.4 compared to
+Other :class:`~.LineType` are faster.  ``LineType.Separate`` has a speedup of about 1.4 compared to
 ``LineType.SeparateCode``; most of the difference here is the time taken to allocate the extra 850
 thousand `NumPy`_ arrays (one per line) and a small amount is the time taken to calculate the
 `Matplotlib`_ kind codes to put in them.
@@ -62,9 +62,9 @@ Filled contours
 .. image:: ../_static/filled_simple_1000_dark.svg
    :class: only-dark
 
-For the ``simple`` dataset above the performance of ``serial`` for filled contours is the same
-regardless of ``FillType``.  It it 10-20% faster than ``mpl2005`` and significantly
-faster than ``mpl2014`` with a speedup of 1.7-1.8.
+For the ``simple`` dataset above the performance of :ref:`serial` for filled contours is the same
+regardless of :class:`~.FillType`.  It it 10-20% faster than :ref:`mpl2005` and significantly
+faster than :ref:`mpl2014` with a speedup of 1.7-1.8.
 
 .. image:: ../_static/filled_random_1000_light.svg
    :class: only-light
@@ -72,17 +72,17 @@ faster than ``mpl2014`` with a speedup of 1.7-1.8.
 .. image:: ../_static/filled_random_1000_dark.svg
    :class: only-dark
 
-For the ``random`` dataset above the performance of ``serial`` varies significantly by ``FillType``.
-For ``FillType.OuterCode`` it is faster than ``mpl2014`` with a speedup of 1.2-1.3.  It is also
-faster than ``mpl2005`` but only the ``corner_mask=False`` option is shown in full as the unmasked
-benchmark here is off the scale at 11.2 seconds.  The ``mpl2005`` algorithm calculates points for
+For the ``random`` dataset above the performance of :ref:`serial` varies significantly by :class:`~.FillType`.
+For ``FillType.OuterCode`` it is faster than :ref:`mpl2014` with a speedup of 1.2-1.3.  It is also
+faster than :ref:`mpl2005` but only the ``corner_mask=False`` option is shown in full as the unmasked
+benchmark here is off the scale at 11.2 seconds.  The :ref:`mpl2005` algorithm calculates points for
 outer and hole boundaries in an interleaved format which need to be reordered, and this approach
 scales badly for a large outer boundary containing many holes as occurs here for unmasked ``z``.
 
-Other ``FillType`` are faster, although ``FillType.OuterOffset`` is only marginally so as it
+Other :class:`~.FillType` are faster, although ``FillType.OuterOffset`` is only marginally so as it
 creates the same number of `NumPy`_ arrays as ``FillType.OuterCode`` but the arrays are shorter.
 
-The other four ``FillType`` can be grouped in pairs: ``FillType.ChunkCombinedCodeOffset`` and
+The other four :class:`~.FillType` can be grouped in pairs: ``FillType.ChunkCombinedCodeOffset`` and
 ``FillType.ChunkCombinedOffsetOffset`` have a speedup of 1.8-2 compared to
 ``FillType.OuterCode``; whereas ``FillType.ChunkCombinedCode`` and
 ``FillType.ChunkCombinedOffset`` are marginally faster with a speedup of 1.9-2.  The speed

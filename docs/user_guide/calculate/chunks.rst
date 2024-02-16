@@ -23,7 +23,7 @@ Disadvantages:
    single chunk of shape ``(ny-1, nx-1)``.  Neighbouring chunks have neighbouring quads but they
    share the points that lie on their common boundary.
 
-There are three possible ways of specifying chunks in :func:`~contourpy.contour_generator` which
+There are three possible ways of specifying chunks in :func:`~.contour_generator` which
 are the keyword arguments ``chunk_size``, ``chunk_count`` and ``total_chunk_count``. A maximum of
 one of the three may be specified.
 
