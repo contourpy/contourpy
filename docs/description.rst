@@ -77,13 +77,13 @@ The first pass does the following:
 
 #. Counts the total number of points and lines followed.
 #. Erases start flags that are no longer needed.
-#. If it is calculating filled contours and the ``fill_type`` requires the relationship between
-   outer boundary and their holes, flags are set in the cache for this.
+#. If it is calculating filled contours and the :class:`~.FillType` requires the relationship
+   between outer boundary and their holes, flags are set in the cache for this.
 #. Sets extra cache flags for rows in the domain that do not contain any start flags to speed up
    the second pass.
 
 At the end of the first pass a buffer is allocated to contain all of the contour points, and one or
-more offset buffers depending upon the ``line_type`` or ``fill_type``.
+more offset buffers depending upon the :class:`~.LineType` or :class:`~.FillType`.
 
 The second pass does the following:
 

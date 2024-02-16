@@ -22,7 +22,7 @@ PYBIND11_MODULE(_contourpy, m) {
     m.doc() =
         "C++11 extension module wrapped using `pybind11`_.\n\n"
         "It should not be necessary to access classes and functions in this extension module "
-        "directly. Instead, :func:`contourpy.contour_generator` should be used to create "
+        "directly. Instead, :func:`~contourpy.contour_generator` should be used to create "
         ":class:`~.ContourGenerator` objects, and the enums "
         "(:class:`~.FillType`, :class:`~.LineType` and "
         ":class:`~.ZInterp`) and :func:`.max_threads` function are all available "
@@ -85,9 +85,11 @@ PYBIND11_MODULE(_contourpy, m) {
     const char* create_filled_contour_doc =
         "Synonym for :meth:`~.ContourGenerator.filled` to provide backward compatibility "
         "with Matplotlib.";
-    const char* default_fill_type_doc = "Return the default ``FillType`` used by this algorithm.";
-    const char* default_line_type_doc = "Return the default ``LineType`` used by this algorithm.";
-    const char* fill_type_doc = "Return the ``FillType``.";
+    const char* default_fill_type_doc =
+        "Return the default :class:`~.FillType` used by this algorithm.";
+    const char* default_line_type_doc =
+        "Return the default :class:`~.LineType` used by this algorithm.";
+    const char* fill_type_doc = "Return the :class:`~.FillType`.";
     const char* filled_doc =
         "Calculate and return filled contours between two levels.\n\n"
         "Args:\n"
@@ -100,7 +102,7 @@ PYBIND11_MODULE(_contourpy, m) {
         "``lower_level`` or ``upper_level`` are ``np.nan``.\n\n"
         "To return filled contours below a ``level`` use ``filled(-np.inf, level)``.\n"
         "To return filled contours above a ``level`` use ``filled(level, np.inf)``";
-    const char* line_type_doc = "Return the ``LineType``.";
+    const char* line_type_doc = "Return the :class:`~.LineType`.";
     const char* lines_doc =
         "Calculate and return contour lines at a particular level.\n\n"
         "Args:\n"
@@ -148,9 +150,9 @@ PYBIND11_MODULE(_contourpy, m) {
     const char* supports_corner_mask_doc =
         "Return whether this algorithm supports ``corner_mask``.";
     const char* supports_fill_type_doc =
-        "Return whether this algorithm supports a particular ``FillType``.";
+        "Return whether this algorithm supports a particular :class:`~.FillType`.";
     const char* supports_line_type_doc =
-        "Return whether this algorithm supports a particular ``LineType``.";
+        "Return whether this algorithm supports a particular :class:`~.LineType`.";
     const char* supports_quad_as_tri_doc =
         "Return whether this algorithm supports ``quad_as_tri``.";
     const char* supports_threads_doc =

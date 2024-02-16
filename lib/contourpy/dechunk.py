@@ -26,7 +26,8 @@ def dechunk_filled(filled: cpy.FillReturn, fill_type: FillType | str) -> cpy.Fil
     Args:
         filled (sequence of arrays): Filled contour data as returned by
             :meth:`~.ContourGenerator.filled`.
-        fill_type (FillType or str): Type of ``filled`` as enum or string equivalent.
+        fill_type (FillType or str): Type of :meth:`~.ContourGenerator.filled` as enum or string
+            equivalent.
 
     Return:
         Filled contours in a single chunk.
@@ -96,7 +97,8 @@ def dechunk_lines(lines: cpy.LineReturn, line_type: LineType | str) -> cpy.LineR
     Args:
         lines (sequence of arrays): Contour line data as returned by
             :meth:`~.ContourGenerator.lines`.
-        line_type (LineType or str): Type of ``lines`` as enum or string equivalent.
+        line_type (LineType or str): Type of :meth:`~.ContourGenerator.lines` as enum or string
+            equivalent.
 
     Return:
         Contour lines in a single chunk.

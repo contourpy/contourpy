@@ -38,7 +38,7 @@ as long as one of the ``ChunkCombined...`` line or fill types is being used.
 Using 6 threads the speedup is 4.4 for :meth:`~.ContourGenerator.lines` and 5.1-5.2 for
 :meth:`~.ContourGenerator.filled`.
 
-The ``LineType`` and ``FillType`` options that do not scale well are those that return individual
+The :class:`~.LineType` and :class:`~.FillType` options that do not scale well are those that return individual
 NumPy arrays for each line or polygon rather than combined arrays for each chunk. This is because
 the allocation of a new NumPy array can only be performed by one thread at a time, so the larger the
 number of arrays that are generated, the greater the likelihood that other threads are left waiting

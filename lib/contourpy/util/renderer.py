@@ -90,7 +90,7 @@ class Renderer(ABC):
             multi_filled (list of filled contour arrays): Multiple filled contour sets as returned
                 by :meth:`.ContourGenerator.multi_filled`.
             fill_type (FillType or str): Type of filled data as returned by
-                :attr:`~ContourGenerator.fill_type`, or string equivalent.
+                :attr:`~.ContourGenerator.fill_type`, or string equivalent.
             ax (int or Renderer-specific axes or figure object, optional): Which axes to plot on,
                 default ``0``.
             color (str or None, optional): If a string color then this same color is used for all
@@ -98,7 +98,7 @@ class Renderer(ABC):
                 from the ``tab10`` colormap in order, wrapping around to the beginning if more than
                 10 sets of filled contours are rendered.
             kwargs: All other keyword argument are passed on to
-                :meth:`~.Renderer.filled` unchanged.
+                :meth:`.Renderer.filled` unchanged.
         """
         if color is not None:
             kwargs["color"] = color
@@ -129,7 +129,7 @@ class Renderer(ABC):
                 colormap in order, wrapping around to the beginning if more than 10 sets of lines
                 are rendered.
             kwargs: All other keyword argument are passed on to
-                :meth:`~...Renderer.lines` unchanged.
+                :meth:`Renderer.lines` unchanged.
         """
         if color is not None:
             kwargs["color"] = color

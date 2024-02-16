@@ -101,4 +101,4 @@ into
 
    from contourpy.util.bokeh_renderer import BokehRenderer as Renderer
 
-Output for the `Bokeh`_ renderer is sent to your web browser.
+Output for the :class:`.BokehRenderer` renderer is sent to your web browser.
