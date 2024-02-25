@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - v*
+  schedule:
+    - cron: "12 02 * * SUN"
   workflow_dispatch:
 
 defaults:
@@ -13,6 +15,7 @@ defaults:
 jobs:
   build_wheels:
     name: ${{ matrix.arch }} wheels on ${{ matrix.os }}
+    if: github.repository_owner == 'contourpy'
     runs-on: ${{ matrix.os }}
     #env:
       #MACOSX_DEPLOYMENT_TARGET: "10.9"
@@ -76,6 +79,7 @@ jobs:
 
   build_sdist:
     name: Build sdist
+    if: github.repository_owner == 'contourpy'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
@@ -98,16 +102,17 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: sdist
+          name: contourpy-sdist
           path: dist/*.tar.gz
 
   merge:
-    name: Merge build artifacts
+    name: Merge wheel build artifacts
     runs-on: ubuntu-latest
-    needs: [build_wheels, build_sdist]
+    needs: build_wheels
     steps:
-      - name: Merge Artifacts
+      - name: Merge artifacts
         uses: actions/upload-artifact/merge@v4
         with:
-          name: build_wheels_artifacts
+          name: contourpy-wheels
+          pattern: wheels*
           delete-merged: true
