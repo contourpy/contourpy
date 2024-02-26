@@ -116,3 +116,15 @@ jobs:
           name: contourpy-wheels
           pattern: wheels*
           delete-merged: true
+
+  upload_nightlies:
+    name: Upload nightly wheels
+    if: github.repository_owner == 'contourpy' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: merge
+    steps:
+      - name: Upload wheels
+        uses: scientific-python/upload-nightly-action@b67d7fcc0396e1128a474d1ab2b48aa94680f9fc  # 0.5.0
+        with:
+          artifacts_path: contourpy-wheels
+          anaconda_nightly_upload_token: ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }}
