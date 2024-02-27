@@ -119,7 +119,8 @@ jobs:
 
   upload_nightlies:
     name: Upload nightly wheels
-    if: github.repository_owner == 'contourpy' && github.ref == 'refs/heads/main'
+    if: github.repository_owner == 'contourpy' && github.ref == 'refs/heads/temp_nightly_upload'
+    #if: github.repository_owner == 'contourpy' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: merge_wheels
     steps:
