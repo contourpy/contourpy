@@ -127,10 +127,14 @@ def contour_generator(
             to :meth:`~.ContourGenerator.lines`, specified either as a :class:`~.LineType` or its
             string equivalent such as ``"SeparateCode"``.
             If not specified, uses the default provided by the algorithm ``name``.
+            The relationship between the :class:`~.LineType` enum and the data format returned from
+            :meth:`~.ContourGenerator.lines` is explained at :ref:`line_type`.
         fill_type (FillType or str, optional): The format of filled contour data returned from calls
             to :meth:`~.ContourGenerator.filled`, specified either as a :class:`~.FillType` or its
             string equivalent such as ``"OuterOffset"``.
             If not specified, uses the default provided by the algorithm ``name``.
+            The relationship between the :class:`~.FillType` enum and the data format returned from
+            :meth:`~.ContourGenerator.filled` is explained at :ref:`fill_type`.
         chunk_size (int or tuple(int, int), optional): Chunk size in (y, x) directions, or the same
             size in both directions if only one value is specified.
         chunk_count (int or tuple(int, int), optional): Chunk count in (y, x) directions, or the
