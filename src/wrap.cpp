@@ -97,7 +97,8 @@ PYBIND11_MODULE(_contourpy, m) {
         "    upper_level (float): Upper z-level of the filled contours, cannot be ``np.nan``.\n"
         "Return:\n"
         "    Filled contour polygons as nested sequences of numpy arrays. The exact format is "
-        "determined by the ``fill_type`` used by the ``ContourGenerator``.\n\n"
+        "determined by the :attr:`~.ContourGenerator.fill_type` used by the ``ContourGenerator`` "
+        "and the options are explained at :ref:`fill_type`.\n\n"
         "Raises a ``ValueError`` if ``lower_level >= upper_level`` or if\n"
         "``lower_level`` or ``upper_level`` are ``np.nan``.\n\n"
         "To return filled contours below a ``level`` use ``filled(-np.inf, level)``.\n"
@@ -109,11 +110,10 @@ PYBIND11_MODULE(_contourpy, m) {
         "    level (float): z-level to calculate contours at.\n\n"
         "Return:\n"
         "    Contour lines (open line strips and closed line loops) as nested sequences of "
-        "numpy arrays. The exact format is determined by the ``line_type`` used by the "
-        "``ContourGenerator``.\n\n"
+        "numpy arrays. The exact format is determined by the :attr:`~.ContourGenerator.line_type` "
+        "used by the ``ContourGenerator`` and the options are explained at :ref:`line_type`.\n\n"
         "``level`` may be ``np.nan``, ``np.inf`` or ``-np.inf``; they all return the same result "
-        "which is an empty line set.\n\n"
-        ".. versionadded:: 1.3.0";
+        "which is an empty line set.";
     const char* multi_filled_doc =
         "Calculate and return filled contours between multiple levels.\n\n"
         "Args:\n"
@@ -145,7 +145,8 @@ PYBIND11_MODULE(_contourpy, m) {
         "    ret = obj.multi_lines(levels)\n\n"
         "is equivalent to:\n\n"
         ".. code-block:: python\n\n"
-        "    ret = [obj.lines(level) for level in levels]";
+        "    ret = [obj.lines(level) for level in levels]\n\n"
+        ".. versionadded:: 1.3.0";
     const char* quad_as_tri_doc = "Return whether ``quad_as_tri`` is set or not.";
     const char* supports_corner_mask_doc =
         "Return whether this algorithm supports ``corner_mask``.";
