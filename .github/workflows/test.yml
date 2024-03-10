@@ -167,6 +167,7 @@ jobs:
             short-name: "test-nightlies"
             nightly-wheels: true
             extra-install-args: "--no-build-isolation"
+            test-no-images: true
           - os: windows-latest
             python-version: "3.12"
             name: "Nightly wheels"
