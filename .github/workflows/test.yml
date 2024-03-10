@@ -155,6 +155,24 @@ jobs:
             nightly-wheels: true
             # The following will not be needed when can pin pybind11 to numpy2-compatible release.
             extra-install-args: "--no-build-isolation"
+          - os: macos-latest
+            python-version: "3.12"
+            name: "Nightly wheels"
+            short-name: "test-nightlies"
+            nightly-wheels: true
+            extra-install-args: "--no-build-isolation"
+          - os: macos-14
+            python-version: "3.12"
+            name: "Nightly wheels"
+            short-name: "test-nightlies"
+            nightly-wheels: true
+            extra-install-args: "--no-build-isolation"
+          - os: windows-latest
+            python-version: "3.12"
+            name: "Nightly wheels"
+            short-name: "test-nightlies"
+            nightly-wheels: true
+            extra-install-args: "--no-build-isolation"
 
     steps:
       - name: Checkout source
