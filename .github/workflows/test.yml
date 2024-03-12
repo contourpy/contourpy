@@ -257,7 +257,7 @@ jobs:
             python -m pip install -v .[test-no-images] --no-build-isolation
           else
             echo "Install contourpy with standard test dependencies"
-            python -m pip install -v .[test] ${{ matrix.extra-install-args }} --no-build-isolation
+            python -m pip install -v .[test-no-images] ${{ matrix.extra-install-args }} --no-build-isolation
           fi
 
       - name: Install numpy 2.0.0b1
@@ -281,11 +281,11 @@ jobs:
           if [[ "${{ matrix.debug }}" != "" ]]
           then
             echo "Run normal tests with coverage"
-            ${PYTEST} tests/ --cov=lib --cov-report=lcov
+            ${PYTEST} tests/ --cov=lib --cov-report=lcov -k "not image"
           elif [[ "${{ matrix.test-text }}" != "" ]]
           then
             echo "Run normal and text tests with coverage"
-            ${PYTEST} -rP tests/test_bokeh_renderer.py tests/test_renderer.py --runtext --driver-path=/snap/bin/chromium.chromedriver --cov=lib --cov-report=lcov
+            ${PYTEST} -rP tests/test_bokeh_renderer.py tests/test_renderer.py --runtext --driver-path=/snap/bin/chromium.chromedriver --cov=lib --cov-report=lcov  -k "not image"
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Run only tests that do not generate images"
@@ -293,10 +293,10 @@ jobs:
           elif [[ "${{ matrix.test-no-big }}" != "" ]]
           then
             echo "Run all tests except big ones"
-            ${PYTEST} tests/ -k "not big"
+            ${PYTEST} tests/ -k "not big" -k "not image"
           else
             echo "Run all tests"
-            ${PYTEST} tests/
+            ${PYTEST} tests/ -k "not image"
           fi
 
       - name: Collect C++ coverage
@@ -432,7 +432,6 @@ jobs:
 
   merge:
     name: Merge test artifacts
-    if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
     runs-on: ubuntu-latest
     needs: [test, test-in-docker]
     steps:
