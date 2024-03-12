@@ -155,25 +155,6 @@ jobs:
             nightly-wheels: true
             # The following will not be needed when can pin pybind11 to numpy2-compatible release.
             extra-install-args: "--no-build-isolation"
-          - os: macos-latest
-            python-version: "3.12"
-            name: "Nightly wheels"
-            short-name: "test-nightlies"
-            nightly-wheels: true
-            extra-install-args: "--no-build-isolation"
-          - os: macos-14
-            python-version: "3.12"
-            name: "Nightly wheels"
-            short-name: "test-nightlies"
-            nightly-wheels: true
-            extra-install-args: "--no-build-isolation"
-            test-no-images: true
-          - os: windows-latest
-            python-version: "3.12"
-            name: "Nightly wheels"
-            short-name: "test-nightlies"
-            nightly-wheels: true
-            extra-install-args: "--no-build-isolation"
 
     steps:
       - name: Checkout source
@@ -255,7 +236,6 @@ jobs:
       - name: Install latest pybind11 to support numpy 2
         # When pybind11 is released with https://github.com/pybind/pybind11/pull/5050 then this can
         # be replaced with a pin on pybind11 version in pyproject.toml, etc.
-        if: matrix.nightly-wheels
         run: |
           python -m pip install -r build_requirements.txt ninja
           python -m pip install git+https://github.com/seberg/pybind11@numpy2-compat
@@ -274,11 +254,16 @@ jobs:
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Install contourpy with non-image-generating test dependencies"
-            python -m pip install -v .[test-no-images]
+            python -m pip install -v .[test-no-images] --no-build-isolation
           else
             echo "Install contourpy with standard test dependencies"
-            python -m pip install -v .[test] ${{ matrix.extra-install-args }}
+            python -m pip install -v .[test] ${{ matrix.extra-install-args }} --no-build-isolation
           fi
+
+      - name: Install numpy 2.0.0b1
+        if: ${{ matrix.short-name != 'test-earliest-numpy' }}
+        run: |
+          python -m pip install --upgrade --pre numpy==2.0.0b1
 
       - name: Install nightly wheels
         if: matrix.nightly-wheels
