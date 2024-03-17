@@ -219,7 +219,7 @@ jobs:
           if [[ "${{ matrix.debug }}" != "" ]]
           then
             echo "Install contourpy in debug editable mode with coverage"
-            python -m pip install -ve .[test] --no-build-isolation -Csetup-args=-Dbuildtype=debug -Csetup-args=-Db_coverage=true -Cbuilddir=build
+            python -m pip install -ve .[test-no-images] --no-build-isolation -Csetup-args=-Dbuildtype=debug -Csetup-args=-Db_coverage=true -Cbuilddir=build
           elif [[ "${{ matrix.coverage-files }}" != "" ]]
           then
             echo "Install contourpy in editable mode with bokeh dependencies"
@@ -230,13 +230,18 @@ jobs:
             python -m pip install -v .[test-no-images]
           else
             echo "Install contourpy with standard test dependencies"
-            python -m pip install -v .[test] ${{ matrix.extra-install-args }}
+            python -m pip install -v .[test-no-images] ${{ matrix.extra-install-args }}
           fi
+
+      - name: Install numpy 2.0.0b1 to test against
+        if: ${{ matrix.short-name != 'test-earliest-numpy' }}
+        run: |
+          python -m pip install --upgrade --pre numpy==2.0.0b1
 
       - name: Install nightly wheels
         if: matrix.nightly-wheels
         run: |
-          python -m pip install --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib numpy
+          python -m pip install --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy
 
       - name: Smoke test
         run: |
@@ -261,10 +266,10 @@ jobs:
           elif [[ "${{ matrix.test-no-big }}" != "" ]]
           then
             echo "Run all tests except big ones"
-            python -m pytest -v -n auto --color=yes tests/ -k "not big"
+            python -m pytest -v -n auto --color=yes tests/ -k "not big" -k "not image"
           else
             echo "Run all tests"
-            python -m pytest -v -n auto --color=yes tests/
+            python -m pytest -v -n auto --color=yes tests/ -k "not image"
           fi
 
       - name: Collect C++ coverage
