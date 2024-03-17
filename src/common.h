@@ -2,7 +2,6 @@
 #define CONTOURPY_COMMON_H
 
 #include <pybind11/pybind11.h>
-#define PYBIND11_NUMPY2_SUPPORT
 #include <pybind11/numpy.h>
 
 namespace contourpy {
