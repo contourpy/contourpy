@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
 import logging
 import re
 from typing import TYPE_CHECKING
@@ -12,6 +11,8 @@ from contourpy import FillType, LineType, contour_generator
 from contourpy.util.data import random
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from _pytest._py.path import LocalPath
     from _pytest.logging import LogCaptureFixture
     from selenium.webdriver.remote.webdriver import WebDriver
@@ -27,8 +28,8 @@ def driver(driver_path: str) -> Iterator[WebDriver]:
         from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
 
         options = Options()
-        options.add_argument("--headless")  # type: ignore[no-untyped-call]
-        options.add_argument("--no-sandbox")  # type: ignore[no-untyped-call]
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
 
         if driver_path:
             from selenium.webdriver.chrome.service import Service

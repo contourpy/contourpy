@@ -26,4 +26,4 @@ class BenchBase:
             self.x, self.y, self.z = simple((n, n), want_mask=want_mask)
             self.levels = np.arange(-1.0, 1.01, 0.1)
         else:
-            raise NotImplementedError()
+            raise NotImplementedError

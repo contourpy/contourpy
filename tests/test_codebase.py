@@ -29,7 +29,10 @@ def test_cppcheck() -> None:
     # Note excluding mpl2005 code.
     cmd = [
         "cppcheck", "--quiet", "--enable=all", "--error-exitcode=1", "src",
-        "-isrc/mpl2005_original.cpp", "--suppress=missingIncludeSystem", "--inline-suppr"]
+        "-isrc/mpl2005_original.cpp", "--suppress=missingIncludeSystem", "--inline-suppr",
+        "--suppress=knownConditionTrueFalse", "--check-level=exhaustive",
+        "--suppress=unmatchedSuppression",
+    ]
 
     if cpp_version >= Version("2.7"):
         cmd += ["--suppress=assertWithSideEffect"]

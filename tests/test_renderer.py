@@ -80,7 +80,7 @@ def test_renderer_filled(show_text: bool, debug: bool, fill_type: FillType) -> N
     from .image_comparison import compare_images
 
     # Same results from MplDebugRenderer if extra kwargs supplied to renderer.Filled() call.
-    filled_kw: dict[str, Any] = dict(line_color=None, point_color=None) if debug else {}
+    filled_kw: dict[str, Any] = {"line_color": None, "point_color": None} if debug else {}
 
     if not debug:
         renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=False)
@@ -126,7 +126,7 @@ def test_renderer_lines(show_text: bool, debug: bool, line_type: LineType) -> No
     from .image_comparison import compare_images
 
     # Same results from MplDebugRenderer if extra kwargs supplied to renderer.lines() call.
-    lines_kw: dict[str, Any] = dict(arrow_size=0, point_color=None) if debug else {}
+    lines_kw: dict[str, Any] = {"arrow_size": 0, "point_color": None} if debug else {}
 
     if not debug:
         renderer = MplRenderer(ncols=2, figsize=(8, 3), show_frame=show_text)

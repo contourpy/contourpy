@@ -81,11 +81,12 @@ def test_z_interp_log_saddle(name: str) -> None:
         assert len(lines) == 2
         for line in lines:
             assert line.shape == (2, 2)
-            cross_product = np.cross(line[0], line[1])
+            # Arguments to np.cross need to be 3D vectors.
+            cross_product = np.cross(np.append(line[0], 0), np.append(line[1], 0))
             if level > 10.0:
-                assert cross_product < 0.0
+                assert cross_product[-1] < 0.0
             else:
-                assert cross_product > 0.0
+                assert cross_product[-1] > 0.0
 
 
 @pytest.mark.parametrize("name", ["serial", "threaded"])

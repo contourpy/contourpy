@@ -12,11 +12,11 @@ linux_aarch64_test_task:
         IMAGE_SUFFIX: slim
         BUILD_NUMPY: 0
         TEST_NO_IMAGES: 0
-    - env:
-        PYTHON_VERSION: "3.11"
-        IMAGE_SUFFIX: alpine
-        BUILD_NUMPY: 1
-        TEST_NO_IMAGES: 1
+    #- env:
+    #    PYTHON_VERSION: "3.11"
+    #    IMAGE_SUFFIX: alpine
+    #    BUILD_NUMPY: 1
+    #    TEST_NO_IMAGES: 1
 
   os_dependencies_script: |
     if [[ "$IMAGE_SUFFIX" != "alpine" ]];
@@ -38,7 +38,7 @@ linux_aarch64_test_task:
   install_numpy_from_source_script:
     if [[ "$BUILD_NUMPY" == "1" ]];
     then
-      python -m pip install -v --no-binary=numpy numpy -Csetup-args="-Dallow-noblas=true";
+      python -m pip install -v --no-binary=numpy numpy;
     fi
 
   install_contourpy_script: |

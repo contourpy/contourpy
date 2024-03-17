@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from collections.abc import Sequence
 from enum import Enum
 import io
 from typing import TYPE_CHECKING, Any, Literal, cast
@@ -12,11 +11,16 @@ import numpy as np
 from contourpy import FillType, LineType, contour_generator
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
 
     from contourpy._contourpy import (
-        CoordinateArray, FillReturn_OuterCode, LineReturn_SeparateCode, MaskArray,
+        CoordinateArray,
+        FillReturn_OuterCode,
+        LineReturn_SeparateCode,
+        MaskArray,
     )
 
 
@@ -68,14 +72,14 @@ class Config:
         self.marker_size = 3.5
         self.gap = 0.1
         self.text_gap = self.gap/2
-        self.grid_kwargs = dict(color="gray", linewidth=0.35)
+        self.grid_kwargs = {"color": "gray", "linewidth": 0.35}
         self.fill_alpha = 0.2
 
         self.x, self.y = np.meshgrid([0.0, 1.0], [0.0, 1.0])
         self.mask = False
 
-        import matplotlib
-        matplotlib.use("Agg")
+        import matplotlib as mpl
+        mpl.use("Agg")
 
     def __del__(self) -> None:
         self.clear()
@@ -253,7 +257,7 @@ class ConfigFilledCommon(Config):
             else:  # Corner.SE
                 [nw, ne, sw, se] = [None, a, b, c]
         if nw == 3 or ne == 3 or sw == 3 or se == 3:
-            raise ValueError("Invalid config")
+            raise ValueError(f"Invalid config {config}")
         return nw, ne, sw, se
 
     def _quad_lines(
@@ -379,7 +383,7 @@ class ConfigFilled(ConfigFilledCommon):
     def __init__(self, name: str, quad_as_tri: bool = False, show_text: bool = True) -> None:
         super().__init__(name, False, quad_as_tri, show_text)
 
-        subplot_kw = dict(aspect="equal")
+        subplot_kw = {"aspect": "equal"}
         if self.quad_as_tri:
             self.fig, axes = plt.subplots(18, 12, figsize=(10.4, 17.1), subplot_kw=subplot_kw)
         else:
@@ -545,7 +549,7 @@ class ConfigLines(ConfigLinesCommon):
     def __init__(self, name: str, quad_as_tri: bool = False, show_text: bool = True) -> None:
         super().__init__(name, False, quad_as_tri, show_text)
 
-        subplot_kw = dict(aspect="equal")
+        subplot_kw = {"aspect": "equal"}
         if self.quad_as_tri:
             self.fig, axes = plt.subplots(5, 6, figsize=(5.2, 4.75), subplot_kw=subplot_kw)
         else:

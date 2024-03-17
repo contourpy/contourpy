@@ -127,6 +127,14 @@ ContourPy and then run the tests using ``pytest``:
    $ python -m pip install -ve .[test]
    $ pytest -v
 
+.. note::
+
+   In some shells, such as ``zsh``, quotes are required around ``.[test]``. For example:
+
+   .. code-block:: console
+
+      $ python -m pip install -ve ".[test]"
+
 It is possible to exclude certain tests. To exclude image comparison tests, for example if you do
 not have Matplotlib or Pillow installed:
 

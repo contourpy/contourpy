@@ -313,7 +313,7 @@ def assert_equal_recursive(any1: Any, any2: Any) -> None:
         else:
             assert_array_equal(any1, any2)
     else:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 @overload

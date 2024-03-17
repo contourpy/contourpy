@@ -5,7 +5,11 @@ import pytest
 
 from contourpy import FillType, LineType
 from contourpy.typecheck import (
-    check_code_array, check_filled, check_lines, check_offset_array, check_point_array,
+    check_code_array,
+    check_filled,
+    check_lines,
+    check_offset_array,
+    check_point_array,
 )
 from contourpy.types import code_dtype, offset_dtype, point_dtype
 
@@ -65,7 +69,7 @@ def test_check_filled_OuterCode() -> None:
     check_filled(([points], [codes]), FillType.OuterCode)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_filled(list(), FillType.OuterCode)
+        check_filled([], FillType.OuterCode)
     with pytest.raises(ValueError, match=r"Expected tuple of length 2 not 3"):
         check_filled(([], [], []), FillType.OuterCode)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 2 lists"):
@@ -89,7 +93,7 @@ def test_check_filled_OuterOffset() -> None:
     check_filled(([points], [offsets]), FillType.OuterOffset)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_filled(list(), FillType.OuterOffset)
+        check_filled([], FillType.OuterOffset)
     with pytest.raises(ValueError, match=r"Expected tuple of length 2 not 3"):
         check_filled(([], [], []), FillType.OuterOffset)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 2 lists"):
@@ -115,7 +119,7 @@ def test_check_filled_ChunkCombinedCode() -> None:
     check_filled(([None, points], [None, codes]), FillType.ChunkCombinedCode)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_filled(list(), FillType.ChunkCombinedCode)
+        check_filled([], FillType.ChunkCombinedCode)
     with pytest.raises(ValueError, match=r"Expected tuple of length 2 not 3"):
         check_filled(([], [], []), FillType.ChunkCombinedCode)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 2 lists"):
@@ -148,7 +152,7 @@ def test_check_filled_ChunkCombinedOffset() -> None:
     check_filled(([None, points], [None, offsets]), FillType.ChunkCombinedOffset)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_filled(list(), FillType.ChunkCombinedOffset)
+        check_filled([], FillType.ChunkCombinedOffset)
     with pytest.raises(ValueError, match=r"Expected tuple of length 2 not 3"):
         check_filled(([], [], []), FillType.ChunkCombinedOffset)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 2 lists"):
@@ -183,7 +187,7 @@ def test_check_filled_ChunkCombinedCodeOffset() -> None:
                  FillType.ChunkCombinedCodeOffset)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_filled(list(), FillType.ChunkCombinedCodeOffset)
+        check_filled([], FillType.ChunkCombinedCodeOffset)
     with pytest.raises(ValueError, match=r"Expected tuple of length 3 not 2"):
         check_filled(([], []), FillType.ChunkCombinedCodeOffset)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 3 lists"):
@@ -226,7 +230,7 @@ def test_check_filled_ChunkCombinedOffsetOffset() -> None:
                  FillType.ChunkCombinedOffsetOffset)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_filled(list(), FillType.ChunkCombinedOffsetOffset)
+        check_filled([], FillType.ChunkCombinedOffsetOffset)
     with pytest.raises(ValueError, match=r"Expected tuple of length 3 not 2"):
         check_filled(([], []), FillType.ChunkCombinedOffsetOffset)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 3 lists"):
@@ -267,7 +271,7 @@ def test_check_lines_Separate() -> None:
     check_lines([points], LineType.Separate)
 
     with pytest.raises(TypeError, match=r"Expected list not <class 'tuple'>"):
-        check_lines(tuple(), LineType.Separate)
+        check_lines((), LineType.Separate)
 
     with pytest.raises(TypeError, match=r"Expected numpy array not <class 'list'>"):
         check_lines([[]], LineType.Separate)
@@ -280,7 +284,7 @@ def test_check_lines_SeparateCode() -> None:
     check_lines(([points], [codes]), LineType.SeparateCode)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_lines(list(), LineType.SeparateCode)
+        check_lines([], LineType.SeparateCode)
     with pytest.raises(ValueError, match=r"Expected tuple of length 2 not 3"):
         check_lines(([], [], []), LineType.SeparateCode)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 2 lists"):
@@ -306,7 +310,7 @@ def test_check_lines_ChunkCombinedCode() -> None:
     check_lines(([None, points], [None, codes]), LineType.ChunkCombinedCode)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_lines(list(), LineType.ChunkCombinedCode)
+        check_lines([], LineType.ChunkCombinedCode)
     with pytest.raises(ValueError, match=r"Expected tuple of length 2 not 3"):
         check_lines(([], [], []), LineType.ChunkCombinedCode)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 2 lists"):
@@ -339,7 +343,7 @@ def test_check_lines_ChunkCombinedOffset() -> None:
     check_lines(([None, points], [None, offsets]), LineType.ChunkCombinedOffset)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_lines(list(), LineType.ChunkCombinedOffset)
+        check_lines([], LineType.ChunkCombinedOffset)
     with pytest.raises(ValueError, match=r"Expected tuple of length 2 not 3"):
         check_lines(([], [], []), LineType.ChunkCombinedOffset)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 2 lists"):
@@ -372,7 +376,7 @@ def test_check_lines_ChunkCombinedNan() -> None:
     check_lines(([None, points],), LineType.ChunkCombinedNan)
 
     with pytest.raises(TypeError, match=r"Expected tuple not <class 'list'>"):
-        check_lines(list(), LineType.ChunkCombinedNan)
+        check_lines([], LineType.ChunkCombinedNan)
     with pytest.raises(ValueError, match=r"Expected tuple of length 1 not 2"):
         check_lines(([], []), LineType.ChunkCombinedNan)
     with pytest.raises(TypeError, match=r"Expected tuple to contain 1 lists"):

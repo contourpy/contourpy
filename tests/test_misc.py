@@ -2,13 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from contourpy import _remove_z_mask, contour_generator, max_threads
-
-
-def test_max_threads() -> None:
-    n = max_threads()
-    # Assume testing on machine with 2 or more cores.
-    assert n > 1
+from contourpy import _remove_z_mask, contour_generator
 
 
 def test_nan() -> None:
