@@ -3,7 +3,7 @@ build-backend = "mesonpy"
 requires = [
     "meson >= 1.2.0",
     "meson-python >= 0.13.1",
-    "pybind11 >= 2.10.4",
+    "pybind11 >= 2.12.0",
 ]
 
 [project]
@@ -26,7 +26,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
-    "numpy >= 1.20, < 2.0",
+    "numpy >= 1.20",
 ]
 description = "Python library for calculating contours of 2D quadrilateral grids"
 dynamic = ["version"]
@@ -51,7 +51,7 @@ mypy = [
     # Requirements to run mypy to check type annotations.
     "contourpy[bokeh,docs]",
     "docutils-stubs",
-    "mypy == 1.6.1",
+    "mypy == 1.8.0",
     "types-Pillow",
 ]
 test = [
@@ -111,13 +111,6 @@ exclude_also = [
 ]
 
 
-[tool.isort]
-force_sort_within_sections = true
-multi_line_output = 5
-profile = "hug"
-skip_gitignore = true
-
-
 [tool.mypy]
 files = ["lib/contourpy", "benchmarks", "docs", "tests"]
 python_version = "3.10"
@@ -159,24 +152,43 @@ ignore = [
 ]
 line-length = 100
 select = [
+    "B",
+    "BLE",
+    "C4",
     "COM",
     "E",
     "F",
     "FA",
+    "FLY",
+    "G",
+    "I",
+    "ICN",
+    "INT",
     "NPY",
+    "PERF",
+    "PGH",
     "PIE",
     "PLC",
     "PLE",
     "PLW",
+    "PYI",
     "Q",
+    "RSE",
     "RUF",
+    "TCH",
+    "TID",
     "UP",
     "W",
     "YTT",
 ]
 target-version = "py39"
 
+[tool.ruff.lint.isort]
+known-first-party = ["contourpy"]
+force-sort-within-sections = true
+
 [tool.ruff.per-file-ignores]
 "docs/sphinxext/name_supports.py" = ["E402"]
 "docs/sphinxext/name_supports_type.py" = ["E402"]
+"docs/sphinxext/plot_directive.py" = ["B009", "B010"]
 "lib/contourpy/_contourpy.pyi" = ["E501", "PLW0406"]

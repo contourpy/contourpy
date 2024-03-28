@@ -3,8 +3,13 @@ from __future__ import annotations
 import pytest
 
 from contourpy import (
-    ContourGenerator, FillType, LineType, Mpl2005ContourGenerator, Mpl2014ContourGenerator,
-    SerialContourGenerator, ThreadedContourGenerator,
+    ContourGenerator,
+    FillType,
+    LineType,
+    Mpl2005ContourGenerator,
+    Mpl2014ContourGenerator,
+    SerialContourGenerator,
+    ThreadedContourGenerator,
 )
 
 from . import util_test

@@ -8,7 +8,7 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 import pytest
 
-from contourpy import FillType, contour_generator
+from contourpy import FillType, contour_generator, max_threads
 from contourpy.util.data import random, simple
 
 from . import util_test
@@ -734,7 +734,10 @@ def test_return_by_fill_type(
 @pytest.mark.threads
 @pytest.mark.parametrize("fill_type", FillType.__members__.values())
 @pytest.mark.parametrize("name, thread_count",
-                         [("serial", 1), ("threaded", 1), ("threaded", 2)])
+                         [("serial", 1), ("threaded", 1),
+                         pytest.param("threaded", 2,
+                            marks = pytest.mark.skipif(
+                            max_threads() <= 1, reason = "executing on unicore host"))])
 def test_return_by_fill_type_chunk(
     xyz_chunk_test: tuple[cpy.CoordinateArray, ...],
     name: str,
@@ -902,7 +905,7 @@ def test_filled_compare_slow(seed: int) -> None:
         code_list = filled_mpl2014[1]
         n_points = reduce(add, map(len, code_list))
         n_outers = len(code_list)
-        n_lines = reduce(add, map(lambda c: np.count_nonzero(c == 1), code_list))
+        n_lines = reduce(add, (np.count_nonzero(c == 1) for c in code_list))
 
         assert filled_serial[0][0] is not None
         assert n_points == len(filled_serial[0][0])
