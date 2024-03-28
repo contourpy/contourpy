@@ -415,15 +415,3 @@ jobs:
         with:
           name: docker_${{ matrix.arch }}_${{ matrix.manylinux_version }}
           path: result_images/
-
-  merge:
-    name: Merge test artifacts
-    runs-on: ubuntu-latest
-    needs: [test, test-in-docker]
-    steps:
-      - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
-        with:
-          name: test-artifacts
-          separate-directories: true
-          delete-merged: true
