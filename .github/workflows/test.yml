@@ -146,7 +146,7 @@ jobs:
             name: "Win32"
             short-name: "test-win32"
             win32: true
-            extra-install-args: "--only-binary Pillow"
+            test-no-images: true
           # Test against matplotlib and numpy nightly wheels.
           - os: ubuntu-latest
             python-version: "3.12"
