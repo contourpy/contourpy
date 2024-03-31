@@ -92,16 +92,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-14, windows-latest]  # macos-14 is M1
+        #os: [ubuntu-latest, macos-latest, macos-14, windows-latest]  # macos-14 is M1
+        os: [ubuntu-latest, macos-latest, windows-latest]  # macos-14 is M1
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         name: ["Test"]
         short-name: ["test"]
-        exclude:
+        #exclude:
           # M1 mac setup-python doesn't yet have python 3.9
           # https://github.com/actions/setup-python/issues/808
-          - os: macos-14
-            python-version: "3.9"
+        #  - os: macos-14
+        #    python-version: "3.9"
         include:
+          # macos-14 runs exclude image tests as matplotlib nightly wheel has incompatible tag
+          - os: macos-14
+            python-version: "3.10"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
+          - os: macos-14
+            python-version: "3.11"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
+          - os: macos-14
+            python-version: "3.12"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
           # Debug build including Python and C++ coverage.
           - os: ubuntu-latest
             python-version: "3.11"
@@ -272,7 +289,7 @@ jobs:
           then
             # This is temporary until there are full releases of numpy 2 and matplotlib supporting numpy 2
             python -m pip install --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib
-            python -m pip install --upgrade --pre numpy
+            python -m pip install --pre --upgrade --no-deps numpy
           fi
 
       - name: Smoke test
