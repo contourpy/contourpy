@@ -267,11 +267,13 @@ jobs:
           python -m pip install --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib numpy
 
       - name: Install numpy 2 pre-release
-        if: ${{ matrix.short-name }} == "test"
         run: |
-          # This is temporary until there are full releases of numpy 2 and matplotlib supporting numpy 2
-          python -m pip install --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib
-          python -m pip install --upgrade --pre numpy
+          if [[ "${{ matrix.short-name }}" == "test" ]]
+          then
+            # This is temporary until there are full releases of numpy 2 and matplotlib supporting numpy 2
+            python -m pip install --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib
+            python -m pip install --upgrade --pre numpy
+          fi
 
       - name: Smoke test
         run: |
