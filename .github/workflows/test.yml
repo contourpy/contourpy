@@ -94,11 +94,6 @@ jobs:
         short-name: ["test"]
         include:
           - os: macos-14
-            python-version: "3.10"
-            name: "Test"
-            short-name: "test"
-            test-no-images: true
-          - os: macos-14
             python-version: "3.11"
             name: "Test"
             short-name: "test"

@@ -14,7 +14,7 @@ Thanks to new contributor :user:`motoro` and core maintainer :user:`ianthomas23`
 
 Compatibility:
 
-- Support NumPy 2 (:pr:`331`, :pr:`371`)
+- Support NumPy 2 (:pr:`331`, :pr:`371` :pr:`372`)
 
 Code improvements:
 
@@ -29,7 +29,7 @@ Build, testing and CI improvements:
 - Improved linting (:pr:`322`, :pr:`323`, :pr:`333`, :pr:`337`)
 - Update ``cppcheck`` to 2.11 (:pr:`324`)
 - Support running tests on unicore hosts (:pr:`327`)
-- In nightly wheel tests use matplotlib as well as numpy nightlies (:pr:`329`)
+- Improved tests against nightly wheels (:pr:`329`, :pr:`373`)
 - Update to chromium 118 for Bokeh renderer tests (:pr:`325`)
 - Add CI run using earliest supported numpy (:pr:`347`)
 
