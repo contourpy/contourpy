@@ -4,7 +4,7 @@ Changelog
 #########
 
 v1.2.1 (2024-04-02)
------------------
+-------------------
 
 ContourPy 1.2.1 is a compatibility release to support NumPy 2.
 
