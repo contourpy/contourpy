@@ -143,6 +143,17 @@ jobs:
             name: "Nightly wheels"
             short-name: "test-nightlies"
             nightly-wheels: true
+          - os: macos-latest
+            python-version: "3.12"
+            name: "Nightly wheels"
+            short-name: "test-nightlies"
+            nightly-wheels: true
+          - os: windows-latest
+            python-version: "3.12"
+            name: "Nightly wheels"
+            short-name: "test-nightlies"
+            nightly-wheels: true
+            test-no-images: true
 
     steps:
       - name: Checkout source
