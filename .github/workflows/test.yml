@@ -163,6 +163,7 @@ jobs:
             name: "Nightly wheels"
             short-name: "test-nightlies"
             nightly-wheels: true
+            test-no-images: true
 
     steps:
       - name: Checkout source
