@@ -17,8 +17,8 @@ of 1000 and a ``total_chunk_count`` of 40 for up to 6 threads.
    :class: only-dark
 
 For the ``simple`` dataset contour calculations are faster with more threads but it does not scale
-particularly well.  The speedup with 6 threads is 2.4-2.5 for :meth:`~.ContourGenerator.lines`
-and 2.5-2.6 for :meth:`~.ContourGenerator.filled`.  This problem dataset is perhaps not
+particularly well.  The speedup with 6 threads is 2.4-2.5 for both :meth:`~.ContourGenerator.lines`
+and :meth:`~.ContourGenerator.filled`.  This problem dataset is perhaps not
 computationally expensive enough to justify the use of multiple threads.
 
 .. image:: ../_static/threaded_lines_random_light.svg
@@ -35,7 +35,7 @@ computationally expensive enough to justify the use of multiple threads.
 
 For the ``random`` dataset contour calculations scale much better with increasing number of threads
 as long as one of the ``ChunkCombined...`` line or fill types is being used.
-Using 6 threads the speedup is 4.4 for :meth:`~.ContourGenerator.lines` and 5.1-5.2 for
+Using 6 threads the speedup is 4.2-4.5 for :meth:`~.ContourGenerator.lines` and 4.6-5.2 for
 :meth:`~.ContourGenerator.filled`.
 
 The :class:`~.LineType` and :class:`~.FillType` options that do not scale well are those that return individual
