@@ -30,8 +30,8 @@ Contour lines
    :class: only-dark
 
 For the ``simple`` dataset above the performance of :ref:`serial` for contour lines is the same
-regardless of :class:`~.LineType`. It is about 20% faster than :ref:`mpl2005` and significantly faster
-than :ref:`mpl2014` with a speedup of 1.7-1.8.
+regardless of :class:`~.LineType`. It is about the same as :ref:`mpl2005` and significantly faster
+than :ref:`mpl2014` with a speedup of 1.8-1.9.
 
 .. image:: ../_static/lines_random_1000_light.svg
    :class: only-light
@@ -49,7 +49,7 @@ thousand `NumPy`_ arrays (one per line) and a small amount is the time taken to 
 `Matplotlib`_ kind codes to put in them.
 
 The chunked line types (``LineType.ChunkCombinedCode``, ``LineType.ChunkCombinedOffset`` and
-``LineType.ChunkCombinedNan``) have similar timings with a speedup of 2.3-2.6 compared to
+``LineType.ChunkCombinedNan``) have similar timings with a speedup of 2.4-2.7 compared to
 ``LineType.SeparateCode``.  The big difference here again is in array allocation, for a single chunk
 these two ``LineType`` allocate just two large arrays whereas ``LineType.SeparateCode`` allocates
 1.7 million `NumPy`_ arrays, i.e. two per each line returned.
@@ -63,8 +63,8 @@ Filled contours
    :class: only-dark
 
 For the ``simple`` dataset above the performance of :ref:`serial` for filled contours is the same
-regardless of :class:`~.FillType`.  It it 10-20% faster than :ref:`mpl2005` and significantly
-faster than :ref:`mpl2014` with a speedup of 1.7-1.8.
+regardless of :class:`~.FillType`.  It is about the same as :ref:`mpl2005` and significantly
+faster than :ref:`mpl2014` with a speedup of 1.9-2.0.
 
 .. image:: ../_static/filled_random_1000_light.svg
    :class: only-light
@@ -73,9 +73,9 @@ faster than :ref:`mpl2014` with a speedup of 1.7-1.8.
    :class: only-dark
 
 For the ``random`` dataset above the performance of :ref:`serial` varies significantly by :class:`~.FillType`.
-For ``FillType.OuterCode`` it is faster than :ref:`mpl2014` with a speedup of 1.2-1.3.  It is also
+For ``FillType.OuterCode`` it is faster than :ref:`mpl2014` with a speedup of 1.5-1.7.  It is also
 faster than :ref:`mpl2005` but only the ``corner_mask=False`` option is shown in full as the unmasked
-benchmark here is off the scale at 11.2 seconds.  The :ref:`mpl2005` algorithm calculates points for
+benchmark here is off the scale at 11.7 seconds.  The :ref:`mpl2005` algorithm calculates points for
 outer and hole boundaries in an interleaved format which need to be reordered, and this approach
 scales badly for a large outer boundary containing many holes as occurs here for unmasked ``z``.
 
@@ -83,9 +83,9 @@ Other :class:`~.FillType` are faster, although ``FillType.OuterOffset`` is only 
 creates the same number of `NumPy`_ arrays as ``FillType.OuterCode`` but the arrays are shorter.
 
 The other four :class:`~.FillType` can be grouped in pairs: ``FillType.ChunkCombinedCodeOffset`` and
-``FillType.ChunkCombinedOffsetOffset`` have a speedup of 1.8-2 compared to
+``FillType.ChunkCombinedOffsetOffset`` have a speedup of 1.8-2.0 compared to
 ``FillType.OuterCode``; whereas ``FillType.ChunkCombinedCode`` and
-``FillType.ChunkCombinedOffset`` are marginally faster with a speedup of 1.9-2.  The speed
+``FillType.ChunkCombinedOffset`` are marginally faster with a speedup of 1.9-2.1.  The speed
 improvement has the usual explanation that they only allocate a small number of arrays whereas
 ``FillType.OuterCode`` allocates 1.7 million arrays.  ``FillType.ChunkCombinedCode`` and
 ``FillType.ChunkCombinedOffset`` are slightly faster than the other two because they do not

@@ -24,7 +24,7 @@ the results in a web browser using:
 For further information see the ``README.md`` document in the ``benchmarks`` directory.
 
 There follows a summary of key benchmark results taken on a 6-core Intel Core i7-10750H processor
-using Python 3.10.12 and g++ 11.4.0 on Ubuntu 22.04 for commit ``75e78a87``.
+using Python 3.12.3 and g++ 13.2.0 on Ubuntu 24.04 for commit ``3064ab24``.
 
 .. toctree::
    :maxdepth: 1
