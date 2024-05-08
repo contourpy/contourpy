@@ -153,8 +153,6 @@ protected:
     void interp(
         index_t point0, double x1, double y1, double z1, bool is_upper, double*& points) const;
 
-    bool is_filled() const;
-
     bool is_point_in_chunk(index_t point, const ChunkLocal& local) const;
 
     bool is_quad_in_bounds(
