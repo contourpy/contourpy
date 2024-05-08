@@ -62,7 +62,7 @@ jobs:
 
       - name: Install cppcheck
         run: |
-          CPPCHECK_VERSION=2.11
+          CPPCHECK_VERSION=2.13.0
           CPPCHECK_TGZ=$CPPCHECK_VERSION.tar.gz
           cd $RUNNER_TEMP
           wget --no-verbose https://github.com/danmar/cppcheck/archive/refs/tags/$CPPCHECK_TGZ

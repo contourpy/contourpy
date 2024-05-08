@@ -1864,12 +1864,6 @@ void BaseContourGenerator<Derived>::interp(
 }
 
 template <typename Derived>
-bool BaseContourGenerator<Derived>::is_filled() const
-{
-    return _filled;
-}
-
-template <typename Derived>
 bool BaseContourGenerator<Derived>::is_point_in_chunk(index_t point, const ChunkLocal& local) const
 {
     return is_quad_in_bounds(point, local.istart-1, local.iend, local.jstart-1, local.jend);
