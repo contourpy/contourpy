@@ -96,11 +96,6 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         name: ["Test"]
         short-name: ["test"]
-        exclude:
-          # M1 mac setup-python doesn't yet have python 3.9
-          # https://github.com/actions/setup-python/issues/808
-          - os: macos-14
-            python-version: "3.9"
         include:
           # Debug build including Python and C++ coverage.
           - os: ubuntu-latest
