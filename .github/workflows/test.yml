@@ -159,12 +159,24 @@ jobs:
             short-name: "test-nightlies"
             nightly-wheels: true
             test-no-images: true
-          # Python 3.13-dev: build numpy but avoid building matplotlib and pillow.
+          # Python 3.13-dev: use numpy nightlies but no matplotlib or pillow.
           - os: ubuntu-latest
             python-version: "3.13-dev"
             name: "Test"
             short-name: "test"
-            build-numpy: true
+            numpy-nightly: true
+            test-no-images: true
+          - os: macos-14
+            python-version: "3.13-dev"
+            name: "Test"
+            short-name: "test"
+            numpy-nightly: true
+            test-no-images: true
+          - os: windows-latest
+            python-version: "3.13-dev"
+            name: "Test"
+            short-name: "test"
+            numpy-nightly: true
             test-no-images: true
 
     steps:
@@ -234,6 +246,11 @@ jobs:
         run: |
           python -m pip install -v --no-binary=numpy numpy -Csetup-args=-Dbuildtype=debug
 
+      - name: Install numpy from nightly wheels
+        if: matrix.numpy-nightly
+        run: |
+          python -m pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy
+
       - name: Pre-install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -270,7 +287,7 @@ jobs:
 
       - name: Install numpy 2 pre-release
         run: |
-          if [[ "${{ matrix.short-name }}" == "test" && "${{ matrix.build-numpy }}" == "" && "${{ matrix.build-numpy-debug }}" == "" ]]
+          if [[ "${{ matrix.short-name }}" == "test" && "${{ matrix.build-numpy }}" == "" && "${{ matrix.build-numpy-debug }}" == "" && "${{ matrix.numpy-nightly }}" == "" ]]
           then
             # This is temporary until there are full releases of numpy 2
             python -m pip install --pre --upgrade --no-deps numpy
