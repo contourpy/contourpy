@@ -35,6 +35,7 @@ def test_config_filled(show_text: bool, name: str) -> None:
 
 @pytest.mark.image
 @pytest.mark.text
+@pytest.mark.flaky(reruns=1, condition=platform.python_implementation().startswith("PyPy"))
 @pytest.mark.parametrize("show_text", [False, True])
 @pytest.mark.parametrize("name", util_test.quad_as_tri_names())
 def test_config_filled_quad_as_tri(show_text: bool, name: str) -> None:
