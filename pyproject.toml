@@ -64,6 +64,7 @@ test-no-images = [
     # Dependencies to run tests excluding image-generating tests.
     "pytest",
     "pytest-cov",
+    "pytest-rerunfailures",
     "pytest-xdist",
     "wurlitzer",
 ]
