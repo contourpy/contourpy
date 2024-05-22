@@ -11,6 +11,10 @@ on:
   schedule:
     - cron: "42 01 * * SUN"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash

@@ -8,6 +8,10 @@ on:
     - cron: "12 02 * * SUN"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash
