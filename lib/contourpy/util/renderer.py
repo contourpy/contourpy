@@ -23,12 +23,6 @@ class Renderer(ABC):
             x, y = np.meshgrid(x, y)
         return x, y
 
-        x = np.asarray(x)
-        y = np.asarray(y)
-        if x.ndim == 1:
-            x, y = np.meshgrid(x, y)
-        return x, y
-
     @abstractmethod
     def filled(
         self,
