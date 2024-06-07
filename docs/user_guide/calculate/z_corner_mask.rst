@@ -98,7 +98,7 @@ Here is an example of the difference, the red circles indicate masked out points
        cont_gen = contour_generator(x, y, z, corner_mask=corner_mask)
        multi_filled = cont_gen.multi_filled(levels)
        renderer.multi_filled(multi_filled, cont_gen.fill_type, ax=ax)
-       
+
        renderer.grid(x, y, ax=ax, color="gray", alpha=0.2)
        renderer.mask(x, y, z, ax=ax, color="red")
        renderer.title(f"corner_mask = {corner_mask}", ax=ax)
