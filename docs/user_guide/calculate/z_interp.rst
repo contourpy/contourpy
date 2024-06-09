@@ -66,10 +66,11 @@ as expected.
 
    for ax, z_interp in enumerate([ZInterp.Linear, ZInterp.Log]):
       renderer.grid(x, y, ax=ax, color="gray", alpha=0.2)
+
       cont_gen = contour_generator(x, y, z, z_interp=z_interp)
-      for i, level in enumerate(levels):
-          lines = cont_gen.lines(level)
-          renderer.lines(lines, cont_gen.line_type, ax=ax, color=f"C{i}", linewidth=2)
+      multi_lines = cont_gen.multi_lines(levels)
+      renderer.multi_lines(multi_lines, cont_gen.line_type, ax=ax, linewidth=2)
+
       renderer.z_values(x, y, z, ax=ax)
       renderer.title(z_interp, ax=ax)
 

@@ -46,9 +46,8 @@ semicircular.
       renderer.title(f"quad_as_tri={quad_as_tri}", ax=ax)
 
       cont_gen = contour_generator(x, y, z, quad_as_tri=quad_as_tri)
-      for i, level in enumerate(np.arange(0.5, 2.51, 0.5)):
-         lines = cont_gen.lines(level)
-         renderer.lines(lines, cont_gen.line_type, ax=ax, color=f"C{i}", linewidth=2)
+      multi_lines = cont_gen.multi_lines(np.arange(0.5, 2.51, 0.5))
+      renderer.multi_lines(multi_lines, cont_gen.line_type, ax=ax, linewidth=2)
 
       renderer.z_values(x, y, z, ax=ax, quad_as_tri=quad_as_tri, fmt="0.2f")
 
@@ -75,9 +74,8 @@ at the same ``z`` level so without ``quad_as_tri`` contour lines cut across diag
       renderer.title(f"quad_as_tri={quad_as_tri}", ax=ax)
 
       cont_gen = contour_generator(x, y, z, quad_as_tri=quad_as_tri)
-      for i, level in enumerate(np.arange(0.0, 4.0, 0.4)):
-         lines = cont_gen.lines(level)
-         renderer.lines(lines, cont_gen.line_type, ax=ax, color=f"C{i}", linewidth=2)
+      multi_lines = cont_gen.multi_lines(np.arange(0.0, 4.0, 0.4))
+      renderer.multi_lines(multi_lines, cont_gen.line_type, ax=ax, linewidth=2)
 
       renderer.z_values(x, y, z, ax=ax, quad_as_tri=quad_as_tri)
 
