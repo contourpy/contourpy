@@ -3,6 +3,36 @@
 Changelog
 #########
 
+v1.2.1 (2024-04-02)
+-------------------
+
+ContourPy 1.2.1 is a compatibility release to support NumPy 2.
+
+This release supports Python 3.9 to 3.12.
+
+Thanks to new contributor :user:`motoro` and core maintainer :user:`ianthomas23`.
+
+Compatibility:
+
+- Support NumPy 2 (:pr:`331`, :pr:`371` :pr:`372`)
+
+Code improvements:
+
+- Fix a few f-strings (:pr:`332`)
+
+Documentation improvements:
+
+- Clarify use of quotes in ``pip install`` (:pr:`349`)
+
+Build, testing and CI improvements:
+
+- Improved linting (:pr:`322`, :pr:`323`, :pr:`333`, :pr:`337`)
+- Update ``cppcheck`` to 2.11 (:pr:`324`)
+- Support running tests on unicore hosts (:pr:`327`)
+- Improved tests against nightly wheels (:pr:`329`, :pr:`373`)
+- Update to chromium 118 for Bokeh renderer tests (:pr:`325`)
+- Add CI run using earliest supported numpy (:pr:`347`)
+
 v1.2.0 (2023-11-03)
 -------------------
 
