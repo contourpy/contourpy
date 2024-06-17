@@ -352,13 +352,13 @@ jobs:
           # musllinux x86_64.
           - arch: x86_64
             manylinux_version: musllinux
-            image: musllinux_1_1_x86_64
+            image: musllinux_1_2_x86_64
             venv: venv
             test: test
           # musllinux aarch64.
           - arch: aarch64
             manylinux_version: musllinux
-            image: musllinux_1_1_aarch64
+            image: musllinux_1_2_aarch64
             venv: venv
             test: test-no-images
           # ppc64le and s390x: dependencies are conda packages.
