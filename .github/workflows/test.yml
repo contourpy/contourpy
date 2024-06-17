@@ -253,7 +253,7 @@ jobs:
       - name: Install numpy from nightly wheels
         if: matrix.numpy-nightly
         run: |
-          python -m pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy
+          python -m pip install --only-binary=:all: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy
 
       - name: Pre-install Python dependencies
         run: |
@@ -261,7 +261,7 @@ jobs:
           if [[ "${{ matrix.debug }}" != "" ]] || [[ "${{ matrix.coverage-files }}" != "" ]]
           then
             # Install requirements when not using build isolation.
-            python -m pip install -r build_requirements.txt ninja
+            python -m pip install --only-binary=:all: -r build_requirements.txt ninja
           fi
           python -m pip list
 
@@ -284,18 +284,10 @@ jobs:
             python -m pip install -v .[test] ${{ matrix.extra-install-args }}
           fi
 
-      - name: Install nightly wheels
+      - name: Upgrade mpl and numpy nightly wheels
         if: matrix.nightly-wheels
         run: |
-          python -m pip install --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib numpy
-
-      - name: Install numpy 2 pre-release
-        run: |
-          if [[ "${{ matrix.short-name }}" == "test" && "${{ matrix.build-numpy }}" == "" && "${{ matrix.build-numpy-debug }}" == "" && "${{ matrix.numpy-nightly }}" == "" ]]
-          then
-            # This is temporary until there are full releases of numpy 2
-            python -m pip install --pre --upgrade --no-deps numpy
-          fi
+          python -m pip install --only-binary=:all: --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib numpy
 
       - name: Smoke test
         run: |
@@ -436,9 +428,12 @@ jobs:
             python -m pip install --upgrade pip
 
             echo "==> Install contourpy with test dependencies"
-            python -m pip install -v .[$TEST]
+            python -m pip install -v .[$TEST] --only-binary=numpy
+
+            echo "==> Smoke test"
             python -m pip list
             python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
+            python -c "import contourpy as c; print('NDEBUG', c._contourpy.NDEBUG)"
 
             PYTEST="python -m pytest -v -n auto --color=yes --log-image-diffs"
             if [[ $TEST == "test-no-images" ]]
