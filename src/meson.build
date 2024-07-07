@@ -5,7 +5,9 @@ cpp_args = [
 cpp = meson.get_compiler('cpp')
 if cpp.get_id() == 'msvc'
   cpp_args += '-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR'
-  cpp_args += '/fp:fast'
+  #cpp_args += '/fp:fast'
+  cpp_args += '/fp:strict'
+  # maybe should be precise or strict instead, for correct IEEE-754 behaviour
 endif
 
 ext = py3.extension_module(
