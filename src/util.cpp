@@ -24,7 +24,13 @@ index_t Util::get_max_threads()
 
 bool Util::is_nan(double value)
 {
-    return std::isnan(value);
+    auto numpy = py::module_::import("numpy");
+    auto isnan = numpy.attr("isnan");
+    return isnan(value).cast<bool>();
+
+
+    //return std::isnan(value);
+
 }
 
 } // namespace contourpy
