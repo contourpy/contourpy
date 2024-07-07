@@ -20,8 +20,7 @@ defaults:
     shell: bash
 
 env:
-  #PYTEST: python -m pytest -v -n auto --color=yes --log-image-diffs
-  PYTEST: python -m pytest -v --color=yes --log-image-diffs
+  PYTEST: python -m pytest -v -n auto --color=yes --log-image-diffs
 
 jobs:
   pre-commit:
