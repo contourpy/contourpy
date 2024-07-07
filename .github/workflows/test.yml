@@ -126,7 +126,7 @@ jobs:
             python-version: "3.9"
             name: "Test earliest numpy"
             short-name: "test-earliest-numpy"
-            extra-install-args: "numpy==1.20"
+            extra-install-args: "numpy==1.23"
           # Compile using C++11.
           - os: ubuntu-latest
             python-version: "3.11"
