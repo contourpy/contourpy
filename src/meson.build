@@ -5,6 +5,7 @@ cpp_args = [
 cpp = meson.get_compiler('cpp')
 if cpp.get_id() == 'msvc'
   cpp_args += '-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR'
+  cpp_args += '/fp:fast'
 endif
 
 ext = py3.extension_module(
