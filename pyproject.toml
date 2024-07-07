@@ -89,19 +89,19 @@ setup = [
 
 [tool.cibuildwheel]
 build-frontend = "build"
-build = "cp39-* cp310-* cp311-* cp312-* cp313-* pp39-*"
-skip = "*-musllinux_ppc64le *-musllinux_s390x pp*_aarch64 pp*_ppc64le pp*_s390x"
+build = "cp{39,310,311,312,313}-* pp{39,310}-*_{amd64,x86_64}"
+skip = "*-musllinux_{ppc64le,s390x}"
 test-requires = "pytest"
 test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
     'pytest -v {project}/tests/test_minimal.py',
 ]
 # Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
-test-skip = "*_ppc64le *_s390x cp313-*_aarch64"
+test-skip = "*_{ppc64le,s390x} cp313-*_aarch64"
 
 [[tool.cibuildwheel.overrides]]
 # For Python 3.13 install numpy from nightly wheels as not yet on PyPI.
-select = "cp313-*"
+select = "{cp313,pp310}-*"
 before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
 
 
