@@ -133,12 +133,19 @@ jobs:
             name: "Test C++11"
             short-name: "test-c++11"
             extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
-          # PyPy only tested on ubuntu for speed, exclude big tests.
+          # PyPy 3.9 only tested on ubuntu for speed, exclude big tests.
           - os: ubuntu-latest
             python-version: "pypy3.9"
             name: "Test"
             short-name: "test"
             test-no-big: true
+          # PyPy 3.10.
+          - os: ubuntu-latest
+            python-version: "pypy3.10"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
+            numpy-nightly: true
           # Win32 test.
           - os: windows-latest
             python-version: "3.11"
