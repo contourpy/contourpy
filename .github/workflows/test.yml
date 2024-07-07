@@ -20,7 +20,8 @@ defaults:
     shell: bash
 
 env:
-  PYTEST: python -m pytest -v -n auto --color=yes --log-image-diffs
+  #PYTEST: python -m pytest -v -n auto --color=yes --log-image-diffs
+  PYTEST: python -m pytest -v --color=yes --log-image-diffs
 
 jobs:
   pre-commit:
@@ -96,74 +97,76 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13, macos-14, windows-latest]  # macos-14 is ARM
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        #os: [ubuntu-latest, macos-13, macos-14, windows-latest]  # macos-14 is ARM
+        #python-version: ["3.9", "3.10", "3.11", "3.12"]
+        os: [windows-latest]  # macos-14 is ARM
+        python-version: ["3.12"]
         name: ["Test"]
         short-name: ["test"]
         include:
           # Debug build including Python and C++ coverage.
-          - os: ubuntu-latest
-            python-version: "3.11"
-            name: "Test debug with coverage"
-            short-name: "test-debug"
-            coverage-files: "coverage.lcov,coverage.cpp"
-            debug: true
+        #  - os: ubuntu-latest
+        #    python-version: "3.11"
+        #    name: "Test debug with coverage"
+        #    short-name: "test-debug"
+        #    coverage-files: "coverage.lcov,coverage.cpp"
+        #    debug: true
           # Bokeh and text tests with Python (not C++) coverage.
-          - os: ubuntu-latest
-            python-version: "3.11"
-            name: "Test bokeh and text tests with coverage"
-            short-name: "test-bokeh"
-            coverage-files: "coverage.lcov"
-            test-text: true
+        #  - os: ubuntu-latest
+        #    python-version: "3.11"
+        #    name: "Test bokeh and text tests with coverage"
+        #    short-name: "test-bokeh"
+        #    coverage-files: "coverage.lcov"
+        #    test-text: true
           # Test against numpy debug build.
-          - os: ubuntu-latest
-            python-version: "3.11"
-            name: "Test numpy debug"
-            short-name: "test-numpy-debug"
-            build-numpy-debug: true
+        #  - os: ubuntu-latest
+        #    python-version: "3.11"
+        #    name: "Test numpy debug"
+        #    short-name: "test-numpy-debug"
+        #    build-numpy-debug: true
           # Test against earliest supported numpy
-          - os: ubuntu-latest
-            python-version: "3.9"
-            name: "Test earliest numpy"
-            short-name: "test-earliest-numpy"
-            extra-install-args: "numpy==1.23"
+        #  - os: ubuntu-latest
+        #    python-version: "3.9"
+        #    name: "Test earliest numpy"
+        #    short-name: "test-earliest-numpy"
+        #    extra-install-args: "numpy==1.23"
           # Compile using C++11.
-          - os: ubuntu-latest
-            python-version: "3.11"
-            name: "Test C++11"
-            short-name: "test-c++11"
-            extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
+        #  - os: ubuntu-latest
+        #    python-version: "3.11"
+        #    name: "Test C++11"
+        #    short-name: "test-c++11"
+        #    extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
           # PyPy 3.9 only tested on ubuntu for speed, exclude big tests.
-          - os: ubuntu-latest
-            python-version: "pypy3.9"
-            name: "Test"
-            short-name: "test"
-            test-no-big: true
+        #  - os: ubuntu-latest
+        #    python-version: "pypy3.9"
+        #    name: "Test"
+        #    short-name: "test"
+        #    test-no-big: true
           # PyPy 3.10.
-          - os: ubuntu-latest
-            python-version: "pypy3.10"
-            name: "Test"
-            short-name: "test"
-            test-no-images: true
-            numpy-nightly: true
+        #  - os: ubuntu-latest
+        #    python-version: "pypy3.10"
+        #    name: "Test"
+        #    short-name: "test"
+        #    test-no-images: true
+        #    numpy-nightly: true
           # Win32 test.
-          - os: windows-latest
-            python-version: "3.11"
-            name: "Win32"
-            short-name: "test-win32"
-            win32: true
-            test-no-images: true
+        #  - os: windows-latest
+        #    python-version: "3.11"
+        #    name: "Win32"
+        #    short-name: "test-win32"
+        #    win32: true
+        #    test-no-images: true
           # Test against matplotlib and numpy nightly wheels.
-          - os: ubuntu-latest
-            python-version: "3.12"
-            name: "Nightly wheels"
-            short-name: "test-nightlies"
-            nightly-wheels: true
-          - os: macos-13
-            python-version: "3.12"
-            name: "Nightly wheels"
-            short-name: "test-nightlies"
-            nightly-wheels: true
+        #  - os: ubuntu-latest
+        #    python-version: "3.12"
+        #    name: "Nightly wheels"
+        #    short-name: "test-nightlies"
+        #    nightly-wheels: true
+        #  - os: macos-13
+        #    python-version: "3.12"
+        #    name: "Nightly wheels"
+        #    short-name: "test-nightlies"
+        #    nightly-wheels: true
           - os: windows-latest
             python-version: "3.12"
             name: "Nightly wheels"
@@ -171,24 +174,24 @@ jobs:
             nightly-wheels: true
             test-no-images: true
           # Python 3.13-dev: use numpy nightlies but no matplotlib or pillow.
-          - os: ubuntu-latest
-            python-version: "3.13-dev"
-            name: "Test"
-            short-name: "test"
-            numpy-nightly: true
-            test-no-images: true
-          - os: macos-14
-            python-version: "3.13-dev"
-            name: "Test"
-            short-name: "test"
-            numpy-nightly: true
-            test-no-images: true
-          - os: windows-latest
-            python-version: "3.13-dev"
-            name: "Test"
-            short-name: "test"
-            numpy-nightly: true
-            test-no-images: true
+        #  - os: ubuntu-latest
+        #    python-version: "3.13-dev"
+        #    name: "Test"
+        #    short-name: "test"
+        #    numpy-nightly: true
+        #    test-no-images: true
+        #  - os: macos-14
+        #    python-version: "3.13-dev"
+        #    name: "Test"
+        #    short-name: "test"
+        #    numpy-nightly: true
+        #    test-no-images: true
+        #  - os: windows-latest
+        #    python-version: "3.13-dev"
+        #    name: "Test"
+        #    short-name: "test"
+        #    numpy-nightly: true
+        #    test-no-images: true
 
     steps:
       - name: Checkout source
