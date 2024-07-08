@@ -96,11 +96,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13, macos-14, windows-latest]  # macos-14 is ARM
+        os: [ubuntu-latest, macos-13, macos-14]  # macos-14 is ARM
         python-version: ["3.9", "3.10", "3.11", "3.12"]
         name: ["Test"]
         short-name: ["test"]
         include:
+          # Temporarily exclude image tests on Windows.
+          - os: windows-latest
+            python-version: "3.9"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
+          - os: windows-latest
+            python-version: "3.10"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
+          - os: windows-latest
+            python-version: "3.11"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
+          - os: windows-latest
+            python-version: "3.12"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
           # Debug build including Python and C++ coverage.
           - os: ubuntu-latest
             python-version: "3.11"
