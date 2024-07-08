@@ -58,7 +58,8 @@ test = [
     # Standard test dependencies.
     "contourpy[test-no-images]",
     "matplotlib",
-    "Pillow",
+    "Pillow; platform_system != 'Windows'",
+    "Pillow < 10.4.0; platform_system == 'Windows'",
 ]
 test-no-images = [
     # Dependencies to run tests excluding image-generating tests.
