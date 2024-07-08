@@ -102,6 +102,7 @@ jobs:
         python-version: ["3.12"]
         name: ["Test"]
         short-name: ["test"]
+        test-no-images: [true]
         include:
           # Debug build including Python and C++ coverage.
         #  - os: ubuntu-latest
