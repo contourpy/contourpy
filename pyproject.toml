@@ -65,7 +65,7 @@ test-no-images = [
     "pytest",
     "pytest-cov",
     "pytest-rerunfailures",
-    "pytest-xdist",
+    #"pytest-xdist",
     "wurlitzer",
 ]
 

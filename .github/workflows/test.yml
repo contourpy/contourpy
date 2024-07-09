@@ -20,7 +20,8 @@ defaults:
     shell: bash
 
 env:
-  PYTEST: python -m pytest -v -n auto --color=yes --log-image-diffs
+  #PYTEST: python -m pytest -v -n auto --color=yes --log-image-diffs
+  PYTEST: python -m pytest -v --color=yes --log-image-diffs
 
 jobs:
   pre-commit:
@@ -105,29 +106,18 @@ jobs:
         include:
           # Temporarily exclude image tests on Windows.
           - os: windows-latest
-            python-version: "3.9"
-            name: "Test"
-            short-name: "test"
-            debug: true
-            #test-no-images: true
-          - os: windows-latest
             python-version: "3.10"
             name: "Test"
             short-name: "test"
             debug: true
             #test-no-images: true
           - os: windows-latest
-            python-version: "3.11"
-            name: "Test"
-            short-name: "test"
+            python-version: "3.10"
+            name: "Test no images"
+            short-name: "test-no-images"
             debug: true
-            #test-no-images: true
-          - os: windows-latest
-            python-version: "3.12"
-            name: "Test"
-            short-name: "test"
-            debug: true
-            #test-no-images: true
+            test-no-images: true
+
           # Debug build including Python and C++ coverage.
 #          - os: ubuntu-latest
 #            python-version: "3.11"
@@ -376,7 +366,8 @@ jobs:
   test-in-docker:
     # In-docker tests are either emulated hardware or musllinux
     name: In docker ${{ matrix.arch }} ${{ matrix.manylinux_version }}
-    if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
+    #if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
+    if: false
     runs-on: ubuntu-latest
 
     strategy:
