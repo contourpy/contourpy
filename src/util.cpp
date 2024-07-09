@@ -29,7 +29,9 @@ index_t Util::get_max_threads()
 
 bool Util::is_nan(double value)
 {
-    return std::isnan(value);
+    //return std::isnan(value);
+
+    return value != value;
 }
 
 } // namespace contourpy
