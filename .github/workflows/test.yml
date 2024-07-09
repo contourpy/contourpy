@@ -331,14 +331,16 @@ jobs:
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Run only tests that do not generate images"
-            ${PYTEST} tests/test_filled.py::test_filled_decreasing_levels -rP -k "not image"
+            ${PYTEST} tests/test_filled.py -rP -k "not image"
+            #${PYTEST} tests/test_filled.py::test_filled_decreasing_levels -rP -k "not image"
           elif [[ "${{ matrix.test-no-big }}" != "" ]]
           then
             echo "Run all tests except big ones"
             ${PYTEST} tests/ -k "not big"
           else
             echo "Run all tests"
-            ${PYTEST} tests/test_filled.py::test_filled_decreasing_levels -rP
+            ${PYTEST} tests/test_filled.py -rP
+            #${PYTEST} tests/test_filled.py::test_filled_decreasing_levels -rP
           fi
 
       - name: Collect C++ coverage
