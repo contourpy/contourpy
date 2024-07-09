@@ -57,9 +57,10 @@ mypy = [
 test = [
     # Standard test dependencies.
     "contourpy[test-no-images]",
-    "matplotlib",
-    "Pillow; platform_system != 'Windows'",
-    "Pillow < 10.4.0; platform_system == 'Windows'",
+    "matplotlib < 3.9.1",
+    #"Pillow; platform_system != 'Windows'",
+    #"Pillow < 10.4.0; platform_system == 'Windows'",
+    "Pillow < 10.4.0",
 ]
 test-no-images = [
     # Dependencies to run tests excluding image-generating tests.
