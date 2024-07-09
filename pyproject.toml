@@ -61,7 +61,7 @@ test = [
     "matplotlib",
     #"Pillow; platform_system != 'Windows'",
     #"Pillow < 10.4.0; platform_system == 'Windows'",
-    "Pillow",
+    "Pillow< 10.4.0",
 ]
 test-no-images = [
     # Dependencies to run tests excluding image-generating tests.
