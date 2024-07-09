@@ -24,7 +24,8 @@ def all_class_names() -> list[str]:
 
 
 def all_names(exclude: str | None = None) -> list[str]:
-    all_ = ["mpl2005", "mpl2014", "serial", "threaded"]
+    #all_ = ["mpl2005", "mpl2014", "serial", "threaded"]
+    all_ = ["serial"]
     if exclude is not None:
         all_.remove(exclude)
     return all_
@@ -32,46 +33,48 @@ def all_names(exclude: str | None = None) -> list[str]:
 
 def all_names_and_fill_types() -> list[tuple[str, FillType]]:
     return [
-        ("mpl2005", FillType.OuterCode),
-        ("mpl2014", FillType.OuterCode),
+        #("mpl2005", FillType.OuterCode),
+        #("mpl2014", FillType.OuterCode),
         ("serial", FillType.OuterCode),
         ("serial", FillType.OuterOffset),
         ("serial", FillType.ChunkCombinedCode),
         ("serial", FillType.ChunkCombinedOffset),
         ("serial", FillType.ChunkCombinedCodeOffset),
         ("serial", FillType.ChunkCombinedOffsetOffset),
-        ("threaded", FillType.OuterCode),
-        ("threaded", FillType.OuterOffset),
-        ("threaded", FillType.ChunkCombinedCode),
-        ("threaded", FillType.ChunkCombinedOffset),
-        ("threaded", FillType.ChunkCombinedCodeOffset),
-        ("threaded", FillType.ChunkCombinedOffsetOffset),
+        #("threaded", FillType.OuterCode),
+        #("threaded", FillType.OuterOffset),
+        #("threaded", FillType.ChunkCombinedCode),
+        #("threaded", FillType.ChunkCombinedOffset),
+        #("threaded", FillType.ChunkCombinedCodeOffset),
+        #("threaded", FillType.ChunkCombinedOffsetOffset),
     ]
 
 
 def all_names_and_line_types() -> list[tuple[str, LineType]]:
     return [
-        ("mpl2005", LineType.SeparateCode),
-        ("mpl2014", LineType.SeparateCode),
+        #("mpl2005", LineType.SeparateCode),
+        #("mpl2014", LineType.SeparateCode),
         ("serial", LineType.Separate),
         ("serial", LineType.SeparateCode),
         ("serial", LineType.ChunkCombinedCode),
         ("serial", LineType.ChunkCombinedOffset),
         ("serial", LineType.ChunkCombinedNan),
-        ("threaded", LineType.Separate),
-        ("threaded", LineType.SeparateCode),
-        ("threaded", LineType.ChunkCombinedCode),
-        ("threaded", LineType.ChunkCombinedOffset),
-        ("threaded", LineType.ChunkCombinedNan),
+        #("threaded", LineType.Separate),
+        #("threaded", LineType.SeparateCode),
+        #("threaded", LineType.ChunkCombinedCode),
+        #("threaded", LineType.ChunkCombinedOffset),
+        #("threaded", LineType.ChunkCombinedNan),
     ]
 
 
 def corner_mask_names() -> list[str]:
-    return ["mpl2014", "serial", "threaded"]
+    #return ["mpl2014", "serial", "threaded"]
+    return ["serial"]
 
 
 def quad_as_tri_names() -> list[str]:
-    return ["serial", "threaded"]
+    #return ["serial", "threaded"]
+    return ["serial"]
 
 
 def all_fill_types_str_value() -> list[tuple[str, int]]:
