@@ -36,7 +36,9 @@ def xyz_chunk_test() -> tuple[cpy.CoordinateArray, ...]:
 @pytest.mark.parametrize("name", util_test.all_names())
 def test_filled_decreasing_levels(name: str) -> None:
     cont_gen = contour_generator(z=[[0, 1], [2, 3]], name=name, fill_type=FillType.OuterCode)
+    print("==> CHECK A")
     with pytest.raises(ValueError, match="upper_level must be larger than lower_level"):
+        print("==> CHECK B")
         cont_gen.filled(2.0, 1.0)
 
 

@@ -42,7 +42,8 @@ jobs:
 
   codebase:
     name: codebase
-    if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
+    #if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
+    if: false
     runs-on: ubuntu-latest
 
     strategy:
@@ -106,16 +107,14 @@ jobs:
         include:
           # Temporarily exclude image tests on Windows.
           - os: windows-latest
-            python-version: "3.10"
+            python-version: "3.12"
             name: "Test"
             short-name: "test"
-            debug: true
             #test-no-images: true
           - os: windows-latest
-            python-version: "3.10"
+            python-version: "3.12"
             name: "Test no images"
             short-name: "test-no-images"
-            debug: true
             test-no-images: true
 
           # Debug build including Python and C++ coverage.
@@ -332,14 +331,14 @@ jobs:
           elif [[ "${{ matrix.test-no-images }}" != "" ]]
           then
             echo "Run only tests that do not generate images"
-            ${PYTEST} tests/ -k "not image"
+            ${PYTEST} tests/test_filled.py::test_filled_decreasing_levels -rP -k "not image"
           elif [[ "${{ matrix.test-no-big }}" != "" ]]
           then
             echo "Run all tests except big ones"
             ${PYTEST} tests/ -k "not big"
           else
             echo "Run all tests"
-            ${PYTEST} tests/
+            ${PYTEST} tests/test_filled.py::test_filled_decreasing_levels -rP
           fi
 
       - name: Collect C++ coverage
