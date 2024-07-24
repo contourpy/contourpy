@@ -189,6 +189,12 @@ jobs:
             short-name: "test"
             numpy-nightly: true
             test-no-images: true
+          - os: ubuntu-latest
+            python-version: "3.13-dev-freethreading"
+            name: "Test"
+            short-name: "test"
+            numpy-nightly: true
+            test-no-images: true
 
     steps:
       - name: Checkout source
@@ -197,7 +203,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Python ${{ matrix.python-version }}
-        if: ${{ !matrix.win32 }}
+        if: ${{ !matrix.win32 && !endsWith(matrix.python-version, 'freethreading') }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -208,6 +214,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x86
+
+      - name: Setup Python ${{ matrix.python-version }}
+        if: ${{ endsWith(matrix.python-version, 'freethreading') }}
+        uses: deadsnakes/action@v3.1.0
+        with:
+          python-version: '3.13-dev'
+          nogil: true
 
       - name: Setup MSVC (32-bit)
         if: matrix.win32
