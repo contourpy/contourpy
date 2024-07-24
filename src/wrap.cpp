@@ -18,7 +18,7 @@ using namespace pybind11::literals;
 static contourpy::LineType mpl20xx_line_type = contourpy::LineType::SeparateCode;
 static contourpy::FillType mpl20xx_fill_type = contourpy::FillType::OuterCode;
 
-PYBIND11_MODULE(_contourpy, m) {
+PYBIND11_MODULE(_contourpy, m, py::mod_gil_not_used()) {
     m.doc() =
         "C++11 extension module wrapped using `pybind11`_.\n\n"
         "It should not be necessary to access classes and functions in this extension module "
