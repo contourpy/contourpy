@@ -23,6 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_PRERELEASE_PYTHONS: True
+      CIBW_FREE_THREADED_SUPPORT: True
 
     strategy:
       fail-fast: false
