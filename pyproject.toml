@@ -90,7 +90,7 @@ setup = [
 
 [tool.cibuildwheel]
 build-frontend = "build"
-build = "cp{39,310,311,312,313}-* pp{39,310}-*_{amd64,x86_64}"
+build = "cp{39,310,311,312,313,313t}-* pp{39,310}-*_{amd64,x86_64}"
 skip = "*-musllinux_{ppc64le,s390x}"
 test-requires = "pytest"
 test-command = [
@@ -102,7 +102,7 @@ test-skip = "*_{ppc64le,s390x} cp313-*_aarch64"
 
 [[tool.cibuildwheel.overrides]]
 # For Python 3.13 install numpy from nightly wheels as not yet on PyPI.
-select = "{cp313,pp310}-*"
+select = "{cp313,cp313t,pp310}-*"
 before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
 
 
