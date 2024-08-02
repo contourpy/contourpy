@@ -169,7 +169,6 @@ jobs:
             name: "Nightly wheels"
             short-name: "test-nightlies"
             nightly-wheels: true
-            test-no-images: true
           # Python 3.13-dev: use numpy nightlies but no matplotlib or pillow.
           - os: ubuntu-latest
             python-version: "3.13-dev"
