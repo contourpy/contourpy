@@ -100,6 +100,10 @@ test-command = [
 # Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
 test-skip = "*_{ppc64le,s390x} cp313-*_aarch64"
 
+[tool.cibuildwheel.windows]
+before-all = "pip install delvewheel"
+repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
+
 [[tool.cibuildwheel.overrides]]
 # For Python 3.13 install numpy from nightly wheels as not yet on PyPI.
 select = "{cp313,cp313t,pp310}-*"
