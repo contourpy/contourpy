@@ -102,7 +102,7 @@ test-skip = "*_{ppc64le,s390x} cp313-*_aarch64"
 
 [tool.cibuildwheel.windows]
 before-all = "pip install delvewheel"
-repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
+repair-wheel-command = "delvewheel show -vv && delvewheel needed && delvewheel repair -vv --add-path C:\\Windows\\system32 -w {dest_dir} {wheel}"
 
 [[tool.cibuildwheel.overrides]]
 # For Python 3.13 install numpy from nightly wheels as not yet on PyPI.
