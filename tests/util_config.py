@@ -388,7 +388,7 @@ class ConfigFilled(ConfigFilledCommon):
             self.fig, axes = plt.subplots(18, 12, figsize=(10.4, 17.1), subplot_kw=subplot_kw)
         else:
             self.fig, axes = plt.subplots(9, 11, figsize=(9.4, 8.4), subplot_kw=subplot_kw)
-        self.axes = axes.flatten()  # type: ignore[union-attr,assignment]
+        self.axes = axes.flatten()
 
         self.axes_index = 0
         for config in range(171):
@@ -472,7 +472,7 @@ class ConfigFilledCorner(ConfigFilledCommon):
         super().__init__(name, corner_mask=True, quad_as_tri=False, show_text=show_text)
 
         self.fig, axes = plt.subplots(8, 14, figsize=(12.1, 7.6), subplot_kw={"aspect": "equal"})
-        self.axes = axes.flatten()  # type: ignore[union-attr,assignment]
+        self.axes = axes.flatten()
 
         corners = [Corner.NW, Corner.NE, Corner.SW, Corner.SE]
         self.axes_index = 0
@@ -554,7 +554,7 @@ class ConfigLines(ConfigLinesCommon):
             self.fig, axes = plt.subplots(5, 6, figsize=(5.2, 4.75), subplot_kw=subplot_kw)
         else:
             self.fig, axes = plt.subplots(3, 6, figsize=(5.2, 2.85), subplot_kw=subplot_kw)
-        self.axes = axes.flatten()  # type: ignore[union-attr,assignment]
+        self.axes = axes.flatten()
 
         self.axes_index = 0
         for config in range(16):
@@ -587,7 +587,7 @@ class ConfigLinesCorner(ConfigLinesCommon):
         super().__init__(name, corner_mask=True, quad_as_tri=False, show_text=show_text)
 
         self.fig, axes = plt.subplots(4, 8, figsize=(6.93, 3.8), subplot_kw={"aspect": "equal"})
-        self.axes = axes.flatten()  # type: ignore[union-attr,assignment]
+        self.axes = axes.flatten()
 
         self.axes_index = 0
         corners = [Corner.NW, Corner.NE, Corner.SW, Corner.SE]
