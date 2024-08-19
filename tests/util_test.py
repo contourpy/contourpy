@@ -112,7 +112,7 @@ def assert_point_array(points: cpy.PointArray, allow_nan: bool = False) -> int:
     assert points.dtype == point_dtype
     assert points.ndim == 2
     assert points.shape[1] == 2
-    npoints = points.shape[0]
+    npoints = len(points)
     assert npoints >= 1
     if not allow_nan:
         assert not np.any(np.isnan(points))
