@@ -97,7 +97,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-13, macos-14, windows-latest]  # macos-14 is ARM
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13-dev"]
         name: ["Test"]
         short-name: ["test"]
         include:
@@ -169,31 +169,10 @@ jobs:
             name: "Nightly wheels"
             short-name: "test-nightlies"
             nightly-wheels: true
-          # Python 3.13-dev: use numpy nightlies but no matplotlib or pillow.
-          - os: ubuntu-latest
-            python-version: "3.13-dev"
-            name: "Test"
-            short-name: "test"
-            numpy-nightly: true
-            test-no-images: true
-          - os: macos-14
-            python-version: "3.13-dev"
-            name: "Test"
-            short-name: "test"
-            numpy-nightly: true
-            test-no-images: true
-          - os: windows-latest
-            python-version: "3.13-dev"
-            name: "Test"
-            short-name: "test"
-            numpy-nightly: true
-            test-no-images: true
           - os: ubuntu-latest
             python-version: "3.13-dev-freethreading"
             name: "Test"
             short-name: "test"
-            numpy-nightly: true
-            test-no-images: true
 
     steps:
       - name: Checkout source
