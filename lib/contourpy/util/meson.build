@@ -41,7 +41,7 @@ conf_data.set('source_dir', meson.current_source_dir().replace('\\', '/'))
 conf_data.set('cross_build', meson.is_cross_build())
 
 # Build options
-conf_data.set('build_options', meson.build_options().replace('\\', '/'))
+conf_data.set('build_options', meson.build_options().replace('\\', '/').replace('"', '').replace('\'\'', ''))
 options = [
   'b_ndebug',
   'b_vscrt',
