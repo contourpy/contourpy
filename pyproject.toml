@@ -101,6 +101,15 @@ test-command = [
 test-skip = "*_{ppc64le,s390x} cp313-*_aarch64"
 free-threaded-support = true
 
+[[tool.cibuildwheel.overrides]]
+# See https://github.com/contourpy/contourpy/issues/424
+select = "*-win_amd64"
+before-all = "pwd"
+config-settings.setup-args = [
+    "-Db_vscrt=mt",
+    "-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']"
+]
+
 
 [tool.codespell]
 ignore-words-list = "nd"
