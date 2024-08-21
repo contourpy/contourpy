@@ -1,0 +1,61 @@
+name: Test own nightly wheels
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "42 06 * * SUN"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PYTEST: python -m pytest -v -n auto --color=yes
+
+jobs:
+  test_own_nightlies:
+    name: "${{ matrix.os }} deps ${{ matrix.dependencies }}"
+    if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14, windows-latest]
+        python-version: ["3.12"]
+        dependencies: ["released", "nightlies"]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install nightly dependencies
+        if: ${{ matrix.dependencies == 'nightlies'}}
+        run: |
+          python -m pip install --only-binary=:all: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple contourpy[test]
+
+      - name: Install released dependencies
+        if: ${{ matrix.dependencies == 'released'}}
+        run: |
+          python -m pip install --only-binary=:all: contourpy[test]
+          python -m pip install --only-binary=:all: --upgrade --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple contourpy
+
+      - name: Smoke test
+        run: |
+          python -m pip list
+          python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
+
+      - name: Run tests
+        run: |
+          ${PYTEST} tests/
