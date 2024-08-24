@@ -34,7 +34,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.1
@@ -46,7 +46,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.11"]
+        python-version: ["3.12"]
 
     steps:
       - name: Checkout source
@@ -103,21 +103,21 @@ jobs:
         include:
           # Debug build including Python and C++ coverage.
           - os: ubuntu-latest
-            python-version: "3.11"
+            python-version: "3.12"
             name: "Test debug with coverage"
             short-name: "test-debug"
             coverage-files: "coverage.lcov,coverage.cpp"
             debug: true
           # Bokeh and text tests with Python (not C++) coverage.
           - os: ubuntu-latest
-            python-version: "3.11"
+            python-version: "3.12"
             name: "Test bokeh and text tests with coverage"
             short-name: "test-bokeh"
             coverage-files: "coverage.lcov"
             test-text: true
           # Test against numpy debug build.
           - os: ubuntu-latest
-            python-version: "3.11"
+            python-version: "3.12"
             name: "Test numpy debug"
             short-name: "test-numpy-debug"
             build-numpy-debug: true
@@ -129,7 +129,7 @@ jobs:
             extra-install-args: "numpy==1.23"
           # Compile using C++11.
           - os: ubuntu-latest
-            python-version: "3.11"
+            python-version: "3.12"
             name: "Test C++11"
             short-name: "test-c++11"
             extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
@@ -148,7 +148,7 @@ jobs:
             numpy-nightly: true
           # Win32 test.
           - os: windows-latest
-            python-version: "3.11"
+            python-version: "3.12"
             name: "Win32"
             short-name: "test-win32"
             win32: true
@@ -398,7 +398,7 @@ jobs:
             if [[ $VENV == "venv" ]]
             then
               echo "==> Create virtual environment"
-              /opt/python/cp311-cp311/bin/python -m venv venv
+              /opt/python/cp312-cp312/bin/python -m venv venv
               . venv/bin/activate
               which python
               python --version
@@ -414,7 +414,7 @@ jobs:
               . /work/venv/etc/profile.d/conda.sh
 
               echo "==> Create and activate conda environment"
-              conda create -n my_env -q python=3.11
+              conda create -n my_env -q python=3.12
               conda activate my_env
 
               echo "==> Install conda dependencies"
