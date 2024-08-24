@@ -88,7 +88,6 @@ rst_epilog = """
 .. _Shapely: https://shapely.readthedocs.io/
 .. _conda: https://conda.io/
 .. _conda-forge: https://anaconda.org/conda-forge/contourpy/
-.. _default: https://anaconda.org/anaconda/contourpy/
 .. _github: https://www.github.com/contourpy/contourpy/
 .. _meson: https://mesonbuild.com/
 .. _meson-python: https://meson-python.readthedocs.io/
