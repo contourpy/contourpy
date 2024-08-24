@@ -112,7 +112,7 @@ config-settings.setup-args = [
 
 
 [tool.codespell]
-ignore-words-list = "nd"
+ignore-words-list = "nd,socio-economic"
 
 
 [tool.coverage.report]
