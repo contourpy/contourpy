@@ -24,3 +24,4 @@ The other main source of information is the :ref:`api`.
    quad_as_tri
    z_interp
    threads
+   limitations
