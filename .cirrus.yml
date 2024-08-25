@@ -8,12 +8,12 @@ linux_aarch64_test_task:
 
   matrix:
     - env:
-        PYTHON_VERSION: "3.11"
+        PYTHON_VERSION: "3.12"
         IMAGE_SUFFIX: slim
         BUILD_NUMPY: 0
         TEST_NO_IMAGES: 0
     #- env:
-    #    PYTHON_VERSION: "3.11"
+    #    PYTHON_VERSION: "3.12"
     #    IMAGE_SUFFIX: alpine
     #    BUILD_NUMPY: 1
     #    TEST_NO_IMAGES: 1
@@ -66,51 +66,6 @@ linux_aarch64_test_task:
       if [[ -e result_images ]]
       then
         DIR="test-artifacts/cirrus_linux_aarch64_${IMAGE_SUFFIX}_${PYTHON_VERSION}";
-        mkdir -p "${DIR}";
-        mv result_images/* "${DIR}/";
-      fi
-
-    upload_test_artifacts:
-      path: test-artifacts/**
-
-
-macos_arm64_test_task:
-  name: "Cirrus macos arm64 ${PYTHON_VERSION}"
-  only_if: $CIRRUS_BRANCH != "main"
-
-  macos_instance:
-    # https://github.com/cirruslabs/macos-image-templates
-    image: ghcr.io/cirruslabs/macos-monterey-xcode:latest
-
-  matrix:
-    - env:
-        PYTHON_VERSION: "3.10"
-
-  os_dependencies_script: |
-    brew install python@${PYTHON_VERSION}
-    echo "PATH=/opt/homebrew/opt/python@${PYTHON_VERSION}/libexec/bin:$PATH" >> $CIRRUS_ENV
-
-  python_venv_script: |
-    env | grep PATH
-    which python
-    python --version
-    python -m pip install --upgrade pip
-    python -m venv venv
-    source venv/bin/activate
-
-  install_contourpy_script: |
-    python -m pip install -v .[test] -Cbuilddir=build
-    python -m pip list
-    python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
-
-  run_tests_script: |
-    python -m pytest -v tests/ -n 4 --log-image-diffs
-
-  always:
-    collect_test_image_failures_script: |
-      if [[ -e result_images ]]
-      then
-        DIR="test-artifacts/cirrus_macos_arm64_${PYTHON_VERSION}";
         mkdir -p "${DIR}";
         mv result_images/* "${DIR}/";
       fi
