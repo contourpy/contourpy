@@ -138,3 +138,18 @@ and whether it contains particular points or not
 
    >>> from shapely import GeometryCollection
    >>> polygons = GeometryCollection(list(polygons))
+
+.. _shapely_invalid:
+
+Invalid geometry
+----------------
+
+As described in :ref:`limitations` it is possible for ContourPy to return contours with duplicate
+points that are considered invalid by Shapely. To correct this use:
+
+.. code-block:: python
+
+   from shapely import is_valid, make_valid
+
+   if not is_valid(polygon):
+       polygon = make_valid(polygon)
