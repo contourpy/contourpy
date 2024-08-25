@@ -4,8 +4,8 @@ Convert line and fill types
 Convert contour lines to a different line type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:func:`~.convert_lines` is used to convert contour lines to a different
-:class:`~.LineType`.
+:func:`~.convert_lines` and :func:`~.convert_multi_lines` are used to convert contour lines to a
+different :class:`~.LineType`.
 
 The following example creates two contour lines in ``LineType.Separate`` format where each line's 2D
 points are in separate NumPy arrays:
@@ -35,8 +35,8 @@ the other direction, all chunk information is discarded as all lines are appende
 Convert filled contours to a different fill type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:func:`~.convert_filled` is used to convert filled contours to a different
-:class:`~.FillType`.
+:func:`~.convert_filled` and :func:`~.convert_multi_filled` are used to convert filled contours to a
+different :class:`~.FillType`.
 
 The following example creates two filled polygons in ``FillType.OuterCode`` format where each of the
 polygons points and codes are in separate NumPy arrays:
@@ -67,7 +67,8 @@ Two of the :class:`~.FillType` (``FillType.ChunkCombinedCode`` and
 ``FillType.ChunkCombinedOffset``) do not include information about the relationship between outer
 and inner boundaries so they cannot be converted to any of the :class:`~.FillType` that
 need this information (``FillType.OuterCode``, ``FillType.OuterOffset``,
-``FillType.ChunkCombinedCodeOffset`` and ``FillType.ChunkCombinedOffsetOffset``).
+``FillType.ChunkCombinedCodeOffset`` and ``FillType.ChunkCombinedOffsetOffset``);
+a ``ValueError`` will be raised instead.
 
 Also, when converting from a non-chunked fill type (``FillType.OuterCode`` or
 ``FillType.OuterOffset``) to a chunked one (any of the others), all polygons are placed together in

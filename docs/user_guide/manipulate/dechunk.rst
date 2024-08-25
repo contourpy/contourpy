@@ -2,7 +2,8 @@ Dechunking
 ----------
 
 Contour lines and filled contours that are split into multiple chunks can have their chunks combined
-using the functions :func:`~.dechunk_lines` and :func:`~.dechunk_filled`. Line and
+using the functions :func:`~.dechunk_lines`, :func:`~.dechunk_filled`,
+:func:`~.dechunk_multi_lines` and :func:`~.dechunk_multi_filled`. Line and
 fill types that are not split into chunks (``LineType.Separate``, ``LineType.SeparateCode``,
 ``FillType.OuterCode`` and ``FillType.OuterOffset``) and those that are but only have a single chunk
 are returned unmodified by the dechunk functions.
