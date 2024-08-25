@@ -418,7 +418,7 @@ jobs:
               conda activate my_env
 
               echo "==> Install conda dependencies"
-              conda install -q numpy matplotlib Pillow
+              conda install -q -c conda-forge -c nodefaults numpy matplotlib Pillow
               conda list
             fi
 
