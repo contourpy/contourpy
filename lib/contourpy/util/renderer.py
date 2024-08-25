@@ -93,6 +93,8 @@ class Renderer(ABC):
                 10 sets of filled contours are rendered.
             kwargs: All other keyword argument are passed on to
                 :meth:`.Renderer.filled` unchanged.
+
+        .. versionadded:: 1.3.0
         """
         if color is not None:
             kwargs["color"] = color
@@ -124,6 +126,8 @@ class Renderer(ABC):
                 are rendered.
             kwargs: All other keyword argument are passed on to
                 :meth:`Renderer.lines` unchanged.
+
+        .. versionadded:: 1.3.0
         """
         if color is not None:
             kwargs["color"] = color

@@ -1,8 +1,9 @@
 Calculate contours
 ==================
 
-Contours are calculated using the :meth:`~.ContourGenerator.lines` and
-:meth:`~.ContourGenerator.filled` methods of a :class:`~.ContourGenerator` object
+Contours are calculated using the :meth:`~.ContourGenerator.lines`,
+:meth:`~.ContourGenerator.filled`, :meth:`~.ContourGenerator.multi_lines` and
+:meth:`~.ContourGenerator.multi_filled` methods of a :class:`~.ContourGenerator` object
 that is obtained by calling the :func:`~.contour_generator` function.
 There are many options available for contouring that equate to keyword arguments passed to
 the :func:`~.contour_generator` function, these are described in turn below.
