@@ -3,6 +3,65 @@
 Changelog
 #########
 
+v1.3.0 (2024-08-27)
+-------------------
+
+ContourPy 1.3.0 adds new ``ContourGenerator`` functions ``multi_lines`` and ``multi_filled`` to
+calculate contour lines and filled contours over a sequence of levels in a single function call.
+There are also new functions to render, convert and dechunk the returns from
+``multi_lines`` and ``multi_filled``.
+
+This release adds support for Python 3.13, including free-threaded. The latter should be considered
+experimental.
+
+The use of ``np.nan`` as the ``lower_level`` or ``upper_level`` of ``ContourGenerator.filled()`` is
+no longer permitted.
+
+Windows wheels uploaded to PyPI now bundle the C++ runtime statically to avoid problems with up and
+downstream libraries causing the use of incorrect DLLs.
+
+This release supports CPython 3.9 to 3.13, and PyPy 3.9 to 3.10.
+
+Thanks to new contributor :user:`lysnikolaou` and core maintainer :user:`ianthomas23`.
+
+Enhancements:
+
+- ``multi_lines`` and ``multi_filled``:
+
+  - ``ContourGenerator.multi_lines`` and ``multi_filled`` (:pr:`338`, :pr:`340`, :pr:`342`, :pr:`343`)
+  - ``Renderer.multi_lines`` and ``multi_filled`` (:pr:`341`)
+  - ``convert_multi_lines`` and ``convert_multi_filled`` (:pr:`348`)
+  - ``dechunk_multi_lines`` and ``dechunk_multi_filled`` (:pr:`345`)
+
+- Prevent use of ``np.nan`` as lower or upper level in ``filled`` (:pr:`339`)
+
+Compatibility:
+
+- Support CPython 3.13 including free-threaded (:pr:`382`, :pr:`384`, :pr:`388`, :pr:`408`, :pr:`410`, :pr:`411`, :pr:`412`, :pr:`423`)
+- Support PyPy 3.10 (:pr:`404`)
+
+Code improvements:
+
+- Support improved typing in NumPy 2.1.0 (:pr:`422`)
+
+Documentation improvements:
+
+- Simpler sphinx cross-references (:pr:`361`)
+- Add more doc cross-references to explain returned data formats (:pr:`366`)
+- Remove download numbers for conda packages (:pr:`428`)
+- Documentation for ``multi_lines`` and ``multi_filled`` (:pr:`390`, :pr:`431`)
+- Document possibility of duplicate contour points (:pr:`432`)
+
+Build, testing and CI improvements:
+
+- Add pytest option to log image differences to CSV file (:pr:`335`)
+- Label flaky test (:pr:`385`)
+- MSVC linking and ``std::mutex`` compiler flag (:pr:`391`, :pr:`395`, :pr:`414`, :pr:`419`, :pr:`427`)
+- Add minimal test script (:pr:`399`)
+- Bump minimum supported NumPy to 1.23 (:pr:`403`)
+- Build and publish nightly wheels (:pr:`413`, :pr:`425`)
+- Bump default python version in CI to 3.12 (:pr:`430`)
+
 v1.2.1 (2024-04-02)
 -------------------
 
