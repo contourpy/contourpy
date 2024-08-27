@@ -17,7 +17,6 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -34,7 +33,7 @@ dynamic = ["version"]
 license = {file = "LICENSE"}
 name = "contourpy"
 readme = "README_simple.md"
-requires-python = ">= 3.9"
+requires-python = ">= 3.10"
 
 [project.optional-dependencies]
 docs = [
@@ -90,7 +89,7 @@ setup = [
 
 [tool.cibuildwheel]
 build-frontend = "build"
-build = "cp{39,310,311,312,313,313t}-* pp{39,310}-*_{amd64,x86_64}"
+build = "cp{310,311,312,313,313t}-* pp310-*_{amd64,x86_64}"
 skip = "*-musllinux_{ppc64le,s390x} cp313t-win*"
 test-requires = "pytest"
 test-command = [
