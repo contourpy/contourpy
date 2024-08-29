@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from io import StringIO
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 import pytest
 
@@ -21,8 +21,6 @@ from contourpy._contourpy import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     KWArgs: TypeAlias = dict[str, int | bool | LineType | FillType | ZInterp]
     XYZMask: TypeAlias = tuple[list[list[int]], list[list[int]], list[list[int]], None]
 
