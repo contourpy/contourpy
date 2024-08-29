@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import reduce
+from itertools import pairwise
 from operator import add
 from typing import TYPE_CHECKING, cast
 
@@ -1020,7 +1021,7 @@ def test_multi_filled_levels_type(name: str, fill_type: FillType, corner_mask: b
     levels = [2, 3, 4]
 
     # Reference result using filled() not multi_filled().
-    reference = [cont_gen.filled(lower, upper) for lower, upper in zip(levels[:-1], levels[1:])]
+    reference = [cont_gen.filled(lower, upper) for lower, upper in pairwise(levels)]
 
     # List.
     util_test.assert_equal_recursive(reference, cont_gen.multi_filled(list(levels)))
