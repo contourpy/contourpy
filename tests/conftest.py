@@ -89,7 +89,7 @@ def pytest_collection_modifyitems(config: pytest.Config, items: Sequence[Any]) -
 
 def pytest_make_parametrize_id(config: pytest.Config, val: Any, argname: str) -> str | None:
     # Override names used for enums in tests.
-    if isinstance(val, (FillType, LineType, ZInterp)):
+    if isinstance(val, FillType | LineType | ZInterp):
         return val.name
     return None
 

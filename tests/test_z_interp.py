@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -9,6 +9,8 @@ import pytest
 from contourpy import LineType, ZInterp, contour_generator
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     import contourpy._contourpy as cpy
 
 

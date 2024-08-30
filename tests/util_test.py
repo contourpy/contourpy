@@ -301,7 +301,7 @@ def assert_equal_recursive(any1: Any, any2: Any) -> None:
     assert type(any1) is type(any2)
     if any1 is None:
         assert any2 is None
-    elif isinstance(any1, (list, tuple)):
+    elif isinstance(any1, list | tuple):
         assert type(any1) is type(any2)
         assert len(any1) == len(any2)
         for item1, item2 in zip(any1, any2):
