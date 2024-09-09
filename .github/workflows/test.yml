@@ -189,7 +189,7 @@ jobs:
 
       - name: Setup Python ${{ matrix.python-version }}
         if: ${{ endsWith(matrix.python-version, 'freethreading') }}
-        uses: deadsnakes/action@v3.1.0
+        uses: deadsnakes/action@v3.2.0
         with:
           python-version: '3.13-dev'
           nogil: true
