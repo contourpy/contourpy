@@ -179,19 +179,18 @@ def test_save_svg(
     transparent: bool, tmpdir: LocalPath, driver: WebDriver, caplog: LogCaptureFixture,
 ) -> None:
     renderer = bokeh_renderer.BokehRenderer(figsize=(4, 3), show_frame=False, want_svg=True)
+    renderer.grid(x=[0, 1, 2], y=[0, 1], alpha=0.5)
     filename = (tmpdir / "bokeh.svg").strpath
 
-    with caplog.at_level(logging.ERROR):  # Hide Bokeh warnings about no renderers.
-        renderer.save(filename, transparent, webdriver=driver)
+    renderer.save(filename, transparent, webdriver=driver)
 
     # Rather simplistic check of SVG file contents.
     with open(filename) as f:
         svg = f.read()
 
     assert svg[:5] == "<svg "
-    count0 = len(re.findall('fill-opacity="0"', svg))
-    count1 = len(re.findall('fill-opacity="1"', svg))
+    count = len(re.findall('path fill="#ffffff"', svg))
     if transparent:
-        assert count0 == 2 and count1 == 0
+        assert count == 0
     else:
-        assert count0 == 2 and count1 == 2
+        assert count == 2
