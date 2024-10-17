@@ -90,7 +90,7 @@ setup = [
 [tool.cibuildwheel]
 build-frontend = "build"
 build = "cp{310,311,312,313,313t}-* pp310-*_{amd64,x86_64}"
-skip = "*-musllinux_{ppc64le,s390x} cp313t-win*"
+skip = "*-musllinux_{ppc64le,s390x}"
 test-requires = "pytest"
 test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
@@ -108,6 +108,11 @@ config-settings.setup-args = [
     "-Db_vscrt=mt",
     "-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']"
 ]
+
+[[tool.cibuildwheel.overrides]]
+# For Python 3.13t on windows install numpy from nightly wheels as not yet on PyPI.
+select = "cp313t-win*"
+before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
 
 
 [tool.codespell]
