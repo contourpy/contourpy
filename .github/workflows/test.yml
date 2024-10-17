@@ -97,7 +97,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-13, macos-14, windows-latest]  # macos-14 is ARM
-        python-version: ["3.10", "3.11", "3.12", "3.13-dev"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
         name: ["Test"]
         short-name: ["test"]
         include:
@@ -163,8 +163,9 @@ jobs:
             name: "Nightly wheels"
             short-name: "test-nightlies"
             nightly-wheels: true
+          # Python 3.13 free-threading test.
           - os: ubuntu-latest
-            python-version: "3.13-dev-freethreading"
+            python-version: "3.13t"
             name: "Test"
             short-name: "test"
 
@@ -175,7 +176,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Python ${{ matrix.python-version }}
-        if: ${{ !matrix.win32 && !endsWith(matrix.python-version, 'freethreading') }}
+        if: ${{ !matrix.win32 && matrix.python-version != '3.13t' }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -187,11 +188,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x86
 
-      - name: Setup Python ${{ matrix.python-version }}
-        if: ${{ endsWith(matrix.python-version, 'freethreading') }}
+      - name: Setup Python ${{ matrix.python-version }} using deadsnakes
+        if: matrix.python-version == '3.13t'
         uses: deadsnakes/action@v3.2.0
         with:
-          python-version: '3.13-dev'
+          python-version: '3.13'
           nogil: true
 
       - name: Setup MSVC (32-bit)
