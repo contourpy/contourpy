@@ -101,7 +101,7 @@ jobs:
         name: ["Test"]
         short-name: ["test"]
         exclude:
-          - os: macos-14
+          - os: macos-13
             python-version: "3.13t"
           - os: windows-latest
             python-version: "3.13t"
