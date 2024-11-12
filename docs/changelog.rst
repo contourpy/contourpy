@@ -3,6 +3,32 @@
 Changelog
 #########
 
+
+v1.3.1 (2024-11-12)
+-------------------
+
+ContourPy 1.3.1 is a compatibility release to support changes in ``bokeh``, ``meson-python`` and
+``pybind11``.
+
+This release supports Python 3.10 to 3.13.
+
+Compatibility:
+
+- Drop support for Python 3.9 (:pr:`435`)
+- Update to ``bokeh`` 3.6.0 (:pr:`444`)
+- Update minimum ``pybind11`` to 2.13.2 (:pr:`451`)
+- Read ``meson-python`` version in recommended way (:pr:`452`)
+
+Code improvements:
+
+- Use ``itertools.pairwise`` instead of ``zip`` where possible (:pr:`437`)
+- Typing changes from ``ruff`` UP035 and UP038 (:pr:`438`)
+
+Build, testing and CI improvements:
+
+- Tidy up python 3.13 CI (:pr:`449`)
+- Build Python 3.13t wheels on Windows (:pr:`450`)
+
 v1.3.0 (2024-08-27)
 -------------------
 
