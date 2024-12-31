@@ -51,8 +51,7 @@ mypy = [
     # Requirements to run mypy to check type annotations.
     "contourpy[bokeh,docs]",
     "docutils-stubs",
-    "mypy == 1.11.1",
-    "numpy < 2.2",
+    "mypy == 1.15.0",
     "types-Pillow",
 ]
 test = [
@@ -133,6 +132,7 @@ exclude_also = [
 files = ["lib/contourpy", "benchmarks", "docs", "tests"]
 python_version = "3.10"
 
+allow_redefinition = true
 check_untyped_defs = true
 enable_error_code = ["ignore-without-code", "truthy-bool"]
 disallow_untyped_defs = true

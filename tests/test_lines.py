@@ -803,7 +803,7 @@ def test_lines_random_big(name: str, line_type: LineType, corner_mask: bool | No
 
     x, y, z = random((1000, 1000), mask_fraction=0.0 if corner_mask is None else 0.05)
     cont_gen = contour_generator(x, y, z, name=name, corner_mask=corner_mask, line_type=line_type)
-    levels = np.arange(0.0, 1.01, 0.1)
+    levels = np.arange(0.0, 1.01, 0.1, dtype=np.float64)
 
     assert cont_gen.line_type == line_type
     assert cont_gen.chunk_count == (1, 1)

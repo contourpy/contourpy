@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class BenchBase:
-    levels: npt.NDArray[np.float64]
+    levels: npt.NDArray[np.floating[Any]]
     timeout: int = 120  # Some rendering benchmarks can take more than the default minute.
     x: npt.NDArray[np.float64]
     y: npt.NDArray[np.float64]
