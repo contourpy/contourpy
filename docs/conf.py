@@ -19,7 +19,7 @@ sys.path.append(os.path.abspath("./sphinxext"))
 # -- Project information -----------------------------------------------------
 
 project = "ContourPy"
-copyright = "2021-2024, ContourPy Contributors"
+copyright = "2021-2025, ContourPy Contributors"
 author = "ContourPy Contributors"
 
 
