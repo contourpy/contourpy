@@ -106,6 +106,7 @@ jobs:
             python-version: "3.13"
             name: "Test"
             short-name: "test"
+            test-no-codebase: true
           # Debug build including Python and C++ coverage.
           - os: ubuntu-24.04
             python-version: "3.12"
@@ -311,6 +312,10 @@ jobs:
           then
             echo "Run all tests except big ones"
             ${PYTEST} tests/ -k "not big"
+          elif [[ "${{ matrix.test-no-codebase }}" != "" ]]
+          then
+            echo "Run all tests except codebase"
+            ${PYTEST} tests/ --ignore tests/test_codebase.py
           else
             echo "Run all tests"
             ${PYTEST} tests/
