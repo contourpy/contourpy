@@ -28,13 +28,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-24.04-arm
             arch: aarch64
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             arch: ppc64le
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             arch: s390x
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             arch: x86_64
 
           - os: macOS-14
@@ -42,9 +42,9 @@ jobs:
           - os: macOS-13
             arch: x86_64
 
-          - os: windows-latest
+          - os: windows-24.04
             arch: AMD64
-          - os: windows-latest
+          - os: windows-24.04
             arch: x86
 
     steps:
@@ -84,7 +84,7 @@ jobs:
   build_sdist:
     name: Build sdist
     if: github.repository_owner == 'contourpy'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -111,7 +111,7 @@ jobs:
 
   merge_wheels:
     name: Merge wheel build artifacts
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build_wheels
     steps:
       - name: Merge artifacts
@@ -124,7 +124,7 @@ jobs:
   upload_nightlies:
     name: Upload nightly wheels
     if: github.repository_owner == 'contourpy' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: merge_wheels
     steps:
       - name: Download merged wheel artifact
