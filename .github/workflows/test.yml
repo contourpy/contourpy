@@ -147,7 +147,7 @@ jobs:
             test-no-images: true
             numpy-nightly: true
           # Win32 test.
-          - os: windows-24.04
+          - os: windows-latest
             python-version: "3.12"
             name: "Win32"
             short-name: "test-win32"
