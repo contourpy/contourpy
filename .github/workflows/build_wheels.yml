@@ -58,6 +58,8 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
+          # Temporary workaround
+          image: tonistiigi/binfmt:qemu-v8.1.5
 
       - name: Setup MSVC (32-bit)
         if: ${{ matrix.arch == 'x86' }}

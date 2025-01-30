@@ -391,6 +391,8 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
+          # Temporary workaround
+          image: tonistiigi/binfmt:qemu-v8.1.5
 
       - name: Run inside docker
         uses: addnab/docker-run-action@v3
