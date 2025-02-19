@@ -212,7 +212,7 @@ class Config:
         else:
             self.mask = np.zeros(4, dtype=bool)
             self.mask[corner.value] = True
-            self.mask.shape = (2, 2)
+            self.mask.reshape((2, 2))
 
     def clear(self) -> None:
         if self.fig:

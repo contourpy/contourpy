@@ -82,7 +82,7 @@ def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n
             if name == "serial":
                 xs = 2 + np.arange(ntypes)
             else:
-                xs = np.array(0 if name == "mpl2005" else 1)
+                xs = np.array(0 if name == "mpl2005" else 1)  # type: ignore[assignment]
 
             i = 0
             for corner_mask in corner_masks:
@@ -231,7 +231,7 @@ def comparison_two_benchmarks(
 
     varying_count = len(varying_values)
     xs = np.arange(ntype*(varying_count+2))
-    xs.shape = (ntype, varying_count+2)
+    xs.reshape((ntype, varying_count+2))
 
     speedups = np.expand_dims(mean0, axis=1) / np.reshape(mean1, (ntype, varying_count))
     speedups_flat = speedups.ravel()
