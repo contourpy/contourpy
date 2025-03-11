@@ -89,7 +89,7 @@ setup = [
 
 [tool.cibuildwheel]
 build-frontend = "build"
-build = "cp{310,311,312,313,313t}-* pp310-*_{amd64,x86_64}"
+build = "cp{310,311,312,313,313t}-* pp{310,311}-*_{amd64,x86_64}"
 skip = "*-musllinux_{ppc64le,s390x}"
 test-requires = "pytest"
 test-command = [

@@ -155,7 +155,6 @@ jobs:
             name: "Test"
             short-name: "test"
             test-no-images: true
-            numpy-nightly: true
           # PyPy 3.11
           - os: ubuntu-24.04
             python-version: "pypy3.11"
