@@ -145,7 +145,16 @@ jobs:
             name: "Test"
             short-name: "test"
             test-no-images: true
-            numpy-nightly: true
+          - os: macos-14
+            python-version: "pypy3.10"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
+          - os: windows-latest
+            python-version: "pypy3.10"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
           # Win32 test.
           - os: windows-latest
             python-version: "3.12"
