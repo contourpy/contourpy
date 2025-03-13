@@ -50,6 +50,7 @@ bokeh = [
 mypy = [
     # Requirements to run mypy to check type annotations.
     "contourpy[bokeh,docs]",
+    "bokeh < 3.7",
     "docutils-stubs",
     "mypy == 1.15.0",
     "types-Pillow",
@@ -89,7 +90,7 @@ setup = [
 
 [tool.cibuildwheel]
 build-frontend = "build"
-build = "cp{310,311,312,313,313t}-* pp310-*_{amd64,x86_64}"
+build = "cp{310,311,312,313,313t}-* pp{310,311}-*_{amd64,x86_64}"
 skip = "*-musllinux_{ppc64le,s390x}"
 test-requires = "pytest"
 test-command = [
@@ -110,8 +111,8 @@ config-settings.setup-args = [
 ]
 
 [[tool.cibuildwheel.overrides]]
-# For Python 3.13t on windows install numpy from nightly wheels as not yet on PyPI.
-select = "cp313t-win*"
+# For PyPy 3.11 install numpy from nightly wheels as not yet on PyPI.
+select = "pp311-*"
 before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
 
 
