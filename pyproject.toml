@@ -110,8 +110,8 @@ config-settings.setup-args = [
 ]
 
 [[tool.cibuildwheel.overrides]]
-# For Python 3.13t on windows install numpy from nightly wheels as not yet on PyPI.
-select = "cp313t-win*"
+# For PyPy 3.11 install numpy from nightly wheels as not yet on PyPI.
+select = "pp311-*"
 before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
 
 
