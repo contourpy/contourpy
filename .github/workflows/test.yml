@@ -101,6 +101,11 @@ jobs:
         name: ["Test"]
         short-name: ["test"]
         include:
+          - os: ubuntu-24.04
+            python-version: "3.14.0-alpha.7"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
           # Single run on ubuntu arm
           - os: ubuntu-24.04-arm
             python-version: "3.13"
