@@ -210,7 +210,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Python ${{ matrix.python-version }}
-        if: ${{ !matrix.win32 && matrix.python-version != '3.13t' }}
+        if: ${{ !matrix.win32 }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -221,13 +221,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x86
-
-      - name: Setup Python ${{ matrix.python-version }} using deadsnakes
-        if: matrix.python-version == '3.13t'
-        uses: deadsnakes/action@v3.2.0
-        with:
-          python-version: '3.13'
-          nogil: true
 
       - name: Setup MSVC (32-bit)
         if: matrix.win32
