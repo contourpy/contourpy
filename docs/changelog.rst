@@ -3,6 +3,24 @@
 Changelog
 #########
 
+v1.3.2 (2025-04-15)
+-------------------
+
+ContourPy 1.3.2 is a minor release to support changes in type annotations in Bokeh >= 3.7 and add
+support for PyPy 3.11.
+
+This release supports CPython 3.10 to 3.13, and PyPy 3.10 to 3.11.
+
+Compatibility:
+
+- Fix type annotations for Bokeh >= 3.7 (:pr:`471`)
+
+Build, testing and CI improvements:
+
+- Test on CPython 3.14 (:pr:`470`)
+- Test and build wheels for PyPy 3.11 (:pr:`464`)
+- Test PyPy 3.10 on all 3 major OSes (:pr:`465`)
+- Use ubuntu-24.04-arm runners (:pr:`459`)
 
 v1.3.1 (2024-11-12)
 -------------------
