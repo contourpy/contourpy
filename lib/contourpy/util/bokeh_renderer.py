@@ -65,12 +65,12 @@ class BokehRenderer(Renderer):
         backend: OutputBackendType = "svg" if self._want_svg else "canvas"
         for _ in range(nfigures):
             fig = figure(output_backend=backend)
-            fig.xgrid.visible = False  # type: ignore[attr-defined]
-            fig.ygrid.visible = False  # type: ignore[attr-defined]
+            fig.xgrid.visible = False
+            fig.ygrid.visible = False
             self._figures.append(fig)
             if not show_frame:
                 fig.outline_line_color = None
-                fig.axis.visible = False  # type: ignore[attr-defined]
+                fig.axis.visible = False
 
         self._layout = gridplot(
             self._figures, ncols=ncols, toolbar_location=None,  # type: ignore[arg-type]
