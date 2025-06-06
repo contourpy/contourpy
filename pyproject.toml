@@ -91,7 +91,7 @@ setup = [
 [tool.cibuildwheel]
 build-frontend = "build"
 build = "cp{310,311,312,313,313t}-* pp{310,311}-*_{amd64,x86_64}"
-skip = "*-musllinux_{ppc64le,s390x}"
+skip = "*-musllinux_{ppc64le,s390x} cp310-win_arm64"
 test-requires = "pytest"
 test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
