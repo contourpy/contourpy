@@ -186,6 +186,14 @@ jobs:
             short-name: "test-win32"
             win32: true
             test-no-images: true
+          # Single run on Windows arm
+          - os: windows-11-arm
+            python-version: "3.12"
+            name: "Test"
+            short-name: "test"
+            test-no-codebase: true
+            test-no-images: true
+            numpy-nightly: true
           # Test against matplotlib and numpy nightly wheels.
           - os: ubuntu-24.04
             python-version: "3.12"
