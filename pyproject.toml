@@ -91,7 +91,7 @@ setup = [
 [tool.cibuildwheel]
 build-frontend = "build"
 build = "cp{310,311,312,313,313t}-* pp{310,311}-*_{amd64,x86_64}"
-skip = "*-musllinux_{ppc64le,s390x}"
+skip = "*-musllinux_{ppc64le,s390x} cp310-win_arm64"
 test-requires = "pytest"
 test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
@@ -113,6 +113,10 @@ config-settings.setup-args = [
 [[tool.cibuildwheel.overrides]]
 # For PyPy 3.11 install numpy from nightly wheels as not yet on PyPI.
 select = "pp311-*"
+before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
+
+[[tool.cibuildwheel.overrides]]
+select = "*-win_arm64"
 before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
 
 
