@@ -115,6 +115,10 @@ config-settings.setup-args = [
 select = "pp311-*"
 before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
 
+[[tool.cibuildwheel.overrides]]
+select = "*-win_arm64"
+before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
+
 
 [tool.codespell]
 ignore-words-list = "nd,socio-economic"
