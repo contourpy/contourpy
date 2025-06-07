@@ -17,7 +17,6 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -26,14 +25,14 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
-    "numpy >= 1.23",
+    "numpy >= 1.25",
 ]
 description = "Python library for calculating contours of 2D quadrilateral grids"
 dynamic = ["version"]
 license = {file = "LICENSE"}
 name = "contourpy"
 readme = "README_simple.md"
-requires-python = ">= 3.10"
+requires-python = ">= 3.11"
 
 [project.optional-dependencies]
 docs = [
@@ -90,8 +89,8 @@ setup = [
 
 [tool.cibuildwheel]
 build-frontend = "build"
-build = "cp{310,311,312,313,313t}-* pp{310,311}-*_{amd64,x86_64}"
-skip = "*-musllinux_{ppc64le,s390x} cp310-win_arm64"
+build = "cp{311,312,313,313t}-* pp311-*_{amd64,x86_64}"
+skip = "*-musllinux_{ppc64le,s390x}"
 test-requires = "pytest"
 test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
