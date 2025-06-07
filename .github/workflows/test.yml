@@ -101,12 +101,6 @@ jobs:
         name: ["Test"]
         short-name: ["test"]
         include:
-          - os: ubuntu-24.04
-            python-version: "3.14-dev"
-            name: "Test"
-            short-name: "test"
-            test-no-images: true
-            numpy-nightly: true
           # Single run on ubuntu arm
           - os: ubuntu-24.04-arm
             python-version: "3.13"
@@ -200,6 +194,18 @@ jobs:
             python-version: "3.13t"
             name: "Test"
             short-name: "test"
+          # Python 3.14 test.
+          - os: ubuntu-24.04
+            python-version: "3.14-dev"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
+          # Python 3.14 free-threading test.
+          - os: ubuntu-24.04
+            python-version: "3.14t-dev"
+            name: "Test"
+            short-name: "test"
+            test-no-images: true
 
     steps:
       - name: Checkout source
