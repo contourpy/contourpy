@@ -82,7 +82,7 @@ def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n
             if name == "serial":
                 xs = 2 + np.arange(ntypes)
             else:
-                xs = np.array(0 if name == "mpl2005" else 1)  # type: ignore[assignment]
+                xs = np.array(0 if name == "mpl2005" else 1)
 
             i = 0
             for corner_mask in corner_masks:
