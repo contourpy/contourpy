@@ -218,7 +218,7 @@ class BokehRenderer(Renderer):
             ax (int or Bokeh Figure, optional): Which plot to use, default ``0``.
             color (str, optional): Circle color, default ``"black"``.
         """
-        mask = np.ma.getmask(z)  # type: ignore[no-untyped-call]
+        mask = np.ma.getmask(z)
         if mask is np.ma.nomask:
             return
         fig = self._get_figure(ax)

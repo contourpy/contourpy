@@ -420,7 +420,7 @@ class ConfigFilled(ConfigFilledCommon):
                         self._next_quad(config, suffix="(1)", set_0=lookup_1[zsum])
                     elif zmin == 0 and zmax == 2:
                         count_1 = np.count_nonzero(all == 1)
-                        lookup_0 = {2: -0.3, 3: -1, 4: -2-count_1/2, 5: -5, 6: -6}
+                        lookup_0 = {2: -0.3, 3: -1, 4: -2-count_1/2, 5: -5, 6: -6}  # type: ignore[dict-item]
                         self._next_quad(config, suffix="(0)", set_0=lookup_0[zsum])
 
                         if zsum <= 3:
@@ -431,13 +431,13 @@ class ConfigFilled(ConfigFilledCommon):
                             self._next_quad(config, suffix="(1)", set_0=-1)
 
                         lookup_2 = {2: 8.01, 3: 7.01, 4: 4+count_1/2, 5: 3.5, 6: 2.5}
-                        self._next_quad(config, suffix="(2)", set_2=lookup_2[zsum])
+                        self._next_quad(config, suffix="(2)", set_2=lookup_2[zsum])  # type: ignore[arg-type]
                     elif zmin == 1 and zmax == 2:
                         lookup_1 = {5: 2, 6: 1.65, 7: 1.6}
                         self._next_quad(config, suffix="(1)", set_2=lookup_1[zsum])
 
                         lookup_2 = {5: 4, 6: 3, 7: 2}
-                        self._next_quad(config, suffix="(2)", set_2=lookup_2[zsum])
+                        self._next_quad(config, suffix="(2)", set_2=lookup_2[zsum])  # type: ignore[arg-type]
                     else:
                         raise RuntimeError(f"Invalid combination of zmin {zmin} and zmax {zmax}")
                 else:
