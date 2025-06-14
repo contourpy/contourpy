@@ -20,6 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Mathematics",
     "Topic :: Scientific/Engineering :: Visualization",
@@ -88,8 +89,8 @@ setup = [
 
 
 [tool.cibuildwheel]
-build-frontend = "build"
-build = "cp{311,312,313,313t}-* pp311-*_{amd64,x86_64}"
+build = "cp{311,312,313,313t,314,314t}-* pp311-*"
+enable = ["cpython-freethreading", "pypy", "cpython-prerelease"]
 skip = "*-musllinux_{ppc64le,s390x}"
 test-requires = "pytest"
 test-command = [
@@ -97,8 +98,7 @@ test-command = [
     'pytest -v {project}/tests/test_minimal.py',
 ]
 # Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
-test-skip = "*_{ppc64le,s390x} cp313-*_aarch64"
-free-threaded-support = true
+test-skip = "*_{ppc64le,s390x}"
 
 [[tool.cibuildwheel.overrides]]
 # See https://github.com/contourpy/contourpy/issues/424
@@ -110,12 +110,8 @@ config-settings.setup-args = [
 ]
 
 [[tool.cibuildwheel.overrides]]
-# For PyPy 3.11 install numpy from nightly wheels as not yet on PyPI.
-select = "pp311-*"
-before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
-
-[[tool.cibuildwheel.overrides]]
-select = "*-win_arm64"
+# Install numpy from nightly wheels as not yet on PyPI.
+select = "pp311-* *-win_arm64 cp314*"
 before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
 
 
