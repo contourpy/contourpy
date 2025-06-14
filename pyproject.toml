@@ -89,7 +89,7 @@ setup = [
 
 
 [tool.cibuildwheel]
-build = "cp{311,312,313,313t,314,314t}-* pp311-*_{amd64,x86_64}"
+build = "cp{311,312,313,313t,314,314t}-* pp311-*"
 enable = ["cpython-freethreading", "pypy", "cpython-prerelease"]
 skip = "*-musllinux_{ppc64le,s390x}"
 test-requires = "pytest"
