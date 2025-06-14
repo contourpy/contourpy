@@ -89,8 +89,8 @@ setup = [
 
 
 [tool.cibuildwheel]
-build-frontend = "build"
 build = "cp{311,312,313,313t,314,314t}-* pp311-*_{amd64,x86_64}"
+enable = ["cpython-freethreading", "pypy", "cpython-prerelease"]
 skip = "*-musllinux_{ppc64le,s390x}"
 test-requires = "pytest"
 test-command = [
@@ -99,7 +99,6 @@ test-command = [
 ]
 # Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
 test-skip = "*_{ppc64le,s390x}"
-free-threaded-support = true
 
 [[tool.cibuildwheel.overrides]]
 # See https://github.com/contourpy/contourpy/issues/424
