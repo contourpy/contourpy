@@ -199,13 +199,28 @@ jobs:
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            test-no-images: true
+            nightly-wheels: true
+          - os: macos-13
+            python-version: "3.14-dev"
+            name: "Test"
+            short-name: "test"
+            nightly-wheels: true
+          - os: macos-14
+            python-version: "3.14-dev"
+            name: "Test"
+            short-name: "test"
+            nightly-wheels: true
+          - os: windows-latest
+            python-version: "3.14-dev"
+            name: "Test"
+            short-name: "test"
+            nightly-wheels: true
           # Python 3.14 free-threading test.
           - os: ubuntu-24.04
             python-version: "3.14t-dev"
             name: "Test"
             short-name: "test"
-            test-no-images: true
+            nightly-wheels: true
 
     steps:
       - name: Checkout source
