@@ -109,11 +109,6 @@ config-settings.setup-args = [
     "-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']"
 ]
 
-[[tool.cibuildwheel.overrides]]
-# Install numpy from nightly wheels as not yet on PyPI.
-select = "pp311-* *-win_arm64 cp314*"
-before-test = "pip install --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy"
-
 
 [tool.codespell]
 ignore-words-list = "nd,socio-economic"

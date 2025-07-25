@@ -34,7 +34,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.1
@@ -46,7 +46,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.12"]
+        python-version: ["3.13"]
 
     steps:
       - name: Checkout source
@@ -109,21 +109,21 @@ jobs:
             test-no-codebase: true
           # Debug build including Python and C++ coverage.
           - os: ubuntu-24.04
-            python-version: "3.12"
+            python-version: "3.13"
             name: "Test debug with coverage"
             short-name: "test-debug"
             coverage-files: "coverage.lcov,coverage.cpp"
             debug: true
           # Bokeh and text tests with Python (not C++) coverage.
           - os: ubuntu-24.04
-            python-version: "3.12"
+            python-version: "3.13"
             name: "Test bokeh and text tests with coverage"
             short-name: "test-bokeh"
             coverage-files: "coverage.lcov"
             test-text: true
           # Test against numpy debug build.
           - os: ubuntu-24.04
-            python-version: "3.12"
+            python-version: "3.13"
             name: "Test numpy debug"
             short-name: "test-numpy-debug"
             build-numpy-debug: true
@@ -135,7 +135,7 @@ jobs:
             extra-install-args: "numpy==1.25"
           # Compile using C++11.
           - os: ubuntu-24.04
-            python-version: "3.12"
+            python-version: "3.13"
             name: "Test C++11"
             short-name: "test-c++11"
             extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
@@ -145,50 +145,49 @@ jobs:
             name: "Test"
             short-name: "test"
             test-no-images: true
-            numpy-nightly: true
           - os: macos-14
             python-version: "pypy3.11"
             name: "Test"
             short-name: "test"
             test-no-images: true
-            numpy-nightly: true
           - os: windows-latest
             python-version: "pypy3.11"
             name: "Test"
             short-name: "test"
             test-no-images: true
-            numpy-nightly: true
           # Win32 test.
           - os: windows-latest
-            python-version: "3.12"
+            python-version: "3.13"
             name: "Win32"
             short-name: "test-win32"
             win32: true
             test-no-images: true
           # Single run on Windows arm
           - os: windows-11-arm
-            python-version: "3.12"
+            python-version: "3.13"
             name: "Test"
             short-name: "test"
             test-no-codebase: true
             test-no-images: true
-            numpy-nightly: true
           # Test against matplotlib and numpy nightly wheels.
           - os: ubuntu-24.04
-            python-version: "3.12"
+            python-version: "3.13"
             name: "Nightly wheels"
             short-name: "test-nightlies"
-            nightly-wheels: true
+            matplotlib-nightly: true
+            numpy-nightly: true
           - os: macos-13
-            python-version: "3.12"
+            python-version: "3.13"
             name: "Nightly wheels"
             short-name: "test-nightlies"
-            nightly-wheels: true
+            matplotlib-nightly: true
+            numpy-nightly: true
           - os: windows-latest
-            python-version: "3.12"
+            python-version: "3.13"
             name: "Nightly wheels"
             short-name: "test-nightlies"
-            nightly-wheels: true
+            matplotlib-nightly: true
+            numpy-nightly: true
           # Python 3.13 free-threading test.
           - os: ubuntu-24.04
             python-version: "3.13t"
@@ -199,28 +198,28 @@ jobs:
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            nightly-wheels: true
+            test-no-images: true
           - os: macos-13
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            nightly-wheels: true
+            test-no-images: true
           - os: macos-14
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            nightly-wheels: true
+            test-no-images: true
           - os: windows-latest
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            nightly-wheels: true
+            test-no-images: true
           # Python 3.14 free-threading test.
           - os: ubuntu-24.04
             python-version: "3.14t-dev"
             name: "Test"
             short-name: "test"
-            nightly-wheels: true
+            test-no-images: true
 
     steps:
       - name: Checkout source
@@ -294,6 +293,11 @@ jobs:
         run: |
           python -m pip install --only-binary=:all: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple numpy
 
+      - name: Install matplotlib from nightly wheels
+        if: matrix.matplotlib-nightly
+        run: |
+          python -m pip install --only-binary=:all: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib
+
       - name: Pre-install Python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -322,11 +326,6 @@ jobs:
             echo "Install contourpy with standard test dependencies"
             python -m pip install -v .[test] ${{ matrix.extra-install-args }}
           fi
-
-      - name: Upgrade mpl and numpy nightly wheels
-        if: matrix.nightly-wheels
-        run: |
-          python -m pip install --only-binary=:all: --pre --upgrade --no-deps --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib numpy
 
       - name: Smoke test
         run: |
