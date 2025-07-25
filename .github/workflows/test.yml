@@ -198,28 +198,28 @@ jobs:
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            matplotlib-nightly: true
+            test-no-images: true
           - os: macos-13
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            matplotlib-nightly: true
+            test-no-images: true
           - os: macos-14
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            matplotlib-nightly: true
+            test-no-images: true
           - os: windows-latest
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            matplotlib-nightly: true
+            test-no-images: true
           # Python 3.14 free-threading test.
           - os: ubuntu-24.04
             python-version: "3.14t-dev"
             name: "Test"
             short-name: "test"
-            matplotlib-nightly: true
+            test-no-images: true
 
     steps:
       - name: Checkout source
