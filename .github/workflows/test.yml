@@ -464,7 +464,7 @@ jobs:
               . /work/venv/etc/profile.d/conda.sh
 
               echo "==> Create and activate conda environment"
-              conda create -n my_env -q python=3.13
+              conda create -n my_env -q python=3.12
               conda activate my_env
 
               echo "==> Install conda dependencies"
