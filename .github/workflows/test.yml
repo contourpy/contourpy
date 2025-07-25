@@ -97,7 +97,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-13, macos-14, windows-latest]  # macos-14 is ARM
-        python-version: ["3.11", "3.12", "3.13.3"]
+        python-version: ["3.11", "3.12", "3.13"]
         name: ["Test"]
         short-name: ["test"]
         include:
