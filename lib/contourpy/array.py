@@ -190,7 +190,7 @@ def outer_offsets_from_list_of_codes(list_of_codes: list[cpy.CodeArray]) -> cpy.
     if not list_of_codes:
         raise ValueError("Empty list passed to outer_offsets_from_list_of_codes")
 
-    return np.cumsum([0] + [np.count_nonzero(codes == MOVETO) for codes in list_of_codes],  # type: ignore[misc]
+    return np.cumsum([0] + [np.count_nonzero(codes == MOVETO) for codes in list_of_codes],
                      dtype=offset_dtype)
 
 
