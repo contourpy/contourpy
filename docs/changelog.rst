@@ -3,6 +3,29 @@
 Changelog
 #########
 
+v1.3.3 (2025-07-26)
+-------------------
+
+ContourPy 1.3.3 is a compatibility release adding support for CPython 3.14 and Windows on ARM.
+
+This release supports CPython 3.11 to 3.14, and PyPy 3.11.
+
+Compatibility:
+
+- Support Windows on ARM (:pr:`476`, :pr:`477`, :pr:`483`)
+- Bump minimum supported Python to 3.11 (:pr:`#478`)
+- Support Python 3.14 (:pr:`479`, :pr:`485`, :pr:`490`)
+
+Code improvements:
+
+- Update type annotations for ``bokeh`` 3.7.3 (:pr:`475`)
+- Support type annotation changes in ``numpy`` 2.3.0 (:pr:`480`)
+
+Build, testing and CI improvements:
+
+- Remove Python 3.13.3 pin (:pr:`487`)
+- CI install ``numpy`` 2.3.2 wheels from PyPI for Python 3.14 and Windows ARM (:pr:`488`)
+
 v1.3.2 (2025-04-15)
 -------------------
 
