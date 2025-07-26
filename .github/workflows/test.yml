@@ -198,28 +198,28 @@ jobs:
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            test-no-images: true
+            matplotlib-nightly: true
           - os: macos-13
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            test-no-images: true
+            matplotlib-nightly: true
           - os: macos-14
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            test-no-images: true
+            matplotlib-nightly: true
           - os: windows-latest
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
-            test-no-images: true
+            matplotlib-nightly: true
           # Python 3.14 free-threading test.
           - os: ubuntu-24.04
             python-version: "3.14t-dev"
             name: "Test"
             short-name: "test"
-            test-no-images: true
+            matplotlib-nightly: true
 
     steps:
       - name: Checkout source
@@ -296,7 +296,9 @@ jobs:
       - name: Install matplotlib from nightly wheels
         if: matrix.matplotlib-nightly
         run: |
-          python -m pip install --only-binary=:all: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib
+          # Might need to install kiwisolver from source
+          python -m pip install kiwisolver
+          python -m pip install --only-binary=:all: --pre --extra-index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple matplotlib contourpy
 
       - name: Pre-install Python dependencies
         run: |
