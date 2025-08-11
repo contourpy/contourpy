@@ -132,7 +132,7 @@ jobs:
     needs: merge_wheels
     steps:
       - name: Download merged wheel artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: contourpy-wheels
           path: dist
