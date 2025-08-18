@@ -25,8 +25,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #os: [ubuntu-24.04, macos-14, windows-latest, windows-11-arm]
-        os: [ubuntu-24.04, macos-14, windows-latest]
+        #os: [ubuntu-24.04, macos-14, windows-2022, windows-11-arm]
+        os: [ubuntu-24.04, macos-14, windows-2022]
         python-version: ["3.13"]
         dependencies: ["released", "nightlies"]
 

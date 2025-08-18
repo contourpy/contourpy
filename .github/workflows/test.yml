@@ -96,7 +96,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, macos-13, macos-14, windows-latest]  # macos-14 is ARM
+        os: [ubuntu-24.04, macos-13, macos-14, windows-2022]  # macos-14 is ARM
         python-version: ["3.11", "3.12", "3.13"]
         name: ["Test"]
         short-name: ["test"]
@@ -150,13 +150,13 @@ jobs:
             name: "Test"
             short-name: "test"
             test-no-images: true
-          - os: windows-latest
+          - os: windows-2022
             python-version: "pypy3.11"
             name: "Test"
             short-name: "test"
             test-no-images: true
           # Win32 test.
-          - os: windows-latest
+          - os: windows-2022
             python-version: "3.13"
             name: "Win32"
             short-name: "test-win32"
@@ -182,7 +182,7 @@ jobs:
             short-name: "test-nightlies"
             matplotlib-nightly: true
             numpy-nightly: true
-          - os: windows-latest
+          - os: windows-2022
             python-version: "3.13"
             name: "Nightly wheels"
             short-name: "test-nightlies"
@@ -209,7 +209,7 @@ jobs:
             name: "Test"
             short-name: "test"
             matplotlib-nightly: true
-          - os: windows-latest
+          - os: windows-2022
             python-version: "3.14-dev"
             name: "Test"
             short-name: "test"
