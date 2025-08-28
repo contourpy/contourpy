@@ -1,0 +1,43 @@
+name: Build and test pyodide
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build_pyodide:
+    name: Build pyodide wheel
+    runs-on: ubuntu-24.04
+
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Build and test pyodide wheel
+        uses: pypa/cibuildwheel@v3.1.4
+        env:
+          CIBW_PLATFORM: "pyodide"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyodide-wheels
+          path: ./wheelhouse/*.whl
