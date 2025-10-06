@@ -76,7 +76,7 @@ jobs:
           rm /c/Program\ Files/Git/usr/bin/link.EXE
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.1.4
+        uses: pypa/cibuildwheel@v3.2.0
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
 
