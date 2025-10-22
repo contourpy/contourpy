@@ -51,7 +51,7 @@ def test_level_outside(xy_2x2: tuple[cpy.CoordinateArray, ...], name: str, zleve
     cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCode)
     lines = cont_gen.lines(zlevel)
     if TYPE_CHECKING:
-        lines = cast(cpy.LineReturn_SeparateCode, lines)
+        lines = cast("cpy.LineReturn_SeparateCode", lines)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
     assert isinstance(points, list) and len(points) == 0
@@ -65,7 +65,7 @@ def test_w_to_e(xy_2x2: tuple[cpy.CoordinateArray, ...], name: str) -> None:
     cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCode)
     lines = cont_gen.lines(0.5)
     if TYPE_CHECKING:
-        lines = cast(cpy.LineReturn_SeparateCode, lines)
+        lines = cast("cpy.LineReturn_SeparateCode", lines)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
     assert isinstance(points, list) and len(points) == 1
@@ -81,7 +81,7 @@ def test_e_to_w(xy_2x2: tuple[cpy.CoordinateArray, ...], name: str) -> None:
     cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCode)
     lines = cont_gen.lines(0.5)
     if TYPE_CHECKING:
-        lines = cast(cpy.LineReturn_SeparateCode, lines)
+        lines = cast("cpy.LineReturn_SeparateCode", lines)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
     assert isinstance(points, list) and len(points) == 1
@@ -101,7 +101,7 @@ def test_loop(xy_3x3: tuple[cpy.CoordinateArray, ...], name: str) -> None:
     cont_gen = contour_generator(x, y, z, name=name, line_type=LineType.SeparateCode)
     lines = cont_gen.lines(0.5)
     if TYPE_CHECKING:
-        lines = cast(cpy.LineReturn_SeparateCode, lines)
+        lines = cast("cpy.LineReturn_SeparateCode", lines)
     assert isinstance(lines, tuple) and len(lines) == 2
     points, codes = lines
     assert isinstance(points, list) and len(points) == 1
@@ -662,14 +662,14 @@ def test_return_by_line_type(
 
     if line_type == LineType.Separate:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_Separate, lines)
+            lines = cast("cpy.LineReturn_Separate", lines)
         points = lines
         assert len(points) == 2
         assert points[0].shape == (5, 2)
         assert points[1].shape == (2, 2)
     elif line_type == LineType.SeparateCode:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_SeparateCode, lines)
+            lines = cast("cpy.LineReturn_SeparateCode", lines)
         points, codes = lines
         assert len(points) == 2
         assert points[0].shape == (5, 2)
@@ -678,7 +678,7 @@ def test_return_by_line_type(
         assert_array_equal(codes[1], [1, 2])
     elif line_type == LineType.ChunkCombinedCode:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedCode, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedCode", lines)
         assert len(lines[0]) == 1  # Single chunk.
         points_or_none, codes_or_none = lines[0][0], lines[1][0]
         assert points_or_none is not None
@@ -687,7 +687,7 @@ def test_return_by_line_type(
         assert_array_equal(codes_or_none, [1, 2, 2, 2, 79, 1, 2])
     elif line_type == LineType.ChunkCombinedOffset:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedOffset, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedOffset", lines)
         assert len(lines[0]) == 1  # Single chunk.
         points_or_none, offsets_or_none = lines[0][0], lines[1][0]
         assert points_or_none is not None
@@ -696,7 +696,7 @@ def test_return_by_line_type(
         assert_array_equal(offsets_or_none, [0, 5, 7])
     elif line_type == LineType.ChunkCombinedNan:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedNan, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedNan", lines)
         assert len(lines[0]) == 1  # Single chunk
         points_or_none = lines[0][0]
         assert points_or_none is not None
@@ -743,7 +743,7 @@ def test_return_by_line_type_chunk(
 
     if line_type == LineType.Separate:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_Separate, lines)
+            lines = cast("cpy.LineReturn_Separate", lines)
         assert len(lines) == 4
         if name == "threaded" and cont_gen.thread_count > 1:
             # Lines may be in any order so sort lines and expected.
@@ -753,7 +753,7 @@ def test_return_by_line_type_chunk(
             assert_allclose(lines[chunk], expected[chunk])
     elif line_type == LineType.SeparateCode:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_SeparateCode, lines)
+            lines = cast("cpy.LineReturn_SeparateCode", lines)
         assert len(lines[0]) == 4
         if name == "threaded" and cont_gen.thread_count > 1:
             # Lines may be in any order so sort lines and expected.
@@ -764,7 +764,7 @@ def test_return_by_line_type_chunk(
             assert_array_equal(lines[1][chunk], [1] + [2]*(len(expected[chunk])-1))
     elif line_type == LineType.ChunkCombinedCode:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedCode, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedCode", lines)
         assert len(lines[0]) == 4
         for chunk in range(4):
             points_or_none, codes_or_none = lines[0][chunk], lines[1][chunk]
@@ -774,7 +774,7 @@ def test_return_by_line_type_chunk(
             assert_array_equal(codes_or_none, [1] + [2]*(len(expected[chunk])-1))
     elif line_type == LineType.ChunkCombinedOffset:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedOffset, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedOffset", lines)
         assert len(lines[0]) == 4
         for chunk in range(4):
             points_or_none, offsets_or_none = lines[0][chunk], lines[1][chunk]
@@ -784,7 +784,7 @@ def test_return_by_line_type_chunk(
             assert_array_equal(offsets_or_none, [0, len(expected[chunk])])
     elif line_type == LineType.ChunkCombinedNan:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedNan, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedNan", lines)
         assert len(lines[0]) == 4
         for chunk in range(4):
             # Only a single line per chunk, so no nans here.

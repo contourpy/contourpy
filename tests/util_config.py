@@ -275,7 +275,7 @@ class ConfigFilledCommon(Config):
         filled = cont_gen.filled(zlower, zupper)
         assert cont_gen.fill_type == FillType.OuterCode
         if TYPE_CHECKING:
-            filled = cast(FillReturn_OuterCode, filled)
+            filled = cast("FillReturn_OuterCode", filled)
         lines = filled[0]
 
         # May be 0..2 polygons, and there cannot be any holes.
@@ -532,7 +532,7 @@ class ConfigLinesCommon(Config):
         lines_and_codes = cont_gen.lines(zlower)
         assert cont_gen.line_type == LineType.SeparateCode
         if TYPE_CHECKING:
-            lines_and_codes = cast(LineReturn_SeparateCode, lines_and_codes)
+            lines_and_codes = cast("LineReturn_SeparateCode", lines_and_codes)
         lines = lines_and_codes[0]
 
         for points in lines:

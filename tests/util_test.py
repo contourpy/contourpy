@@ -141,7 +141,7 @@ def assert_offset_array(offsets: cpy.OffsetArray, max_offset: int) -> int:
 def assert_filled(filled: cpy.FillReturn, fill_type: FillType) -> None:
     if fill_type == FillType.OuterCode:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_OuterCode, filled)
+            filled = cast("cpy.FillReturn_OuterCode", filled)
         assert isinstance(filled, tuple) and len(filled) == 2
         polygons, codes = filled
         assert isinstance(polygons, list)
@@ -152,7 +152,7 @@ def assert_filled(filled: cpy.FillReturn, fill_type: FillType) -> None:
             assert_code_array(code, npoints)
     elif fill_type == FillType.OuterOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_OuterOffset, filled)
+            filled = cast("cpy.FillReturn_OuterOffset", filled)
         assert isinstance(filled, tuple) and len(filled) == 2
         polygons, offsets = filled
         assert isinstance(polygons, list)
@@ -163,7 +163,7 @@ def assert_filled(filled: cpy.FillReturn, fill_type: FillType) -> None:
             assert_offset_array(offset, npoints)
     elif fill_type == FillType.ChunkCombinedCode:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedCode, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedCode", filled)
         assert isinstance(filled, tuple) and len(filled) == 2
         chunk_polygons, chunk_codes = filled
         assert isinstance(chunk_polygons, list)
@@ -179,7 +179,7 @@ def assert_filled(filled: cpy.FillReturn, fill_type: FillType) -> None:
                 assert_code_array(codes_or_none, npoints)
     elif fill_type == FillType.ChunkCombinedOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedOffset", filled)
         assert isinstance(filled, tuple) and len(filled) == 2
         chunk_polygons, chunk_offsets = filled
         assert isinstance(chunk_polygons, list)
@@ -195,7 +195,7 @@ def assert_filled(filled: cpy.FillReturn, fill_type: FillType) -> None:
                 assert_offset_array(offsets_or_none, npoints)
     elif fill_type == FillType.ChunkCombinedCodeOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedCodeOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedCodeOffset", filled)
         assert isinstance(filled, tuple) and len(filled) == 3
         chunk_polygons, chunk_codes, chunk_outer_offsets = filled
         assert isinstance(chunk_polygons, list)
@@ -214,7 +214,7 @@ def assert_filled(filled: cpy.FillReturn, fill_type: FillType) -> None:
                 assert_offset_array(outer_offsets_or_none, npoints)
     elif fill_type == FillType.ChunkCombinedOffsetOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedOffsetOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedOffsetOffset", filled)
         assert isinstance(filled, tuple) and len(filled) == 3
         chunk_polygons, chunk_offsets, chunk_outer_offsets = filled
         assert isinstance(chunk_polygons, list)
@@ -238,13 +238,13 @@ def assert_filled(filled: cpy.FillReturn, fill_type: FillType) -> None:
 def assert_lines(lines: cpy.LineReturn, line_type: LineType) -> None:
     if line_type == LineType.Separate:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_Separate, lines)
+            lines = cast("cpy.LineReturn_Separate", lines)
         assert isinstance(lines, list)
         for line in lines:
             assert_point_array(line)
     elif line_type == LineType.SeparateCode:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_SeparateCode, lines)
+            lines = cast("cpy.LineReturn_SeparateCode", lines)
         assert isinstance(lines, tuple) and len(lines) == 2
         lines, codes = lines
         assert isinstance(lines, list)
@@ -255,7 +255,7 @@ def assert_lines(lines: cpy.LineReturn, line_type: LineType) -> None:
             assert_code_array(code, npoints)
     elif line_type == LineType.ChunkCombinedCode:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedCode, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedCode", lines)
         assert isinstance(lines, tuple) and len(lines) == 2
         chunk_lines, chunk_codes = lines
         assert isinstance(chunk_lines, list)
@@ -271,7 +271,7 @@ def assert_lines(lines: cpy.LineReturn, line_type: LineType) -> None:
                 assert_code_array(codes_or_none, npoints)
     elif line_type == LineType.ChunkCombinedOffset:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedOffset, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedOffset", lines)
         assert isinstance(lines, tuple) and len(lines) == 2
         chunk_lines, chunk_offsets = lines
         assert isinstance(chunk_lines, list)
@@ -287,7 +287,7 @@ def assert_lines(lines: cpy.LineReturn, line_type: LineType) -> None:
                 assert_offset_array(offsets_or_none, npoints)
     elif line_type == LineType.ChunkCombinedNan:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedNan, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedNan", lines)
         assert isinstance(lines, tuple) and len(lines) == 1
         assert isinstance(lines[0], list)
         for lines_or_none in lines[0]:

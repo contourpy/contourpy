@@ -701,7 +701,7 @@ def test_return_by_fill_type(
 
     if fill_type == FillType.OuterCode:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_OuterCode, filled)
+            filled = cast("cpy.FillReturn_OuterCode", filled)
         assert_outer_points(filled[0])
         codes = filled[1]
         assert isinstance(codes, list) and len(codes) == 2
@@ -709,7 +709,7 @@ def test_return_by_fill_type(
         assert_array_equal(codes[1], [1, 2, 2, 79])
     elif fill_type == FillType.OuterOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_OuterOffset, filled)
+            filled = cast("cpy.FillReturn_OuterOffset", filled)
         assert_outer_points(filled[0])
         offsets = filled[1]
         assert isinstance(offsets, list) and len(offsets) == 2
@@ -717,17 +717,17 @@ def test_return_by_fill_type(
         assert_array_equal(offsets[1], [0, 4])
     elif fill_type == FillType.ChunkCombinedCode:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedCode, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedCode", filled)
         assert_chunk_points(filled[0])
         assert_chunk_codes(filled[1])
     elif fill_type == FillType.ChunkCombinedOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedOffset", filled)
         assert_chunk_points(filled[0])
         assert_chunk_offsets(filled[1])
     elif fill_type == FillType.ChunkCombinedCodeOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedCodeOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedCodeOffset", filled)
         assert_chunk_points(filled[0])
         assert_chunk_codes(filled[1])
 
@@ -737,7 +737,7 @@ def test_return_by_fill_type(
         assert_array_equal(outer_offsets_or_none[0], [0, 13, 17])
     elif fill_type == FillType.ChunkCombinedOffsetOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedOffsetOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedOffsetOffset", filled)
         assert_chunk_points(filled[0])
         assert_chunk_offsets(filled[1])
 
@@ -823,7 +823,7 @@ def test_return_by_fill_type_chunk(
 
     if fill_type == FillType.OuterCode:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_OuterCode, filled)
+            filled = cast("cpy.FillReturn_OuterCode", filled)
         assert_outer_points(filled[0], expected)
         codes = filled[1]
         assert isinstance(codes, list) and len(codes) == 4
@@ -831,7 +831,7 @@ def test_return_by_fill_type_chunk(
             assert_array_equal(codes[chunk], [1, 2, 2, 2, 2, 2, 2, 2, 79])
     elif fill_type == FillType.OuterOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_OuterOffset, filled)
+            filled = cast("cpy.FillReturn_OuterOffset", filled)
         assert_outer_points(filled[0], expected)
         offsets = filled[1]
         assert isinstance(offsets, list) and len(offsets) == 4
@@ -839,17 +839,17 @@ def test_return_by_fill_type_chunk(
             assert_array_equal(offsets[chunk], [0, 9])
     elif fill_type == FillType.ChunkCombinedCode:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedCode, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedCode", filled)
         assert_chunk_points(filled[0], expected)
         assert_chunk_codes(filled[1])
     elif fill_type == FillType.ChunkCombinedOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedOffset", filled)
         assert_chunk_points(filled[0], expected)
         assert_chunk_offsets(filled[1])
     elif fill_type == FillType.ChunkCombinedCodeOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedCodeOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedCodeOffset", filled)
         assert_chunk_points(filled[0], expected)
         assert_chunk_codes(filled[1])
 
@@ -861,7 +861,7 @@ def test_return_by_fill_type_chunk(
             assert_array_equal(chunk_outer_offsets, [0, 9])
     elif fill_type == FillType.ChunkCombinedOffsetOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedOffsetOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedOffsetOffset", filled)
         assert_chunk_points(filled[0], expected)
         assert_chunk_offsets(filled[1])
 
@@ -916,8 +916,8 @@ def test_filled_compare_slow(seed: int) -> None:
         util_test.assert_filled(filled_serial, cont_gen_serial.fill_type)
 
         if TYPE_CHECKING:
-            filled_mpl2014 = cast(cpy.FillReturn_OuterCode, filled_mpl2014)
-            filled_serial = cast(cpy.FillReturn_ChunkCombinedOffsetOffset, filled_serial)
+            filled_mpl2014 = cast("cpy.FillReturn_OuterCode", filled_mpl2014)
+            filled_serial = cast("cpy.FillReturn_ChunkCombinedOffsetOffset", filled_serial)
 
         # Check same results obtained for each in terms of number of points, etc.
         code_list = filled_mpl2014[1]
