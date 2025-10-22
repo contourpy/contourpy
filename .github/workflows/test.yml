@@ -97,7 +97,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-14, macos-15-intel, windows-2022]
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.14t"]
         name: ["Test"]
         short-name: ["test"]
         include:
@@ -193,33 +193,6 @@ jobs:
             python-version: "3.13t"
             name: "Test"
             short-name: "test"
-          # Python 3.14 test.
-          - os: ubuntu-24.04
-            python-version: "3.14-dev"
-            name: "Test"
-            short-name: "test"
-            matplotlib-nightly: true
-          - os: macos-14
-            python-version: "3.14-dev"
-            name: "Test"
-            short-name: "test"
-            matplotlib-nightly: true
-          - os: macos-15-intel
-            python-version: "3.14-dev"
-            name: "Test"
-            short-name: "test"
-            matplotlib-nightly: true
-          - os: windows-2022
-            python-version: "3.14-dev"
-            name: "Test"
-            short-name: "test"
-            matplotlib-nightly: true
-          # Python 3.14 free-threading test.
-          - os: ubuntu-24.04
-            python-version: "3.14t-dev"
-            name: "Test"
-            short-name: "test"
-            matplotlib-nightly: true
 
     steps:
       - name: Checkout source
