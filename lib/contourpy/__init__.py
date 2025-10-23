@@ -39,6 +39,14 @@ if TYPE_CHECKING:
     from ._contourpy import CoordinateArray, MaskArray
 
 __all__ = [
+    "ContourGenerator",
+    "FillType",
+    "LineType",
+    "Mpl2005ContourGenerator",
+    "Mpl2014ContourGenerator",
+    "SerialContourGenerator",
+    "ThreadedContourGenerator",
+    "ZInterp",
     "__version__",
     "contour_generator",
     "convert_filled",
@@ -50,14 +58,6 @@ __all__ = [
     "dechunk_multi_filled",
     "dechunk_multi_lines",
     "max_threads",
-    "FillType",
-    "LineType",
-    "ContourGenerator",
-    "Mpl2005ContourGenerator",
-    "Mpl2014ContourGenerator",
-    "SerialContourGenerator",
-    "ThreadedContourGenerator",
-    "ZInterp",
 ]
 
 

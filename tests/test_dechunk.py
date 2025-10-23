@@ -64,24 +64,24 @@ def test_dechunk_filled(z: cpy.CoordinateArray, fill_type: FillType, chunk_size:
 
         if fill_type == FillType.ChunkCombinedCode:
             if TYPE_CHECKING:
-                dechunked = cast(cpy.FillReturn_ChunkCombinedCode, dechunked)
+                dechunked = cast("cpy.FillReturn_ChunkCombinedCode", dechunked)
             assert dechunked[1][0] is not None
             assert_array_equal(dechunked[1][0], expected_codes)
         elif fill_type == FillType.ChunkCombinedOffset:
             if TYPE_CHECKING:
-                dechunked = cast(cpy.FillReturn_ChunkCombinedOffset, dechunked)
+                dechunked = cast("cpy.FillReturn_ChunkCombinedOffset", dechunked)
             assert dechunked[1][0] is not None
             assert_array_equal(dechunked[1][0], expected_offsets)
         elif fill_type == FillType.ChunkCombinedCodeOffset:
             if TYPE_CHECKING:
-                dechunked = cast(cpy.FillReturn_ChunkCombinedCodeOffset, dechunked)
+                dechunked = cast("cpy.FillReturn_ChunkCombinedCodeOffset", dechunked)
             assert dechunked[1][0] is not None
             assert_array_equal(dechunked[1][0], expected_codes)
             assert dechunked[2][0] is not None
             assert_array_equal(dechunked[2][0], [0, 9, 21, 26])
         elif fill_type == FillType.ChunkCombinedOffsetOffset:
             if TYPE_CHECKING:
-                dechunked = cast(cpy.FillReturn_ChunkCombinedOffsetOffset, dechunked)
+                dechunked = cast("cpy.FillReturn_ChunkCombinedOffsetOffset", dechunked)
             assert dechunked[1][0] is not None
             assert_array_equal(dechunked[1][0], expected_offsets)
             assert dechunked[2][0] is not None
@@ -136,21 +136,21 @@ def test_dechunk_lines(z: cpy.CoordinateArray, line_type: LineType, chunk_size: 
 
         if line_type == LineType.ChunkCombinedCode:
             if TYPE_CHECKING:
-                dechunked = cast(cpy.LineReturn_ChunkCombinedCode, dechunked)
+                dechunked = cast("cpy.LineReturn_ChunkCombinedCode", dechunked)
             assert dechunked[0][0] is not None
             assert_allclose(dechunked[0][0], expected_points)
             assert dechunked[1][0] is not None
             assert_array_equal(dechunked[1][0], expected_codes)
         elif line_type == LineType.ChunkCombinedOffset:
             if TYPE_CHECKING:
-                dechunked = cast(cpy.LineReturn_ChunkCombinedOffset, dechunked)
+                dechunked = cast("cpy.LineReturn_ChunkCombinedOffset", dechunked)
             assert dechunked[0][0] is not None
             assert_allclose(dechunked[0][0], expected_points)
             assert dechunked[1][0] is not None
             assert_array_equal(dechunked[1][0], expected_offsets)
         elif line_type == LineType.ChunkCombinedNan:
             if TYPE_CHECKING:
-                dechunked = cast(cpy.LineReturn_ChunkCombinedNan, dechunked)
+                dechunked = cast("cpy.LineReturn_ChunkCombinedNan", dechunked)
             assert dechunked[0][0] is not None
             # Convert offsets to int64 to avoid numpy error when mixing signed and unsigned ints.
             expected = np.insert(expected_points, expected_offsets[1:-1].astype(np.int64),

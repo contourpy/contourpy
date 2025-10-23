@@ -65,14 +65,14 @@ def test_minimal_lines(name: str, line_type: LineType, z: cpy.PointArray) -> Non
 
     if line_type == LineType.Separate:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_Separate, lines)
+            lines = cast("cpy.LineReturn_Separate", lines)
         if cont_gen.thread_count > 1 and len(lines[0]) == 2:
             # Threaded algorithm can return lines in any order.
             expected_points = expected_points[::-1]
         util_test.assert_equal_recursive(lines, expected_points)
     elif line_type == LineType.SeparateCode:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_SeparateCode, lines)
+            lines = cast("cpy.LineReturn_SeparateCode", lines)
         if cont_gen.thread_count > 1 and len(lines[0][0]) == 2:
             # Threaded algorithm can return lines in any order.
             expected_points = expected_points[::-1]
@@ -80,15 +80,15 @@ def test_minimal_lines(name: str, line_type: LineType, z: cpy.PointArray) -> Non
         util_test.assert_equal_recursive(lines, (expected_points, expected_codes))
     elif line_type == LineType.ChunkCombinedCode:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedCode, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedCode", lines)
         util_test.assert_equal_recursive(lines, (expected_points, expected_codes))
     elif line_type == LineType.ChunkCombinedOffset:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedOffset, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedOffset", lines)
         util_test.assert_equal_recursive(lines, (expected_points, expected_offsets))
     elif line_type == LineType.ChunkCombinedNan:
         if TYPE_CHECKING:
-            lines = cast(cpy.LineReturn_ChunkCombinedNan, lines)
+            lines = cast("cpy.LineReturn_ChunkCombinedNan", lines)
         util_test.assert_equal_recursive(lines, (expected_points,))
     else:
         raise RuntimeError(f"Unexpected line_type {line_type}")
@@ -140,7 +140,7 @@ def test_minimal_filled(name: str, fill_type: FillType, z: cpy.PointArray) -> No
 
     if fill_type == FillType.OuterCode:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_OuterCode, filled)
+            filled = cast("cpy.FillReturn_OuterCode", filled)
         if cont_gen.thread_count > 1 and len(filled[0][0]) == 5:
             # Threaded algorithm can return lines in any order.
             expected_points = expected_points[::-1]
@@ -148,7 +148,7 @@ def test_minimal_filled(name: str, fill_type: FillType, z: cpy.PointArray) -> No
         util_test.assert_equal_recursive(filled, (expected_points, expected_codes))
     elif fill_type == FillType.OuterOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_OuterOffset, filled)
+            filled = cast("cpy.FillReturn_OuterOffset", filled)
         if cont_gen.thread_count > 1 and len(filled[0][0]) == 5:
             # Threaded algorithm can return lines in any order.
             expected_points = expected_points[::-1]
@@ -156,22 +156,22 @@ def test_minimal_filled(name: str, fill_type: FillType, z: cpy.PointArray) -> No
         util_test.assert_equal_recursive(filled, (expected_points, expected_offsets))
     elif fill_type == FillType.ChunkCombinedCode:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedCode, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedCode", filled)
         util_test.assert_equal_recursive(filled, (expected_points, expected_codes))
     elif fill_type == FillType.ChunkCombinedOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedOffset", filled)
         util_test.assert_equal_recursive(filled, (expected_points, expected_offsets))
     elif fill_type == FillType.ChunkCombinedCodeOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedCodeOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedCodeOffset", filled)
         util_test.assert_equal_recursive(
             filled,
             (expected_points, expected_codes, expected_outer_offsets),
         )
     elif fill_type == FillType.ChunkCombinedOffsetOffset:
         if TYPE_CHECKING:
-            filled = cast(cpy.FillReturn_ChunkCombinedOffsetOffset, filled)
+            filled = cast("cpy.FillReturn_ChunkCombinedOffsetOffset", filled)
         util_test.assert_equal_recursive(
             filled,
             (expected_points, expected_offsets, expected_outer_offsets2),
