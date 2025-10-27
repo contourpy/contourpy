@@ -355,7 +355,7 @@ jobs:
 
       - name: Upload test artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.short-name }}_${{ matrix.os }}_${{ matrix.python-version }}
           path: result_images/
@@ -471,7 +471,7 @@ jobs:
 
       - name: Upload test artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: docker_${{ matrix.arch }}_${{ matrix.manylinux_version }}
           path: result_images/
@@ -483,7 +483,7 @@ jobs:
     needs: [test, test-in-docker]
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4
+        uses: actions/upload-artifact/merge@v5
         with:
           name: test-artifacts
           separate-directories: true
