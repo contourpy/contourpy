@@ -52,7 +52,7 @@ mypy = [
     "contourpy[bokeh,docs]",
     "bokeh",
     "docutils-stubs",
-    "mypy == 1.17.0",
+    "mypy == 1.19.0",
     "types-Pillow",
 ]
 test = [
@@ -125,7 +125,7 @@ exclude_also = [
 
 [tool.mypy]
 files = ["lib/contourpy", "benchmarks", "docs", "tests"]
-python_version = "3.10"
+python_version = "3.11"
 
 allow_redefinition = true
 check_untyped_defs = true
