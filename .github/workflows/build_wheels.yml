@@ -39,7 +39,7 @@ jobs:
 
           - os: macOS-14
             arch: arm64
-          - os: macOS-13
+          - os: macOS-15-intel
             arch: x86_64
 
           - os: windows-2022
