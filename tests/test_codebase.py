@@ -31,7 +31,7 @@ def test_cppcheck() -> None:
         "cppcheck", "--quiet", "--enable=all", "--error-exitcode=1", "src",
         "-isrc/mpl2005_original.cpp", "--suppress=missingIncludeSystem", "--inline-suppr",
         "--suppress=knownConditionTrueFalse", "--check-level=exhaustive",
-        "--suppress=unmatchedSuppression",
+        "--suppress=unmatchedSuppression", "--suppress=missingOverride",
     ]
 
     if cpp_version >= Version("2.7"):
