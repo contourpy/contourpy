@@ -22,7 +22,7 @@ private:
     class Lock
     {
     public:
-        explicit Lock(SerialContourGenerator& contour_generator)
+        explicit Lock(const SerialContourGenerator& contour_generator)
         {}
     };
 
