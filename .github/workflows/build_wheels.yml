@@ -80,7 +80,7 @@ jobs:
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: wheels_${{ matrix.os }}_${{ matrix.arch }}
           path: ./wheelhouse/*.whl
@@ -108,7 +108,7 @@ jobs:
         run: |
           python -m build --sdist
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: contourpy-sdist
           path: dist/*.tar.gz
@@ -119,7 +119,7 @@ jobs:
     needs: build_wheels
     steps:
       - name: Merge artifacts
-        uses: actions/upload-artifact/merge@v5
+        uses: actions/upload-artifact/merge@v6
         with:
           name: contourpy-wheels
           pattern: wheels*
@@ -132,7 +132,7 @@ jobs:
     needs: merge_wheels
     steps:
       - name: Download merged wheel artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: contourpy-wheels
           path: dist
