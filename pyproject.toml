@@ -90,7 +90,7 @@ setup = [
 [tool.cibuildwheel]
 build = "cp{311,312,313,313t,314,314t}-* pp311-*"
 enable = ["cpython-freethreading", "pypy", "cpython-prerelease"]
-skip = "*-musllinux_{ppc64le,s390x}"
+skip = "*-musllinux_{ppc64le,riscv64,s390x}"
 test-requires = "pytest"
 test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
@@ -108,6 +108,13 @@ config-settings.setup-args = [
     "-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']"
 ]
 
+[[tool.cibuildwheel.overrides]]
+select = "*riscv64*"
+# numpy does not provide riscv64 wheel yet. See https://github.com/numpy/numpy/issues/30216
+# RISE is building and distributing popular wheels for riscv64 such as numpy
+# Let's install from rise project for now: https://riseproject.gitlab.io/python/wheel_builder/packages/numpy
+# Note: only manylinux wheel available (no musllinux)
+before-test = "python -m pip install -v --only-binary=:all: --extra-index-url https://gitlab.com/api/v4/projects/riseproject%2Fpython%2Fwheel_builder/packages/pypi/simple numpy "
 
 [tool.codespell]
 ignore-words-list = "nd,socio-economic"
