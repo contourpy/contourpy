@@ -177,7 +177,7 @@ class Config:
         z_se = lookup[se]
 
         z = np.asarray([[z_sw, z_se], [z_nw, z_ne]], dtype=np.float64)
-        z_masked = np.ma.array(z, mask=self.mask)  # type: ignore[no-untyped-call]
+        z_masked = np.ma.array(z, mask=self.mask)
 
         if suffix:
             zmean = z.mean()

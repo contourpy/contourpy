@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 
 from contourpy import _remove_z_mask, contour_generator
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 
 def test_nan() -> None:
@@ -14,7 +19,7 @@ def test_nan() -> None:
 
 
 def test_remove_z_mask() -> None:
-    zlist = [[1.0, 2.0], [3.0, 4.0]]
+    zlist: ArrayLike = [[1.0, 2.0], [3.0, 4.0]]
 
     zz, mask = _remove_z_mask(zlist)
     assert isinstance(zz, np.ndarray)
@@ -25,12 +30,12 @@ def test_remove_z_mask() -> None:
     assert isinstance(zz, np.ndarray)
     assert mask is None
 
-    z = np.ma.array(zlist, mask=[[0, 0], [0, 0]])  # type: ignore[no-untyped-call]
+    z = np.ma.array(zlist, mask=[[0, 0], [0, 0]])  # type: ignore[arg-type]
     zz, mask = _remove_z_mask(zarr)
     assert isinstance(zz, np.ndarray)
     assert mask is None
 
-    z = np.ma.array(zlist, mask=[[1, 0], [0, 0]])  # type: ignore[no-untyped-call]
+    z = np.ma.array(zlist, mask=[[1, 0], [0, 0]])  # type: ignore[arg-type]
     zz, mask = _remove_z_mask(z)
     assert isinstance(zz, np.ndarray)
     assert isinstance(mask, np.ndarray)
@@ -44,7 +49,7 @@ def test_remove_z_mask() -> None:
     assert mask.dtype == bool
     np.testing.assert_array_equal(mask, [[False, True], [False, True]])
 
-    z = np.ma.array(zlist, mask=[[1, 0], [0, 0]])  # type: ignore[no-untyped-call]
+    z = np.ma.array(zlist, mask=[[1, 0], [0, 0]])  # type: ignore[arg-type]
     z[1][1] = np.nan
     zz, mask = _remove_z_mask(z)
     assert isinstance(zz, np.ndarray)
