@@ -40,7 +40,7 @@ def one_loop_one_strip() -> tuple[cpy.PointArray, ...]:
 def xyz_chunk_test() -> tuple[cpy.CoordinateArray, ...]:
     x, y = np.meshgrid(np.arange(5), np.arange(5))
     z = 0.5*np.abs(y - 2) + 0.1*(x - 2)
-    return x, y, z
+    return x, y, z  # type: ignore[return-value]
 
 
 @pytest.mark.parametrize("name", util_test.all_names())

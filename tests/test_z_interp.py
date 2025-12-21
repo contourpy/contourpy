@@ -102,5 +102,5 @@ def test_z_interp_negative(name: str) -> None:
             _ = contour_generator(z=z, name=name, z_interp=ZInterp.Log)
 
     # Mask out negative value so no exception.
-    z = np.ma.masked_less_equal(z, 0.0)  # type: ignore[no-untyped-call]
+    z = np.ma.masked_less_equal(z, 0.0)
     _ = contour_generator(z=z, name=name, z_interp=ZInterp.Log)
