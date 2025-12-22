@@ -362,7 +362,7 @@ jobs:
 
   test-in-docker:
     # In-docker tests are either emulated hardware or musllinux
-    name: In docker ${{ matrix.arch }} ${{ matrix.manylinux_version }}
+    name: In docker ${{ matrix.image }}
     if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
     runs-on: ubuntu-24.04
 
@@ -372,25 +372,21 @@ jobs:
         include:
           # musllinux x86_64.
           - arch: x86_64
-            manylinux_version: musllinux
             image: musllinux_1_2_x86_64
             venv: venv
             test: test
           # musllinux aarch64.
           - arch: aarch64
-            manylinux_version: musllinux
             image: musllinux_1_2_aarch64
             venv: venv
             test: test-no-images
           # ppc64le and s390x: dependencies are conda packages.
           - arch: ppc64le
-            manylinux_version: manylinux2014
-            image: manylinux2014_ppc64le
+            image: manylinux_2_28_ppc64le
             venv: conda
             test: test
           - arch: s390x
-            manylinux_version: manylinux2014
-            image: manylinux2014_s390x
+            image: manylinux_2_28_s390x
             venv: conda
             test: test
 
@@ -405,8 +401,6 @@ jobs:
         uses: docker/setup-qemu-action@v3
         with:
           platforms: all
-          # Temporary workaround
-          image: tonistiigi/binfmt:qemu-v8.1.5
 
       - name: Run inside docker
         uses: addnab/docker-run-action@v3
@@ -423,7 +417,7 @@ jobs:
             if [[ $VENV == "venv" ]]
             then
               echo "==> Create virtual environment"
-              /opt/python/cp312-cp312/bin/python -m venv venv
+              /opt/python/cp314-cp314/bin/python -m venv venv
               . venv/bin/activate
               which python
               python --version
@@ -473,7 +467,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: docker_${{ matrix.arch }}_${{ matrix.manylinux_version }}
+          name: docker_${{ matrix.image }}
           path: result_images/
 
   merge:
