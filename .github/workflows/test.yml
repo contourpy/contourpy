@@ -362,7 +362,7 @@ jobs:
 
   test-in-docker:
     # In-docker tests are either emulated hardware or musllinux
-    name: In docker ${{ matrix.image }}
+    name: In docker ${{ matrix.arch }} ${{ matrix.image }}
     if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
     runs-on: ubuntu-24.04
 
@@ -389,6 +389,11 @@ jobs:
             image: manylinux_2_28_s390x
             venv: conda
             test: test
+          # riscv64: numpy from https://riseproject.gitlab.io/python/wheel_builder/packages/numpy
+          - arch: riscv64
+            image: manylinux_2_39_riscv64
+            venv: venv
+            test: test-no-images
 
     steps:
       - name: Checkout source
@@ -443,6 +448,12 @@ jobs:
 
             echo "==> Upgrade pip"
             python -m pip install --upgrade pip
+
+            if [[ $ARCH == "riscv64" ]]
+            then
+              echo "==> Preinstall riscv64 packages"
+              python -m pip install -v --only-binary=:all: --extra-index-url https://gitlab.com/api/v4/projects/riseproject%2Fpython%2Fwheel_builder/packages/pypi/simple numpy
+            fi
 
             echo "==> Install contourpy with test dependencies"
             python -m pip install -v .[$TEST] --only-binary=numpy
