@@ -38,7 +38,11 @@ conf_data.set('pybind11_version', pybind11_dep.version())
 conf_data.set('meson_backend', meson.backend())
 conf_data.set('build_dir', meson.current_build_dir().replace('\\', '/'))
 conf_data.set('source_dir', meson.current_source_dir().replace('\\', '/'))
-conf_data.set('cross_build', meson.is_cross_build())
+
+# Boolean settings
+conf_data.set('cross_build', meson.is_cross_build() ? 'True' : 'False')
+conf_data.set('debug', get_option('debug') ? 'True' : 'False')
+conf_data.set('vsenv', get_option('vsenv') ? 'True' : 'False')
 
 # Build options
 conf_data.set('build_options', meson.build_options().replace('\\', '/').replace('"', '').replace('\'\'', ''))
@@ -47,9 +51,7 @@ options = [
   'b_vscrt',
   'buildtype',
   'cpp_std',
-  'debug',
   'optimization',
-  'vsenv',
 ]
 foreach option : options
   conf_data.set(option, get_option(option))
