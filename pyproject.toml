@@ -1,8 +1,7 @@
 [build-system]
 build-backend = "mesonpy"
 requires = [
-    "meson >= 1.2.0",
-    "meson-python >= 0.13.1",
+    "meson-python >= 0.18.0",
     "pybind11 >= 2.13.2, != 2.13.3",
 ]
 
@@ -14,7 +13,6 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
@@ -30,7 +28,8 @@ dependencies = [
 ]
 description = "Python library for calculating contours of 2D quadrilateral grids"
 dynamic = ["version"]
-license = {file = "LICENSE"}
+license = "BSD-3-Clause"
+license-files= ["LICENSE"]
 name = "contourpy"
 readme = "README_simple.md"
 requires-python = ">= 3.11"
