@@ -364,7 +364,7 @@ jobs:
     # In-docker tests are either emulated hardware or musllinux
     name: In docker ${{ matrix.arch }} ${{ matrix.image }}
     if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
@@ -373,25 +373,33 @@ jobs:
           # musllinux x86_64.
           - arch: x86_64
             image: musllinux_1_2_x86_64
+            os: ubuntu-24.04
             venv: venv
             test: test
           # musllinux aarch64.
           - arch: aarch64
             image: musllinux_1_2_aarch64
+            os: ubuntu-24.04-arm
             venv: venv
             test: test-no-images
           # ppc64le and s390x: dependencies are conda packages.
           - arch: ppc64le
             image: manylinux_2_28_ppc64le
+            os: ubuntu-24.04
+            qemu: true
             venv: conda
             test: test
           - arch: s390x
             image: manylinux_2_28_s390x
+            os: ubuntu-24.04
+            qemu: true
             venv: conda
             test: test
           # riscv64: numpy from https://riseproject.gitlab.io/python/wheel_builder/packages/numpy
           - arch: riscv64
             image: manylinux_2_39_riscv64
+            os: ubuntu-24.04
+            qemu: true
             venv: venv
             test: test-no-images
 
@@ -402,10 +410,10 @@ jobs:
           fetch-depth: 0
 
       - name: Set up QEMU
-        if: ${{ matrix.arch }} != "x86_64"
+        if: ${{ matrix.qemu }}
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: all
+          platforms: ${{ matrix.arch }}
 
       - name: Run inside docker
         run: |
