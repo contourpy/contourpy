@@ -193,6 +193,19 @@ jobs:
             python-version: "3.13t"
             name: "Test"
             short-name: "test"
+          # Python 3.15-dev and 3.15t-dev
+          - os: ubuntu-24.04
+            python-version: "3.15-dev"
+            name: "Test"
+            short-name: "test"
+            build-numpy: true
+            test-no-images: true
+          - os: ubuntu-24.04
+            python-version: "3.15t-dev"
+            name: "Test"
+            short-name: "test"
+            build-numpy: true
+            test-no-images: true
 
     steps:
       - name: Checkout source
