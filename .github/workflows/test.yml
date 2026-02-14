@@ -364,7 +364,7 @@ jobs:
     # In-docker tests are either emulated hardware or musllinux
     name: In docker ${{ matrix.arch }} ${{ matrix.image }}
     if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
@@ -373,25 +373,33 @@ jobs:
           # musllinux x86_64.
           - arch: x86_64
             image: musllinux_1_2_x86_64
+            os: ubuntu-24.04
             venv: venv
             test: test
           # musllinux aarch64.
           - arch: aarch64
             image: musllinux_1_2_aarch64
+            os: ubuntu-24.04-arm
             venv: venv
             test: test-no-images
           # ppc64le and s390x: dependencies are conda packages.
           - arch: ppc64le
             image: manylinux_2_28_ppc64le
+            os: ubuntu-24.04
+            qemu: true
             venv: conda
             test: test
           - arch: s390x
             image: manylinux_2_28_s390x
+            os: ubuntu-24.04
+            qemu: true
             venv: conda
             test: test
           # riscv64: numpy from https://riseproject.gitlab.io/python/wheel_builder/packages/numpy
           - arch: riscv64
             image: manylinux_2_39_riscv64
+            os: ubuntu-24.04
+            qemu: true
             venv: venv
             test: test-no-images
 
@@ -402,77 +410,76 @@ jobs:
           fetch-depth: 0
 
       - name: Set up QEMU
-        if: ${{ matrix.arch }} != "x86_64"
+        if: ${{ matrix.qemu }}
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: all
+          platforms: ${{ matrix.arch }}
 
       - name: Run inside docker
-        uses: addnab/docker-run-action@v3
-        with:
-          image: quay.io/pypa/${{ matrix.image }}:latest
-          options: -v ${{ github.workspace }}:/work -e ARCH=${{ matrix.arch }} -e VENV=${{ matrix.venv}} -e TEST=${{ matrix.test }}
-          shell: bash
-          run: |
-            echo "-------------------- start --------------------"
-            set -eu
-            uname -a
-            cd /work
+        run: |
+          docker run --rm --platform=linux/${{ matrix.arch }} -v ${{ github.workspace }}:/work \
+            -e ARCH=${{ matrix.arch }} -e VENV=${{ matrix.venv}} -e TEST=${{ matrix.test }} \
+            quay.io/pypa/${{ matrix.image }}:latest /bin/bash -c '
+              echo "-------------------- start --------------------";
+              set -eu;
+              uname -a;
+              cd /work;
 
-            if [[ $VENV == "venv" ]]
-            then
-              echo "==> Create virtual environment"
-              /opt/python/cp314-cp314/bin/python -m venv venv
-              . venv/bin/activate
-              which python
-              python --version
-            else
-              echo "==> Install conda"
-              cd /tmp
-              curl -LO "http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-$ARCH.sh"
-              bash Miniconda3-latest-Linux-$ARCH.sh -p /work/venv -b
-              rm Miniconda3-latest-Linux-$ARCH.sh
-              cd /work
+              if [[ $VENV == "venv" ]];
+              then
+                echo "==> Create virtual environment";
+                /opt/python/cp314-cp314/bin/python -m venv venv;
+                . venv/bin/activate;
+                which python;
+                python --version;
+              else
+                echo "==> Install conda";
+                cd /tmp;
+                curl -LO "http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-$ARCH.sh";
+                bash Miniconda3-latest-Linux-$ARCH.sh -p /work/venv -b;
+                rm Miniconda3-latest-Linux-$ARCH.sh;
+                cd /work;
 
-              echo "==> Activate conda in this shell"
-              . /work/venv/etc/profile.d/conda.sh
+                echo "==> Activate conda in this shell";
+                . /work/venv/etc/profile.d/conda.sh;
 
-              echo "==> Create and activate conda environment"
-              conda create -n my_env -q python=3.12
-              conda activate my_env
+                echo "==> Create and activate conda environment";
+                conda create -n my_env -q python=3.12;
+                conda activate my_env;
 
-              echo "==> Install conda dependencies"
-              conda install -q -c conda-forge -c nodefaults numpy matplotlib Pillow
-              conda list
-            fi
+                echo "==> Install conda dependencies";
+                conda install -q -c conda-forge -c nodefaults numpy matplotlib Pillow;
+                conda list;
+              fi;
 
-            echo "==> Upgrade pip"
-            python -m pip install --upgrade pip
+              echo "==> Upgrade pip";
+              python -m pip install --upgrade pip;
 
-            if [[ $ARCH == "riscv64" ]]
-            then
-              echo "==> Preinstall riscv64 packages"
-              python -m pip install -v --only-binary=:all: --extra-index-url https://gitlab.com/api/v4/projects/riseproject%2Fpython%2Fwheel_builder/packages/pypi/simple numpy
-            fi
+              if [[ $ARCH == "riscv64" ]];
+              then
+                echo "==> Preinstall riscv64 packages";
+                python -m pip install -v --only-binary=:all: --extra-index-url https://gitlab.com/api/v4/projects/riseproject%2Fpython%2Fwheel_builder/packages/pypi/simple numpy;
+              fi;
 
-            echo "==> Install contourpy with test dependencies"
-            python -m pip install -v .[$TEST] --only-binary=numpy
+              echo "==> Install contourpy with test dependencies";
+              python -m pip install -v .[$TEST] --only-binary=numpy;
 
-            echo "==> Smoke test"
-            python -m pip list
-            python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"
-            python -c "import contourpy as c; print('NDEBUG', c._contourpy.NDEBUG)"
+              echo "==> Smoke test";
+              python -m pip list;
+              python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())";
+              python -c "import contourpy as c; print(\"NDEBUG\", c._contourpy.NDEBUG)";
 
-            PYTEST="python -m pytest -v -n auto --color=yes --log-image-diffs"
-            if [[ $TEST == "test-no-images" ]]
-            then
-              echo "==> Run non-image and non-big tests"
-              ${PYTEST} tests/ -k "not (big or image)"
-            else
-              echo "==> Run tests except 'big' ones as on emulated hardware"
-              ${PYTEST} tests/ -k "not big"
-            fi
-            echo "-------------------- end --------------------"
+              PYTEST="python -m pytest -v -n auto --color=yes --log-image-diffs";
+              if [[ $TEST == "test-no-images" ]];
+              then
+                echo "==> Run non-image and non-big tests";
+                ${PYTEST} tests/ -k "not (big or image)";
+              else
+                echo "==> Run tests except big ones as on emulated hardware";
+                ${PYTEST} tests/ -k "not big";
+              fi;
+              echo "-------------------- end --------------------";
+            '
 
       - name: Upload test artifacts
         if: always()
