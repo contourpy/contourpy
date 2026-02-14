@@ -408,7 +408,7 @@ jobs:
           platforms: all
 
       - name: Run inside docker
-        uses: addnab/docker-run-action@v3
+        uses: maus007/docker-run-action-fork@v1
         with:
           image: quay.io/pypa/${{ matrix.image }}:latest
           options: -v ${{ github.workspace }}:/work -e ARCH=${{ matrix.arch }} -e VENV=${{ matrix.venv}} -e TEST=${{ matrix.test }}
