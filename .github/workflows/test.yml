@@ -90,9 +90,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       # Required version of chromium used for Bokeh image tests.
-      CHROME_VER: "118.0.5993.88"
-      CHROME_REV: "chromium_2670"
-
+      CHROME_VER: "141.0.7390.54"
+      CHROME_REV: "chromium_3265"
     strategy:
       fail-fast: false
       matrix:
