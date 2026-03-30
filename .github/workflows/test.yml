@@ -359,7 +359,7 @@ jobs:
 
       - name: Upload coverage
         if: matrix.coverage-files
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: ${{ matrix.coverage-files }}
           token: ${{ secrets.CODECOV_TOKEN }}
