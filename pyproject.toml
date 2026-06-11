@@ -57,6 +57,7 @@ test = [
     # Standard test dependencies.
     "contourpy[test-no-images]",
     "matplotlib",
+    "pre-commit",
     "Pillow",
 ]
 test-no-images = [

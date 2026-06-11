@@ -16,6 +16,9 @@ defaults:
 env:
   PYTEST: python -m pytest -v -n auto --color=yes
 
+permissions:
+  contents: read
+
 jobs:
   test_own_nightlies:
     name: "${{ matrix.os }} deps ${{ matrix.dependencies }}"
@@ -32,12 +35,13 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: ${{ matrix.python-version }}
 
