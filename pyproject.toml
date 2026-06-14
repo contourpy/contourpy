@@ -51,7 +51,7 @@ mypy = [
     "contourpy[bokeh,docs]",
     "bokeh",
     "docutils-stubs",
-    "mypy == 1.19.0",
+    "mypy == 2.1.0",
     "types-Pillow",
 ]
 test = [
