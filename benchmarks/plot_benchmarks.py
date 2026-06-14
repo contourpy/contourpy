@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from asv.util import human_value
 from loader import Loader
@@ -137,7 +137,7 @@ def by_name_and_type(loader: Loader, filled: bool, dataset: str, render: bool, n
         else:
             ax.set_ylim(0, ax.get_ylim()[1]*1.1)  # Magic number.
 
-        loc: str | tuple[float, float] = "best"
+        loc: Literal["best" | "lower left" | "lower right"] | tuple[float, float] = "best"
         if not filled and render and dataset == "random":
             loc = "lower left"
         elif render and dataset == "simple":
