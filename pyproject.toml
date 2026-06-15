@@ -15,7 +15,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Programming Language :: C++",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -24,7 +23,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 dependencies = [
-    "numpy >= 1.25",
+    "numpy >= 2.0",
 ]
 description = "Python library for calculating contours of 2D quadrilateral grids"
 dynamic = ["version"]
@@ -32,12 +31,12 @@ license = "BSD-3-Clause"
 license-files= ["LICENSE"]
 name = "contourpy"
 readme = "README_simple.md"
-requires-python = ">= 3.11"
+requires-python = ">= 3.12"
 
 [project.optional-dependencies]
 docs = [
     "furo",
-    "sphinx < 9.1.0",  # Remove pin when increase min python to 3.12
+    "sphinx",
     "sphinx-copybutton",
 ]
 bokeh = [
@@ -88,8 +87,8 @@ setup = [
 
 
 [tool.cibuildwheel]
-build = "cp{311,312,313,313t,314,314t}-* pp311-*"
-enable = ["pypy", "cpython-prerelease"]
+build = "cp{312,313,313t,314,314t}-*"
+enable = ["cpython-prerelease"]
 skip = "*-musllinux_{ppc64le,riscv64,s390x}"
 test-requires = "pytest"
 test-command = [
@@ -131,7 +130,7 @@ exclude_also = [
 
 [tool.mypy]
 files = ["lib/contourpy", "benchmarks", "docs", "tests"]
-python_version = "3.11"
+python_version = "3.12"
 
 allow_redefinition = true
 check_untyped_defs = true

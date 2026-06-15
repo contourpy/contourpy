@@ -96,7 +96,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, macos-14, macos-15-intel, windows-2022]
-        python-version: ["3.11", "3.12", "3.13", "3.14", "3.14t"]
+        python-version: ["3.12", "3.13", "3.14", "3.14t"]
         name: ["Test"]
         short-name: ["test"]
         include:
@@ -128,32 +128,16 @@ jobs:
             build-numpy-debug: true
           # Test against earliest supported numpy
           - os: ubuntu-24.04
-            python-version: "3.11"
+            python-version: "3.12"
             name: "Test earliest numpy"
             short-name: "test-earliest-numpy"
-            extra-install-args: "numpy==1.25"
+            extra-install-args: "numpy==2.0"
           # Compile using C++11.
           - os: ubuntu-24.04
             python-version: "3.13"
             name: "Test C++11"
             short-name: "test-c++11"
             extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
-          # PyPy 3.11
-          - os: ubuntu-24.04
-            python-version: "pypy3.11"
-            name: "Test"
-            short-name: "test"
-            test-no-images: true
-          - os: macos-14
-            python-version: "pypy3.11"
-            name: "Test"
-            short-name: "test"
-            test-no-images: true
-          - os: windows-2022
-            python-version: "pypy3.11"
-            name: "Test"
-            short-name: "test"
-            test-no-images: true
           # Win32 test.
           - os: windows-2022
             python-version: "3.13"
