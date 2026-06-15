@@ -28,28 +28,46 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Linux
           - os: ubuntu-24.04-arm
             arch: aarch64
+            platform: linux
           - os: ubuntu-24.04
             arch: ppc64le
+            platform: linux
           - os: ubuntu-24.04
             arch: riscv64
+            platform: linux
           - os: ubuntu-24.04
             arch: s390x
+            platform: linux
           - os: ubuntu-24.04
             arch: x86_64
+            platform: linux
 
+          # Pyodide
+          - os: ubuntu-24.04
+            arch: wasm32
+            platform: pyodide
+
+          # Macos
           - os: macOS-14
             arch: arm64
+            platform: macos
           - os: macOS-15-intel
             arch: x86_64
+            platform: macos
 
+          # Windows
           - os: windows-2022
             arch: AMD64
+            platform: windows
           - os: windows-11-arm
             arch: ARM64
+            platform: windows
           - os: windows-2022
             arch: x86
+            platform: windows
 
     steps:
       - name: Checkout source
@@ -81,6 +99,7 @@ jobs:
         uses: pypa/cibuildwheel@v4.1.0
         env:
           CIBW_ARCHS: ${{ matrix.arch }}
+          CIBW_PLATFORM: ${{ matrix.platform }}
 
       - uses: actions/upload-artifact@v7
         with:
