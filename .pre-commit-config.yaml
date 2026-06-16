@@ -2,7 +2,7 @@ exclude: \.(png|svg)$
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
       - id: check-added-large-files
       - id: check-builtin-literals
@@ -18,22 +18,27 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.1
+    rev: 3b3f7c3f57fe9925356faf5fe6230835138be230  # frozen: v0.15.17
     hooks:
       - id: ruff
         args: [--fix]
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a  # frozen: v2.4.2
     hooks:
       - id: codespell
         additional_dependencies:
           - tomli
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.2
+    rev: 75992aaa40730136014f34227e0135f63fc951b4  # frozen: v3.21.2
     hooks:
       - id: pyupgrade
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: 9257c6050c0261b8c57e712f632dc4a8010109a9 # frozen: v1.25.2
+    hooks:
+      - id: zizmor
 
 ci:
   autofix_prs: false
