@@ -88,9 +88,12 @@ setup = [
 
 
 [tool.cibuildwheel]
-build = "cp{312,313,313t,314,314t}-*"
+build = "cp{312,313,313t,314,314t,315,315t}-*"
 enable = ["cpython-prerelease"]
-skip = "*-musllinux_{ppc64le,riscv64,s390x}"
+skip = [
+    "*-musllinux_{ppc64le,riscv64,s390x}",
+    "cp315*_{riscv64,wasm32}",
+]
 test-requires = "pytest"
 test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
@@ -107,6 +110,11 @@ config-settings.setup-args = [
     "-Db_vscrt=mt",
     "-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']"
 ]
+
+[[tool.cibuildwheel.overrides]]
+select = "cp315*"
+inherit.environment = "append"
+environment = { PIP_PRE = "1", PIP_EXTRA_INDEX_URL = "https://pypi.anaconda.org/scientific-python-nightly-wheels/simple/" }
 
 [[tool.cibuildwheel.overrides]]
 select = "*riscv64*"
