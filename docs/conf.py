@@ -15,6 +15,7 @@ extensions = [
     "myst_parser",
     "sphinx_copybutton",
     "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
     "name_supports",
     "name_supports_type",
     "plot_directive",
