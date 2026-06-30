@@ -1,4 +1,4 @@
-# Welcome to ContourPy's documentation!
+# ContourPy documentation
 
 **ContourPy** is a Python library for calculating contours of 2D quadrilateral grids.
 It is written in C++11 and wrapped using {{ pybind11 }}.
