@@ -53,7 +53,7 @@ polygons points and codes are in separate NumPy arrays:
   array([1, 2, 2, 2, 79], dtype=uint8)])
 ```
 
-This can be converted to `FillType.ChunkCombinedOffsetOffset``:
+This can be converted to `FillType.ChunkCombinedOffsetOffset`:
 
 ```python
 >>> filled = convert_filled(filled, cont_gen.fill_type, "ChunkCombinedOffsetOffset")

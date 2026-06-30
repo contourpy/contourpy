@@ -9,7 +9,7 @@ repo = r"https://github.com/contourpy/contourpy"
 
 def convert_line(line: str) -> str:
     line = re.sub(r"#(\d+)", r"[#\1](" + repo + r"/pull/\1)", line)  # PR of form #123
-    line = re.sub(r"@{1}(\w+)", r"[@\1](https://github.com/\1)", line)  # Username of form @name
+    line = re.sub(r"@{1}([\w\-]+)", r"[@\1](https://github.com/\1)", line)  # Username of form @name
     return line
 
 

@@ -211,7 +211,7 @@ functions to reuse the same Selenium WebDriver instance across multiple calls.
 This release supports Python 3.8 to 3.12.
 
 Thanks to new contributor [@shadchin](https://github.com/shadchin) and existing contributors
-[@eli](https://github.com/eli)-schwartz and [@ianthomas23](https://github.com/ianthomas23).
+[@eli-schwartz](https://github.com/eli-schwartz) and [@ianthomas23](https://github.com/ianthomas23).
 
 Enhancements:
 
@@ -252,7 +252,7 @@ removes building of all 32-bit wheels and macOS universal2 wheels.
 
 This release supports Python 3.8 to 3.11.
 
-Thanks to new contributor [@eli](https://github.com/eli)-schwartz.
+Thanks to new contributor [@eli-schwartz](https://github.com/eli-schwartz).
 
 Build system improvements:
 
@@ -323,7 +323,7 @@ Build system and CI improvements:
 This release features major improvements to the robustness of the threaded algorithm on both
 CPython and PyPy.
 
-Thanks to new contributors [@mgorny](https://github.com/mgorny) and [@Zac](https://github.com/Zac)-HD.
+Thanks to new contributors [@mgorny](https://github.com/mgorny) and [@Zac-HD](https://github.com/Zac-HD).
 
 Threaded algorithm improvements:
 

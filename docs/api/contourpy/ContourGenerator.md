@@ -10,12 +10,12 @@
    .. property:: default_fill_type
       :classmethod:
 
-      Return the default `FillType` used by this algorithm.
+      Return the default :class:`~.FillType` used by this algorithm.
 
    .. property:: default_line_type
       :classmethod:
 
-      Return the default `LineType` used by this algorithm.
+      Return the default :class:`~.LineType` used by this algorithm.
 
 .. autoclass:: Mpl2005ContourGenerator
    :show-inheritance:

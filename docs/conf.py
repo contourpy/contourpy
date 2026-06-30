@@ -30,11 +30,15 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_favicon = "_static/contourpy_favicon.ico"
 html_static_path = ["_static"]
-html_theme = "furo"
+html_theme = "sphinx_book_theme"
 html_theme_options = {
-    "dark_logo": "contourpy_logo_horiz_white.svg",
-    "light_logo": "contourpy_logo_horiz.svg",
-    "sidebar_hide_name": True,
+    "logo": {
+        "alt_text": "ContourPy documentation - Home",
+        "image_dark": "_static/contourpy_logo_horiz_white.svg",
+        "image_light": "_static/contourpy_logo_horiz.svg",
+    },
+    "repository_url": "https://github.com/contourpy/contourpy",
+    "use_repository_button": True,
 }
 html_theme_path = ["_themes"]
 
@@ -65,5 +69,9 @@ myst_substitutions = {
     "pyenv": "[pyenv](https://github.com/pyenv/pyenv)",
     "virtualenv": "[virtualenv](https://virtualenv.pypa.io/en/latest)",
 }
+
+python_use_unqualified_type_names = True
+
+templates_path = ["_templates"]
 
 process_changelog()
