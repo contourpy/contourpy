@@ -177,11 +177,6 @@ jobs:
             short-name: "test-nightlies"
             matplotlib-nightly: true
             numpy-nightly: true
-          # Python 3.13 free-threading test.
-          - os: ubuntu-24.04
-            python-version: "3.13t"
-            name: "Test"
-            short-name: "test"
           # Python 3.15-dev and 3.15t-dev
           - os: ubuntu-24.04
             python-version: "3.15-dev"
