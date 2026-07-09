@@ -100,8 +100,14 @@ test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
     'pytest -v {project}/tests/test_minimal.py',
 ]
-# Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
-test-skip = "*_{ppc64le,s390x}"
+
+[tool.cibuildwheel.ios]
+xbuild-tools = ["ninja"]
+# numpy iOS wheels are not on PyPI yet; see https://github.com/numpy/numpy/pull/28759
+# Use the BeeWare independent repository in the meantime.
+environment = { PIP_EXTRA_INDEX_URL = "https://pypi.anaconda.org/beeware/simple" }
+test-sources = ["tests"]
+test-command = "python -m pytest -vv tests/test_minimal.py"
 
 [[tool.cibuildwheel.overrides]]
 # See https://github.com/contourpy/contourpy/issues/424
@@ -124,6 +130,13 @@ select = "*riscv64*"
 # Let's install from rise project for now: https://riseproject.gitlab.io/python/wheel_builder/packages/numpy
 # Note: only manylinux wheel available (no musllinux)
 before-test = "python -m pip install -v --only-binary=:all: --extra-index-url https://gitlab.com/api/v4/projects/riseproject%2Fpython%2Fwheel_builder/packages/pypi/simple numpy "
+
+[[tool.cibuildwheel.overrides]]
+# Reassert the BeeWare NumPy index for iOS. This must come after the cp315* override
+# above, which would otherwise replace PIP_EXTRA_INDEX_URL with the scientific-python
+# nightly index for cp315 iOS builds (NumPy iOS wheels are only on BeeWare).
+select = "*-ios_*"
+environment = { PIP_EXTRA_INDEX_URL = "https://pypi.anaconda.org/beeware/simple" }
 
 [tool.codespell]
 ignore-words-list = "nd,socio-economic"

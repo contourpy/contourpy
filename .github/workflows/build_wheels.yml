@@ -53,13 +53,24 @@ jobs:
             arch: wasm32
             platform: pyodide
 
-          # Macos
+          # macOS
           - os: macOS-14
             arch: arm64
             platform: macos
           - os: macOS-15-intel
             arch: x86_64
             platform: macos
+
+          # iOS
+          - os: macOS-latest
+            arch: arm64_iphoneos
+            platform: ios
+          - os: macOS-latest
+            arch: arm64_iphonesimulator
+            platform: ios
+          - os: macOS-15-intel
+            arch: x86_64_iphonesimulator
+            platform: ios
 
           # Windows
           - os: windows-2022
