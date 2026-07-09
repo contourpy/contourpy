@@ -100,6 +100,8 @@ test-command = [
     'python -c "from contourpy.util import build_config; from pprint import pprint; pprint(build_config())"',
     'pytest -v {project}/tests/test_minimal.py',
 ]
+# Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
+test-skip = "*_{ppc64le,s390x}"
 
 [tool.cibuildwheel.ios]
 xbuild-tools = ["ninja"]
