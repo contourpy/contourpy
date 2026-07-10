@@ -41,6 +41,7 @@ jobs:
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55 # v4.1.0
         env:
           CIBW_PLATFORM: pyodide
+          CIBW_TEST_REQUIRES: pytest pytest-rerunfailures<16
           CIBW_TEST_SOURCES: tests
           CIBW_TEST_COMMAND: pytest -v ./tests --ignore=./tests/test_codebase.py -k "not image and not big"
 
