@@ -22,7 +22,6 @@ permissions:
 jobs:
   build_wheels:
     name: ${{ matrix.platform }} ${{ matrix.arch }} wheels
-    if: github.repository_owner == 'contourpy'
     runs-on: ${{ matrix.os }}
     env:
       CIBW_PRERELEASE_PYTHONS: True
