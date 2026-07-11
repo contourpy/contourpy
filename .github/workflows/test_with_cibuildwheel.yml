@@ -1,4 +1,4 @@
-name: Build and test pyodide
+name: Test (cibuildwheel)
 
 on:
   pull_request:
@@ -21,9 +21,25 @@ permissions:
   contents: read
 
 jobs:
-  build_pyodide:
-    name: Build pyodide wheel
+  cibuildwheel_test:
+    name: Test (${{ matrix.name }})
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: pyodide
+            os: ubuntu-24.04
+            arch: auto
+            platform: pyodide
+          - name: iOS-x86_64
+            os: macos-latest
+            arch: arm64_iphonesimulator
+            platform: ios
+          - name: iOS-x86_64
+            os: macos-15-intel
+            arch: x86_64_iphonesimulator
+            platform: ios
 
     steps:
       - name: Checkout source
@@ -40,7 +56,8 @@ jobs:
       - name: Build and test pyodide wheels
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55 # v4.1.0
         env:
-          CIBW_PLATFORM: pyodide
+          CIBW_PLATFORM: ${{ matrix.platform }}
+          CIBW_ARCHES: ${{ matrix.arch }}
           CIBW_TEST_REQUIRES: pytest pytest-rerunfailures<16
           CIBW_TEST_SOURCES: tests
           CIBW_TEST_COMMAND: pytest -v ./tests --ignore=./tests/test_codebase.py -k "not image and not big"
@@ -48,5 +65,5 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: pyodide-wheels
+          name: ${{ matrix.name }}-wheels
           path: ./wheelhouse/*.whl
