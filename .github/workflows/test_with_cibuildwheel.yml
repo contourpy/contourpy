@@ -60,7 +60,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_TEST_REQUIRES: pytest pytest-rerunfailures<16
           CIBW_TEST_SOURCES: tests
-          CIBW_TEST_COMMAND: pytest -v ./tests --ignore=./tests/test_codebase.py -k "not image and not big"
+          CIBW_TEST_COMMAND: python -m pytest -v ./tests --ignore=./tests/test_codebase.py -k "not image and not big"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
