@@ -32,7 +32,7 @@ jobs:
             os: ubuntu-24.04
             arch: auto
             platform: pyodide
-          - name: iOS-x86_64
+          - name: iOS-arm64
             os: macos-latest
             arch: arm64_iphonesimulator
             platform: ios
@@ -57,7 +57,7 @@ jobs:
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55 # v4.1.0
         env:
           CIBW_PLATFORM: ${{ matrix.platform }}
-          CIBW_ARCHES: ${{ matrix.arch }}
+          CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_TEST_REQUIRES: pytest pytest-rerunfailures<16
           CIBW_TEST_SOURCES: tests
           CIBW_TEST_COMMAND: pytest -v ./tests --ignore=./tests/test_codebase.py -k "not image and not big"
