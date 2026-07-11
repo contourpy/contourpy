@@ -53,7 +53,7 @@ jobs:
         with:
           python-version: 3.13
 
-      - name: Build and test pyodide wheels
+      - name: Build and test wheels
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55 # v4.1.0
         env:
           CIBW_PLATFORM: ${{ matrix.platform }}
