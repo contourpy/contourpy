@@ -67,7 +67,7 @@ jobs:
           # However, the ARM64 simulator and device are sufficiently similar
           # that explicit on-device testing is not generally necessary. This
           # matches the approach taken by PEP 730, and the services offered by
-          # XCode Cloud. See https://peps.python.org/pep-0730/#on-device-testing
+          # Xcode Cloud. See https://peps.python.org/pep-0730/#on-device-testing
           - os: macOS-latest
             arch: arm64_iphoneos
             platform: ios
