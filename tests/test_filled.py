@@ -18,6 +18,11 @@ if TYPE_CHECKING:
     import contourpy._contourpy as cpy
 
 
+def is_old_matplotlib() -> bool:
+    import matplotlib as mpl
+    return mpl.__version_info__ < (3, 12, 0)
+
+
 @pytest.fixture
 def two_outers_one_hole() -> tuple[cpy.CoordinateArray, ...]:
     x, y = np.meshgrid([0., 1., 2., 3.], [0., 1., 2.])
@@ -117,8 +122,10 @@ def test_filled_simple_chunk(name: str, fill_type: FillType, multi: bool) -> Non
             renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
+    mean_threshold = 0.08 if is_old_matplotlib() else None
     compare_images(
-        image_buffer, "filled_simple_chunk.png", f"{name}_{fill_type}_{multi}", mean_threshold=0.12,
+        image_buffer, "filled_simple_chunk.png", f"{name}_{fill_type}_{multi}",
+        mean_threshold=mean_threshold,
     )
 
 
@@ -145,8 +152,10 @@ def test_filled_simple_chunk_threads(fill_type: FillType, thread_count: int) -> 
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
+    mean_threshold = 0.08 if is_old_matplotlib() else None
     compare_images(
-        image_buffer, "filled_simple_chunk.png", f"{fill_type}_{thread_count}", mean_threshold=0.12,
+        image_buffer, "filled_simple_chunk.png", f"{fill_type}_{thread_count}",
+        mean_threshold=mean_threshold,
     )
 
 
@@ -193,9 +202,10 @@ def test_filled_simple_no_corner_mask_chunk(name: str, fill_type: FillType) -> N
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
+    mean_threshold = 0.07 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_simple_no_corner_mask_chunk.png", f"{name}_{fill_type}",
-        mean_threshold=0.11,
+        mean_threshold=mean_threshold,
     )
 
 
@@ -223,9 +233,10 @@ def test_filled_simple_no_corner_mask_chunk_threads(fill_type: FillType, thread_
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
+    mean_threshold = 0.07 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_simple_no_corner_mask_chunk.png", f"{fill_type}_{thread_count}",
-        mean_threshold=0.11,
+        mean_threshold=mean_threshold,
     )
 
 
@@ -274,9 +285,10 @@ def test_filled_simple_corner_mask_chunk(name: str) -> None:
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
+    mean_threshold = 0.07 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_simple_corner_mask_chunk.png", f"{name}_{fill_type}",
-        mean_threshold=0.10,
+        mean_threshold=mean_threshold,
     )
 
 
@@ -305,9 +317,10 @@ def test_filled_simple_corner_mask_chunk_threads(fill_type: FillType, thread_cou
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
+    mean_threshold = 0.07 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_simple_corner_mask_chunk.png", f"{fill_type}_{thread_count}",
-        mean_threshold=0.10,
+        mean_threshold=mean_threshold,
     )
 
 
@@ -388,22 +401,10 @@ def test_filled_random_chunk(name: str, fill_type: FillType, multi: bool) -> Non
             renderer.filled(cont_gen.filled(levels[i], levels[i+1]), fill_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
-    max_threshold = None
-    mean_threshold = None
-    if name == "mpl2005":
-        max_threshold = 128
-        mean_threshold = 0.16
-    elif name in ("serial", "threaded"):
-        if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
-            max_threshold = 99
-            mean_threshold = 0.142
-        else:
-            max_threshold = 135
-            mean_threshold = 0.19
-
+    mean_threshold = 0.14 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_random_chunk.png", f"{name}_{fill_type}_{multi}",
-        max_threshold=max_threshold, mean_threshold=mean_threshold,
+        mean_threshold=mean_threshold,
     )
 
 
@@ -430,16 +431,10 @@ def test_filled_random_chunk_threads(fill_type: FillType, thread_count: int) -> 
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
-    if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
-        max_threshold = 99
-        mean_threshold = 0.142
-    else:
-        max_threshold = 135
-        mean_threshold = 0.19
-
+    mean_threshold = 0.06 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_random_chunk.png", f"{fill_type}_{thread_count}",
-        max_threshold=max_threshold, mean_threshold=mean_threshold,
+        mean_threshold=mean_threshold,
     )
 
 
@@ -486,22 +481,10 @@ def test_filled_random_no_corner_mask_chunk(name: str, fill_type: FillType) -> N
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
-    max_threshold = None
-    mean_threshold = None
-    if name == "mpl2005":
-        max_threshold = 128
-        mean_threshold = 0.19
-    elif name in ("serial", "threaded"):
-        if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
-            max_threshold = 99
-            mean_threshold = 0.18
-        else:
-            max_threshold = 135
-            mean_threshold = 0.23
-
+    mean_threshold = 0.17 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_random_no_corner_mask_chunk.png", f"{name}_{fill_type}",
-        max_threshold=max_threshold, mean_threshold=mean_threshold,
+        mean_threshold=mean_threshold,
     )
 
 
@@ -529,16 +512,10 @@ def test_filled_random_no_corner_mask_chunk_threads(fill_type: FillType, thread_
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
-    if fill_type in (FillType.ChunkCombinedCode, FillType.ChunkCombinedOffset):
-        max_threshold = 99
-        mean_threshold = 0.18
-    else:
-        max_threshold = 135
-        mean_threshold = 0.23
-
+    mean_threshold = 0.07 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_random_no_corner_mask_chunk.png", f"{fill_type}_{thread_count}",
-        max_threshold=max_threshold, mean_threshold=mean_threshold,
+        mean_threshold=mean_threshold,
     )
 
 
@@ -587,15 +564,10 @@ def test_filled_random_corner_mask_chunk(name: str) -> None:
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
-    max_threshold = None
-    mean_threshold = None
-    if name in ("serial", "threaded"):
-        max_threshold = 135
-        mean_threshold = 0.17
-
+    mean_threshold = 0.12 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_random_corner_mask_chunk.png", f"{name}_{fill_type}",
-        max_threshold=max_threshold, mean_threshold=mean_threshold,
+        mean_threshold=mean_threshold,
     )
 
 
@@ -624,9 +596,10 @@ def test_filled_random_corner_mask_chunk_threads(fill_type: FillType, thread_cou
     renderer.multi_filled(cont_gen.multi_filled(levels), fill_type)
     image_buffer = renderer.save_to_buffer()
 
+    mean_threshold = 0.05 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "filled_random_corner_mask_chunk.png", f"{fill_type}_{thread_count}",
-        max_threshold=135, mean_threshold=0.17,
+        mean_threshold=mean_threshold,
     )
 
 

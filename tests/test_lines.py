@@ -395,7 +395,8 @@ def test_lines_random(name: str, line_type: LineType, multi: bool) -> None:
     image_buffer = renderer.save_to_buffer()
 
     compare_images(
-        image_buffer, "lines_random.png", f"{name}_{line_type}_{multi}", max_threshold=103,
+        image_buffer, "lines_random.png", f"{name}_{line_type}_{multi}",
+        max_threshold=103,
     )
 
 
