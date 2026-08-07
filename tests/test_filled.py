@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     import contourpy._contourpy as cpy
 
 
-def is_old_matplotlib():
+def is_old_matplotlib() -> bool:
     import matplotlib as mpl
     return mpl.__version_info__ < (3, 12, 0)
 

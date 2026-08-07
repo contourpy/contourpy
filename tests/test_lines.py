@@ -15,6 +15,11 @@ if TYPE_CHECKING:
     import contourpy._contourpy as cpy
 
 
+def is_old_matplotlib() -> bool:
+    import matplotlib as mpl
+    return mpl.__version_info__ < (3, 12, 0)
+
+
 @pytest.fixture
 def xy_2x2() -> tuple[cpy.CoordinateArray, ...]:
     x, y = np.meshgrid([0.0, 1.0], [0.0, 1.0])
@@ -394,8 +399,10 @@ def test_lines_random(name: str, line_type: LineType, multi: bool) -> None:
             renderer.lines(cont_gen.lines(levels[i]), line_type, color=f"C{i}")
     image_buffer = renderer.save_to_buffer()
 
+    max_threshold = 103 if is_old_matplotlib() else None
     compare_images(
         image_buffer, "lines_random.png", f"{name}_{line_type}_{multi}",
+        max_threshold=max_threshold,
     )
 
 
