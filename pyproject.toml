@@ -89,7 +89,7 @@ setup = [
 
 
 [tool.cibuildwheel]
-build = "cp{312,313,313t,314,314t,315,315t}-*"
+build = "cp315-*"
 enable = ["cpython-prerelease"]
 skip = [
     "*-musllinux_{ppc64le,riscv64,s390x}",
