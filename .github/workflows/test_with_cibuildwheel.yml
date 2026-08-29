@@ -49,7 +49,7 @@ jobs:
           persist-credentials: false
 
       - name: Build and test wheels
-        uses: pypa/cibuildwheel@6647035c7518b517577b76f1f2cf5cf369b1b73d
+        uses: pypa/cibuildwheel@265b435c864ae3e08177af8ec0df0410fcf45ac6
         env:
           CIBW_PLATFORM: ${{ matrix.platform }}
           CIBW_ARCHS: ${{ matrix.arch }}
