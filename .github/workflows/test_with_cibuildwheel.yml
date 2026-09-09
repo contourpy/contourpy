@@ -1,4 +1,4 @@
-name: Test (cibuildwheel)
+name: Test using cibuildwheel
 
 on:
   pull_request:

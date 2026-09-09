@@ -101,7 +101,7 @@ test-command = [
     'pytest -v {project}/tests/test_minimal.py',
 ]
 # Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
-test-skip = "*_{ppc64le,s390x}"
+test-skip = "*_{ppc64le,s390x} cp315-pyodide_wasm32"
 
 [tool.cibuildwheel.ios]
 xbuild-tools = ["ninja"]
