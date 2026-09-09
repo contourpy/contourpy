@@ -93,7 +93,7 @@ build = "cp{312,313,313t,314,314t,315,315t}-*"
 enable = ["cpython-prerelease"]
 skip = [
     "*-musllinux_{ppc64le,riscv64,s390x}",
-    "cp315*_{riscv64,wasm32}",
+    "cp315*_riscv64",
 ]
 test-requires = "pytest"
 test-command = [
