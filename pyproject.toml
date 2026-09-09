@@ -93,7 +93,7 @@ build = "cp{312,313,313t,314,314t,315,315t}-*"
 enable = ["cpython-prerelease"]
 skip = [
     "*-musllinux_{ppc64le,riscv64,s390x}",
-    "cp315*_{riscv64,wasm32}",
+    "cp315*_riscv64",
 ]
 test-requires = "pytest"
 test-command = [
@@ -101,7 +101,7 @@ test-command = [
     'pytest -v {project}/tests/test_minimal.py',
 ]
 # Only test combinations for which a numpy wheel exists to avoid compiling numpy from source.
-test-skip = "*_{ppc64le,s390x}"
+test-skip = "*_{ppc64le,s390x} cp315-pyodide_wasm32"
 
 [tool.cibuildwheel.ios]
 xbuild-tools = ["ninja"]
