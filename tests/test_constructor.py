@@ -293,6 +293,13 @@ def test_name_invalid(xyz_3x3_as_lists: tuple[list[list[int]], ...]) -> None:
         _ = contour_generator(x, y, z, name=name)
 
 
+@pytest.mark.parametrize("name", util_test.all_names())
+def test_name_property(name: str) -> None:
+    z = [[1, 2], [3, 4]]
+    cg = contour_generator(z=z, name=name)
+    assert cg.name == name
+
+
 @pytest.mark.parametrize("name", ["mpl2005", "mpl2014"])
 @pytest.mark.parametrize(
     "line_type", [LineType.Separate, LineType.ChunkCombinedCode, LineType.ChunkCombinedOffset])
@@ -332,6 +339,7 @@ def test_properties(xyz_3x3_as_lists: tuple[list[list[int]], ...], name: str) ->
     _ = cont_gen.corner_mask
     _ = cont_gen.fill_type
     _ = cont_gen.line_type
+    _ = cont_gen.name
     _ = cont_gen.quad_as_tri
     _ = cont_gen.thread_count
     _ = cont_gen.z_interp

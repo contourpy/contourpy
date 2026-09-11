@@ -5,6 +5,8 @@ keyword argument passed to {py:func}`~.contour_generator`. For example:
 
 ```python
 >>> cont_gen = contour_generator(name="serial", ...)
+>>> cont_gen.name
+'serial'
 ```
 
 The four names are {ref}`mpl2005`, {ref}`mpl2014`, {ref}`serial` and {ref}`threaded`.
