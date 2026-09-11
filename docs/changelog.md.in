@@ -1,5 +1,45 @@
 # Changelog
 
+## v1.4.0 (2026-09-11)
+
+ContourPy 1.4.0 introduces a new readonly property `ContourGenerator.name` for the algorithm name,
+adds support for CPython 3.15, and is the first release to upload `pyodide` wheels to PyPI.
+Support for `riscv64` and `iOS` architectures is added but considered experimental, wheels are
+available from the [Scientific Python Nightly Wheels](https://anaconda.org/channels/scientific-python-nightly-wheels)
+service but not PyPI.
+
+Enhancements:
+
+- Add `ContourGenerator.name` readonly property (#566)
+
+Compatibility:
+
+- riscv64 support (#521, #527)
+- Pyodide support (#538, #545, #565)
+- iOS support (#556, #557)
+- CPython 3.15 support (#528, #547)
+
+Code improvements:
+
+- Remove unused `ntotal` argument in mpl2005 `build_cntr_list_v2` (#550)
+
+Documentation improvements:
+
+- Use myst markdown for documentation instead of RST (#551)
+- Switch docs to sphinx book theme (#552)
+
+Build, testing and CI improvements:
+
+- Switch from `macos-13` to `macos-15-intel` github runners (#507)
+- Fully test on python 3.14 (#509)
+- Build intel mac wheels on `macos-15-intel` runner (#513)
+- Update license metadata to use PEP 639 (#525)
+- Update test images for `bokeh` 3.9.0 (#533)
+- Remove use of cirrus CI (#537)
+- Add `zizmor` to `pre-commit` (#546)
+- Remove testing on python 3.13t (#555)
+- Update test images and thresholds (#542, #561)
+
 ## v1.3.3 (2025-07-26)
 
 ContourPy 1.3.3 is a compatibility release adding support for CPython 3.14 and Windows on ARM.
