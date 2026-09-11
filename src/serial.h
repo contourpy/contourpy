@@ -13,6 +13,8 @@ public:
         const MaskArray& mask, bool corner_mask, LineType line_type, FillType fill_type,
         bool quad_as_tri, ZInterp z_interp, index_t x_chunk_size, index_t y_chunk_size);
 
+    virtual const char* get_name() const override;
+
 private:
     friend class BaseContourGenerator<SerialContourGenerator>;
 

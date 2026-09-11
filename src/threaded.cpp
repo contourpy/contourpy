@@ -215,6 +215,11 @@ void ThreadedContourGenerator::export_lines(
     }
 }
 
+const char* ThreadedContourGenerator::get_name() const
+{
+    return "threaded";
+}
+
 index_t ThreadedContourGenerator::get_thread_count() const
 {
     return _n_threads;
