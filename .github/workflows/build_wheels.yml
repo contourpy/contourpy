@@ -79,13 +79,13 @@ jobs:
             platform: ios
 
           # Windows
-          - os: windows-2022
+          - os: windows-2025
             arch: AMD64
             platform: windows
           - os: windows-11-arm
             arch: ARM64
             platform: windows
-          - os: windows-2022
+          - os: windows-2025
             arch: x86
             platform: windows
 
