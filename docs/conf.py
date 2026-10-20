@@ -37,6 +37,7 @@ html_theme_options = {
         "image_dark": "_static/contourpy_logo_horiz_white.svg",
         "image_light": "_static/contourpy_logo_horiz.svg",
     },
+    "navbar_persistent": [],  # Avoid extra search in navbar
     "repository_url": "https://github.com/contourpy/contourpy",
     "use_repository_button": True,
 }
