@@ -54,10 +54,10 @@ jobs:
             platform: pyodide
 
           # macOS
-          - os: macOS-14
+          - os: macos-15
             arch: arm64
             platform: macos
-          - os: macOS-15-intel
+          - os: macos-15-intel
             arch: x86_64
             platform: macos
 
@@ -68,13 +68,13 @@ jobs:
           # that explicit on-device testing is not generally necessary. This
           # matches the approach taken by PEP 730, and the services offered by
           # Xcode Cloud. See https://peps.python.org/pep-0730/#on-device-testing
-          - os: macOS-latest
+          - os: macos-latest
             arch: arm64_iphoneos
             platform: ios
-          - os: macOS-latest
+          - os: macos-latest
             arch: arm64_iphonesimulator
             platform: ios
-          - os: macOS-15-intel
+          - os: macos-15-intel
             arch: x86_64_iphonesimulator
             platform: ios
 
