@@ -340,7 +340,7 @@ jobs:
           lcov --version
           which gcov
           gcov --version
-          lcov --output-file coverage.cpp --capture --directory build --ignore-errors mismatch,negative
+          lcov --output-file coverage.cpp --capture --directory build --ignore-errors mismatch,negative,inconsistent
           lcov --output-file coverage.cpp --extract coverage.cpp $PWD/src/"*"
 
       - name: Upload coverage
