@@ -29,7 +29,7 @@ jobs:
   pre-commit:
     name: pre-commit
     if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -47,7 +47,7 @@ jobs:
   codebase:
     name: codebase
     if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     strategy:
       matrix:
@@ -101,45 +101,45 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, macos-15, macos-15-intel, windows-2022]
+        os: [ubuntu-26.04, macos-15, macos-15-intel, windows-2022]
         python-version: ["3.12", "3.13", "3.14", "3.14t"]
         name: ["Test"]
         short-name: ["test"]
         include:
           # Single run on ubuntu arm
-          - os: ubuntu-24.04-arm
+          - os: ubuntu-26.04-arm
             python-version: "3.13"
             name: "Test"
             short-name: "test"
             test-no-codebase: true
           # Debug build including Python and C++ coverage.
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             python-version: "3.13"
             name: "Test debug with coverage"
             short-name: "test-debug"
             coverage-files: "coverage.lcov,coverage.cpp"
             debug: true
           # Bokeh and text tests with Python (not C++) coverage.
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             python-version: "3.13"
             name: "Test bokeh and text tests with coverage"
             short-name: "test-bokeh"
             coverage-files: "coverage.lcov"
             test-text: true
           # Test against numpy debug build.
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             python-version: "3.13"
             name: "Test numpy debug"
             short-name: "test-numpy-debug"
             build-numpy-debug: true
           # Test against earliest supported numpy
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             python-version: "3.12"
             name: "Test earliest numpy"
             short-name: "test-earliest-numpy"
             extra-install-args: "numpy==2.0"
           # Compile using C++11.
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             python-version: "3.13"
             name: "Test C++11"
             short-name: "test-c++11"
@@ -159,7 +159,7 @@ jobs:
             test-no-codebase: true
             test-no-images: true
           # Test against matplotlib and numpy nightly wheels.
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             python-version: "3.13"
             name: "Nightly wheels"
             short-name: "test-nightlies"
@@ -178,13 +178,13 @@ jobs:
             matplotlib-nightly: true
             numpy-nightly: true
           # Python 3.15-dev and 3.15t-dev
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             python-version: "3.15-dev"
             name: "Test"
             short-name: "test"
             build-numpy: true
             test-no-images: true
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             python-version: "3.15t-dev"
             name: "Test"
             short-name: "test"
@@ -340,7 +340,7 @@ jobs:
           lcov --version
           which gcov
           gcov --version
-          lcov --output-file coverage.cpp --capture --directory build --ignore-errors mismatch,negative
+          lcov --output-file coverage.cpp --capture --directory build --ignore-errors mismatch,negative,inconsistent
           lcov --output-file coverage.cpp --extract coverage.cpp $PWD/src/"*"
 
       - name: Upload coverage
@@ -371,32 +371,32 @@ jobs:
           # musllinux x86_64.
           - arch: x86_64
             image: musllinux_1_2_x86_64
-            os: ubuntu-24.04
+            os: ubuntu-26.04
             venv: venv
             test: test
           # musllinux aarch64.
           - arch: aarch64
             image: musllinux_1_2_aarch64
-            os: ubuntu-24.04-arm
+            os: ubuntu-26.04-arm
             venv: venv
             test: test-no-images
           # ppc64le and s390x: dependencies are conda packages.
           - arch: ppc64le
             image: manylinux_2_28_ppc64le
-            os: ubuntu-24.04
+            os: ubuntu-26.04
             qemu: true
             venv: conda
             test: test
           - arch: s390x
             image: manylinux_2_28_s390x
-            os: ubuntu-24.04
+            os: ubuntu-26.04
             qemu: true
             venv: conda
             test: test
           # riscv64: numpy from https://riseproject.gitlab.io/python/wheel_builder/packages/numpy
           - arch: riscv64
             image: manylinux_2_39_riscv64
-            os: ubuntu-24.04
+            os: ubuntu-26.04
             qemu: true
             venv: venv
             test: test-no-images
@@ -490,7 +490,7 @@ jobs:
   merge:
     name: Merge test artifacts
     if: github.event_name != 'schedule' || github.repository_owner == 'contourpy'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: [test, test-in-docker]
     steps:
       - name: Merge Artifacts

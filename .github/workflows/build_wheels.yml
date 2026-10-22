@@ -32,24 +32,24 @@ jobs:
       matrix:
         include:
           # Linux
-          - os: ubuntu-24.04-arm
+          - os: ubuntu-26.04-arm
             arch: aarch64
             platform: linux
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             arch: ppc64le
             platform: linux
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             arch: riscv64
             platform: linux
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             arch: s390x
             platform: linux
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             arch: x86_64
             platform: linux
 
           # Pyodide
-          - os: ubuntu-24.04
+          - os: ubuntu-26.04
             arch: wasm32
             platform: pyodide
 
@@ -130,7 +130,7 @@ jobs:
   build_sdist:
     name: Build sdist
     if: github.repository_owner == 'contourpy'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -158,7 +158,7 @@ jobs:
 
   merge_wheels:
     name: Merge wheel build artifacts
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build_wheels
     steps:
       - name: Merge artifacts
@@ -171,7 +171,7 @@ jobs:
   upload_nightlies:
     name: Upload nightly wheels
     if: github.repository_owner == 'contourpy' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: merge_wheels
     steps:
       - name: Download merged wheel artifact
