@@ -2073,6 +2073,7 @@ void BaseContourGenerator<Derived>::march_chunk(
             // either C++ vectors or Python NumPy arrays.  Want to group creation of the latter as
             // threaded code needs to lock creation of these to limit access to a single thread.
             if (_direct_points || _direct_line_offsets || _direct_outer_offsets) {
+                // cppcheck-suppress unreadVariable
                 typename Derived::Lock lock(static_cast<Derived&>(*this));
 
                 // Strictly speaking adding the NumPy arrays to return_lists does not need to be
@@ -2128,6 +2129,7 @@ void BaseContourGenerator<Derived>::march_chunk(
 
     if (local.total_point_count == 0) {
         if (_output_chunked) {
+            // cppcheck-suppress unreadVariable
             typename Derived::Lock lock(static_cast<Derived&>(*this));
             for (auto& list : return_lists)
                 list[local.chunk] = py::none();
