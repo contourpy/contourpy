@@ -32,6 +32,7 @@ def test_cppcheck() -> None:
         "-isrc/mpl2005_original.cpp", "--suppress=missingIncludeSystem", "--inline-suppr",
         "--suppress=knownConditionTrueFalse", "--check-level=exhaustive",
         "--suppress=unmatchedSuppression", "--suppress=missingOverride",
+        "--suppress=functionStatic",
     ]
 
     if cpp_version >= Version("2.7"):
