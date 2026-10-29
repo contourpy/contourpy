@@ -101,7 +101,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-26.04, macos-15, macos-15-intel, windows-2022]
+        os: [ubuntu-26.04, macos-15, macos-15-intel, windows-2025]
         python-version: ["3.12", "3.13", "3.14", "3.14t"]
         name: ["Test"]
         short-name: ["test"]
@@ -145,7 +145,7 @@ jobs:
             short-name: "test-c++11"
             extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
           # Win32 test.
-          - os: windows-2022
+          - os: windows-2025
             python-version: "3.13"
             name: "Win32"
             short-name: "test-win32"
@@ -171,7 +171,7 @@ jobs:
             short-name: "test-nightlies"
             matplotlib-nightly: true
             numpy-nightly: true
-          - os: windows-2022
+          - os: windows-2025
             python-version: "3.13"
             name: "Nightly wheels"
             short-name: "test-nightlies"

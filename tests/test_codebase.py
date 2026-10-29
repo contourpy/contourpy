@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from subprocess import run
+import sys
 
 from packaging.version import Version
 import pytest
@@ -16,6 +17,7 @@ def version_is_canonical(version: str) -> bool:
         r"(\.post(0|[1-9][0-9]*))?(\.dev(0|[1-9][0-9]*))?$", version) is not None
 
 
+@pytest.mark.skipif(not sys.platform.startswith("linux"), reason="cppcheck only run on linux")
 def test_cppcheck() -> None:
     # Skip test if cppcheck is not installed.
     cmd = ["cppcheck", "--version"]
