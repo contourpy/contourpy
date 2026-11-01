@@ -95,6 +95,7 @@ enable = ["cpython-prerelease"]
 skip = [
     "*-musllinux_{ppc64le,riscv64,s390x}",
     "cp315*_riscv64",
+    "cp315t-win32",  # Fails tests when built on windows-2025 runners
 ]
 test-requires = "pytest"
 test-command = [
