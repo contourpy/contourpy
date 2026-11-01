@@ -39,7 +39,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Run pre-commit
         uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
@@ -51,7 +51,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.13"]
+        python-version: ["3.14"]
 
     steps:
       - name: Checkout source
@@ -102,33 +102,33 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-26.04, macos-15, macos-15-intel, windows-2025]
-        python-version: ["3.12", "3.13", "3.14", "3.14t"]
+        python-version: ["3.12", "3.13", "3.14", "3.14t", "3.15", "3.15t"]
         name: ["Test"]
         short-name: ["test"]
         include:
           # Single run on ubuntu arm
           - os: ubuntu-26.04-arm
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Test"
             short-name: "test"
             test-no-codebase: true
           # Debug build including Python and C++ coverage.
           - os: ubuntu-26.04
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Test debug with coverage"
             short-name: "test-debug"
             coverage-files: "coverage.lcov,coverage.cpp"
             debug: true
           # Bokeh and text tests with Python (not C++) coverage.
           - os: ubuntu-26.04
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Test bokeh and text tests with coverage"
             short-name: "test-bokeh"
             coverage-files: "coverage.lcov"
             test-text: true
           # Test against numpy debug build.
           - os: ubuntu-26.04
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Test numpy debug"
             short-name: "test-numpy-debug"
             build-numpy-debug: true
@@ -140,56 +140,43 @@ jobs:
             extra-install-args: "numpy==2.0"
           # Compile using C++11.
           - os: ubuntu-26.04
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Test C++11"
             short-name: "test-c++11"
             extra-install-args: "-Csetup-args=-Dcpp_std=c++11"
           # Win32 test.
           - os: windows-2025
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Win32"
             short-name: "test-win32"
             win32: true
             test-no-images: true
           # Single run on Windows arm
           - os: windows-11-arm
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Test"
             short-name: "test"
             test-no-codebase: true
             test-no-images: true
           # Test against matplotlib and numpy nightly wheels.
           - os: ubuntu-26.04
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Nightly wheels"
             short-name: "test-nightlies"
             matplotlib-nightly: true
             numpy-nightly: true
           - os: macos-15
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Nightly wheels"
             short-name: "test-nightlies"
             matplotlib-nightly: true
             numpy-nightly: true
           - os: windows-2025
-            python-version: "3.13"
+            python-version: "3.14"
             name: "Nightly wheels"
             short-name: "test-nightlies"
             matplotlib-nightly: true
             numpy-nightly: true
-          # Python 3.15-dev and 3.15t-dev
-          - os: ubuntu-26.04
-            python-version: "3.15-dev"
-            name: "Test"
-            short-name: "test"
-            build-numpy: true
-            test-no-images: true
-          - os: ubuntu-26.04
-            python-version: "3.15t-dev"
-            name: "Test"
-            short-name: "test"
-            build-numpy: true
-            test-no-images: true
 
     steps:
       - name: Checkout source
